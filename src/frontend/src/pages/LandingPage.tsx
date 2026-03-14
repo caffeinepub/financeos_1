@@ -5,6 +5,7 @@ import {
   ArrowRight,
   BarChart3,
   CalendarDays,
+  ChevronDown,
   CreditCard,
   DollarSign,
   LayoutDashboard,
@@ -13,8 +14,31 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
+const TOP_20_CURRENCIES = [
+  { country: "India", code: "INR", symbol: "₹", flag: "🇮🇳" },
+  { country: "United States", code: "USD", symbol: "$", flag: "🇺🇸" },
+  { country: "European Union", code: "EUR", symbol: "€", flag: "🇪🇺" },
+  { country: "United Kingdom", code: "GBP", symbol: "£", flag: "🇬🇧" },
+  { country: "Japan", code: "JPY", symbol: "¥", flag: "🇯🇵" },
+  { country: "China", code: "CNY", symbol: "¥", flag: "🇨🇳" },
+  { country: "Canada", code: "CAD", symbol: "CA$", flag: "🇨🇦" },
+  { country: "Australia", code: "AUD", symbol: "A$", flag: "🇦🇺" },
+  { country: "Switzerland", code: "CHF", symbol: "Fr", flag: "🇨🇭" },
+  { country: "South Korea", code: "KRW", symbol: "₩", flag: "🇰🇷" },
+  { country: "Singapore", code: "SGD", symbol: "S$", flag: "🇸🇬" },
+  { country: "Hong Kong", code: "HKD", symbol: "HK$", flag: "🇭🇰" },
+  { country: "Sweden", code: "SEK", symbol: "kr", flag: "🇸🇪" },
+  { country: "Norway", code: "NOK", symbol: "kr", flag: "🇳🇴" },
+  { country: "Brazil", code: "BRL", symbol: "R$", flag: "🇧🇷" },
+  { country: "Mexico", code: "MXN", symbol: "MX$", flag: "🇲🇽" },
+  { country: "UAE", code: "AED", symbol: "د.إ", flag: "🇦🇪" },
+  { country: "Saudi Arabia", code: "SAR", symbol: "﷼", flag: "🇸🇦" },
+  { country: "South Africa", code: "ZAR", symbol: "R", flag: "🇿🇦" },
+  { country: "Russia", code: "RUB", symbol: "₽", flag: "🇷🇺" },
+];
 
 const modules = [
   {
@@ -160,8 +184,111 @@ function AnimatedSection({
   );
 }
 
+function CurrencyDropdown({
+  selected,
+  onSelect,
+}: {
+  selected: (typeof TOP_20_CURRENCIES)[0];
+  onSelect: (c: (typeof TOP_20_CURRENCIES)[0]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative" data-ocid="currency.dropdown_menu">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors hover:bg-white/5"
+        style={{
+          borderColor: "oklch(0.28 0.01 240)",
+          color: "oklch(0.85 0 0)",
+          background: "oklch(0.13 0.01 240)",
+        }}
+        data-ocid="currency.select.toggle"
+      >
+        <span className="text-base leading-none">{selected.flag}</span>
+        <span
+          className="font-semibold"
+          style={{ color: "oklch(0.72 0.17 160)" }}
+        >
+          {selected.symbol}
+        </span>
+        <span>{selected.code}</span>
+        <ChevronDown
+          className="w-3.5 h-3.5 transition-transform"
+          style={{
+            color: "oklch(0.55 0 0)",
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+        />
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 mt-2 w-52 rounded-xl border overflow-hidden shadow-2xl z-50"
+          style={{
+            background: "oklch(0.13 0.01 240)",
+            borderColor: "oklch(0.22 0.01 240)",
+            maxHeight: "320px",
+            overflowY: "auto",
+          }}
+        >
+          {TOP_20_CURRENCIES.map((c) => (
+            <button
+              key={c.code}
+              type="button"
+              onClick={() => {
+                onSelect(c);
+                setOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left transition-colors hover:bg-white/5"
+              style={{
+                color:
+                  c.code === selected.code
+                    ? "oklch(0.72 0.17 160)"
+                    : "oklch(0.80 0 0)",
+                background:
+                  c.code === selected.code
+                    ? "oklch(0.72 0.17 160 / 0.08)"
+                    : "transparent",
+              }}
+              data-ocid={`currency.option.${c.code.toLowerCase()}`}
+            >
+              <span className="text-base">{c.flag}</span>
+              <span
+                className="font-semibold w-8"
+                style={{ color: "oklch(0.72 0.17 160)" }}
+              >
+                {c.symbol}
+              </span>
+              <span className="flex-1">{c.code}</span>
+              <span className="text-xs" style={{ color: "oklch(0.50 0 0)" }}>
+                {c.country}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [selectedCurrency, setSelectedCurrency] = useState(
+    TOP_20_CURRENCIES[0], // default INR
+  );
 
   const scrollToFeatures = () => {
     document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
@@ -214,17 +341,23 @@ export default function LandingPage() {
             </button>
           ))}
         </div>
-        <Button
-          onClick={() => navigate("/dashboard")}
-          className="text-sm"
-          style={{
-            background: "oklch(0.72 0.17 160)",
-            color: "oklch(0.08 0.01 240)",
-          }}
-          data-ocid="nav.launch.primary_button"
-        >
-          Launch App
-        </Button>
+        <div className="flex items-center gap-3">
+          <CurrencyDropdown
+            selected={selectedCurrency}
+            onSelect={setSelectedCurrency}
+          />
+          <Button
+            onClick={() => navigate("/dashboard")}
+            className="text-sm"
+            style={{
+              background: "oklch(0.72 0.17 160)",
+              color: "oklch(0.08 0.01 240)",
+            }}
+            data-ocid="nav.launch.primary_button"
+          >
+            Launch App
+          </Button>
+        </div>
       </nav>
 
       {/* Hero */}
@@ -295,8 +428,14 @@ export default function LandingPage() {
               style={{ color: "oklch(0.60 0 0)" }}
             >
               One intelligent platform to manage your portfolio, plan your
-              future, and track every rupee — powered by cutting-edge financial
-              tools.
+              future, and track every{" "}
+              <span
+                className="font-semibold"
+                style={{ color: "oklch(0.72 0.17 160)" }}
+              >
+                {selectedCurrency.symbol}
+              </span>{" "}
+              — powered by cutting-edge financial tools.
             </p>
           </AnimatedSection>
 

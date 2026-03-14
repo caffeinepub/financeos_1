@@ -1,6 +1,7 @@
-import { Pencil, Plus, Shield, Trash2 } from "lucide-react";
+import { Brain, Pencil, Plus, Shield, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { FinancialRule } from "../backend.d";
+import { AIRulesAnalysis } from "../components/AIRulesAnalysis";
 import { FinancialRulesSection } from "../components/FinancialRulesSection";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -42,6 +43,7 @@ export default function FinancialRulesPage() {
   const [editing, setEditing] = useState<FinancialRule | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [showAIAnalysis, setShowAIAnalysis] = useState(false);
 
   const load = () => {
     if (!actor) return;
@@ -100,6 +102,19 @@ export default function FinancialRulesPage() {
     load();
   };
 
+  const handleAIAddRule = async (ruleData: {
+    name: string;
+    ruleType: string;
+    condition: string;
+    threshold: number;
+    action: string;
+    isActive: true;
+  }) => {
+    if (!actor) return;
+    await actor.createFinancialRule({ id: crypto.randomUUID(), ...ruleData });
+    load();
+  };
+
   return (
     <div data-ocid="financialrules.page" className="space-y-6">
       <div className="flex items-center justify-between">
@@ -130,7 +145,21 @@ export default function FinancialRulesPage() {
 
         <TabsContent value="my-rules" className="mt-4">
           <div className="space-y-4">
-            <div className="flex justify-end">
+            {/* Action Bar */}
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <Button
+                variant={showAIAnalysis ? "default" : "outline"}
+                className={`gap-2 ${
+                  showAIAnalysis
+                    ? "bg-gradient-to-r from-violet-500 to-purple-700 text-white border-0 hover:opacity-90"
+                    : "border-violet-200 text-violet-700 hover:bg-violet-50"
+                }`}
+                onClick={() => setShowAIAnalysis((v) => !v)}
+                data-ocid="ai_analysis.toggle_button"
+              >
+                <Brain className="w-4 h-4" />
+                {showAIAnalysis ? "Hide AI Analysis" : "AI Analysis"}
+              </Button>
               <Button
                 data-ocid="financialrules.add_button"
                 onClick={openAdd}
@@ -140,6 +169,19 @@ export default function FinancialRulesPage() {
               </Button>
             </div>
 
+            {/* AI Analysis Panel */}
+            {showAIAnalysis && (
+              <Card className="border-violet-200 shadow-sm">
+                <CardContent className="p-5">
+                  <AIRulesAnalysis
+                    userRules={rules}
+                    onAddRule={handleAIAddRule}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Rules List */}
             {loading ? (
               <div className="space-y-3">
                 {[1, 2].map((i) => (

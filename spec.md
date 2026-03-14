@@ -1,22 +1,27 @@
 # FinanceOS
 
 ## Current State
-All modules (Goals, Portfolio, Budgeting, Loans, Financial Rules) already call backend actor methods for all CRUD operations. A standalone Transactions page exists at `/transactions` with its own sidebar nav entry. The Dashboard has a stat card that links to `/transactions`.
+- Backend is split into `Types.mo` (12 type definitions) and `Storage.mo` (State record + init factory).
+- `main.mo` imports both modules and contains all CRUD logic.
+- `main.mo` still holds a `var idCounter : Nat` and a local `generateId()` function whose body duplicates logic that belongs in a utility module.
+- No `Utils.mo` exists yet.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Nothing new.
+- `src/backend/Utils.mo`: exports a pure `generateId(counter: Nat) : Text` function that combines a counter value with the current timestamp. No mutable state.
 
 ### Modify
-- `Layout.tsx`: Remove the Transactions entry from `navItems`.
-- `App.tsx`: Remove the `TransactionsPage` import and `/transactions` route.
-- `DashboardPage.tsx`: Change the "Transactions" stat card link from `/transactions` to `/budgeting` (transactions are managed in Budgeting > Income & Expenses tab).
+- `src/backend/main.mo`:
+  - Add `import Utils "Utils"`.
+  - Keep `var idCounter : Nat = 0` (mutable state must stay in the actor).
+  - Replace the body of the local `generateId()` wrapper with a delegation to `Utils.generateId(idCounter)`.
+  - No other changes.
 
 ### Remove
-- Transactions nav item and route.
+- Nothing removed from public API or CRUD logic.
 
 ## Implementation Plan
-1. Remove Transactions import and route from App.tsx.
-2. Remove Transactions item from navItems array in Layout.tsx.
-3. Update Transactions stat card in DashboardPage to link to /budgeting instead of /transactions.
+1. Create `Utils.mo` with the pure `generateId(counter)` function.
+2. Update `main.mo` to import `Utils` and delegate `generateId()` to it.
+3. Validate that no logic, UI, or public API is changed.

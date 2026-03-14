@@ -11,6 +11,8 @@ import Array "mo:core/Array";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import Types "Types";
+import Storage "Storage";
+import Utils "Utils";
 
 actor {
   // Initialize the access control system
@@ -31,22 +33,25 @@ actor {
   public type FinancialModel = Types.FinancialModel;
   public type DashboardSummary = Types.DashboardSummary;
 
-  // Per-user data storage
-  let userProfiles = Map.empty<Principal, UserProfile>();
-  let userGoals = Map.empty<Principal, Map.Map<Text, Goal>>();
-  let userPortfolios = Map.empty<Principal, Map.Map<Text, PortfolioHolding>>();
-  let userBudgetCategories = Map.empty<Principal, Map.Map<Text, BudgetCategory>>();
-  let userTransactions = Map.empty<Principal, Map.Map<Text, Transaction>>();
-  let userLoans = Map.empty<Principal, Map.Map<Text, Loan>>();
-  let userRules = Map.empty<Principal, Map.Map<Text, FinancialRule>>();
-  let userEvents = Map.empty<Principal, Map.Map<Text, PlannerEvent>>();
-  let userModels = Map.empty<Principal, Map.Map<Text, FinancialModel>>();
+  // Per-user data storage (all maps live in Storage.mo)
+  let store = Storage.init();
 
-  // Helper function to generate unique IDs
+  // Convenience aliases so the rest of the file is unchanged
+  let userProfiles         = store.userProfiles;
+  let userGoals            = store.userGoals;
+  let userPortfolios       = store.userPortfolios;
+  let userBudgetCategories = store.userBudgetCategories;
+  let userTransactions     = store.userTransactions;
+  let userLoans            = store.userLoans;
+  let userRules            = store.userRules;
+  let userEvents           = store.userEvents;
+  let userModels           = store.userModels;
+
+  // Monotonic counter used by generateId; state lives here, logic lives in Utils.
   var idCounter : Nat = 0;
   func generateId() : Text {
     idCounter += 1;
-    idCounter.toText() # "-" # Time.now().toText();
+    Utils.generateId(idCounter);
   };
 
   // User Profile functions

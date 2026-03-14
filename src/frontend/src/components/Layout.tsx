@@ -1,11 +1,11 @@
 import {
-  ArrowLeftRight,
   BarChart3,
   CalendarDays,
   ChevronDown,
   ChevronRight,
   CreditCard,
   DollarSign,
+  Edit2,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -13,13 +13,24 @@ import {
   Shield,
   Target,
   TrendingUp,
+  User,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useIsMobile } from "../hooks/use-mobile";
+import { useActor } from "../hooks/useActor";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 const portfolioSubItems = [
   { label: "Retirement", path: "/portfolio/Retirement" },
@@ -50,17 +61,27 @@ const navItems = [
   },
   { label: "Financial Rules", path: "/financial-rules", icon: Shield },
   { label: "Loans", path: "/loans", icon: CreditCard },
-  { label: "Transactions", path: "/transactions", icon: ArrowLeftRight },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { clear } = useInternetIdentity();
   const isMobile = useIsMobile();
+  const { actor, isFetching } = useActor();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [portfolioOpen, setPortfolioOpen] = useState(
     location.pathname.startsWith("/portfolio"),
   );
+
+  // Profile state
+  const [profile, setProfile] = useState<{
+    name: string;
+    email: string;
+  } | null>(null);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const isPortfolioActive = location.pathname.startsWith("/portfolio");
 
@@ -68,6 +89,49 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setSidebarOpen(!isMobile);
   }, [isMobile]);
+
+  // Load profile when actor is ready
+  useEffect(() => {
+    if (!actor || isFetching) return;
+    actor
+      .getCallerUserProfile()
+      .then((p) => {
+        setProfile(p);
+      })
+      .catch(() => {
+        // silently ignore
+      });
+  }, [actor, isFetching]);
+
+  const openProfileDialog = () => {
+    setEditName(profile?.name ?? "");
+    setEditEmail(profile?.email ?? "");
+    setProfileDialogOpen(true);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!actor) return;
+    setSaving(true);
+    try {
+      await actor.saveCallerUserProfile({ name: editName, email: editEmail });
+      const updated = await actor.getCallerUserProfile();
+      setProfile(updated);
+      setProfileDialogOpen(false);
+    } catch {
+      // silently ignore
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   const handleNavClick = () => {
     if (isMobile) setSidebarOpen(false);
@@ -180,8 +244,41 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* Logout */}
-        <div className="px-3 py-4 border-t border-slate-700">
+        {/* Profile + Logout */}
+        <div className="px-3 py-4 border-t border-slate-700 space-y-2">
+          {/* Profile section */}
+          <div className="flex items-center gap-2 px-2 py-1.5">
+            <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
+              {profile?.name ? (
+                <span className="text-xs font-bold text-white">
+                  {getInitials(profile.name)}
+                </span>
+              ) : (
+                <User className="w-4 h-4 text-white" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-white truncate">
+                {profile?.name || "Set up profile"}
+              </p>
+              {profile?.email && (
+                <p className="text-xs text-slate-400 truncate">
+                  {profile.email}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              data-ocid="profile.edit_button"
+              onClick={openProfileDialog}
+              className="flex-shrink-0 p-1 rounded hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+              aria-label="Edit profile"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Logout */}
           <Button
             data-ocid="nav.logout.button"
             variant="ghost"
@@ -194,6 +291,55 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Button>
         </div>
       </aside>
+
+      {/* Profile Dialog */}
+      <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+        <DialogContent data-ocid="profile.dialog" className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="profile-name">Name</Label>
+              <Input
+                id="profile-name"
+                data-ocid="profile.name.input"
+                placeholder="Your full name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="profile-email">Email</Label>
+              <Input
+                id="profile-email"
+                data-ocid="profile.email.input"
+                type="email"
+                placeholder="your@email.com"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              data-ocid="profile.cancel_button"
+              variant="outline"
+              onClick={() => setProfileDialogOpen(false)}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
+              data-ocid="profile.save_button"
+              onClick={handleSaveProfile}
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">

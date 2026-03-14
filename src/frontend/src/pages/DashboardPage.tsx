@@ -89,7 +89,7 @@ export default function DashboardPage() {
             label: "Transactions",
             icon: ArrowLeftRight,
             value: loading ? null : Number(summary?.transactionCount ?? 0),
-            path: "/transactions",
+            path: "/budgeting",
             color: "text-violet-600",
           },
           {

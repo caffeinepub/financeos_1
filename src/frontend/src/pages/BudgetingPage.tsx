@@ -1,6 +1,7 @@
 import { BookOpen, Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type BudgetCategory, TransactionType } from "../backend.d";
+import { ExpensesTab } from "../components/budgeting/ExpensesTab";
 import { MonthlyTrackerTab } from "../components/budgeting/MonthlyTrackerTab";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -302,6 +303,7 @@ export default function BudgetingPage() {
       <Tabs defaultValue="categories">
         <TabsList data-ocid="budgeting.tab">
           <TabsTrigger value="categories">Budget Categories</TabsTrigger>
+          <TabsTrigger value="expenses">Income &amp; Expenses</TabsTrigger>
           <TabsTrigger value="tracker">Monthly Tracker</TabsTrigger>
         </TabsList>
 
@@ -442,6 +444,10 @@ export default function BudgetingPage() {
               </table>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="expenses" className="mt-4">
+          <ExpensesTab />
         </TabsContent>
 
         <TabsContent value="tracker" className="mt-4">

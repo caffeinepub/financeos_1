@@ -7,11 +7,9 @@ import FinancialModelPage from "./pages/FinancialModelPage";
 import FinancialPlannerPage from "./pages/FinancialPlannerPage";
 import FinancialRulesPage from "./pages/FinancialRulesPage";
 import GoalsPage from "./pages/GoalsPage";
-import LandingPage from "./pages/LandingPage";
 import LoansPage from "./pages/LoansPage";
 import LoginPage from "./pages/LoginPage";
 import PortfolioPage from "./pages/PortfolioPage";
-import TransactionsPage from "./pages/TransactionsPage";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { identity, isInitializing } = useInternetIdentity();
@@ -34,7 +32,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
         <Route
           path="*"
           element={
@@ -65,7 +62,6 @@ export default function App() {
                     element={<FinancialRulesPage />}
                   />
                   <Route path="/loans" element={<LoansPage />} />
-                  <Route path="/transactions" element={<TransactionsPage />} />
                   <Route
                     path="*"
                     element={<Navigate to="/dashboard" replace />}

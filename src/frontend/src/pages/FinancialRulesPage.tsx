@@ -1,6 +1,7 @@
 import { Pencil, Plus, Shield, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { FinancialRule } from "../backend.d";
+import { FinancialRulesSection } from "../components/FinancialRulesSection";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
@@ -15,6 +16,12 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Skeleton } from "../components/ui/skeleton";
 import { Switch } from "../components/ui/switch";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { Textarea } from "../components/ui/textarea";
 import { useActor } from "../hooks/useActor";
 
@@ -102,102 +109,131 @@ export default function FinancialRulesPage() {
             Define your financial guardrails
           </p>
         </div>
-        <Button
-          data-ocid="financialrules.add_button"
-          onClick={openAdd}
-          className="gap-2"
-        >
-          <Plus className="w-4 h-4" /> Add Rule
-        </Button>
       </div>
 
-      {loading ? (
-        <div className="space-y-3">
-          {[1, 2].map((i) => (
-            <Skeleton key={i} className="h-24" />
-          ))}
-        </div>
-      ) : rules.length === 0 ? (
-        <div
-          data-ocid="financialrules.empty_state"
-          className="flex flex-col items-center justify-center py-16 text-slate-400"
-        >
-          <Shield className="w-12 h-12 mb-3 opacity-30" />
-          <p className="font-medium">No financial rules yet</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {rules.map((r, i) => (
-            <Card key={r.id} data-ocid={`financialrules.item.${i + 1}`}>
-              <CardContent className="p-4 flex items-start gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-slate-800">
-                      {r.name}
-                    </span>
-                    {r.ruleType && (
-                      <Badge variant="outline" className="text-xs">
-                        {r.ruleType}
-                      </Badge>
-                    )}
-                    <Badge
-                      variant={r.isActive ? "default" : "secondary"}
-                      className={`text-xs ${r.isActive ? "bg-emerald-100 text-emerald-700" : ""}`}
-                    >
-                      {r.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                  </div>
-                  <div className="mt-1 text-sm text-slate-500 space-y-0.5">
-                    {r.condition && (
-                      <div>
-                        <span className="text-slate-400">Condition:</span>{" "}
-                        {r.condition}
+      <Tabs defaultValue="knowledge">
+        <TabsList>
+          <TabsTrigger
+            value="knowledge"
+            data-ocid="financialrules.knowledge.tab"
+          >
+            Knowledge Base
+          </TabsTrigger>
+          <TabsTrigger value="my-rules" data-ocid="financialrules.myrules.tab">
+            My Rules
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="knowledge" className="mt-4">
+          <FinancialRulesSection />
+        </TabsContent>
+
+        <TabsContent value="my-rules" className="mt-4">
+          <div className="space-y-4">
+            <div className="flex justify-end">
+              <Button
+                data-ocid="financialrules.add_button"
+                onClick={openAdd}
+                className="gap-2"
+              >
+                <Plus className="w-4 h-4" /> Add Rule
+              </Button>
+            </div>
+
+            {loading ? (
+              <div className="space-y-3">
+                {[1, 2].map((i) => (
+                  <Skeleton key={i} className="h-24" />
+                ))}
+              </div>
+            ) : rules.length === 0 ? (
+              <div
+                data-ocid="financialrules.empty_state"
+                className="flex flex-col items-center justify-center py-16 text-slate-400"
+              >
+                <Shield className="w-12 h-12 mb-3 opacity-30" />
+                <p className="font-medium">No financial rules yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {rules.map((r, i) => (
+                  <Card key={r.id} data-ocid={`financialrules.item.${i + 1}`}>
+                    <CardContent className="p-4 flex items-start gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-slate-800">
+                            {r.name}
+                          </span>
+                          {r.ruleType && (
+                            <Badge variant="outline" className="text-xs">
+                              {r.ruleType}
+                            </Badge>
+                          )}
+                          <Badge
+                            variant={r.isActive ? "default" : "secondary"}
+                            className={`text-xs ${
+                              r.isActive
+                                ? "bg-emerald-100 text-emerald-700"
+                                : ""
+                            }`}
+                          >
+                            {r.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        <div className="mt-1 text-sm text-slate-500 space-y-0.5">
+                          {r.condition && (
+                            <div>
+                              <span className="text-slate-400">Condition:</span>{" "}
+                              {r.condition}
+                            </div>
+                          )}
+                          {r.threshold > 0 && (
+                            <div>
+                              <span className="text-slate-400">Threshold:</span>{" "}
+                              ${r.threshold.toLocaleString()}
+                            </div>
+                          )}
+                          {r.action && (
+                            <div>
+                              <span className="text-slate-400">Action:</span>{" "}
+                              {r.action}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    {r.threshold > 0 && (
-                      <div>
-                        <span className="text-slate-400">Threshold:</span> $
-                        {r.threshold.toLocaleString()}
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          data-ocid={`financialrules.switch.${i + 1}`}
+                          checked={r.isActive}
+                          onCheckedChange={() => toggleActive(r)}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          data-ocid={`financialrules.edit_button.${i + 1}`}
+                          onClick={() => openEdit(r)}
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-red-500"
+                          data-ocid={`financialrules.delete_button.${i + 1}`}
+                          onClick={() => del(r.id)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
-                    )}
-                    {r.action && (
-                      <div>
-                        <span className="text-slate-400">Action:</span>{" "}
-                        {r.action}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    data-ocid={`financialrules.switch.${i + 1}`}
-                    checked={r.isActive}
-                    onCheckedChange={() => toggleActive(r)}
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    data-ocid={`financialrules.edit_button.${i + 1}`}
-                    onClick={() => openEdit(r)}
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-red-500"
-                    data-ocid={`financialrules.delete_button.${i + 1}`}
-                    onClick={() => del(r.id)}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent data-ocid="financialrules.dialog">

@@ -7,6 +7,7 @@ import FinancialModelPage from "./pages/FinancialModelPage";
 import FinancialPlannerPage from "./pages/FinancialPlannerPage";
 import FinancialRulesPage from "./pages/FinancialRulesPage";
 import GoalsPage from "./pages/GoalsPage";
+import LandingPage from "./pages/LandingPage";
 import LoansPage from "./pages/LoansPage";
 import LoginPage from "./pages/LoginPage";
 import PortfolioPage from "./pages/PortfolioPage";
@@ -23,7 +24,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
   if (!identity || identity.getPrincipal().isAnonymous()) {
-    return <LoginPage />;
+    return <Navigate to="/" replace />;
   }
   return <>{children}</>;
 }
@@ -32,6 +33,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Protected app routes */}
         <Route
           path="*"
           element={

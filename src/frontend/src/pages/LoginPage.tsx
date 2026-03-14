@@ -32,7 +32,7 @@ export default function LoginPage() {
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-medium"
           >
             <LogIn className="w-4 h-4 mr-2" />
-            {isLoggingIn ? "Connecting..." : "Sign in with Internet Identity"}
+            {isLoggingIn ? "Connecting..." : "Login"}
           </Button>
 
           <p className="text-xs text-slate-500 text-center mt-4">

@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowLeftRight,
   ArrowRight,
   BarChart3,
   CalendarDays,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 
 const TOP_20_CURRENCIES = [
   { country: "India", code: "INR", symbol: "₹", flag: "🇮🇳" },
@@ -44,65 +44,66 @@ const modules = [
   {
     icon: LayoutDashboard,
     name: "Dashboard",
+    tagline: "Your complete financial picture at a glance",
     description:
-      "At-a-glance financial health with net worth, asset breakdown, and key performance metrics. Your complete financial picture in one view.",
+      "At-a-glance financial health with net worth, asset breakdown, and key performance metrics.",
     path: "/dashboard",
   },
   {
     icon: Target,
     name: "Goals",
+    tagline: "Turn ambitions into measurable milestones",
     description:
-      "Set, track, and achieve financial goals with milestone planning and visual progress tracking. Turn ambitions into measurable targets.",
+      "Set, track, and achieve financial goals with milestone planning and visual progress tracking.",
     path: "/goals",
   },
   {
     icon: TrendingUp,
     name: "Portfolio",
+    tagline: "8 asset classes, one unified view",
     description:
-      "Multi-asset portfolio management across 8 asset classes — Retirement, Mutual Funds, ETFs, Crypto, Commodities, Real Estate, Fixed Income, and more.",
+      "Multi-asset portfolio management across Retirement, Mutual Funds, ETFs, Crypto, Commodities, Real Estate, Fixed Income, and more.",
     path: "/portfolio",
   },
   {
     icon: PiggyBank,
     name: "Budgeting",
+    tagline: "Know your net savings position every month",
     description:
-      "Monthly budget tracking with income vs. planned vs. actual expense analysis. Category-level insights and net savings overview at a glance.",
+      "Monthly budget tracking with income vs. planned vs. actual expense analysis and category-level insights.",
     path: "/budgeting",
   },
   {
     icon: BarChart3,
     name: "Financial Model",
+    tagline: "Scenario-plan your financial future",
     description:
-      "Advanced tabbed modeling across Asset Allocation, Portfolio, Retirement, Insurance, and Crypto. Scenario-plan your financial future with precision.",
+      "Advanced tabbed modeling across Asset Allocation, Portfolio, Retirement, Insurance, and Crypto.",
     path: "/financial-model",
   },
   {
     icon: CalendarDays,
     name: "Financial Planner",
+    tagline: "35+ professional-grade calculators",
     description:
-      "35+ professional-grade calculators across 6 categories: Investment, Retirement, Loan & EMI, Tax, Savings, and Life Planning. Every decision, data-driven.",
+      "Calculators across 6 categories: Investment, Retirement, Loan & EMI, Tax, Savings, and Life Planning.",
     path: "/financial-planner",
   },
   {
     icon: Shield,
     name: "Financial Rules",
+    tagline: "Automate and guide your money decisions",
     description:
-      "Define smart financial rules to automate and guide your money decisions. Build discipline into your financial workflow with intelligent guardrails.",
+      "Define smart financial rules with 80+ knowledge-base rules and AI-driven risk-profile recommendations.",
     path: "/financial-rules",
   },
   {
     icon: CreditCard,
     name: "Loans",
+    tagline: "Know exactly where you stand on every debt",
     description:
-      "Track and manage all loan accounts with amortization schedules, payoff planning, and interest analysis. Know exactly where you stand on every debt.",
+      "Track and manage all loan accounts with amortization schedules, payoff planning, and interest analysis.",
     path: "/loans",
-  },
-  {
-    icon: ArrowLeftRight,
-    name: "Transactions",
-    description:
-      "Comprehensive transaction history with powerful search, filters, and categorization. Every rupee tracked, every pattern revealed.",
-    path: "/transactions",
   },
 ];
 
@@ -286,6 +287,7 @@ function CurrencyDropdown({
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { login, isLoggingIn } = useInternetIdentity();
   const [selectedCurrency, setSelectedCurrency] = useState(
     TOP_20_CURRENCIES[0], // default INR
   );
@@ -299,15 +301,26 @@ export default function LandingPage() {
       className="min-h-screen font-sans"
       style={{ background: "oklch(0.08 0.01 240)" }}
     >
+      {/* Premium top border line */}
+      <div
+        className="fixed top-0 left-0 right-0 h-px z-[60] pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent 0%, oklch(0.72 0.17 160 / 0.8) 40%, oklch(0.72 0.17 160) 50%, oklch(0.72 0.17 160 / 0.8) 60%, transparent 100%)",
+        }}
+      />
+
       {/* Nav */}
       <nav
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b"
         style={{
-          background: "oklch(0.08 0.01 240 / 0.85)",
-          backdropFilter: "blur(12px)",
-          borderColor: "oklch(0.20 0.01 240)",
+          background: "oklch(0.08 0.01 240 / 0.90)",
+          backdropFilter: "blur(16px)",
+          borderColor: "oklch(0.18 0.01 240)",
+          marginTop: "1px",
         }}
       >
+        {/* Logo */}
         <div className="flex items-center gap-2">
           <div
             className="flex items-center justify-center w-8 h-8 rounded-md"
@@ -325,37 +338,24 @@ export default function LandingPage() {
             FinanceOS
           </span>
         </div>
-        <div className="hidden md:flex items-center gap-6">
-          {["Dashboard", "Portfolio", "Planner", "Loans"].map((item) => (
-            <button
-              type="button"
-              key={item}
-              onClick={() =>
-                navigate(`/${item.toLowerCase().replace(" ", "-")}`)
-              }
-              className="text-sm transition-colors hover:text-primary"
-              style={{ color: "oklch(0.60 0 0)" }}
-              data-ocid={`nav.${item.toLowerCase()}.link`}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
+
+        {/* Top-right: Currency dropdown + Login */}
         <div className="flex items-center gap-3">
           <CurrencyDropdown
             selected={selectedCurrency}
             onSelect={setSelectedCurrency}
           />
           <Button
-            onClick={() => navigate("/dashboard")}
-            className="text-sm"
+            onClick={login}
+            disabled={isLoggingIn}
+            className="text-sm font-semibold px-5"
             style={{
               background: "oklch(0.72 0.17 160)",
               color: "oklch(0.08 0.01 240)",
             }}
-            data-ocid="nav.launch.primary_button"
+            data-ocid="nav.login.primary_button"
           >
-            Launch App
+            Login
           </Button>
         </div>
       </nav>
@@ -367,24 +367,32 @@ export default function LandingPage() {
       >
         {/* Dot grid */}
         <div
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-25"
           style={{
             backgroundImage:
-              "radial-gradient(circle, oklch(0.3 0.02 240) 1px, transparent 1px)",
+              "radial-gradient(circle, oklch(0.30 0.02 240) 1px, transparent 1px)",
             backgroundSize: "32px 32px",
           }}
         />
-        {/* Emerald glow */}
+        {/* Emerald glow top-right */}
         <div
-          className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full pointer-events-none"
+          className="absolute top-0 right-0 w-[700px] h-[700px] rounded-full pointer-events-none"
           style={{
             background:
-              "radial-gradient(circle at center, oklch(0.72 0.17 160 / 0.12) 0%, transparent 70%)",
+              "radial-gradient(circle at center, oklch(0.72 0.17 160 / 0.10) 0%, transparent 70%)",
+          }}
+        />
+        {/* Emerald glow bottom-left */}
+        <div
+          className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle at center, oklch(0.72 0.17 160 / 0.06) 0%, transparent 70%)",
           }}
         />
         {/* Bottom fade */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+          className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
           style={{
             background:
               "linear-gradient(to top, oklch(0.08 0.01 240), transparent)",
@@ -392,27 +400,32 @@ export default function LandingPage() {
         />
 
         <div className="relative z-10 max-w-5xl mx-auto">
+          {/* Trust badge */}
           <AnimatedSection delay={0}>
             <div
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium mb-8 border"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-8 border tracking-wide uppercase"
               style={{
-                background: "oklch(0.72 0.17 160 / 0.10)",
-                borderColor: "oklch(0.72 0.17 160 / 0.30)",
+                background: "oklch(0.72 0.17 160 / 0.08)",
+                borderColor: "oklch(0.72 0.17 160 / 0.25)",
                 color: "oklch(0.72 0.17 160)",
               }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              9 Modules · 35+ Calculators · 8 Asset Classes
+              <span
+                className="w-1.5 h-1.5 rounded-full animate-pulse"
+                style={{ background: "oklch(0.72 0.17 160)" }}
+              />
+              Trusted Financial Intelligence Platform
             </div>
           </AnimatedSection>
 
+          {/* Headline */}
           <AnimatedSection delay={100}>
             <h1
               className="font-display font-bold leading-tight mb-6"
               style={{
                 fontSize: "clamp(2.8rem, 7vw, 5.5rem)",
                 color: "oklch(0.95 0 0)",
-                lineHeight: 1.1,
+                lineHeight: 1.08,
               }}
             >
               Your Financial{" "}
@@ -422,37 +435,40 @@ export default function LandingPage() {
             </h1>
           </AnimatedSection>
 
+          {/* Sub-headline */}
           <AnimatedSection delay={200}>
             <p
               className="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
-              style={{ color: "oklch(0.60 0 0)" }}
+              style={{ color: "oklch(0.58 0 0)" }}
             >
               One intelligent platform to manage your portfolio, plan your
               future, and track every{" "}
               <span
-                className="font-semibold"
+                className="font-bold"
                 style={{ color: "oklch(0.72 0.17 160)" }}
               >
                 {selectedCurrency.symbol}
               </span>{" "}
-              — powered by cutting-edge financial tools.
+              with precision — powered by cutting-edge financial tools.
             </p>
           </AnimatedSection>
 
+          {/* CTAs */}
           <AnimatedSection delay={300}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
               <Button
                 size="lg"
-                onClick={() => navigate("/dashboard")}
+                onClick={login}
+                disabled={isLoggingIn}
                 className="px-8 py-3 text-base font-semibold rounded-lg transition-all hover:opacity-90 hover:shadow-lg"
                 style={{
                   background: "oklch(0.72 0.17 160)",
                   color: "oklch(0.08 0.01 240)",
-                  boxShadow: "0 0 30px oklch(0.72 0.17 160 / 0.3)",
+                  boxShadow: "0 0 32px oklch(0.72 0.17 160 / 0.30)",
                 }}
-                data-ocid="hero.launch.primary_button"
+                data-ocid="hero.login.primary_button"
               >
-                Launch App
+                Login
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
               <Button
@@ -461,48 +477,57 @@ export default function LandingPage() {
                 onClick={scrollToFeatures}
                 className="px-8 py-3 text-base font-semibold rounded-lg transition-all hover:bg-white/5"
                 style={{
-                  borderColor: "oklch(0.30 0.01 240)",
-                  color: "oklch(0.80 0 0)",
+                  borderColor: "oklch(0.28 0.01 240)",
+                  color: "oklch(0.78 0 0)",
                   background: "transparent",
                 }}
                 data-ocid="hero.explore.secondary_button"
               >
-                Explore Features
+                Explore Modules
               </Button>
             </div>
           </AnimatedSection>
-        </div>
-      </section>
 
-      {/* Stats bar */}
-      <section
-        className="py-12 px-6 border-y"
-        style={{
-          background: "oklch(0.11 0.01 240)",
-          borderColor: "oklch(0.20 0.01 240)",
-        }}
-      >
-        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
-          {[
-            { value: "35+", label: "Calculators" },
-            { value: "8", label: "Asset Classes" },
-            { value: "9", label: "Core Modules" },
-          ].map(({ value, label }) => (
-            <div key={label}>
-              <div
-                className="text-5xl md:text-6xl font-bold font-display mb-1"
-                style={{ color: "oklch(0.72 0.17 160)" }}
-              >
-                {value}
-              </div>
-              <div
-                className="text-sm tracking-widest uppercase"
-                style={{ color: "oklch(0.50 0 0)" }}
-              >
-                {label}
-              </div>
+          {/* Animated floating stats bar */}
+          <AnimatedSection delay={400}>
+            <div
+              className="inline-flex items-center divide-x rounded-2xl border overflow-hidden"
+              style={{
+                borderColor: "oklch(0.20 0.01 240)",
+                background: "oklch(0.11 0.01 240 / 0.80)",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              {[
+                { value: "35+", label: "Calculators" },
+                { value: "8", label: "Asset Classes" },
+                { value: "8", label: "Core Modules" },
+              ].map(({ value, label }, i) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center px-8 py-4"
+                  style={{
+                    borderColor: "oklch(0.20 0.01 240)",
+                    borderRight:
+                      i < 2 ? "1px solid oklch(0.20 0.01 240)" : "none",
+                  }}
+                >
+                  <span
+                    className="text-2xl font-bold font-display"
+                    style={{ color: "oklch(0.72 0.17 160)" }}
+                  >
+                    {value}
+                  </span>
+                  <span
+                    className="text-xs tracking-widest uppercase mt-0.5"
+                    style={{ color: "oklch(0.48 0 0)" }}
+                  >
+                    {label}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
+          </AnimatedSection>
         </div>
       </section>
 
@@ -512,7 +537,7 @@ export default function LandingPage() {
           <AnimatedSection>
             <div className="text-center mb-16">
               <p
-                className="text-sm tracking-widest uppercase mb-3 font-medium"
+                className="text-sm tracking-widest uppercase mb-3 font-semibold"
                 style={{ color: "oklch(0.72 0.17 160)" }}
               >
                 Everything you need
@@ -524,51 +549,60 @@ export default function LandingPage() {
                   color: "oklch(0.95 0 0)",
                 }}
               >
-                9 Modules. One Platform.
+                8 Powerful Modules. One Platform.
               </h2>
               <p
                 className="max-w-xl mx-auto"
-                style={{ color: "oklch(0.55 0 0)" }}
+                style={{ color: "oklch(0.52 0 0)" }}
               >
-                From daily transaction tracking to long-term retirement
-                modeling, FinanceOS covers every dimension of your financial
-                life.
+                From daily budget tracking to long-term retirement modeling,
+                FinanceOS covers every dimension of your financial life.
               </p>
             </div>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {modules.map((mod, i) => (
               <AnimatedSection key={mod.name} delay={i * 60}>
                 <Link to={mod.path} data-ocid={`modules.item.${i + 1}`}>
                   <div
                     className="group h-full p-6 rounded-xl border cursor-pointer transition-all duration-300 hover:-translate-y-1"
                     style={{
-                      background: "oklch(0.12 0.01 240)",
+                      background:
+                        "linear-gradient(160deg, oklch(0.11 0.015 230), oklch(0.13 0.01 240))",
                       borderColor: "oklch(0.20 0.01 240)",
+                      borderTop: "2px solid oklch(0.72 0.17 160 / 0.25)",
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor =
-                        "oklch(0.72 0.17 160 / 0.4)";
-                      (e.currentTarget as HTMLElement).style.background =
-                        "oklch(0.13 0.015 200)";
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.borderColor = "oklch(0.72 0.17 160 / 0.40)";
+                      el.style.borderTop = "2px solid oklch(0.72 0.17 160)";
+                      el.style.boxShadow =
+                        "0 0 24px oklch(0.72 0.17 160 / 0.08)";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor =
-                        "oklch(0.20 0.01 240)";
-                      (e.currentTarget as HTMLElement).style.background =
-                        "oklch(0.12 0.01 240)";
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.borderColor = "oklch(0.20 0.01 240)";
+                      el.style.borderTop =
+                        "2px solid oklch(0.72 0.17 160 / 0.25)";
+                      el.style.boxShadow = "none";
                     }}
                   >
                     <div
-                      className="flex items-center justify-center w-10 h-10 rounded-lg mb-4"
+                      className="flex items-center justify-center w-12 h-12 rounded-xl mb-4"
                       style={{ background: "oklch(0.72 0.17 160 / 0.12)" }}
                     >
                       <mod.icon
-                        className="w-5 h-5"
+                        className="w-6 h-6"
                         style={{ color: "oklch(0.72 0.17 160)" }}
                       />
                     </div>
+                    <p
+                      className="text-xs font-semibold mb-1 tracking-wide uppercase"
+                      style={{ color: "oklch(0.68 0.14 160)" }}
+                    >
+                      {mod.tagline}
+                    </p>
                     <h3
                       className="font-semibold mb-2 text-base"
                       style={{ color: "oklch(0.92 0 0)" }}
@@ -577,7 +611,7 @@ export default function LandingPage() {
                     </h3>
                     <p
                       className="text-sm leading-relaxed"
-                      style={{ color: "oklch(0.55 0 0)" }}
+                      style={{ color: "oklch(0.52 0 0)" }}
                     >
                       {mod.description}
                     </p>
@@ -604,7 +638,7 @@ export default function LandingPage() {
           <AnimatedSection>
             <div className="text-center mb-16">
               <p
-                className="text-sm tracking-widest uppercase mb-3 font-medium"
+                className="text-sm tracking-widest uppercase mb-3 font-semibold"
                 style={{ color: "oklch(0.72 0.17 160)" }}
               >
                 Core strengths
@@ -776,20 +810,20 @@ export default function LandingPage() {
               className="text-lg mb-10 leading-relaxed"
               style={{ color: "oklch(0.78 0.05 160)" }}
             >
-              Join thousands of users who've moved from spreadsheets to a
-              unified financial OS. Start today — it's free.
+              Start managing your finances — it&apos;s free.
             </p>
             <Button
               size="lg"
-              onClick={() => navigate("/dashboard")}
+              onClick={login}
+              disabled={isLoggingIn}
               className="px-10 py-4 text-base font-bold rounded-lg transition-all hover:shadow-2xl hover:scale-105"
               style={{
                 background: "oklch(0.95 0 0)",
                 color: "oklch(0.12 0.05 200)",
               }}
-              data-ocid="cta.getstarted.primary_button"
+              data-ocid="cta.login.primary_button"
             >
-              Get Started Free
+              Login
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </div>

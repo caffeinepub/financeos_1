@@ -2,6 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -26,6 +36,14 @@ export function RDCalculator() {
     const totalDeposited = P * n;
     return { maturity, interest: maturity - totalDeposited, totalDeposited };
   }, [monthly, rate, tenure]);
+
+  const chartData = [
+    {
+      name: "Summary",
+      "Total Deposited": Math.round(result.totalDeposited),
+      "Interest Earned": Math.round(result.interest),
+    },
+  ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -88,6 +106,37 @@ export function RDCalculator() {
             <span className="font-bold text-2xl text-lime-600">
               {fmt(result.maturity)}
             </span>
+          </div>
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground font-medium mb-1">
+              Breakdown
+            </p>
+            <ResponsiveContainer width="100%" height={140}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" hide />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  width={45}
+                />
+                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Legend iconType="circle" iconSize={8} />
+                <Bar
+                  dataKey="Total Deposited"
+                  fill="#06b6d4"
+                  radius={[3, 3, 0, 0]}
+                />
+                <Bar
+                  dataKey="Interest Earned"
+                  fill="#10b981"
+                  radius={[3, 3, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

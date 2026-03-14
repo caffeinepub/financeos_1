@@ -2,6 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -51,6 +61,15 @@ export function RetirementCalculator() {
     postReturnRate,
     inflationRate,
   ]);
+
+  const chartData = [
+    {
+      name: "Monthly",
+      "Current Expenses": Number.parseFloat(monthlyExpenses) || 0,
+      "Future Expenses": Math.round(result.futureMonthlyExpenses),
+      "SIP Needed": Math.round(result.monthlySIP),
+    },
+  ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -152,6 +171,42 @@ export function RetirementCalculator() {
             <span className="font-bold text-lg text-emerald-600">
               {fmt(result.monthlySIP)}
             </span>
+          </div>
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground font-medium mb-1">
+              Monthly Comparison
+            </p>
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" hide />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  width={45}
+                />
+                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Legend iconType="circle" iconSize={8} />
+                <Bar
+                  dataKey="Current Expenses"
+                  fill="#6366f1"
+                  radius={[3, 3, 0, 0]}
+                />
+                <Bar
+                  dataKey="Future Expenses"
+                  fill="#f97316"
+                  radius={[3, 3, 0, 0]}
+                />
+                <Bar
+                  dataKey="SIP Needed"
+                  fill="#10b981"
+                  radius={[3, 3, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

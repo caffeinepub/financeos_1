@@ -2,6 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -9,6 +19,8 @@ const fmt = (n: number) =>
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(n);
+
+const BAR_COLORS = ["#f97316", "#ef4444"];
 
 export function FIRECalculator() {
   const [currentAge, setCurrentAge] = useState("28");
@@ -26,20 +38,18 @@ export function FIRECalculator() {
     const CS = Number.parseFloat(currentSavings) || 0;
     const r = (Number.parseFloat(expectedReturn) || 12) / 100;
     const inf = (Number.parseFloat(inflation) || 6) / 100;
-    const realReturn = (1 + r) / (1 + inf) - 1;
     const fireNumber = AE * 25;
     const futureFireNumber = AE * (1 + inf) ** years * 25;
     const futureValueCurrentSavings = CS * (1 + r) ** years;
     const needed = futureFireNumber - futureValueCurrentSavings;
     const monthlySavingsNeeded =
       needed > 0 ? (needed * (r / 12)) / ((1 + r / 12) ** (years * 12) - 1) : 0;
-    const yearsToFire = years;
     return {
       fireNumber,
       futureFireNumber,
       monthlySavingsNeeded,
-      yearsToFire,
-      realReturn: realReturn * 100,
+      yearsToFire: years,
+      realReturn: ((1 + r) / (1 + inf) - 1) * 100,
     };
   }, [
     currentAge,
@@ -49,6 +59,11 @@ export function FIRECalculator() {
     expectedReturn,
     inflation,
   ]);
+
+  const chartData = [
+    { name: "FIRE Number", value: Math.round(result.fireNumber) },
+    { name: "Adj. FIRE", value: Math.round(result.futureFireNumber) },
+  ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -143,6 +158,34 @@ export function FIRECalculator() {
             <span className="font-bold text-lg text-orange-600">
               {fmt(result.monthlySavingsNeeded)}
             </span>
+          </div>
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground font-medium mb-1">
+              FIRE Numbers
+            </p>
+            <ResponsiveContainer width="100%" height={140}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v) => `₹${(v / 100000).toFixed(0)}L`}
+                  width={40}
+                />
+                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {chartData.map((entry) => (
+                    <Cell
+                      key={entry.name}
+                      fill={BAR_COLORS[chartData.indexOf(entry)]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

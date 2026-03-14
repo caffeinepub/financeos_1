@@ -2,6 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -24,6 +32,11 @@ export function EMICalculator() {
     const totalInterest = totalPayment - P;
     return { emi, totalPayment, totalInterest };
   }, [loanAmount, interestRate, tenure]);
+
+  const pieData = [
+    { name: "Principal", value: Number.parseFloat(loanAmount) || 0 },
+    { name: "Total Interest", value: result.totalInterest },
+  ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -92,6 +105,28 @@ export function EMICalculator() {
             <span className="font-bold text-2xl text-orange-600">
               {fmt(result.emi)}
             </span>
+          </div>
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground font-medium mb-1">
+              Breakdown
+            </p>
+            <ResponsiveContainer width="100%" height={150}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={55}
+                  dataKey="value"
+                  label={false}
+                >
+                  <Cell fill="#6366f1" />
+                  <Cell fill="#f97316" />
+                </Pie>
+                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Legend iconType="circle" iconSize={10} />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

@@ -2,6 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -9,6 +19,8 @@ const fmt = (n: number) =>
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(n);
+
+const BAR_COLORS = ["#6366f1", "#10b981", "#f59e0b"];
 
 export function GoalCalculator() {
   const [goalAmount, setGoalAmount] = useState("1000000");
@@ -30,6 +42,12 @@ export function GoalCalculator() {
     const lumpsumNeeded = G / (1 + r) ** n;
     return { monthlySIP, lumpsumNeeded, futureValueOfSavings };
   }, [goalAmount, targetYears, currentSavings, expectedReturn]);
+
+  const chartData = [
+    { name: "Goal Amount", value: Number.parseFloat(goalAmount) || 0 },
+    { name: "Savings FV", value: Math.round(result.futureValueOfSavings) },
+    { name: "Lumpsum Today", value: Math.round(result.lumpsumNeeded) },
+  ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -102,6 +120,34 @@ export function GoalCalculator() {
             <span className="font-bold text-lg text-emerald-600">
               {fmt(result.monthlySIP)}
             </span>
+          </div>
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground font-medium mb-1">
+              Goal Overview
+            </p>
+            <ResponsiveContainer width="100%" height={150}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 9 }} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  width={45}
+                />
+                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {chartData.map((entry) => (
+                    <Cell
+                      key={entry.name}
+                      fill={BAR_COLORS[chartData.indexOf(entry)]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

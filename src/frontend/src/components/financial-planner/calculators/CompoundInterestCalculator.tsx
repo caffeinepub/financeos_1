@@ -9,6 +9,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMemo, useState } from "react";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -37,6 +46,17 @@ export function CompoundInterestCalculator() {
       simpleInterest,
       extra: compoundInterest - simpleInterest,
     };
+  }, [principal, rate, time, frequency]);
+
+  const yearlyData = useMemo(() => {
+    const P = Number.parseFloat(principal) || 0;
+    const r = (Number.parseFloat(rate) || 0) / 100;
+    const t = Math.min(Number.parseFloat(time) || 0, 30);
+    const n = Number.parseFloat(frequency) || 1;
+    return Array.from({ length: t + 1 }, (_, i) => ({
+      year: i,
+      amount: Math.round(P * (1 + r / n) ** (n * i)),
+    }));
   }, [principal, rate, time, frequency]);
 
   return (
@@ -124,6 +144,46 @@ export function CompoundInterestCalculator() {
             <span className="font-bold text-2xl text-orange-600">
               {fmt(result.totalAmount)}
             </span>
+          </div>
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground font-medium mb-1">
+              Growth Chart
+            </p>
+            <ResponsiveContainer width="100%" height={160}>
+              <LineChart
+                data={yearlyData}
+                margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  tick={{ fontSize: 10 }}
+                  label={{
+                    value: "Year",
+                    position: "insideBottom",
+                    offset: -2,
+                    fontSize: 10,
+                  }}
+                />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  width={45}
+                />
+                <Tooltip
+                  formatter={(v: number) => fmt(v)}
+                  labelFormatter={(l) => `Year ${l}`}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="amount"
+                  stroke="#6366f1"
+                  dot={{ r: 3 }}
+                  strokeWidth={2}
+                  name="Amount"
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

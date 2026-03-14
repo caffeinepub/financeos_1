@@ -9,6 +9,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -16,6 +26,8 @@ const fmt = (n: number) =>
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(n);
+
+const BAR_COLORS = ["#6366f1", "#10b981"];
 
 export function FDCalculator() {
   const [principal, setPrincipal] = useState("100000");
@@ -31,6 +43,11 @@ export function FDCalculator() {
     const maturity = P * (1 + r / n) ** (n * t);
     return { maturity, interest: maturity - P };
   }, [principal, rate, tenure, compounding]);
+
+  const chartData = [
+    { name: "Principal", value: Number.parseFloat(principal) || 0 },
+    { name: "Interest", value: Math.round(result.interest) },
+  ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -107,6 +124,34 @@ export function FDCalculator() {
             <span className="font-bold text-2xl text-yellow-600">
               {fmt(result.maturity)}
             </span>
+          </div>
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground font-medium mb-1">
+              Breakdown
+            </p>
+            <ResponsiveContainer width="100%" height={140}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  width={45}
+                />
+                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {chartData.map((entry) => (
+                    <Cell
+                      key={entry.name}
+                      fill={BAR_COLORS[chartData.indexOf(entry)]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

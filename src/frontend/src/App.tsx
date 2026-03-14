@@ -16,8 +16,8 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const { identity, isInitializing } = useInternetIdentity();
   if (isInitializing) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950">
-        <div className="text-white text-lg animate-pulse">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <div className="text-slate-600 text-lg animate-pulse">
           Loading FinanceOS...
         </div>
       </div>
@@ -35,7 +35,6 @@ export default function App() {
       <AuthGuard>
         <Layout>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/goals" element={<GoalsPage />} />
             <Route

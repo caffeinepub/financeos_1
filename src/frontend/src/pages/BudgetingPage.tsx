@@ -1,7 +1,7 @@
 import { BookOpen, Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type BudgetCategory, TransactionType } from "../backend.d";
-import { BudgetingTab } from "../components/budgeting/BudgetingTab";
+import { MonthlyTrackerTab } from "../components/budgeting/MonthlyTrackerTab";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
@@ -37,9 +37,10 @@ const emptyForm = {
 };
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
+    maximumFractionDigits: 0,
   }).format(n);
 }
 
@@ -50,7 +51,6 @@ const STANDARD_CATEGORIES: Array<{
   monthlyLimit: number;
   color: string;
 }> = [
-  // Income
   {
     name: "Salary & Wages",
     categoryType: TransactionType.Income,
@@ -87,7 +87,6 @@ const STANDARD_CATEGORIES: Array<{
     monthlyLimit: 0,
     color: "#d1fae5",
   },
-  // Expense
   {
     name: "Housing & Rent",
     categoryType: TransactionType.Expense,
@@ -296,14 +295,14 @@ export default function BudgetingPage() {
       <div>
         <h2 className="text-2xl font-bold text-slate-800">Budgeting</h2>
         <p className="text-slate-500 text-sm mt-1">
-          Manage income, expense categories and transactions
+          Track monthly income, planned expenses, and actual spending
         </p>
       </div>
 
       <Tabs defaultValue="categories">
         <TabsList data-ocid="budgeting.tab">
           <TabsTrigger value="categories">Budget Categories</TabsTrigger>
-          <TabsTrigger value="expenses">Income &amp; Expenses</TabsTrigger>
+          <TabsTrigger value="tracker">Monthly Tracker</TabsTrigger>
         </TabsList>
 
         <TabsContent value="categories" className="space-y-4 mt-4">
@@ -445,8 +444,8 @@ export default function BudgetingPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="expenses" className="mt-4">
-          <BudgetingTab />
+        <TabsContent value="tracker" className="mt-4">
+          <MonthlyTrackerTab />
         </TabsContent>
       </Tabs>
 

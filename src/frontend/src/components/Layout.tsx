@@ -15,8 +15,9 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useIsMobile } from "../hooks/use-mobile";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { Button } from "./ui/button";
 
@@ -55,20 +56,51 @@ const navItems = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { clear } = useInternetIdentity();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [portfolioOpen, setPortfolioOpen] = useState(
     location.pathname.startsWith("/portfolio"),
   );
 
   const isPortfolioActive = location.pathname.startsWith("/portfolio");
 
+  // Auto-open on desktop, auto-close on mobile
+  useEffect(() => {
+    setSidebarOpen(!isMobile);
+  }, [isMobile]);
+
+  const handleNavClick = () => {
+    if (isMobile) setSidebarOpen(false);
+  };
+
+  const closeBackdrop = () => setSidebarOpen(false);
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
+      {/* Mobile backdrop */}
+      {isMobile && sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          className="fixed inset-0 z-40 bg-black/50 cursor-default"
+          onClick={closeBackdrop}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
-        className={`${
-          sidebarOpen ? "w-64" : "w-0 overflow-hidden"
-        } flex-shrink-0 bg-slate-900 text-white flex flex-col transition-all duration-300`}
+        className={`
+          ${
+            isMobile
+              ? `fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ${
+                  sidebarOpen ? "translate-x-0" : "-translate-x-full"
+                }`
+              : `flex-shrink-0 transition-all duration-300 ${
+                  sidebarOpen ? "w-64" : "w-0 overflow-hidden"
+                }`
+          }
+          bg-slate-900 text-white flex flex-col
+        `}
       >
         {/* Logo */}
         <div className="flex items-center gap-2 px-5 py-5 border-b border-slate-700">
@@ -109,6 +141,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         <NavLink
                           key={sub.path}
                           to={sub.path}
+                          onClick={handleNavClick}
                           data-ocid={`nav.portfolio.${sub.label.toLowerCase().replace(/[^a-z0-9]/g, "")}.link`}
                           className={({ isActive }) =>
                             `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
@@ -130,6 +163,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <NavLink
                 key={item.path}
                 to={item.path}
+                onClick={handleNavClick}
                 data-ocid={`nav.${item.label.toLowerCase().replace(/[^a-z0-9]/g, "")}.link`}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
@@ -187,7 +221,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-3 md:p-6">{children}</main>
       </div>
     </div>
   );

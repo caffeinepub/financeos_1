@@ -1,4 +1,13 @@
-import { ArrowLeftRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import {
+  ArrowLeftRight,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   type BudgetCategory,
@@ -113,20 +122,100 @@ export function ExpensesTab() {
   const filtered = transactions.filter((t) => {
     const matchType = typeFilter === "All" || t.transactionType === typeFilter;
     const matchSearch =
-      !search || t.description.toLowerCase().includes(search.toLowerCase());
+      !search ||
+      t.description.toLowerCase().includes(search.toLowerCase()) ||
+      catName(t.categoryId).toLowerCase().includes(search.toLowerCase()) ||
+      t.account.toLowerCase().includes(search.toLowerCase());
     return matchType && matchSearch;
   });
 
-  const totalIncome = filtered
+  // Totals computed from ALL transactions (not just filtered) for summary
+  const allIncome = transactions
     .filter((t) => t.transactionType === TransactionType.Income)
     .reduce((s, t) => s + t.amount, 0);
-  const totalExpense = filtered
+  const allExpense = transactions
+    .filter((t) => t.transactionType === TransactionType.Expense)
+    .reduce((s, t) => s + t.amount, 0);
+  const netBalance = allIncome - allExpense;
+
+  // Totals for filtered view
+  const filteredIncome = filtered
+    .filter((t) => t.transactionType === TransactionType.Income)
+    .reduce((s, t) => s + t.amount, 0);
+  const filteredExpense = filtered
     .filter((t) => t.transactionType === TransactionType.Expense)
     .reduce((s, t) => s + t.amount, 0);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 flex items-center gap-3">
+          <div className="bg-emerald-100 rounded-lg p-2">
+            <TrendingUp className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div>
+            <div className="text-xs text-emerald-600 font-medium">
+              Total Income
+            </div>
+            <div className="text-xl font-bold text-emerald-700">
+              {fmt(allIncome)}
+            </div>
+          </div>
+        </div>
+        <div className="bg-red-50 rounded-xl p-4 border border-red-200 flex items-center gap-3">
+          <div className="bg-red-100 rounded-lg p-2">
+            <TrendingDown className="w-5 h-5 text-red-600" />
+          </div>
+          <div>
+            <div className="text-xs text-red-600 font-medium">
+              Total Expenses
+            </div>
+            <div className="text-xl font-bold text-red-700">
+              {fmt(allExpense)}
+            </div>
+          </div>
+        </div>
+        <div
+          className={`rounded-xl p-4 border flex items-center gap-3 ${
+            netBalance >= 0
+              ? "bg-blue-50 border-blue-200"
+              : "bg-orange-50 border-orange-200"
+          }`}
+        >
+          <div
+            className={`rounded-lg p-2 ${
+              netBalance >= 0 ? "bg-blue-100" : "bg-orange-100"
+            }`}
+          >
+            <Wallet
+              className={`w-5 h-5 ${
+                netBalance >= 0 ? "text-blue-600" : "text-orange-600"
+              }`}
+            />
+          </div>
+          <div>
+            <div
+              className={`text-xs font-medium ${
+                netBalance >= 0 ? "text-blue-600" : "text-orange-600"
+              }`}
+            >
+              Net Balance
+            </div>
+            <div
+              className={`text-xl font-bold ${
+                netBalance >= 0 ? "text-blue-700" : "text-orange-700"
+              }`}
+            >
+              {netBalance >= 0 ? "+" : ""}
+              {fmt(netBalance)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex gap-3 flex-wrap items-center">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
@@ -146,10 +235,20 @@ export function ExpensesTab() {
                 key={t}
                 variant={typeFilter === t ? "default" : "outline"}
                 size="sm"
-                data-ocid={`expenses.${typeof t === "string" ? t.toLowerCase() : "filter"}.tab`}
+                data-ocid={`expenses.${t === "All" ? "all" : t === TransactionType.Income ? "income" : "expense"}.tab`}
                 onClick={() => setTypeFilter(t)}
               >
                 {t}
+                {t !== "All" && (
+                  <span className="ml-1.5 text-xs opacity-70">
+                    (
+                    {
+                      transactions.filter((tx) => tx.transactionType === t)
+                        .length
+                    }
+                    )
+                  </span>
+                )}
               </Button>
             ))}
           </div>
@@ -163,23 +262,27 @@ export function ExpensesTab() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
-          <div className="text-xs text-emerald-600 font-medium">
-            Total Income
-          </div>
-          <div className="text-xl font-bold text-emerald-700">
-            {fmt(totalIncome)}
-          </div>
+      {/* Filtered subtotals when filter is active */}
+      {(typeFilter !== "All" || search) && filtered.length > 0 && (
+        <div className="flex gap-3 text-sm text-slate-500 bg-slate-50 rounded-lg px-4 py-2 border border-slate-100">
+          <span>
+            Showing {filtered.length} transaction
+            {filtered.length !== 1 ? "s" : ""}
+          </span>
+          {filteredIncome > 0 && (
+            <span className="text-emerald-600">
+              Income: {fmt(filteredIncome)}
+            </span>
+          )}
+          {filteredExpense > 0 && (
+            <span className="text-red-600">
+              Expenses: {fmt(filteredExpense)}
+            </span>
+          )}
         </div>
-        <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-          <div className="text-xs text-red-600 font-medium">Total Expenses</div>
-          <div className="text-xl font-bold text-red-700">
-            {fmt(totalExpense)}
-          </div>
-        </div>
-      </div>
+      )}
 
+      {/* Table */}
       {loading ? (
         <Skeleton data-ocid="expenses.loading_state" className="h-64" />
       ) : filtered.length === 0 ? (
@@ -189,6 +292,13 @@ export function ExpensesTab() {
         >
           <ArrowLeftRight className="w-12 h-12 mb-3 opacity-30" />
           <p className="font-medium">No transactions found</p>
+          {search || typeFilter !== "All" ? (
+            <p className="text-xs mt-1">Try adjusting your filters</p>
+          ) : (
+            <p className="text-xs mt-1">
+              Click "Add Transaction" to log your first entry
+            </p>
+          )}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200">
@@ -220,8 +330,25 @@ export function ExpensesTab() {
                   <td className="px-4 py-3 text-slate-500">
                     {t.account || "-"}
                   </td>
-                  <td className="px-4 py-3 text-slate-500">
-                    {catName(t.categoryId)}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      {(() => {
+                        const cat = categories.find(
+                          (c) => c.id === t.categoryId,
+                        );
+                        return cat ? (
+                          <>
+                            <div
+                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: cat.color }}
+                            />
+                            <span className="text-slate-500">{cat.name}</span>
+                          </>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        );
+                      })()}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-center">
@@ -275,6 +402,7 @@ export function ExpensesTab() {
         </div>
       )}
 
+      {/* Add/Edit Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent data-ocid="expenses.dialog">
           <DialogHeader>
@@ -359,11 +487,20 @@ export function ExpensesTab() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
+                  {categories
+                    .filter((c) => c.categoryType === form.transactionType)
+                    .map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  {categories.filter(
+                    (c) => c.categoryType === form.transactionType,
+                  ).length === 0 && (
+                    <SelectItem value="" disabled>
+                      No categories for this type
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>

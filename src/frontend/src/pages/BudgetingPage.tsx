@@ -1,4 +1,4 @@
-import { Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
+import { BookOpen, Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type BudgetCategory, TransactionType } from "../backend.d";
 import { BudgetingTab } from "../components/budgeting/BudgetingTab";
@@ -43,6 +43,167 @@ function fmt(n: number) {
   }).format(n);
 }
 
+// Industry-standard budget categories
+const STANDARD_CATEGORIES: Array<{
+  name: string;
+  categoryType: TransactionType;
+  monthlyLimit: number;
+  color: string;
+}> = [
+  // Income
+  {
+    name: "Salary & Wages",
+    categoryType: TransactionType.Income,
+    monthlyLimit: 0,
+    color: "#10b981",
+  },
+  {
+    name: "Business Income",
+    categoryType: TransactionType.Income,
+    monthlyLimit: 0,
+    color: "#059669",
+  },
+  {
+    name: "Freelance / Consulting",
+    categoryType: TransactionType.Income,
+    monthlyLimit: 0,
+    color: "#34d399",
+  },
+  {
+    name: "Investment Returns",
+    categoryType: TransactionType.Income,
+    monthlyLimit: 0,
+    color: "#6ee7b7",
+  },
+  {
+    name: "Rental Income",
+    categoryType: TransactionType.Income,
+    monthlyLimit: 0,
+    color: "#a7f3d0",
+  },
+  {
+    name: "Other Income",
+    categoryType: TransactionType.Income,
+    monthlyLimit: 0,
+    color: "#d1fae5",
+  },
+  // Expense
+  {
+    name: "Housing & Rent",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#6366f1",
+  },
+  {
+    name: "Groceries & Food",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#f59e0b",
+  },
+  {
+    name: "Utilities & Bills",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#3b82f6",
+  },
+  {
+    name: "Transportation",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#8b5cf6",
+  },
+  {
+    name: "Healthcare & Medical",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#ef4444",
+  },
+  {
+    name: "Insurance",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#ec4899",
+  },
+  {
+    name: "Education",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#06b6d4",
+  },
+  {
+    name: "Entertainment & Leisure",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#a855f7",
+  },
+  {
+    name: "Dining & Restaurants",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#f97316",
+  },
+  {
+    name: "Personal Care & Wellness",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#db2777",
+  },
+  {
+    name: "Clothing & Apparel",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#7c3aed",
+  },
+  {
+    name: "Savings & Investments",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#0ea5e9",
+  },
+  {
+    name: "Debt Payments & EMI",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#dc2626",
+  },
+  {
+    name: "Subscriptions & Software",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#4f46e5",
+  },
+  {
+    name: "Travel & Vacation",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#0891b2",
+  },
+  {
+    name: "Gifts & Donations",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#be185d",
+  },
+  {
+    name: "Childcare & Family",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#d97706",
+  },
+  {
+    name: "Home Maintenance",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#78716c",
+  },
+  {
+    name: "Miscellaneous",
+    categoryType: TransactionType.Expense,
+    monthlyLimit: 0,
+    color: "#94a3b8",
+  },
+];
+
 export default function BudgetingPage() {
   const { actor } = useActor();
   const [categories, setCategories] = useState<BudgetCategory[]>([]);
@@ -51,6 +212,7 @@ export default function BudgetingPage() {
   const [editing, setEditing] = useState<BudgetCategory | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   const load = () => {
     if (!actor) return;
@@ -101,6 +263,27 @@ export default function BudgetingPage() {
     load();
   };
 
+  const seedStandardCategories = async () => {
+    if (!actor) return;
+    setSeeding(true);
+    try {
+      const existingNames = new Set(
+        categories.map((c) => c.name.toLowerCase()),
+      );
+      const toCreate = STANDARD_CATEGORIES.filter(
+        (sc) => !existingNames.has(sc.name.toLowerCase()),
+      );
+      await Promise.all(
+        toCreate.map((sc) =>
+          actor.createBudgetCategory({ id: crypto.randomUUID(), ...sc }),
+        ),
+      );
+      load();
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   const totalIncome = categories
     .filter((c) => c.categoryType === TransactionType.Income)
     .reduce((s, c) => s + c.monthlyLimit, 0);
@@ -124,8 +307,8 @@ export default function BudgetingPage() {
         </TabsList>
 
         <TabsContent value="categories" className="space-y-4 mt-4">
-          <div className="flex items-center justify-between">
-            <div className="grid grid-cols-2 gap-4 flex-1 mr-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="grid grid-cols-2 gap-4 flex-1 min-w-0">
               <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
                 <div className="text-xs text-emerald-600 font-medium">
                   Total Income Budget
@@ -143,13 +326,25 @@ export default function BudgetingPage() {
                 </div>
               </div>
             </div>
-            <Button
-              data-ocid="budgeting.add_button"
-              onClick={openAdd}
-              className="gap-2"
-            >
-              <Plus className="w-4 h-4" /> Add Category
-            </Button>
+            <div className="flex gap-2 flex-shrink-0">
+              <Button
+                data-ocid="budgeting.seed_button"
+                variant="outline"
+                onClick={seedStandardCategories}
+                disabled={seeding}
+                className="gap-2"
+              >
+                <BookOpen className="w-4 h-4" />
+                {seeding ? "Loading..." : "Load Standard Categories"}
+              </Button>
+              <Button
+                data-ocid="budgeting.add_button"
+                onClick={openAdd}
+                className="gap-2"
+              >
+                <Plus className="w-4 h-4" /> Add Category
+              </Button>
+            </div>
           </div>
 
           {loading ? (
@@ -161,6 +356,9 @@ export default function BudgetingPage() {
             >
               <PiggyBank className="w-12 h-12 mb-3 opacity-30" />
               <p className="font-medium">No budget categories yet</p>
+              <p className="text-xs mt-1">
+                Click "Load Standard Categories" to get started quickly
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-slate-200">
@@ -181,7 +379,15 @@ export default function BudgetingPage() {
                       data-ocid={`budgeting.item.${i + 1}`}
                       className="hover:bg-slate-50"
                     >
-                      <td className="px-4 py-3 font-medium">{c.name}</td>
+                      <td className="px-4 py-3 font-medium">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: c.color }}
+                          />
+                          {c.name}
+                        </div>
+                      </td>
                       <td className="px-4 py-3">
                         <Badge
                           variant={

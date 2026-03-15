@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   AlertTriangle,
+  BookOpen,
   CheckCircle,
   PiggyBank,
   TrendingUp,
@@ -60,13 +61,12 @@ export function ModelRetirementTab() {
 
     const inflatedExpense =
       inputs.monthlyExpense * (1 + inputs.inflationRate / 100) ** years;
-    const targetCorpus = (inflatedExpense * 12) / 0.04; // 4% withdrawal rule
+    const targetCorpus = (inflatedExpense * 12) / 0.04;
 
     const ratio = corpus / targetCorpus;
     const status =
       ratio >= 1 ? "on-track" : ratio >= 0.7 ? "needs-attention" : "critical";
 
-    // Growth chart data (every 5 years)
     const chartData: { year: number; savings: number; target: number }[] = [];
     for (let y = 0; y <= years; y += Math.max(1, Math.floor(years / 10))) {
       const months = y * 12;
@@ -83,7 +83,6 @@ export function ModelRetirementTab() {
       });
     }
 
-    // Glide path — age-based equity allocation
     const equityNow = Math.max(20, 100 - inputs.currentAge);
     const equityAtRetirement = Math.max(20, 100 - inputs.retirementAge);
 
@@ -99,6 +98,18 @@ export function ModelRetirementTab() {
       inflatedExpense,
     };
   }, [inputs]);
+
+  // FIRE number
+  const fireNumber = inputs.monthlyExpense * 12 * 25;
+  const fireSIPRate = inputs.expectedReturn / 100 / 12;
+  const fireMonths = (inputs.retirementAge - inputs.currentAge) * 12;
+  const fireSIPNeeded =
+    fireSIPRate === 0
+      ? (fireNumber - inputs.currentSavings) / fireMonths
+      : ((fireNumber -
+          inputs.currentSavings * (1 + fireSIPRate) ** fireMonths) *
+          fireSIPRate) /
+        ((1 + fireSIPRate) ** fireMonths - 1);
 
   const statusConfig = {
     "on-track": {
@@ -145,6 +156,33 @@ export function ModelRetirementTab() {
     },
   ];
 
+  const retirementRules = [
+    {
+      rule: "25x Rule",
+      desc: "Corpus needed = 25x your annual expenses at retirement",
+      color: "text-blue-600",
+      bg: "bg-blue-50 dark:bg-blue-900/20",
+    },
+    {
+      rule: "4% SWR",
+      desc: "Withdraw 4% of corpus annually for 30+ year sustainability (Bengen, 1994)",
+      color: "text-green-600",
+      bg: "bg-green-50 dark:bg-green-900/20",
+    },
+    {
+      rule: "100 − Age",
+      desc: "Equity allocation % = 100 minus your age (classic glide path rule)",
+      color: "text-purple-600",
+      bg: "bg-purple-50 dark:bg-purple-900/20",
+    },
+    {
+      rule: "6-Month Fund",
+      desc: "Always keep 6 months of expenses in liquid assets before investing",
+      color: "text-amber-600",
+      bg: "bg-amber-50 dark:bg-amber-900/20",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <Card className="shadow-premium-lg border-border/50 bg-gradient-to-br from-card to-muted/20">
@@ -156,10 +194,30 @@ export function ModelRetirementTab() {
             Retirement Planning Model
           </CardTitle>
           <CardDescription className="text-base">
-            Project your retirement corpus and assess readiness
+            Project your retirement corpus and assess readiness using
+            industry-standard methods
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Education callout */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-success/10 to-chart-2/10 border border-success/20">
+            <div className="flex items-start gap-3">
+              <BookOpen className="h-5 w-5 text-success shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <div className="font-semibold text-sm">
+                  4% Safe Withdrawal Rate — William Bengen, 1994
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Bengen's landmark study showed that withdrawing 4% of your
+                  retirement corpus annually (adjusted for inflation) has
+                  survived all historical 30-year periods without running out of
+                  money. This means you need 25x your annual expenses as your
+                  retirement corpus (the "25x Rule").
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Inputs */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-xl bg-muted/30">
             {(
@@ -332,6 +390,12 @@ export function ModelRetirementTab() {
                   <span>Equity now (age {inputs.currentAge})</span>
                   <Badge variant="outline">{result.equityNow}%</Badge>
                 </div>
+                <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary/70 rounded-full transition-all"
+                    style={{ width: `${result.equityNow}%` }}
+                  />
+                </div>
                 <div className="flex justify-between items-center">
                   <span>Debt now</span>
                   <Badge variant="outline">{100 - result.equityNow}%</Badge>
@@ -340,6 +404,12 @@ export function ModelRetirementTab() {
                 <div className="flex justify-between items-center">
                   <span>Equity at retirement (age {inputs.retirementAge})</span>
                   <Badge variant="outline">{result.equityAtRetirement}%</Badge>
+                </div>
+                <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-success/70 rounded-full transition-all"
+                    style={{ width: `${result.equityAtRetirement}%` }}
+                  />
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Debt at retirement</span>
@@ -364,6 +434,80 @@ export function ModelRetirementTab() {
               </CardContent>
             </Card>
           </div>
+
+          {/* FIRE Number */}
+          <Card className="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-violet-200/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <span className="text-lg">🔥</span> FIRE Number — Financial
+                Independence, Retire Early
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Your FIRE number is the corpus that makes you financially
+                independent — the point at which your investments can fund your
+                lifestyle forever.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="p-3 rounded-lg bg-violet-100/50 dark:bg-violet-900/20">
+                  <div className="text-xs text-muted-foreground">
+                    Annual Expenses
+                  </div>
+                  <div className="font-bold text-violet-600">
+                    {fmt(inputs.monthlyExpense * 12)}/yr
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-purple-100/50 dark:bg-purple-900/20">
+                  <div className="text-xs text-muted-foreground">
+                    FIRE Number (25x)
+                  </div>
+                  <div className="font-bold text-purple-700 text-lg">
+                    {fmt(fireNumber)}
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-indigo-100/50 dark:bg-indigo-900/20">
+                  <div className="text-xs text-muted-foreground">
+                    SIP Needed to FIRE by {inputs.retirementAge}
+                  </div>
+                  <div className="font-bold text-indigo-600">
+                    {fireSIPNeeded > 0
+                      ? `${fmt(fireSIPNeeded)}/mo`
+                      : "Already Funded!"}
+                  </div>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground p-3 rounded-lg bg-muted/30">
+                <strong>How it works:</strong> Invest until your corpus = 25x
+                annual expenses. Then withdraw 4% per year — your investments
+                grow faster than you withdraw, making it theoretically infinite.
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Key Retirement Rules */}
+          <Card className="bg-gradient-to-br from-muted/20 to-transparent">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-primary" />
+                Key Retirement Rules Every Investor Must Know
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {retirementRules.map((r) => (
+                  <div key={r.rule} className={`p-3 rounded-lg ${r.bg}`}>
+                    <div className={`font-bold text-sm mb-1 ${r.color}`}>
+                      {r.rule}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {r.desc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </CardContent>
       </Card>
     </div>

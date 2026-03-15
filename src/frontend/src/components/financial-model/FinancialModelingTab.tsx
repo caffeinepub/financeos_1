@@ -6,7 +6,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bitcoin, Briefcase, PieChart, PiggyBank, Shield } from "lucide-react";
+import {
+  Bitcoin,
+  BookOpen,
+  Briefcase,
+  GraduationCap,
+  PieChart,
+  PiggyBank,
+  Shield,
+} from "lucide-react";
 import { useState } from "react";
 import {
   Cell,
@@ -17,6 +25,7 @@ import {
   Tooltip,
 } from "recharts";
 import { ModelCryptoPortfolioTab } from "./ModelCryptoPortfolioTab";
+import { ModelFundamentalsTab } from "./ModelFundamentalsTab";
 import { ModelInsuranceTab } from "./ModelInsuranceTab";
 import { ModelPortfolioTab } from "./ModelPortfolioTab";
 import { ModelRetirementTab } from "./ModelRetirementTab";
@@ -31,51 +40,60 @@ function FinancialModelingTab() {
         onValueChange={setActiveSubTab}
         className="space-y-6"
       >
-        <TabsList className="grid w-full max-w-4xl grid-cols-5 h-auto gap-1 p-1 bg-gradient-to-r from-primary/10 to-accent/10">
+        <TabsList className="grid w-full max-w-5xl grid-cols-6 h-auto gap-1 p-1 bg-gradient-to-r from-primary/10 to-accent/10">
           <TabsTrigger
             value="assetallocation"
             data-ocid="financialmodel.assetallocation.tab"
-            className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
+            className="flex items-center gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
           >
-            <PieChart className="h-3 w-3 sm:h-4 sm:w-4" />
+            <PieChart className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
             <span className="hidden sm:inline">Asset Allocation</span>
-            <span className="sm:hidden">Allocation</span>
+            <span className="sm:hidden">Alloc</span>
           </TabsTrigger>
           <TabsTrigger
             value="modelportfolio"
             data-ocid="financialmodel.modelportfolio.tab"
-            className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-chart-1 data-[state=active]:to-chart-2 data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
+            className="flex items-center gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-chart-1 data-[state=active]:to-chart-2 data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
           >
-            <Briefcase className="h-3 w-3 sm:h-4 sm:w-4" />
+            <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
             <span className="hidden sm:inline">Model Portfolio</span>
             <span className="sm:hidden">Portfolio</span>
           </TabsTrigger>
           <TabsTrigger
             value="modelretirement"
             data-ocid="financialmodel.modelretirement.tab"
-            className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-success data-[state=active]:to-chart-2 data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
+            className="flex items-center gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-success data-[state=active]:to-chart-2 data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
           >
-            <PiggyBank className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Model Retirement</span>
-            <span className="sm:hidden">Retirement</span>
+            <PiggyBank className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+            <span className="hidden sm:inline">Retirement</span>
+            <span className="sm:hidden">Retire</span>
           </TabsTrigger>
           <TabsTrigger
             value="modelinsurance"
             data-ocid="financialmodel.modelinsurance.tab"
-            className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-info data-[state=active]:to-chart-4 data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
+            className="flex items-center gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-info data-[state=active]:to-chart-4 data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
           >
-            <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Model Insurance</span>
-            <span className="sm:hidden">Insurance</span>
+            <Shield className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+            <span className="hidden sm:inline">Insurance</span>
+            <span className="sm:hidden">Insure</span>
           </TabsTrigger>
           <TabsTrigger
             value="modelcrypto"
             data-ocid="financialmodel.modelcrypto.tab"
-            className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-warning data-[state=active]:to-chart-3 data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
+            className="flex items-center gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-warning data-[state=active]:to-chart-3 data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
           >
-            <Bitcoin className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Model Crypto</span>
+            <Bitcoin className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+            <span className="hidden sm:inline">Crypto</span>
             <span className="sm:hidden">Crypto</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="fundamentals"
+            data-ocid="financialmodel.fundamentals.tab"
+            className="flex items-center gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-600 data-[state=active]:text-white transition-all duration-300 hover:shadow-md"
+          >
+            <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+            <span className="hidden sm:inline">Fundamentals</span>
+            <span className="sm:hidden">Learn</span>
           </TabsTrigger>
         </TabsList>
 
@@ -93,6 +111,9 @@ function FinancialModelingTab() {
         </TabsContent>
         <TabsContent value="modelcrypto" className="space-y-6">
           <ModelCryptoPortfolioTab />
+        </TabsContent>
+        <TabsContent value="fundamentals" className="space-y-6">
+          <ModelFundamentalsTab />
         </TabsContent>
       </Tabs>
     </div>
@@ -178,6 +199,52 @@ function AssetAllocationTab() {
     }),
   );
 
+  // Historical returns by asset class
+  const historicalReturns = [
+    {
+      asset: "Nifty 50",
+      "10yr": "14%",
+      "20yr": "15%",
+      "30yr": "16%",
+      inflation_adj: "9%",
+    },
+    {
+      asset: "Gold",
+      "10yr": "10%",
+      "20yr": "11%",
+      "30yr": "10%",
+      inflation_adj: "5%",
+    },
+    {
+      asset: "Debt/Bonds",
+      "10yr": "8%",
+      "20yr": "8%",
+      "30yr": "9%",
+      inflation_adj: "2%",
+    },
+    {
+      asset: "Real Estate",
+      "10yr": "7%",
+      "20yr": "9%",
+      "30yr": "10%",
+      inflation_adj: "3%",
+    },
+    {
+      asset: "Fixed Deposit",
+      "10yr": "7%",
+      "20yr": "7%",
+      "30yr": "8%",
+      inflation_adj: "1%",
+    },
+    {
+      asset: "Crypto (BTC)",
+      "10yr": "60%+",
+      "20yr": "N/A",
+      "30yr": "N/A",
+      inflation_adj: "High",
+    },
+  ];
+
   return (
     <div className="space-y-6 animate-fade-in">
       <Card className="shadow-premium-lg border-border/50 bg-gradient-to-br from-card to-muted/20">
@@ -189,11 +256,30 @@ function AssetAllocationTab() {
             Asset Allocation Models
           </CardTitle>
           <CardDescription className="text-base">
-            Industry-standard asset allocation strategies for different risk
-            profiles
+            Industry-standard asset allocation strategies based on Modern
+            Portfolio Theory
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* MPT Education Callout */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
+            <div className="flex items-start gap-3">
+              <BookOpen className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <div className="font-semibold text-sm">
+                  Modern Portfolio Theory (MPT) — Harry Markowitz, 1952
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Combining assets with low or negative correlation reduces
+                  overall portfolio risk without sacrificing returns. This is
+                  the mathematical foundation for diversification. The optimal
+                  portfolio maximises return for a given level of risk (the
+                  "Efficient Frontier").
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {(
               Object.keys(riskProfiles) as Array<keyof typeof riskProfiles>
@@ -343,7 +429,7 @@ function AssetAllocationTab() {
                     <li className="flex items-start gap-2">
                       <span className="text-success font-bold">•</span>
                       <span className="font-semibold">
-                        Expected annual return: 6-8%
+                        Expected annual return: 6–8%
                       </span>
                     </li>
                   </>
@@ -367,14 +453,14 @@ function AssetAllocationTab() {
                     <li className="flex items-start gap-2">
                       <span className="text-primary font-bold">•</span>
                       <span>
-                        Suitable for investors with medium-term goals (5-10
+                        Suitable for investors with medium-term goals (5–10
                         years)
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-primary font-bold">•</span>
                       <span className="font-semibold">
-                        Expected annual return: 10-12%
+                        Expected annual return: 10–12%
                       </span>
                     </li>
                   </>
@@ -404,12 +490,66 @@ function AssetAllocationTab() {
                     <li className="flex items-start gap-2">
                       <span className="text-destructive font-bold">•</span>
                       <span className="font-semibold">
-                        Expected annual return: 14-18%
+                        Expected annual return: 14–18%
                       </span>
                     </li>
                   </>
                 )}
               </ul>
+            </CardContent>
+          </Card>
+
+          {/* Historical Returns Table */}
+          <Card className="bg-gradient-to-br from-muted/20 to-transparent">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">
+                Historical Asset Class Returns (India)
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Approximate annualised returns; actual results vary. Inflation
+                ~6% avg.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg border border-border overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted/50">
+                      <th className="text-left p-2 text-xs font-semibold">
+                        Asset
+                      </th>
+                      <th className="text-right p-2 text-xs font-semibold">
+                        10yr CAGR
+                      </th>
+                      <th className="text-right p-2 text-xs font-semibold">
+                        20yr CAGR
+                      </th>
+                      <th className="text-right p-2 text-xs font-semibold">
+                        30yr CAGR
+                      </th>
+                      <th className="text-right p-2 text-xs font-semibold">
+                        Real Return
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historicalReturns.map((r) => (
+                      <tr
+                        key={r.asset}
+                        className="border-t border-border hover:bg-muted/30"
+                      >
+                        <td className="p-2 text-xs font-medium">{r.asset}</td>
+                        <td className="p-2 text-xs text-right">{r["10yr"]}</td>
+                        <td className="p-2 text-xs text-right">{r["20yr"]}</td>
+                        <td className="p-2 text-xs text-right">{r["30yr"]}</td>
+                        <td className="p-2 text-xs text-right text-green-600 font-semibold">
+                          {r.inflation_adj}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
         </CardContent>

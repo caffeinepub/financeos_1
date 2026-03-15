@@ -14,7 +14,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Activity, BarChart2, Briefcase, TrendingUp } from "lucide-react";
+import {
+  Activity,
+  BarChart2,
+  BookOpen,
+  Briefcase,
+  TrendingUp,
+} from "lucide-react";
 import { useState } from "react";
 import {
   Bar,
@@ -27,7 +33,7 @@ import {
   YAxis,
 } from "recharts";
 
-type Strategy = "growth" | "value" | "dividend" | "index";
+type Strategy = "growth" | "value" | "dividend" | "index" | "india";
 
 interface Holding {
   ticker: string;
@@ -52,6 +58,117 @@ const portfolios: Record<
     bgGradient: string;
   }
 > = {
+  india: {
+    description:
+      "India-focused large-cap portfolio aligned with Nifty 50 market leaders",
+    color: "from-orange-500 to-amber-500",
+    bgGradient: "from-orange-500/10 to-amber-500/10",
+    holdings: [
+      {
+        ticker: "RELIANCE",
+        name: "Reliance Industries",
+        sector: "Conglomerate",
+        weight: 12,
+        rationale: "Energy-to-telecom diversified giant",
+      },
+      {
+        ticker: "TCS",
+        name: "Tata Consultancy Services",
+        sector: "IT Services",
+        weight: 10,
+        rationale: "IT export leader, global delivery model",
+      },
+      {
+        ticker: "HDFC BANK",
+        name: "HDFC Bank",
+        sector: "Private Banking",
+        weight: 10,
+        rationale: "Best-in-class Indian private bank",
+      },
+      {
+        ticker: "INFOSYS",
+        name: "Infosys Ltd",
+        sector: "IT Services",
+        weight: 8,
+        rationale: "Consulting + digital transformation",
+      },
+      {
+        ticker: "ICICI BANK",
+        name: "ICICI Bank",
+        sector: "Private Banking",
+        weight: 8,
+        rationale: "Retail banking + ICICI Pru insurance",
+      },
+      {
+        ticker: "HINDUNILVR",
+        name: "Hindustan Unilever",
+        sector: "FMCG",
+        weight: 7,
+        rationale: "India consumer brand portfolio leader",
+      },
+      {
+        ticker: "KOTAKBANK",
+        name: "Kotak Mahindra Bank",
+        sector: "Private Banking",
+        weight: 7,
+        rationale: "Premium banking + asset management",
+      },
+      {
+        ticker: "BHARTIARTL",
+        name: "Bharti Airtel",
+        sector: "Telecom",
+        weight: 6,
+        rationale: "Telecom duopoly + Africa growth",
+      },
+      {
+        ticker: "LT",
+        name: "Larsen & Toubro",
+        sector: "Engineering",
+        weight: 6,
+        rationale: "Infra + defence capex play",
+      },
+      {
+        ticker: "ASIANPAINT",
+        name: "Asian Paints",
+        sector: "FMCG / Paints",
+        weight: 5,
+        rationale: "Dominant paint market share + pricing power",
+      },
+      {
+        ticker: "MARUTI",
+        name: "Maruti Suzuki",
+        sector: "Automobiles",
+        weight: 5,
+        rationale: "India's top passenger vehicle maker",
+      },
+      {
+        ticker: "SUNPHARMA",
+        name: "Sun Pharmaceutical",
+        sector: "Pharma",
+        weight: 4,
+        rationale: "Largest Indian pharma + US generics",
+      },
+      {
+        ticker: "TITAN",
+        name: "Titan Company",
+        sector: "Jewellery / Watches",
+        weight: 4,
+        rationale: "Premium consumer brand with strong moat",
+      },
+      {
+        ticker: "WIPRO",
+        name: "Wipro Ltd",
+        sector: "IT Services",
+        weight: 4,
+        rationale: "IT services + cloud transformation",
+      },
+    ],
+    metrics: {
+      expectedReturn: "12–16%",
+      volatility: "Medium",
+      sharpeRatio: "1.1",
+    },
+  },
   growth: {
     description: "High-growth technology and innovation-focused companies",
     color: "from-primary to-accent",
@@ -111,7 +228,7 @@ const portfolios: Record<
         name: "Advanced Micro Devices",
         sector: "Semiconductors",
         weight: 7,
-        rationale: "CPU/GPU challenger to Intel/NVIDIA",
+        rationale: "CPU/GPU challenger",
       },
       {
         ticker: "NFLX",
@@ -371,20 +488,52 @@ const COLORS = [
   "#14b8a6",
   "#f97316",
   "#84cc16",
+  "#a78bfa",
+  "#fb923c",
+  "#34d399",
+  "#60a5fa",
 ];
 
 const strategyLabels: Record<Strategy, string> = {
+  india: "India",
   growth: "Growth",
   value: "Value",
   dividend: "Dividend",
   index: "Index",
 };
 
+const factorInvesting = [
+  {
+    factor: "Quality",
+    desc: "High ROE/ROCE, low debt, consistent earnings",
+    color: "text-blue-600",
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+  },
+  {
+    factor: "Value",
+    desc: "Low P/E, P/B ratios vs peers; margin of safety",
+    color: "text-green-600",
+    bg: "bg-green-50 dark:bg-green-900/20",
+  },
+  {
+    factor: "Momentum",
+    desc: "Stocks trending upward; 52-week high breakouts",
+    color: "text-purple-600",
+    bg: "bg-purple-50 dark:bg-purple-900/20",
+  },
+  {
+    factor: "Low Vol",
+    desc: "Beta < 1; less volatile than market; steady compounders",
+    color: "text-amber-600",
+    bg: "bg-amber-50 dark:bg-amber-900/20",
+  },
+];
+
 export function ModelPortfolioTab() {
-  const [strategy, setStrategy] = useState<Strategy>("growth");
+  const [strategy, setStrategy] = useState<Strategy>("india");
   const port = portfolios[strategy];
 
-  const chartData = port.holdings.map((h, i) => ({
+  const chartData = port.holdings.slice(0, 10).map((h, i) => ({
     name: h.ticker,
     weight: h.weight,
     fill: COLORS[i % COLORS.length],
@@ -475,7 +624,13 @@ export function ModelPortfolioTab() {
                     strokeDasharray="3 3"
                     stroke="hsl(var(--border))"
                   />
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10 }}
+                    angle={-15}
+                    textAnchor="end"
+                    height={40}
+                  />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip
                     formatter={(v: number) => `${v}%`}
@@ -500,44 +655,79 @@ export function ModelPortfolioTab() {
                 Holdings
               </h3>
               <div className="rounded-lg border border-border overflow-hidden">
-                <Table data-ocid="financialmodel.portfolio.table">
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead className="text-xs">Ticker</TableHead>
-                      <TableHead className="text-xs">Name</TableHead>
-                      <TableHead className="text-xs">Sector</TableHead>
-                      <TableHead className="text-xs text-right">Wt%</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {port.holdings.map((h, i) => (
-                      <TableRow
-                        key={h.ticker}
-                        data-ocid={`financialmodel.portfolio.item.${i + 1}`}
-                        className="hover:bg-muted/30"
-                      >
-                        <TableCell
-                          className="font-mono font-bold text-xs"
-                          style={{ color: COLORS[i % COLORS.length] }}
-                        >
-                          {h.ticker}
-                        </TableCell>
-                        <TableCell className="text-xs">{h.name}</TableCell>
-                        <TableCell className="text-xs">
-                          <Badge variant="outline" className="text-xs">
-                            {h.sector}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right text-xs font-semibold">
-                          {h.weight}%
-                        </TableCell>
+                <div className="max-h-64 overflow-y-auto">
+                  <Table data-ocid="financialmodel.portfolio.table">
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead className="text-xs">Ticker</TableHead>
+                        <TableHead className="text-xs">Sector</TableHead>
+                        <TableHead className="text-xs text-right">
+                          Wt%
+                        </TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {port.holdings.map((h, i) => (
+                        <TableRow
+                          key={h.ticker}
+                          data-ocid={`financialmodel.portfolio.item.${i + 1}`}
+                          className="hover:bg-muted/30"
+                        >
+                          <TableCell className="py-1.5">
+                            <div
+                              className="font-mono font-bold text-xs"
+                              style={{ color: COLORS[i % COLORS.length] }}
+                            >
+                              {h.ticker}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {h.rationale}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs py-1.5">
+                            <Badge variant="outline" className="text-xs">
+                              {h.sector}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right text-xs font-semibold py-1.5">
+                            {h.weight}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Factor Investing Education */}
+          <Card className="bg-gradient-to-br from-muted/20 to-transparent border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-primary" />
+                Factor Investing — What Drives Returns?
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Academic research (Fama-French) identifies systematic factors
+                that consistently outperform the market over time.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {factorInvesting.map((f) => (
+                  <div key={f.factor} className={`p-3 rounded-lg ${f.bg}`}>
+                    <div className={`font-semibold text-sm mb-1 ${f.color}`}>
+                      {f.factor}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {f.desc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </CardContent>
       </Card>
     </div>

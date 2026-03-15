@@ -15,7 +15,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertTriangle, Heart, Info, Shield, TrendingUp } from "lucide-react";
+import {
+  AlertTriangle,
+  BookOpen,
+  Heart,
+  Info,
+  Shield,
+  TrendingUp,
+} from "lucide-react";
 import { useState } from "react";
 
 function fmt(n: number) {
@@ -48,12 +55,18 @@ export function ModelInsuranceTab() {
     income: 1200000,
     currentCover: 0,
   });
+  const [hlv, setHlv] = useState({
+    currentAge: 30,
+    retirementAge: 60,
+    annualIncome: 1200000,
+    consumptionPct: 30,
+  });
 
-  // Life insurance recommendation
+  // Life insurance
   const lifeRecommended = life.annualIncome * 12 + life.liabilities;
   const lifeGap = Math.max(0, lifeRecommended - life.currentCover);
 
-  // Health insurance recommendation
+  // Health insurance
   const healthBase =
     health.cityTier === "tier1"
       ? 1000000
@@ -65,14 +78,20 @@ export function ModelInsuranceTab() {
   const healthRecommended = healthBase + healthExtra;
   const healthGap = Math.max(0, healthRecommended - health.currentCover);
 
-  // Term insurance recommendation
+  // Term insurance
   const termRecommended = term.income * 15;
-  const termPremiumEstimate = Math.round((term.income * 15 * 0.004) / 12); // rough ~0.4% annual
+  const termPremiumEstimate = Math.round((term.income * 15 * 0.004) / 12);
   const termGap = Math.max(0, termRecommended - term.currentCover);
 
   // Critical illness
   const criticalRecommended = critical.income * 5;
   const criticalGap = Math.max(0, criticalRecommended - critical.currentCover);
+
+  // HLV calculation
+  const workingYears = Math.max(0, hlv.retirementAge - hlv.currentAge);
+  const personalConsumption = hlv.annualIncome * (hlv.consumptionPct / 100);
+  const hlvRecommended =
+    (hlv.annualIncome - personalConsumption) * workingYears;
 
   const CoverageBar = ({
     recommended,
@@ -113,6 +132,115 @@ export function ModelInsuranceTab() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* HLV Method */}
+          <Card className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 border-blue-200/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-blue-600" />
+                Human Life Value (HLV) Method — IRDAI Recommended
+              </CardTitle>
+              <CardDescription className="text-xs">
+                HLV calculates the economic value of your life based on future
+                earnings, determining the life insurance needed to replace your
+                income for dependents.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Current Age</Label>
+                  <Input
+                    data-ocid="financialmodel.insurance.hlv.age.input"
+                    type="number"
+                    value={hlv.currentAge}
+                    onChange={(e) =>
+                      setHlv((p) => ({
+                        ...p,
+                        currentAge: Number(e.target.value),
+                      }))
+                    }
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Retirement Age</Label>
+                  <Input
+                    data-ocid="financialmodel.insurance.hlv.retirement.input"
+                    type="number"
+                    value={hlv.retirementAge}
+                    onChange={(e) =>
+                      setHlv((p) => ({
+                        ...p,
+                        retirementAge: Number(e.target.value),
+                      }))
+                    }
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Annual Income (₹)</Label>
+                  <Input
+                    data-ocid="financialmodel.insurance.hlv.income.input"
+                    type="number"
+                    value={hlv.annualIncome}
+                    onChange={(e) =>
+                      setHlv((p) => ({
+                        ...p,
+                        annualIncome: Number(e.target.value),
+                      }))
+                    }
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Personal Consumption (%)</Label>
+                  <Input
+                    data-ocid="financialmodel.insurance.hlv.consumption.input"
+                    type="number"
+                    value={hlv.consumptionPct}
+                    onChange={(e) =>
+                      setHlv((p) => ({
+                        ...p,
+                        consumptionPct: Number(e.target.value),
+                      }))
+                    }
+                    className="h-8 text-sm"
+                    min={0}
+                    max={100}
+                  />
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-blue-100/50 dark:bg-blue-900/20 space-y-2">
+                <div className="text-xs font-mono text-muted-foreground">
+                  HLV = (Annual Income − Personal Consumption) × Working Years
+                  Remaining
+                </div>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="text-center">
+                    <div className="text-xs text-muted-foreground">
+                      Working Years
+                    </div>
+                    <div className="font-bold text-blue-700">
+                      {workingYears} yrs
+                    </div>
+                  </div>
+                  <div className="text-2xl text-muted-foreground">=</div>
+                  <div className="text-center">
+                    <div className="text-xs text-muted-foreground">
+                      HLV-Based Cover
+                    </div>
+                    <div className="font-bold text-blue-700 text-xl">
+                      {fmt(hlvRecommended)}
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    IRDAI Recommended
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Life Insurance */}
             <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
@@ -250,7 +378,7 @@ export function ModelInsuranceTab() {
                       className="h-8 text-sm"
                     />
                   </div>
-                  <div className="space-y-1 col-span-1">
+                  <div className="space-y-1">
                     <Label className="text-xs">City Tier</Label>
                     <Select
                       value={health.cityTier}
@@ -519,8 +647,8 @@ export function ModelInsuranceTab() {
                 <li className="flex items-start gap-2">
                   <span className="text-info font-bold">•</span>
                   <span>
-                    Life cover = 10-15x annual income + all outstanding
-                    liabilities
+                    Life cover = 10–15x annual income + all outstanding
+                    liabilities (IRDAI guideline)
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
@@ -533,8 +661,15 @@ export function ModelInsuranceTab() {
                 <li className="flex items-start gap-2">
                   <span className="text-info font-bold">•</span>
                   <span>
-                    Review insurance needs every 3-5 years or after major life
-                    events
+                    Review insurance needs every 3–5 years or after major life
+                    events (marriage, child, home loan)
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-info font-bold">•</span>
+                  <span>
+                    Never mix insurance and investment — avoid ULIPs and
+                    endowment plans; buy pure term + invest the rest
                   </span>
                 </li>
               </ul>

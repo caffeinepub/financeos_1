@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -18,6 +19,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function GSTCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [amount, setAmount] = useState("10000");
   const [gstRate, setGstRate] = useState("18");
   const [calcType, setCalcType] = useState("add");
@@ -55,7 +58,7 @@ export function GSTCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Amount (₹)</Label>
+            <Label>Amount ({sym})</Label>
             <Input
               value={amount}
               onChange={(e) => setAmount(e.target.value)}

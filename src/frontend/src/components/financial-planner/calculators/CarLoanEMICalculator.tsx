@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function CarLoanEMICalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [carPrice, setCarPrice] = useState("800000");
   const [downPayment, setDownPayment] = useState("200000");
   const [interestRate, setInterestRate] = useState("9");
@@ -36,7 +39,7 @@ export function CarLoanEMICalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Car Price (₹)</Label>
+            <Label>Car Price ({sym})</Label>
             <Input
               value={carPrice}
               onChange={(e) => setCarPrice(e.target.value)}
@@ -45,7 +48,7 @@ export function CarLoanEMICalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Down Payment (₹)</Label>
+            <Label>Down Payment ({sym})</Label>
             <Input
               value={downPayment}
               onChange={(e) => setDownPayment(e.target.value)}

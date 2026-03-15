@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function StocksCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [buyPrice, setBuyPrice] = useState("100");
   const [qty, setQty] = useState("100");
   const [sellPrice, setSellPrice] = useState("150");
@@ -37,7 +40,7 @@ export function StocksCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Buy Price (₹)</Label>
+            <Label>Buy Price ({sym})</Label>
             <Input
               value={buyPrice}
               onChange={(e) => setBuyPrice(e.target.value)}
@@ -55,7 +58,7 @@ export function StocksCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Sell Price (₹)</Label>
+            <Label>Sell Price ({sym})</Label>
             <Input
               value={sellPrice}
               onChange={(e) => setSellPrice(e.target.value)}

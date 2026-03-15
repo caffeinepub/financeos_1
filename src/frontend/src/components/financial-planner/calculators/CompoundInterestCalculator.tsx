@@ -18,6 +18,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -27,6 +28,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function CompoundInterestCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [principal, setPrincipal] = useState("100000");
   const [rate, setRate] = useState("10");
   const [time, setTime] = useState("5");
@@ -67,7 +70,7 @@ export function CompoundInterestCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Principal (₹)</Label>
+            <Label>Principal ({sym})</Label>
             <Input
               value={principal}
               onChange={(e) => setPrincipal(e.target.value)}
@@ -167,7 +170,7 @@ export function CompoundInterestCalculator() {
                 />
                 <YAxis
                   tick={{ fontSize: 10 }}
-                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                   width={45}
                 />
                 <Tooltip

@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link as LinkIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 import {
   type Goal,
   useGetAllInvestmentsByCategory,
@@ -32,6 +33,8 @@ export function LinkInvestmentDialog({
   open,
   onOpenChange,
 }: LinkInvestmentDialogProps) {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const { data: allInvestments = [], isLoading } =
     useGetAllInvestmentsByCategory();
   const updateGoal = useUpdateGoalProgress();
@@ -144,7 +147,8 @@ export function LinkInvestmentDialog({
                     </div>
                   </div>
                   <span className="text-sm font-semibold text-blue-600">
-                    ₹{inv.currentValue.toLocaleString("en-IN")}
+                    {sym}
+                    {inv.currentValue.toLocaleString("en-IN")}
                   </span>
                 </button>
               ))}

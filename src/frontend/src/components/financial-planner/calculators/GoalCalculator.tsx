@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -23,6 +24,8 @@ const fmt = (n: number) =>
 const BAR_COLORS = ["#6366f1", "#10b981", "#f59e0b"];
 
 export function GoalCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [goalAmount, setGoalAmount] = useState("1000000");
   const [targetYears, setTargetYears] = useState("5");
   const [currentSavings, setCurrentSavings] = useState("100000");
@@ -57,7 +60,7 @@ export function GoalCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Goal Amount (₹)</Label>
+            <Label>Goal Amount ({sym})</Label>
             <Input
               value={goalAmount}
               onChange={(e) => setGoalAmount(e.target.value)}
@@ -75,7 +78,7 @@ export function GoalCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Current Savings (₹)</Label>
+            <Label>Current Savings ({sym})</Label>
             <Input
               value={currentSavings}
               onChange={(e) => setCurrentSavings(e.target.value)}
@@ -134,7 +137,7 @@ export function GoalCalculator() {
                 <XAxis dataKey="name" tick={{ fontSize: 9 }} />
                 <YAxis
                   tick={{ fontSize: 10 }}
-                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                   width={45}
                 />
                 <Tooltip formatter={(v: number) => fmt(v)} />

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function InflationImpactPlanner() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [amount, setAmount] = useState("100000");
   const [rate, setRate] = useState("6");
   const [years, setYears] = useState("10");
@@ -33,7 +36,7 @@ export function InflationImpactPlanner() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Current Amount (₹)</Label>
+            <Label>Current Amount ({sym})</Label>
             <Input
               value={amount}
               onChange={(e) => setAmount(e.target.value)}

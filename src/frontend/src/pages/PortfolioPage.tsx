@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Skeleton } from "../components/ui/skeleton";
+import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
 
 const SLICE_COLORS = [
@@ -147,17 +148,11 @@ const emptyForm = {
   currentValue: 0,
 };
 
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(n);
-}
-
 export default function PortfolioPage() {
   const { assetType } = useParams<{ assetType: string }>();
   const navigate = useNavigate();
   const { actor } = useActor();
+  const { formatCurrency: fmt } = useCurrency();
   const [holdings, setHoldings] = useState<PortfolioHolding[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);

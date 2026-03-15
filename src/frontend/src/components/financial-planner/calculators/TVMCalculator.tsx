@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -18,6 +19,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function TVMCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [mode, setMode] = useState<"fv" | "pv" | "pmt">("fv");
   const [pv, setPv] = useState("100000");
   const [fv, setFv] = useState("200000");
@@ -73,7 +76,7 @@ export function TVMCalculator() {
           </div>
           {mode !== "fv" && (
             <div className="space-y-1">
-              <Label>Present Value (₹)</Label>
+              <Label>Present Value ({sym})</Label>
               <Input
                 value={pv}
                 onChange={(e) => setPv(e.target.value)}
@@ -84,7 +87,7 @@ export function TVMCalculator() {
           )}
           {mode === "pv" && (
             <div className="space-y-1">
-              <Label>Future Value (₹)</Label>
+              <Label>Future Value ({sym})</Label>
               <Input
                 value={fv}
                 onChange={(e) => setFv(e.target.value)}
@@ -95,7 +98,7 @@ export function TVMCalculator() {
           )}
           {mode !== "pmt" && (
             <div className="space-y-1">
-              <Label>Monthly Payment (₹)</Label>
+              <Label>Monthly Payment ({sym})</Label>
               <Input
                 value={pmt}
                 onChange={(e) => setPmt(e.target.value)}
@@ -106,7 +109,7 @@ export function TVMCalculator() {
           )}
           {mode === "fv" && (
             <div className="space-y-1">
-              <Label>Present Value (₹)</Label>
+              <Label>Present Value ({sym})</Label>
               <Input
                 value={pv}
                 onChange={(e) => setPv(e.target.value)}

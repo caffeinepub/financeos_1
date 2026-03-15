@@ -21,6 +21,7 @@ import { Label } from "../components/ui/label";
 import { Progress } from "../components/ui/progress";
 import { Skeleton } from "../components/ui/skeleton";
 import { Textarea } from "../components/ui/textarea";
+import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
 
 const emptyForm = {
@@ -35,15 +36,9 @@ const emptyForm = {
   notes: "",
 };
 
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(n);
-}
-
 export default function LoansPage() {
   const { actor } = useActor();
+  const { formatCurrency: fmt } = useCurrency();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);

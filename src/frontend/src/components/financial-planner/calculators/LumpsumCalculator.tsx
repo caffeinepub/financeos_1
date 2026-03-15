@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -20,6 +21,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function LumpsumCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [principal, setPrincipal] = useState("100000");
   const [rate, setRate] = useState("12");
   const [years, setYears] = useState("10");
@@ -45,7 +48,7 @@ export function LumpsumCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Investment Amount (₹)</Label>
+            <Label>Investment Amount ({sym})</Label>
             <Input
               value={principal}
               onChange={(e) => setPrincipal(e.target.value)}

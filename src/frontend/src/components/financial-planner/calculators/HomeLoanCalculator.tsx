@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -19,6 +20,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function HomeLoanCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [propertyValue, setPropertyValue] = useState("5000000");
   const [downPayment, setDownPayment] = useState("1000000");
   const [interestRate, setInterestRate] = useState("8.5");
@@ -56,7 +59,7 @@ export function HomeLoanCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Property Value (₹)</Label>
+            <Label>Property Value ({sym})</Label>
             <Input
               value={propertyValue}
               onChange={(e) => setPropertyValue(e.target.value)}
@@ -65,7 +68,7 @@ export function HomeLoanCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Down Payment (₹)</Label>
+            <Label>Down Payment ({sym})</Label>
             <Input
               value={downPayment}
               onChange={(e) => setDownPayment(e.target.value)}

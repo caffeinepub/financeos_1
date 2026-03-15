@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -21,6 +22,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function RDCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [monthly, setMonthly] = useState("5000");
   const [rate, setRate] = useState("7");
   const [tenure, setTenure] = useState("24");
@@ -53,7 +56,7 @@ export function RDCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Monthly Deposit (₹)</Label>
+            <Label>Monthly Deposit ({sym})</Label>
             <Input
               value={monthly}
               onChange={(e) => setMonthly(e.target.value)}
@@ -120,7 +123,7 @@ export function RDCalculator() {
                 <XAxis dataKey="name" hide />
                 <YAxis
                   tick={{ fontSize: 10 }}
-                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                   width={45}
                 />
                 <Tooltip formatter={(v: number) => fmt(v)} />

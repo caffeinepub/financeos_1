@@ -26,6 +26,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 type CryptoProfile = "conservative" | "balanced" | "aggressive";
 
@@ -246,6 +247,8 @@ const cryptoCycles = [
 ];
 
 export function ModelCryptoPortfolioTab() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [profile, setProfile] = useState<CryptoProfile>("balanced");
   const [dcaAmount, setDcaAmount] = useState(10000);
   const [dcaMonths, setDcaMonths] = useState(12);
@@ -454,7 +457,7 @@ export function ModelCryptoPortfolioTab() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">Monthly DCA Amount (₹)</Label>
+                  <Label className="text-xs">Monthly DCA Amount ({sym})</Label>
                   <Input
                     data-ocid="financialmodel.crypto.dca.amount.input"
                     type="number"
@@ -483,13 +486,15 @@ export function ModelCryptoPortfolioTab() {
                     Total Invested
                   </div>
                   <div className="font-bold text-indigo-700">
-                    ₹{totalInvested.toLocaleString("en-IN")}
+                    {sym}
+                    {totalInvested.toLocaleString("en-IN")}
                   </div>
                 </div>
                 <div className="p-2 rounded-lg bg-indigo-100/50 dark:bg-indigo-900/20">
                   <div className="text-xs text-muted-foreground">Strategy</div>
                   <div className="font-bold text-indigo-700">
-                    Fixed ₹{dcaAmount.toLocaleString("en-IN")}/mo
+                    Fixed {sym}
+                    {dcaAmount.toLocaleString("en-IN")}/mo
                   </div>
                 </div>
                 <div className="p-2 rounded-lg bg-green-100/50 dark:bg-green-900/20">

@@ -1,22 +1,37 @@
 import type React from "react";
 import { createContext, useContext, useState } from "react";
 
-interface CountryInfo {
+export interface CountryInfo {
   country: string;
   code: string;
   symbol: string;
   flag: string;
 }
 
-const COUNTRIES: CountryInfo[] = [
+export const COUNTRIES: CountryInfo[] = [
   { country: "India", code: "INR", symbol: "₹", flag: "🇮🇳" },
   { country: "United States", code: "USD", symbol: "$", flag: "🇺🇸" },
   { country: "European Union", code: "EUR", symbol: "€", flag: "🇪🇺" },
   { country: "United Kingdom", code: "GBP", symbol: "£", flag: "🇬🇧" },
   { country: "Japan", code: "JPY", symbol: "¥", flag: "🇯🇵" },
+  { country: "China", code: "CNY", symbol: "¥", flag: "🇨🇳" },
   { country: "Canada", code: "CAD", symbol: "CA$", flag: "🇨🇦" },
   { country: "Australia", code: "AUD", symbol: "A$", flag: "🇦🇺" },
+  { country: "Switzerland", code: "CHF", symbol: "Fr", flag: "🇨🇭" },
+  { country: "South Korea", code: "KRW", symbol: "₩", flag: "🇰🇷" },
+  { country: "Singapore", code: "SGD", symbol: "S$", flag: "🇸🇬" },
+  { country: "Hong Kong", code: "HKD", symbol: "HK$", flag: "🇭🇰" },
+  { country: "Sweden", code: "SEK", symbol: "kr", flag: "🇸🇪" },
+  { country: "Norway", code: "NOK", symbol: "kr", flag: "🇳🇴" },
+  { country: "Brazil", code: "BRL", symbol: "R$", flag: "🇧🇷" },
+  { country: "Mexico", code: "MXN", symbol: "MX$", flag: "🇲🇽" },
+  { country: "UAE", code: "AED", symbol: "د.إ", flag: "🇦🇪" },
+  { country: "Saudi Arabia", code: "SAR", symbol: "﷼", flag: "🇸🇦" },
+  { country: "South Africa", code: "ZAR", symbol: "R", flag: "🇿🇦" },
+  { country: "Russia", code: "RUB", symbol: "₽", flag: "🇷🇺" },
 ];
+
+export const SUPPORTED_CURRENCIES = COUNTRIES;
 
 interface CurrencyContextType {
   country: CountryInfo;

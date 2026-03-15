@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function DebtToIncomeCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [income, setIncome] = useState("100000");
   const [homeLoan, setHomeLoan] = useState("30000");
   const [carLoan, setCarLoan] = useState("10000");
@@ -48,7 +51,7 @@ export function DebtToIncomeCalculator() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-1">
-            <Label>Monthly Income (₹)</Label>
+            <Label>Monthly Income ({sym})</Label>
             <Input
               value={income}
               onChange={(e) => setIncome(e.target.value)}
@@ -57,7 +60,7 @@ export function DebtToIncomeCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Home Loan EMI (₹)</Label>
+            <Label>Home Loan EMI ({sym})</Label>
             <Input
               value={homeLoan}
               onChange={(e) => setHomeLoan(e.target.value)}
@@ -66,7 +69,7 @@ export function DebtToIncomeCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Car Loan EMI (₹)</Label>
+            <Label>Car Loan EMI ({sym})</Label>
             <Input
               value={carLoan}
               onChange={(e) => setCarLoan(e.target.value)}
@@ -75,7 +78,7 @@ export function DebtToIncomeCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Credit Card Payment (₹)</Label>
+            <Label>Credit Card Payment ({sym})</Label>
             <Input
               value={creditCard}
               onChange={(e) => setCreditCard(e.target.value)}
@@ -84,7 +87,7 @@ export function DebtToIncomeCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Other Debt (₹)</Label>
+            <Label>Other Debt ({sym})</Label>
             <Input
               value={otherDebt}
               onChange={(e) => setOtherDebt(e.target.value)}

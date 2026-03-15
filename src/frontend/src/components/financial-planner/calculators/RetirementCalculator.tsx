@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -21,6 +22,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function RetirementCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [currentAge, setCurrentAge] = useState("30");
   const [retirementAge, setRetirementAge] = useState("60");
   const [monthlyExpenses, setMonthlyExpenses] = useState("50000");
@@ -107,7 +110,7 @@ export function RetirementCalculator() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Monthly Expenses (₹)</Label>
+              <Label>Monthly Expenses ({sym})</Label>
               <Input
                 value={monthlyExpenses}
                 onChange={(e) => setMonthlyExpenses(e.target.value)}
@@ -185,7 +188,7 @@ export function RetirementCalculator() {
                 <XAxis dataKey="name" hide />
                 <YAxis
                   tick={{ fontSize: 10 }}
-                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                   width={45}
                 />
                 <Tooltip formatter={(v: number) => fmt(v)} />

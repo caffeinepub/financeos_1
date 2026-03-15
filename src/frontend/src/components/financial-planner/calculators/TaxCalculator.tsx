@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -32,6 +33,8 @@ function calcNewRegimeTax(income: number): number {
 }
 
 export function TaxCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [income, setIncome] = useState("1200000");
   const [hra, setHra] = useState("120000");
   const [section80C, setSection80C] = useState("150000");
@@ -66,7 +69,7 @@ export function TaxCalculator() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-1">
-            <Label>Annual Income (₹)</Label>
+            <Label>Annual Income ({sym})</Label>
             <Input
               value={income}
               onChange={(e) => setIncome(e.target.value)}
@@ -75,7 +78,7 @@ export function TaxCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>HRA Exemption (₹)</Label>
+            <Label>HRA Exemption ({sym})</Label>
             <Input
               value={hra}
               onChange={(e) => setHra(e.target.value)}
@@ -84,7 +87,7 @@ export function TaxCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>80C Investments (₹, max 1.5L)</Label>
+            <Label>80C Investments ({sym}, max 1.5L)</Label>
             <Input
               value={section80C}
               onChange={(e) => setSection80C(e.target.value)}
@@ -93,7 +96,7 @@ export function TaxCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>80D Health Insurance (₹)</Label>
+            <Label>80D Health Insurance ({sym})</Label>
             <Input
               value={section80D}
               onChange={(e) => setSection80D(e.target.value)}
@@ -102,7 +105,7 @@ export function TaxCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Other Deductions (₹)</Label>
+            <Label>Other Deductions ({sym})</Label>
             <Input
               value={otherDeductions}
               onChange={(e) => setOtherDeductions(e.target.value)}

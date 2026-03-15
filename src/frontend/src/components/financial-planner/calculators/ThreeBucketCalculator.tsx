@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function ThreeBucketCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [corpus, setCorpus] = useState("10000000");
   const [monthlyExpenses, setMonthlyExpenses] = useState("80000");
   const [shortRate, setShortRate] = useState("6");
@@ -49,7 +52,7 @@ export function ThreeBucketCalculator() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-1">
-            <Label>Total Corpus (₹)</Label>
+            <Label>Total Corpus ({sym})</Label>
             <Input
               value={corpus}
               onChange={(e) => setCorpus(e.target.value)}
@@ -58,7 +61,7 @@ export function ThreeBucketCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Monthly Expenses (₹)</Label>
+            <Label>Monthly Expenses ({sym})</Label>
             <Input
               value={monthlyExpenses}
               onChange={(e) => setMonthlyExpenses(e.target.value)}

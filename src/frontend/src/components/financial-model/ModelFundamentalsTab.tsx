@@ -32,14 +32,17 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
-function fmt(n: number) {
-  if (n >= 1e7) return `₹${(n / 1e7).toFixed(2)}Cr`;
-  if (n >= 1e5) return `₹${(n / 1e5).toFixed(2)}L`;
-  return `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+function fmt(n: number, sym: string) {
+  if (n >= 1e7) return `${sym}${(n / 1e7).toFixed(2)}Cr`;
+  if (n >= 1e5) return `${sym}${(n / 1e5).toFixed(2)}L`;
+  return `${sym}${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 }
 
 function CompoundingSection() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [principal, setPrincipal] = useState(100000);
   const [sip, setSip] = useState(10000);
   const [rate, setRate] = useState(12);
@@ -88,7 +91,7 @@ function CompoundingSection() {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <Label className="text-xs">Lump Sum (₹)</Label>
+            <Label className="text-xs">Lump Sum ({sym})</Label>
             <Input
               data-ocid="fundamentals.compounding.principal.input"
               type="number"
@@ -98,7 +101,7 @@ function CompoundingSection() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Monthly SIP (₹)</Label>
+            <Label className="text-xs">Monthly SIP ({sym})</Label>
             <Input
               data-ocid="fundamentals.compounding.sip.input"
               type="number"
@@ -135,18 +138,18 @@ function CompoundingSection() {
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="p-2 rounded-lg bg-muted/50">
             <div className="text-xs text-muted-foreground">Total Invested</div>
-            <div className="font-bold text-sm">{fmt(final.Invested)}</div>
+            <div className="font-bold text-sm">{fmt(final.Invested, sym)}</div>
           </div>
           <div className="p-2 rounded-lg bg-primary/10">
             <div className="text-xs text-muted-foreground">Final Value</div>
             <div className="font-bold text-sm text-primary">
-              {fmt(final[`@${rate}%`])}
+              {fmt(final[`@${rate}%`], sym)}
             </div>
           </div>
           <div className="p-2 rounded-lg bg-success/10">
             <div className="text-xs text-muted-foreground">Wealth Gained</div>
             <div className="font-bold text-sm text-green-600">
-              {fmt(wealthGained)}
+              {fmt(wealthGained, sym)}
             </div>
           </div>
         </div>
@@ -172,11 +175,11 @@ function CompoundingSection() {
             />
             <YAxis
               tick={{ fontSize: 9 }}
-              tickFormatter={(v) => fmt(v)}
+              tickFormatter={(v) => fmt(v, sym)}
               width={70}
             />
             <Tooltip
-              formatter={(v: number) => fmt(v)}
+              formatter={(v: number) => fmt(v, sym)}
               contentStyle={{ fontSize: "11px", borderRadius: "8px" }}
             />
             <Legend wrapperStyle={{ fontSize: "11px" }} />
@@ -217,6 +220,8 @@ function CompoundingSection() {
 }
 
 function Rule72Section() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [rate, setRate] = useState(12);
   const doublingYears = (72 / rate).toFixed(1);
   const rateRows = [4, 6, 8, 10, 12, 15, 18];
@@ -272,7 +277,7 @@ function Rule72Section() {
                   Years to Double
                 </th>
                 <th className="text-right p-2 text-xs font-semibold">
-                  ₹1L → ₹2L by
+                  {sym}1L → {sym}2L by
                 </th>
               </tr>
             </thead>
@@ -305,7 +310,7 @@ function Rule72Section() {
           <span className="text-amber-600 font-bold">Pro Tip:</span>
           <span className="text-muted-foreground">
             At 12% (typical equity return), your money doubles every 6 years —
-            5x doubling in 30 years turns ₹1L into ₹32L.
+            5x doubling in 30 years turns {sym}1L into {sym}32L.
           </span>
         </div>
       </CardContent>
@@ -314,6 +319,8 @@ function Rule72Section() {
 }
 
 function SipVsLumpSumSection() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [amount, setAmount] = useState(1200000);
   const [rate, setRate] = useState(12);
 
@@ -349,7 +356,7 @@ function SipVsLumpSumSection() {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <Label className="text-xs">Total Amount (₹)</Label>
+            <Label className="text-xs">Total Amount ({sym})</Label>
             <Input
               data-ocid="fundamentals.sip.amount.input"
               type="number"
@@ -384,11 +391,11 @@ function SipVsLumpSumSection() {
             <XAxis dataKey="year" tick={{ fontSize: 11 }} />
             <YAxis
               tick={{ fontSize: 9 }}
-              tickFormatter={(v) => fmt(v)}
+              tickFormatter={(v) => fmt(v, sym)}
               width={70}
             />
             <Tooltip
-              formatter={(v: number) => fmt(v)}
+              formatter={(v: number) => fmt(v, sym)}
               contentStyle={{ fontSize: "11px", borderRadius: "8px" }}
             />
             <Legend wrapperStyle={{ fontSize: "11px" }} />
@@ -409,6 +416,8 @@ function SipVsLumpSumSection() {
 }
 
 function InflationSection() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [expense, setExpense] = useState(50000);
   const [inflation, setInflation] = useState(6);
   const [years, setYears] = useState(20);
@@ -417,7 +426,7 @@ function InflationSection() {
     return Array.from({ length: years + 1 }, (_, y) => ({
       year: y,
       "Future Value": Math.round(expense * (1 + inflation / 100) ** y),
-      "Real Value (Today's ₹)": Math.round(expense),
+      "Real Value (Today's)": Math.round(expense),
     }));
   }, [expense, inflation, years]);
 
@@ -441,7 +450,7 @@ function InflationSection() {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
-            <Label className="text-xs">Monthly Expense (₹)</Label>
+            <Label className="text-xs">Monthly Expense ({sym})</Label>
             <Input
               data-ocid="fundamentals.inflation.expense.input"
               type="number"
@@ -481,7 +490,7 @@ function InflationSection() {
               Expense needed in {years} yrs
             </div>
             <div className="font-bold text-red-600">
-              {fmt(futureExpense)}/mo
+              {fmt(futureExpense, sym)}/mo
             </div>
           </div>
           <div className="p-2 rounded-lg bg-muted/50 text-center">
@@ -504,11 +513,11 @@ function InflationSection() {
             <XAxis dataKey="year" tick={{ fontSize: 10 }} />
             <YAxis
               tick={{ fontSize: 9 }}
-              tickFormatter={(v) => fmt(v)}
+              tickFormatter={(v) => fmt(v, sym)}
               width={70}
             />
             <Tooltip
-              formatter={(v: number) => fmt(v)}
+              formatter={(v: number) => fmt(v, sym)}
               contentStyle={{ fontSize: "11px", borderRadius: "8px" }}
             />
             <Legend wrapperStyle={{ fontSize: "11px" }} />
@@ -521,7 +530,7 @@ function InflationSection() {
             />
             <Line
               type="monotone"
-              dataKey="Real Value (Today's ₹)"
+              dataKey="Real Value (Today's)"
               stroke="#94a3b8"
               strokeWidth={1.5}
               strokeDasharray="4 2"
@@ -543,6 +552,8 @@ function InflationSection() {
 }
 
 function CAGRSection() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [initial, setInitial] = useState(100000);
   const [final, setFinal] = useState(500000);
   const [years, setYears] = useState(10);
@@ -576,7 +587,7 @@ function CAGRSection() {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
-            <Label className="text-xs">Initial Value (₹)</Label>
+            <Label className="text-xs">Initial Value ({sym})</Label>
             <Input
               data-ocid="fundamentals.cagr.initial.input"
               type="number"
@@ -586,7 +597,7 @@ function CAGRSection() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Final Value (₹)</Label>
+            <Label className="text-xs">Final Value ({sym})</Label>
             <Input
               data-ocid="fundamentals.cagr.final.input"
               type="number"
@@ -666,6 +677,8 @@ function CAGRSection() {
 }
 
 function MarketCyclesSection() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const phases = [
     {
       name: "Accumulation",
@@ -700,7 +713,7 @@ function MarketCyclesSection() {
     { label: "Avg Bear Market Duration", value: "14 months" },
     { label: "Avg Bull Market Duration", value: "4.5 years" },
     { label: "Avg Nifty Drawdown", value: "~27% from peak" },
-    { label: "₹1L in Nifty (2003→2023)", value: "₹20L+" },
+    { label: `${sym}1L in Nifty (2003→2023)`, value: `${sym}20L+` },
     { label: "Corrections > 20% since 1990", value: "12 times" },
     { label: "Nifty recovered every time", value: "100%" },
   ];
@@ -764,6 +777,8 @@ function MarketCyclesSection() {
 }
 
 function PERatioSection() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const zones = [
     {
       range: "Below 15",
@@ -805,7 +820,7 @@ function PERatioSection() {
         </CardTitle>
         <CardDescription className="text-xs">
           The Price-to-Earnings (P/E) ratio tells you how much the market is
-          paying for each ₹1 of earnings. It is the key valuation metric.
+          paying for each {sym}1 of earnings. It is the key valuation metric.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -814,8 +829,8 @@ function PERatioSection() {
             P/E = Market Price per Share ÷ Earnings per Share (EPS)
           </div>
           <div className="text-xs text-muted-foreground">
-            A P/E of 20 means investors pay ₹20 for every ₹1 of profit. Higher
-            P/E = more expensive market.
+            A P/E of 20 means investors pay {sym}20 for every {sym}1 of profit.
+            Higher P/E = more expensive market.
           </div>
           <div className="flex gap-2 mt-2">
             <Badge variant="outline" className="text-xs">

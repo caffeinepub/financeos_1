@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -12,6 +13,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function RetirementReadinessCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [currentAge, setCurrentAge] = useState("35");
   const [retirementAge, setRetirementAge] = useState("60");
   const [currentSavings, setCurrentSavings] = useState("500000");
@@ -81,7 +84,7 @@ export function RetirementReadinessCalculator() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Current Savings (₹)</Label>
+              <Label>Current Savings ({sym})</Label>
               <Input
                 value={currentSavings}
                 onChange={(e) => setCurrentSavings(e.target.value)}
@@ -90,7 +93,7 @@ export function RetirementReadinessCalculator() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Monthly SIP (₹)</Label>
+              <Label>Monthly SIP ({sym})</Label>
               <Input
                 value={monthlySIP}
                 onChange={(e) => setMonthlySIP(e.target.value)}
@@ -108,7 +111,7 @@ export function RetirementReadinessCalculator() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Monthly Expenses (₹)</Label>
+              <Label>Monthly Expenses ({sym})</Label>
               <Input
                 value={monthlyExpenses}
                 onChange={(e) => setMonthlyExpenses(e.target.value)}

@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -27,6 +28,8 @@ interface YearRow {
 }
 
 export function PPFCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [yearlyInvestment, setYearlyInvestment] = useState("150000");
   const [period, setPeriod] = useState("15");
   const PPF_RATE = 7.1;
@@ -63,7 +66,7 @@ export function PPFCalculator() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1">
-              <Label>Yearly Investment (₹, max 1.5L)</Label>
+              <Label>Yearly Investment ({sym}, max 1.5L)</Label>
               <Input
                 value={yearlyInvestment}
                 onChange={(e) => setYearlyInvestment(e.target.value)}

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function GratuityCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [salary, setSalary] = useState("50000");
   const [yearsOfService, setYearsOfService] = useState("10");
 
@@ -33,7 +36,7 @@ export function GratuityCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Last Basic + DA Salary (₹/month)</Label>
+            <Label>Last Basic + DA Salary ({sym}/month)</Label>
             <Input
               value={salary}
               onChange={(e) => setSalary(e.target.value)}

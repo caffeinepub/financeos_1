@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -18,6 +19,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function HRACalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [basicSalary, setBasicSalary] = useState("50000");
   const [hraReceived, setHraReceived] = useState("20000");
   const [rentPaid, setRentPaid] = useState("18000");
@@ -44,7 +47,7 @@ export function HRACalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Basic Salary (₹/month)</Label>
+            <Label>Basic Salary ({sym}/month)</Label>
             <Input
               value={basicSalary}
               onChange={(e) => setBasicSalary(e.target.value)}
@@ -53,7 +56,7 @@ export function HRACalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>HRA Received (₹/month)</Label>
+            <Label>HRA Received ({sym}/month)</Label>
             <Input
               value={hraReceived}
               onChange={(e) => setHraReceived(e.target.value)}
@@ -62,7 +65,7 @@ export function HRACalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Rent Paid (₹/month)</Label>
+            <Label>Rent Paid ({sym}/month)</Label>
             <Input
               value={rentPaid}
               onChange={(e) => setRentPaid(e.target.value)}

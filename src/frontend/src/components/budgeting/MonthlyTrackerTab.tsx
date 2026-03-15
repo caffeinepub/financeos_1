@@ -23,6 +23,7 @@ import {
   type Transaction,
   TransactionType,
 } from "../../backend.d";
+import { useCurrency } from "../../contexts/CurrencyContext";
 import { useActor } from "../../hooks/useActor";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -85,6 +86,8 @@ const emptyTx: Omit<Transaction, "id"> = {
 };
 
 export function MonthlyTrackerTab() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const { actor } = useActor();
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
@@ -358,7 +361,7 @@ export function MonthlyTrackerTab() {
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis
                 tick={{ fontSize: 11 }}
-                tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                 width={50}
               />
               <Tooltip formatter={(v: number) => fmt(v)} />
@@ -443,7 +446,9 @@ export function MonthlyTrackerTab() {
                           {actual > 0 ? (
                             fmt(actual)
                           ) : (
-                            <span className="text-muted-foreground">₹0</span>
+                            <span className="text-muted-foreground">
+                              {sym}0
+                            </span>
                           )}
                         </TableCell>
                         <TableCell className="text-right text-sm">
@@ -646,7 +651,7 @@ export function MonthlyTrackerTab() {
               </Select>
             </div>
             <div>
-              <Label>Amount (₹)</Label>
+              <Label>Amount ({sym})</Label>
               <Input
                 data-ocid="budgeting.amount.input"
                 type="number"

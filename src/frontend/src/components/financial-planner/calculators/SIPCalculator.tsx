@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -20,6 +21,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function SIPCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [monthly, setMonthly] = useState("5000");
   const [rate, setRate] = useState("12");
   const [years, setYears] = useState("10");
@@ -59,7 +62,7 @@ export function SIPCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Monthly Investment (₹)</Label>
+            <Label>Monthly Investment ({sym})</Label>
             <Input
               value={monthly}
               onChange={(e) => setMonthly(e.target.value)}

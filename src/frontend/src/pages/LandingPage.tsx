@@ -17,30 +17,8 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { SUPPORTED_CURRENCIES, useCurrency } from "../contexts/CurrencyContext";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
-
-const TOP_20_CURRENCIES = [
-  { country: "India", code: "INR", symbol: "₹", flag: "🇮🇳" },
-  { country: "United States", code: "USD", symbol: "$", flag: "🇺🇸" },
-  { country: "European Union", code: "EUR", symbol: "€", flag: "🇪🇺" },
-  { country: "United Kingdom", code: "GBP", symbol: "£", flag: "🇬🇧" },
-  { country: "Japan", code: "JPY", symbol: "¥", flag: "🇯🇵" },
-  { country: "China", code: "CNY", symbol: "¥", flag: "🇨🇳" },
-  { country: "Canada", code: "CAD", symbol: "CA$", flag: "🇨🇦" },
-  { country: "Australia", code: "AUD", symbol: "A$", flag: "🇦🇺" },
-  { country: "Switzerland", code: "CHF", symbol: "Fr", flag: "🇨🇭" },
-  { country: "South Korea", code: "KRW", symbol: "₩", flag: "🇰🇷" },
-  { country: "Singapore", code: "SGD", symbol: "S$", flag: "🇸🇬" },
-  { country: "Hong Kong", code: "HKD", symbol: "HK$", flag: "🇭🇰" },
-  { country: "Sweden", code: "SEK", symbol: "kr", flag: "🇸🇪" },
-  { country: "Norway", code: "NOK", symbol: "kr", flag: "🇳🇴" },
-  { country: "Brazil", code: "BRL", symbol: "R$", flag: "🇧🇷" },
-  { country: "Mexico", code: "MXN", symbol: "MX$", flag: "🇲🇽" },
-  { country: "UAE", code: "AED", symbol: "د.إ", flag: "🇦🇪" },
-  { country: "Saudi Arabia", code: "SAR", symbol: "﷼", flag: "🇸🇦" },
-  { country: "South Africa", code: "ZAR", symbol: "R", flag: "🇿🇦" },
-  { country: "Russia", code: "RUB", symbol: "₽", flag: "🇷🇺" },
-];
 
 // Module icon colors — distinct per module
 const MODULE_COLORS = [
@@ -244,8 +222,13 @@ function CurrencyDropdown({
   selected,
   onSelect,
 }: {
-  selected: (typeof TOP_20_CURRENCIES)[0];
-  onSelect: (c: (typeof TOP_20_CURRENCIES)[0]) => void;
+  selected: { country: string; code: string; symbol: string; flag: string };
+  onSelect: (c: {
+    country: string;
+    code: string;
+    symbol: string;
+    flag: string;
+  }) => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -303,7 +286,7 @@ function CurrencyDropdown({
             boxShadow: "0 8px 32px oklch(0.15 0.05 240 / 0.15)",
           }}
         >
-          {TOP_20_CURRENCIES.map((c) => (
+          {SUPPORTED_CURRENCIES.map((c) => (
             <button
               key={c.code}
               type="button"
@@ -361,9 +344,8 @@ function CurrencyDropdown({
 export default function LandingPage() {
   const navigate = useNavigate();
   const { login, isLoggingIn } = useInternetIdentity();
-  const [selectedCurrency, setSelectedCurrency] = useState(
-    TOP_20_CURRENCIES[0],
-  );
+  const { country: selectedCurrency, setCountry: setSelectedCurrency } =
+    useCurrency();
 
   const scrollToFeatures = () => {
     document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });

@@ -35,6 +35,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useState } from "react";
+import { useCurrency } from "../contexts/CurrencyContext";
 
 interface FinancialRule {
   id: string;
@@ -1586,49 +1587,46 @@ const categories = [
 function RuleCalculator({ rule }: { rule: FinancialRule }) {
   const [inputs, setInputs] = useState<Record<string, number>>({});
   const [result, setResult] = useState<string>("");
+  const { formatCurrency } = useCurrency();
 
   const handleCalculate = () => {
     switch (rule.id) {
       case "80-20-savings": {
         const income = inputs.income || 0;
         setResult(
-          `Save: ₹${(income * 0.2).toLocaleString("en-IN")} | Spend: ₹${(income * 0.8).toLocaleString("en-IN")}`,
+          `Save: ${formatCurrency(income * 0.2)} | Spend: ${formatCurrency(income * 0.8)}`,
         );
         break;
       }
       case "70-20-10": {
         const income = inputs.income || 0;
         setResult(
-          `Living: ₹${(income * 0.7).toLocaleString("en-IN")} | Savings: ₹${(income * 0.2).toLocaleString("en-IN")} | Giving: ₹${(income * 0.1).toLocaleString("en-IN")}`,
+          `Living: ${formatCurrency(income * 0.7)} | Savings: ${formatCurrency(income * 0.2)} | Giving: ${formatCurrency(income * 0.1)}`,
         );
         break;
       }
       case "60-40-budget": {
         const income = inputs.income || 0;
         setResult(
-          `Committed: ₹${(income * 0.6).toLocaleString("en-IN")} | Flexible: ₹${(income * 0.4).toLocaleString("en-IN")}`,
+          `Committed: ${formatCurrency(income * 0.6)} | Flexible: ${formatCurrency(income * 0.4)}`,
         );
         break;
       }
       case "50-30-20-budgeting": {
         const income = inputs.income || 0;
         setResult(
-          `Needs: ₹${(income * 0.5).toLocaleString("en-IN")} | Wants: ₹${(income * 0.3).toLocaleString("en-IN")} | Savings: ₹${(income * 0.2).toLocaleString("en-IN")}`,
+          `Needs: ${formatCurrency(income * 0.5)} | Wants: ${formatCurrency(income * 0.3)} | Savings: ${formatCurrency(income * 0.2)}`,
         );
         break;
       }
       case "25x-retirement": {
         const ae = inputs.annualExpenses || 0;
-        setResult(
-          `Retirement Corpus Needed: ₹${(ae * 25).toLocaleString("en-IN")}`,
-        );
+        setResult(`Retirement Corpus Needed: ${formatCurrency(ae * 25)}`);
         break;
       }
       case "housing-30": {
         const income = inputs.income || 0;
-        setResult(
-          `Maximum Housing Cost: ₹${(income * 0.3).toLocaleString("en-IN")}`,
-        );
+        setResult(`Maximum Housing Cost: ${formatCurrency(income * 0.3)}`);
         break;
       }
       case "income-by-age-30":
@@ -1644,73 +1642,61 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
               : rule.id === "income-by-age-50"
                 ? 6
                 : 10;
-        setResult(
-          `Target Savings: ₹${(salary * mult).toLocaleString("en-IN")}`,
-        );
+        setResult(`Target Savings: ${formatCurrency(salary * mult)}`);
         break;
       }
       case "core-satellite": {
         const p = inputs.portfolio || 0;
         setResult(
-          `Core (75%): ₹${(p * 0.75).toLocaleString("en-IN")} | Satellite (25%): ₹${(p * 0.25).toLocaleString("en-IN")}`,
+          `Core (75%): ${formatCurrency(p * 0.75)} | Satellite (25%): ${formatCurrency(p * 0.25)}`,
         );
         break;
       }
       case "global-diversification": {
         const p = inputs.portfolio || 0;
         setResult(
-          `Domestic (75%): ₹${(p * 0.75).toLocaleString("en-IN")} | International (25%): ₹${(p * 0.25).toLocaleString("en-IN")}`,
+          `Domestic (75%): ${formatCurrency(p * 0.75)} | International (25%): ${formatCurrency(p * 0.25)}`,
         );
         break;
       }
       case "position-sizing":
       case "10-percent-diversification": {
         const p = inputs.portfolio || 0;
-        setResult(
-          `Maximum Position Size (10%): ₹${(p * 0.1).toLocaleString("en-IN")}`,
-        );
+        setResult(`Maximum Position Size (10%): ${formatCurrency(p * 0.1)}`);
         break;
       }
       case "credit-utilization": {
         const cl = inputs.creditLimit || 0;
-        setResult(
-          `Maximum Credit Usage (30%): ₹${(cl * 0.3).toLocaleString("en-IN")}`,
-        );
+        setResult(`Maximum Credit Usage (30%): ${formatCurrency(cl * 0.3)}`);
         break;
       }
       case "debt-to-income-36": {
         const income = inputs.income || 0;
-        setResult(
-          `Maximum Total Debt (36%): ₹${(income * 0.36).toLocaleString("en-IN")}`,
-        );
+        setResult(`Maximum Total Debt (36%): ${formatCurrency(income * 0.36)}`);
         break;
       }
       case "28-36-housing": {
         const income = inputs.income || 0;
         setResult(
-          `Max Housing (28%): ₹${(income * 0.28).toLocaleString("en-IN")} | Max Total Debt (36%): ₹${(income * 0.36).toLocaleString("en-IN")}`,
+          `Max Housing (28%): ${formatCurrency(income * 0.28)} | Max Total Debt (36%): ${formatCurrency(income * 0.36)}`,
         );
         break;
       }
       case "emergency-fund": {
         const me = inputs.monthlyExpenses || 0;
-        setResult(
-          `Emergency Fund Needed: ₹${(me * 6).toLocaleString("en-IN")}`,
-        );
+        setResult(`Emergency Fund Needed: ${formatCurrency(me * 6)}`);
         break;
       }
       case "life-insurance-coverage": {
         const ai = inputs.annualIncome || 0;
         setResult(
-          `Coverage Range: ₹${(ai * 10).toLocaleString("en-IN")} - ₹${(ai * 15).toLocaleString("en-IN")}`,
+          `Coverage Range: ${formatCurrency(ai * 10)} - ${formatCurrency(ai * 15)}`,
         );
         break;
       }
       case "4-percent-withdrawal": {
         const corpus = inputs.corpus || 0;
-        setResult(
-          `Annual Withdrawal: ₹${(corpus * 0.04).toLocaleString("en-IN")}`,
-        );
+        setResult(`Annual Withdrawal: ${formatCurrency(corpus * 0.04)}`);
         break;
       }
       case "100-minus-age": {
@@ -1738,7 +1724,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
       case "multiple-income-streams": {
         const total =
           (inputs.stream1 || 0) + (inputs.stream2 || 0) + (inputs.stream3 || 0);
-        setResult(`Total Monthly Income: ₹${total.toLocaleString("en-IN")}`);
+        setResult(`Total Monthly Income: ${formatCurrency(total)}`);
         break;
       }
       default:

@@ -27,14 +27,17 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
-function fmt(n: number) {
-  if (n >= 1e7) return `₹${(n / 1e7).toFixed(2)}Cr`;
-  if (n >= 1e5) return `₹${(n / 1e5).toFixed(2)}L`;
-  return `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+function fmt(n: number, sym: string) {
+  if (n >= 1e7) return `${sym}${(n / 1e7).toFixed(2)}Cr`;
+  if (n >= 1e5) return `${sym}${(n / 1e5).toFixed(2)}L`;
+  return `${sym}${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 }
 
 export function ModelRetirementTab() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [inputs, setInputs] = useState({
     currentAge: 30,
     retirementAge: 60,
@@ -229,9 +232,13 @@ export function ModelRetirementTab() {
                   min: 40,
                   max: 90,
                 },
-                { label: "Current Savings (₹)", key: "currentSavings", min: 0 },
                 {
-                  label: "Monthly Contribution (₹)",
+                  label: `Current Savings (${sym})`,
+                  key: "currentSavings",
+                  min: 0,
+                },
+                {
+                  label: `Monthly Contribution (${sym})`,
                   key: "monthlyContribution",
                   min: 0,
                 },
@@ -249,7 +256,11 @@ export function ModelRetirementTab() {
                   max: 20,
                   step: 0.5,
                 },
-                { label: "Monthly Expense (₹)", key: "monthlyExpense", min: 0 },
+                {
+                  label: `Monthly Expense (${sym})`,
+                  key: "monthlyExpense",
+                  min: 0,
+                },
               ] as {
                 label: string;
                 key: keyof typeof inputs;
@@ -282,7 +293,7 @@ export function ModelRetirementTab() {
                   Projected Corpus at {inputs.retirementAge}
                 </p>
                 <p className="text-2xl font-bold text-primary mt-1">
-                  {fmt(result.corpus)}
+                  {fmt(result.corpus, sym)}
                 </p>
               </CardContent>
             </Card>
@@ -292,7 +303,7 @@ export function ModelRetirementTab() {
                   Target Corpus (4% rule)
                 </p>
                 <p className="text-2xl font-bold mt-1">
-                  {fmt(result.targetCorpus)}
+                  {fmt(result.targetCorpus, sym)}
                 </p>
               </CardContent>
             </Card>
@@ -342,11 +353,11 @@ export function ModelRetirementTab() {
                 />
                 <YAxis
                   tick={{ fontSize: 10 }}
-                  tickFormatter={(v) => fmt(v)}
+                  tickFormatter={(v) => fmt(v, sym)}
                   width={70}
                 />
                 <Tooltip
-                  formatter={(v: number) => fmt(v)}
+                  formatter={(v: number) => fmt(v, sym)}
                   contentStyle={{
                     backgroundColor: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",
@@ -428,7 +439,7 @@ export function ModelRetirementTab() {
                 {milestones.map((m) => (
                   <div key={m.label} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{m.label}</span>
-                    <span className="font-semibold">{fmt(m.value)}</span>
+                    <span className="font-semibold">{fmt(m.value, sym)}</span>
                   </div>
                 ))}
               </CardContent>
@@ -455,7 +466,7 @@ export function ModelRetirementTab() {
                     Annual Expenses
                   </div>
                   <div className="font-bold text-violet-600">
-                    {fmt(inputs.monthlyExpense * 12)}/yr
+                    {fmt(inputs.monthlyExpense * 12, sym)}/yr
                   </div>
                 </div>
                 <div className="p-3 rounded-lg bg-purple-100/50 dark:bg-purple-900/20">
@@ -463,7 +474,7 @@ export function ModelRetirementTab() {
                     FIRE Number (25x)
                   </div>
                   <div className="font-bold text-purple-700 text-lg">
-                    {fmt(fireNumber)}
+                    {fmt(fireNumber, sym)}
                   </div>
                 </div>
                 <div className="p-3 rounded-lg bg-indigo-100/50 dark:bg-indigo-900/20">
@@ -472,7 +483,7 @@ export function ModelRetirementTab() {
                   </div>
                   <div className="font-bold text-indigo-600">
                     {fireSIPNeeded > 0
-                      ? `${fmt(fireSIPNeeded)}/mo`
+                      ? `${fmt(fireSIPNeeded, sym)}/mo`
                       : "Already Funded!"}
                   </div>
                 </div>

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function CAGRCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [initialVal, setInitialVal] = useState("100000");
   const [finalVal, setFinalVal] = useState("250000");
   const [years, setYears] = useState("5");
@@ -32,7 +35,7 @@ export function CAGRCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Initial Value (₹)</Label>
+            <Label>Initial Value ({sym})</Label>
             <Input
               value={initialVal}
               onChange={(e) => setInitialVal(e.target.value)}
@@ -41,7 +44,7 @@ export function CAGRCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Final Value (₹)</Label>
+            <Label>Final Value ({sym})</Label>
             <Input
               value={finalVal}
               onChange={(e) => setFinalVal(e.target.value)}

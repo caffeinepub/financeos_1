@@ -19,6 +19,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -30,6 +31,8 @@ const fmt = (n: number) =>
 const BAR_COLORS = ["#6366f1", "#10b981"];
 
 export function FDCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [principal, setPrincipal] = useState("100000");
   const [rate, setRate] = useState("7");
   const [tenure, setTenure] = useState("12");
@@ -57,7 +60,7 @@ export function FDCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Principal Amount (₹)</Label>
+            <Label>Principal Amount ({sym})</Label>
             <Input
               value={principal}
               onChange={(e) => setPrincipal(e.target.value)}
@@ -138,7 +141,7 @@ export function FDCalculator() {
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                 <YAxis
                   tick={{ fontSize: 10 }}
-                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                   width={45}
                 />
                 <Tooltip formatter={(v: number) => fmt(v)} />

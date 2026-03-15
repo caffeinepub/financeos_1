@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function SWPCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [initial, setInitial] = useState("1000000");
   const [withdrawal, setWithdrawal] = useState("10000");
   const [rate, setRate] = useState("8");
@@ -54,7 +57,7 @@ export function SWPCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Initial Investment (₹)</Label>
+            <Label>Initial Investment ({sym})</Label>
             <Input
               value={initial}
               onChange={(e) => setInitial(e.target.value)}
@@ -63,7 +66,7 @@ export function SWPCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Monthly Withdrawal (₹)</Label>
+            <Label>Monthly Withdrawal ({sym})</Label>
             <Input
               value={withdrawal}
               onChange={(e) => setWithdrawal(e.target.value)}

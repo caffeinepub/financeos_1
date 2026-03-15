@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -23,6 +24,8 @@ const fmt = (n: number) =>
 const BAR_COLORS = ["#f97316", "#ef4444"];
 
 export function FIRECalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [currentAge, setCurrentAge] = useState("28");
   const [fireAge, setFireAge] = useState("45");
   const [annualExpenses, setAnnualExpenses] = useState("600000");
@@ -92,7 +95,7 @@ export function FIRECalculator() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Annual Expenses (₹)</Label>
+              <Label>Annual Expenses ({sym})</Label>
               <Input
                 value={annualExpenses}
                 onChange={(e) => setAnnualExpenses(e.target.value)}
@@ -101,7 +104,7 @@ export function FIRECalculator() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Current Savings (₹)</Label>
+              <Label>Current Savings ({sym})</Label>
               <Input
                 value={currentSavings}
                 onChange={(e) => setCurrentSavings(e.target.value)}
@@ -172,7 +175,7 @@ export function FIRECalculator() {
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                 <YAxis
                   tick={{ fontSize: 10 }}
-                  tickFormatter={(v) => `₹${(v / 100000).toFixed(0)}L`}
+                  tickFormatter={(v) => `${sym}${(v / 100000).toFixed(0)}L`}
                   width={40}
                 />
                 <Tooltip formatter={(v: number) => fmt(v)} />

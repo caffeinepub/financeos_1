@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function MarriagePlanningCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [years, setYears] = useState("5");
   const [currentCost, setCurrentCost] = useState("2000000");
   const [inflation, setInflation] = useState("6");
@@ -49,7 +52,7 @@ export function MarriagePlanningCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Expected Cost Today (₹)</Label>
+            <Label>Expected Cost Today ({sym})</Label>
             <Input
               value={currentCost}
               onChange={(e) => setCurrentCost(e.target.value)}

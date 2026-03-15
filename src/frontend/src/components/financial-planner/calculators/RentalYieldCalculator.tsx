@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function RentalYieldCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [propertyValue, setPropertyValue] = useState("5000000");
   const [monthlyRent, setMonthlyRent] = useState("25000");
   const [annualMaintenance, setAnnualMaintenance] = useState("24000");
@@ -35,7 +38,7 @@ export function RentalYieldCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Property Value (₹)</Label>
+            <Label>Property Value ({sym})</Label>
             <Input
               value={propertyValue}
               onChange={(e) => setPropertyValue(e.target.value)}
@@ -44,7 +47,7 @@ export function RentalYieldCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Monthly Rent (₹)</Label>
+            <Label>Monthly Rent ({sym})</Label>
             <Input
               value={monthlyRent}
               onChange={(e) => setMonthlyRent(e.target.value)}
@@ -53,7 +56,7 @@ export function RentalYieldCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Annual Maintenance (₹)</Label>
+            <Label>Annual Maintenance ({sym})</Label>
             <Input
               value={annualMaintenance}
               onChange={(e) => setAnnualMaintenance(e.target.value)}
@@ -62,7 +65,7 @@ export function RentalYieldCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Annual Property Tax (₹)</Label>
+            <Label>Annual Property Tax ({sym})</Label>
             <Input
               value={propertyTax}
               onChange={(e) => setPropertyTax(e.target.value)}

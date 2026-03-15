@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function FlatVsReducingCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [loanAmount, setLoanAmount] = useState("500000");
   const [flatRate, setFlatRate] = useState("10");
   const [reducingRate, setReducingRate] = useState("10");
@@ -43,7 +46,7 @@ export function FlatVsReducingCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Loan Amount (₹)</Label>
+            <Label>Loan Amount ({sym})</Label>
             <Input
               value={loanAmount}
               onChange={(e) => setLoanAmount(e.target.value)}

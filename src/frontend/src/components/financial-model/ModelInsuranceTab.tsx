@@ -24,14 +24,17 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
-function fmt(n: number) {
-  if (n >= 1e7) return `₹${(n / 1e7).toFixed(2)} Cr`;
-  if (n >= 1e5) return `₹${(n / 1e5).toFixed(2)} L`;
-  return `₹${n.toLocaleString("en-IN")}`;
+function fmt(n: number, sym: string) {
+  if (n >= 1e7) return `${sym}${(n / 1e7).toFixed(2)} Cr`;
+  if (n >= 1e5) return `${sym}${(n / 1e5).toFixed(2)} L`;
+  return `${sym}${n.toLocaleString("en-IN")}`;
 }
 
 export function ModelInsuranceTab() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [life, setLife] = useState({
     annualIncome: 1200000,
     liabilities: 2000000,
@@ -178,7 +181,7 @@ export function ModelInsuranceTab() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Annual Income (₹)</Label>
+                  <Label className="text-xs">Annual Income ({sym})</Label>
                   <Input
                     data-ocid="financialmodel.insurance.hlv.income.input"
                     type="number"
@@ -230,7 +233,7 @@ export function ModelInsuranceTab() {
                       HLV-Based Cover
                     </div>
                     <div className="font-bold text-blue-700 text-xl">
-                      {fmt(hlvRecommended)}
+                      {fmt(hlvRecommended, sym)}
                     </div>
                   </div>
                   <Badge variant="outline" className="text-xs">
@@ -252,7 +255,7 @@ export function ModelInsuranceTab() {
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">Annual Income (₹)</Label>
+                    <Label className="text-xs">Annual Income ({sym})</Label>
                     <Input
                       data-ocid="financialmodel.insurance.life.income.input"
                       type="number"
@@ -267,7 +270,7 @@ export function ModelInsuranceTab() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Liabilities (₹)</Label>
+                    <Label className="text-xs">Liabilities ({sym})</Label>
                     <Input
                       data-ocid="financialmodel.insurance.life.liabilities.input"
                       type="number"
@@ -298,7 +301,7 @@ export function ModelInsuranceTab() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Current Cover (₹)</Label>
+                    <Label className="text-xs">Current Cover ({sym})</Label>
                     <Input
                       data-ocid="financialmodel.insurance.life.cover.input"
                       type="number"
@@ -319,13 +322,13 @@ export function ModelInsuranceTab() {
                       Recommended Cover
                     </span>
                     <span className="font-bold text-primary">
-                      {fmt(lifeRecommended)}
+                      {fmt(lifeRecommended, sym)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Coverage Gap</span>
                     <Badge variant={lifeGap > 0 ? "destructive" : "default"}>
-                      {lifeGap > 0 ? fmt(lifeGap) : "Fully Covered"}
+                      {lifeGap > 0 ? fmt(lifeGap, sym) : "Fully Covered"}
                     </Badge>
                   </div>
                 </div>
@@ -400,7 +403,7 @@ export function ModelInsuranceTab() {
                     </Select>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Current Cover (₹)</Label>
+                    <Label className="text-xs">Current Cover ({sym})</Label>
                     <Input
                       data-ocid="financialmodel.insurance.health.cover.input"
                       type="number"
@@ -421,13 +424,13 @@ export function ModelInsuranceTab() {
                       Recommended Cover
                     </span>
                     <span className="font-bold text-success">
-                      {fmt(healthRecommended)}
+                      {fmt(healthRecommended, sym)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Coverage Gap</span>
                     <Badge variant={healthGap > 0 ? "destructive" : "default"}>
-                      {healthGap > 0 ? fmt(healthGap) : "Fully Covered"}
+                      {healthGap > 0 ? fmt(healthGap, sym) : "Fully Covered"}
                     </Badge>
                   </div>
                 </div>
@@ -461,7 +464,7 @@ export function ModelInsuranceTab() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Annual Income (₹)</Label>
+                    <Label className="text-xs">Annual Income ({sym})</Label>
                     <Input
                       data-ocid="financialmodel.insurance.term.income.input"
                       type="number"
@@ -491,7 +494,7 @@ export function ModelInsuranceTab() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Current Cover (₹)</Label>
+                    <Label className="text-xs">Current Cover ({sym})</Label>
                     <Input
                       data-ocid="financialmodel.insurance.term.cover.input"
                       type="number"
@@ -511,20 +514,22 @@ export function ModelInsuranceTab() {
                     <span className="text-muted-foreground">
                       Recommended Cover
                     </span>
-                    <span className="font-bold">{fmt(termRecommended)}</span>
+                    <span className="font-bold">
+                      {fmt(termRecommended, sym)}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
                       Est. Monthly Premium
                     </span>
                     <span className="font-bold text-warning">
-                      {fmt(termPremiumEstimate)}/mo
+                      {fmt(termPremiumEstimate, sym)}/mo
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Coverage Gap</span>
                     <Badge variant={termGap > 0 ? "destructive" : "default"}>
-                      {termGap > 0 ? fmt(termGap) : "Fully Covered"}
+                      {termGap > 0 ? fmt(termGap, sym) : "Fully Covered"}
                     </Badge>
                   </div>
                 </div>
@@ -562,7 +567,7 @@ export function ModelInsuranceTab() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Annual Income (₹)</Label>
+                    <Label className="text-xs">Annual Income ({sym})</Label>
                     <Input
                       data-ocid="financialmodel.insurance.critical.income.input"
                       type="number"
@@ -578,7 +583,7 @@ export function ModelInsuranceTab() {
                   </div>
                   <div className="space-y-1 col-span-2">
                     <Label className="text-xs">
-                      Current Critical Illness Cover (₹)
+                      Current Critical Illness Cover ({sym})
                     </Label>
                     <Input
                       data-ocid="financialmodel.insurance.critical.cover.input"
@@ -600,7 +605,7 @@ export function ModelInsuranceTab() {
                       Recommended Cover (5x income)
                     </span>
                     <span className="font-bold text-destructive">
-                      {fmt(criticalRecommended)}
+                      {fmt(criticalRecommended, sym)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -608,7 +613,9 @@ export function ModelInsuranceTab() {
                     <Badge
                       variant={criticalGap > 0 ? "destructive" : "default"}
                     >
-                      {criticalGap > 0 ? fmt(criticalGap) : "Fully Covered"}
+                      {criticalGap > 0
+                        ? fmt(criticalGap, sym)
+                        : "Fully Covered"}
                     </Badge>
                   </div>
                 </div>

@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -19,6 +20,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function EMICalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [loanAmount, setLoanAmount] = useState("1000000");
   const [interestRate, setInterestRate] = useState("8.5");
   const [tenure, setTenure] = useState("240");
@@ -46,7 +49,7 @@ export function EMICalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Loan Amount (₹)</Label>
+            <Label>Loan Amount ({sym})</Label>
             <Input
               value={loanAmount}
               onChange={(e) => setLoanAmount(e.target.value)}

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function CreditCardPayoffCalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [balance, setBalance] = useState("50000");
   const [monthlyRate, setMonthlyRate] = useState("3.5");
   const [monthlyPayment, setMonthlyPayment] = useState("3000");
@@ -39,7 +42,7 @@ export function CreditCardPayoffCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Outstanding Balance (₹)</Label>
+            <Label>Outstanding Balance ({sym})</Label>
             <Input
               value={balance}
               onChange={(e) => setBalance(e.target.value)}
@@ -58,7 +61,7 @@ export function CreditCardPayoffCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Monthly Payment (₹)</Label>
+            <Label>Monthly Payment ({sym})</Label>
             <Input
               value={monthlyPayment}
               onChange={(e) => setMonthlyPayment(e.target.value)}

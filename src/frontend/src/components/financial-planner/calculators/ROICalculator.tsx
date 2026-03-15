@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
+import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,6 +12,8 @@ const fmt = (n: number) =>
   }).format(n);
 
 export function ROICalculator() {
+  const { country } = useCurrency();
+  const sym = country.symbol;
   const [invested, setInvested] = useState("100000");
   const [finalVal, setFinalVal] = useState("150000");
   const [years, setYears] = useState("3");
@@ -33,7 +36,7 @@ export function ROICalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Initial Investment (₹)</Label>
+            <Label>Initial Investment ({sym})</Label>
             <Input
               value={invested}
               onChange={(e) => setInvested(e.target.value)}
@@ -42,7 +45,7 @@ export function ROICalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Final Value (₹)</Label>
+            <Label>Final Value ({sym})</Label>
             <Input
               value={finalVal}
               onChange={(e) => setFinalVal(e.target.value)}

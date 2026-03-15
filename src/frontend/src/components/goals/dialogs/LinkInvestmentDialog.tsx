@@ -74,14 +74,14 @@ export function LinkInvestmentDialog({
   };
 
   const assetTypeLabel: Record<string, string> = {
-    ETF: "ETF / Stocks",
+    ETF: "Equity (ETF/Stocks)",
     MutualFund: "Mutual Fund",
     Crypto: "Crypto",
     FixedIncome: "Fixed Deposit",
     Commodity: "Commodity",
     RealEstate: "Real Estate",
     Other: "Other",
-    Retirement: "Retirement",
+    Retirement: "Retiral",
   };
 
   return (

@@ -11,7 +11,6 @@ import {
   Tooltip,
 } from "recharts";
 import { AssetType, type PortfolioHolding } from "../backend.d";
-import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -36,8 +35,6 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Skeleton } from "../components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Textarea } from "../components/ui/textarea";
 import { useActor } from "../hooks/useActor";
 
 const SLICE_COLORS = [
@@ -53,25 +50,101 @@ const SLICE_COLORS = [
   "#4ade80",
 ];
 
-const assetTypes: { value: AssetType; label: string }[] = [
-  { value: AssetType.Retirement, label: "Retirement" },
-  { value: AssetType.MutualFund, label: "Mutual Fund" },
-  { value: AssetType.ETF, label: "ETF / Equity Stocks" },
-  { value: AssetType.Crypto, label: "Crypto" },
-  { value: AssetType.Commodity, label: "Commodity" },
-  { value: AssetType.RealEstate, label: "Real Estate" },
-  { value: AssetType.FixedIncome, label: "Fixed Income" },
-  { value: AssetType.Other, label: "Other" },
+const assetTypes: { value: AssetType; label: string; color: string }[] = [
+  { value: AssetType.Retirement, label: "Retiral", color: "#6366f1" },
+  { value: AssetType.MutualFund, label: "Mutual Fund", color: "#22c55e" },
+  { value: AssetType.ETF, label: "Equity (ETF/Stocks)", color: "#10b981" },
+  { value: AssetType.Crypto, label: "Crypto", color: "#f97316" },
+  { value: AssetType.Commodity, label: "Commodity", color: "#eab308" },
+  { value: AssetType.RealEstate, label: "Real Estate", color: "#a855f7" },
+  { value: AssetType.FixedIncome, label: "Fixed Income", color: "#06b6d4" },
+  { value: AssetType.Other, label: "Other", color: "#64748b" },
 ];
+
+const categoryOptions: Record<string, string[]> = {
+  [AssetType.Retirement]: [
+    "PPF",
+    "NPS",
+    "EPF",
+    "LIC",
+    "Superannuation",
+    "Pension",
+    "Gratuity",
+    "Other",
+  ],
+  [AssetType.ETF]: [
+    "Large Cap",
+    "Mid Cap",
+    "Small Cap",
+    "Multi Cap",
+    "Factor",
+    "Other",
+  ],
+  [AssetType.MutualFund]: [
+    "Large Cap",
+    "Mid Cap",
+    "Small Cap",
+    "Flexi Cap",
+    "Multi Cap",
+    "Multi Asset",
+    "Index",
+    "Debt",
+    "Hybrid",
+    "ELSS",
+    "Liquid",
+    "Balance Advantage",
+    "Arbitrage",
+    "International",
+    "Factor",
+    "Other",
+  ],
+  [AssetType.Crypto]: [
+    "Large Cap",
+    "Mid Cap",
+    "Small Cap",
+    "Micro Cap",
+    "Stablecoin",
+    "Memecoin",
+    "Other",
+  ],
+  [AssetType.Commodity]: [
+    "Gold",
+    "Silver",
+    "Platinum",
+    "Gold ETF",
+    "Silver ETF",
+    "Other",
+  ],
+  [AssetType.RealEstate]: ["Residential", "Commercial", "Land"],
+  [AssetType.FixedIncome]: [
+    "Fixed Deposit",
+    "Bonds",
+    "Post Office Bonds",
+    "Cash",
+    "Other",
+  ],
+  [AssetType.Other]: [
+    "IPO",
+    "PMS",
+    "SIF",
+    "Startup",
+    "Unlisted/Pre-IPO",
+    "P2P Lending",
+    "Invoice Discounting",
+    "Other",
+  ],
+};
 
 const emptyForm = {
   name: "",
   ticker: "",
   assetType: AssetType.Retirement,
+  category: "",
   quantity: 0,
-  costBasis: 0,
+  buyPrice: 0,
+  invested: 0,
+  marketPrice: 0,
   currentValue: 0,
-  notes: "",
 };
 
 function fmt(n: number) {
@@ -91,10 +164,18 @@ export default function PortfolioPage() {
   const [editing, setEditing] = useState<PortfolioHolding | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [investedMode, setInvestedMode] = useState<
+    "buyPrice" | "invested" | null
+  >(null);
+  const [currentMode, setCurrentMode] = useState<
+    "marketPrice" | "currentValue" | null
+  >(null);
 
   const currentType = (assetType as AssetType) || AssetType.Retirement;
   const filtered = holdings.filter((h) => h.assetType === currentType);
   const totalValue = filtered.reduce((s, h) => s + h.currentValue, 0);
+  const activeTabColor =
+    assetTypes.find((at) => at.value === currentType)?.color ?? "#6366f1";
 
   // Pie data for holdings distribution
   const pieData = filtered.map((h, idx) => ({
@@ -116,33 +197,130 @@ export default function PortfolioPage() {
 
   const openAdd = () => {
     setEditing(null);
-    setForm({ ...emptyForm, assetType: currentType });
+    setForm({
+      ...emptyForm,
+      assetType: currentType,
+      category: categoryOptions[currentType]?.[0] ?? "",
+    });
+    setInvestedMode(null);
+    setCurrentMode(null);
     setOpen(true);
   };
+
   const openEdit = (h: PortfolioHolding) => {
     setEditing(h);
     setForm({
       name: h.name,
-      ticker: h.ticker,
+      ticker: "",
       assetType: h.assetType,
+      category: h.notes || "",
       quantity: h.quantity,
-      costBasis: h.costBasis,
+      buyPrice: h.costBasis,
+      invested: h.costBasis * h.quantity,
+      marketPrice: h.quantity > 0 ? h.currentValue / h.quantity : 0,
       currentValue: h.currentValue,
-      notes: h.notes,
     });
+    setInvestedMode(h.costBasis > 0 ? "buyPrice" : null);
+    setCurrentMode(h.currentValue > 0 && h.quantity > 0 ? "marketPrice" : null);
     setOpen(true);
+  };
+
+  const handleAssetTypeChange = (v: AssetType) => {
+    const firstCategory = categoryOptions[v]?.[0] ?? "";
+    setForm((f) => ({ ...f, assetType: v, category: firstCategory }));
+  };
+
+  const handleQuantityChange = (qty: number) => {
+    setForm((f) => {
+      const next = { ...f, quantity: qty };
+      if (investedMode === "buyPrice") {
+        next.invested = qty * f.buyPrice;
+      } else if (investedMode === "invested") {
+        next.buyPrice = qty > 0 ? f.invested / qty : 0;
+      }
+      if (currentMode === "marketPrice") {
+        next.currentValue = qty * f.marketPrice;
+      } else if (currentMode === "currentValue") {
+        next.marketPrice = qty > 0 ? f.currentValue / qty : 0;
+      }
+      return next;
+    });
+  };
+
+  const handleBuyPriceChange = (val: number) => {
+    if (val > 0) {
+      setInvestedMode("buyPrice");
+      setForm((f) => ({ ...f, buyPrice: val, invested: f.quantity * val }));
+    } else {
+      setInvestedMode(null);
+      setForm((f) => ({ ...f, buyPrice: val, invested: 0 }));
+    }
+  };
+
+  const handleInvestedChange = (val: number) => {
+    if (val > 0) {
+      setInvestedMode("invested");
+      setForm((f) => ({
+        ...f,
+        invested: val,
+        buyPrice: f.quantity > 0 ? val / f.quantity : 0,
+      }));
+    } else {
+      setInvestedMode(null);
+      setForm((f) => ({ ...f, invested: val, buyPrice: 0 }));
+    }
+  };
+
+  const handleMarketPriceChange = (val: number) => {
+    if (val > 0) {
+      setCurrentMode("marketPrice");
+      setForm((f) => ({
+        ...f,
+        marketPrice: val,
+        currentValue: f.quantity * val,
+      }));
+    } else {
+      setCurrentMode(null);
+      setForm((f) => ({ ...f, marketPrice: val, currentValue: 0 }));
+    }
+  };
+
+  const handleCurrentValueChange = (val: number) => {
+    if (val > 0) {
+      setCurrentMode("currentValue");
+      setForm((f) => ({
+        ...f,
+        currentValue: val,
+        marketPrice: f.quantity > 0 ? val / f.quantity : 0,
+      }));
+    } else {
+      setCurrentMode(null);
+      setForm((f) => ({ ...f, currentValue: val, marketPrice: 0 }));
+    }
   };
 
   const save = async () => {
     if (!actor) return;
     setSaving(true);
     try {
+      const holdingData = {
+        name: form.name,
+        ticker: form.ticker,
+        assetType: form.assetType,
+        quantity: form.quantity,
+        costBasis: form.buyPrice,
+        currentValue: form.currentValue,
+        notes: form.category,
+      };
       if (editing) {
-        await actor.updatePortfolioHolding(editing.id, { ...editing, ...form });
+        await actor.updatePortfolioHolding(editing.id, {
+          ...editing,
+          ...holdingData,
+        });
       } else {
         await actor.createPortfolioHolding({
           id: crypto.randomUUID(),
-          ...form,
+          ...holdingData,
         });
       }
       setOpen(false);
@@ -176,29 +354,47 @@ export default function PortfolioPage() {
         </Button>
       </div>
 
-      <Tabs
-        value={currentType}
-        onValueChange={(v) => navigate(`/portfolio/${v}`)}
-      >
-        <TabsList className="flex flex-wrap h-auto gap-1">
-          {assetTypes.map((at) => (
-            <TabsTrigger
-              key={at.value}
-              value={at.value}
-              data-ocid={`portfolio.${at.value.toLowerCase()}.tab`}
-            >
-              {at.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      {/* Industry-standard pill tab bar */}
+      <div className="overflow-x-auto pb-1">
+        <div className="flex flex-row gap-2 min-w-max">
+          {assetTypes.map((at) => {
+            const isActive = currentType === at.value;
+            return (
+              <button
+                key={at.value}
+                type="button"
+                data-ocid={`portfolio.${at.value.toLowerCase()}.tab`}
+                onClick={() => navigate(`/portfolio/${at.value}`)}
+                className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+                style={
+                  isActive
+                    ? {
+                        backgroundColor: at.color,
+                        color: "#fff",
+                        boxShadow: `0 2px 8px ${at.color}55`,
+                      }
+                    : {
+                        backgroundColor: "#f1f5f9",
+                        color: "#64748b",
+                      }
+                }
+              >
+                {at.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Summary row */}
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-medium">
           {filtered.length} holding{filtered.length !== 1 ? "s" : ""}
         </span>
-        <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold tabular-nums">
+        <span
+          className="inline-flex items-center px-3 py-1 rounded-full text-white text-xs font-semibold tabular-nums"
+          style={{ backgroundColor: activeTabColor }}
+        >
           Total: {fmt(totalValue)}
         </span>
       </div>
@@ -222,107 +418,104 @@ export default function PortfolioPage() {
         <>
           {/* Holdings Table */}
           <div className="rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <table className="w-full text-sm" data-ocid="portfolio.table">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    Ticker
-                  </th>
-                  <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    Qty
-                  </th>
-                  <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    Cost Basis
-                  </th>
-                  <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    Current Value
-                  </th>
-                  <th className="px-4 py-3 text-right text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    Gain / Loss
-                  </th>
-                  <th className="px-4 py-3 text-center text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((h, i) => {
-                  const gl = h.currentValue - h.costBasis * h.quantity;
-                  const glPct =
-                    h.costBasis * h.quantity > 0
-                      ? (gl / (h.costBasis * h.quantity)) * 100
-                      : 0;
-                  return (
-                    <tr
-                      key={h.id}
-                      data-ocid={`portfolio.item.${i + 1}`}
-                      className="hover:bg-slate-50/80 transition-colors"
-                    >
-                      <td className="px-4 py-3 text-sm font-medium text-slate-800">
-                        {h.name}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-slate-500">
-                        {h.ticker ? (
-                          <Badge
-                            variant="outline"
-                            className="text-xs font-mono"
-                          >
-                            {h.ticker}
-                          </Badge>
-                        ) : (
-                          <span className="text-slate-300">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
-                        {h.quantity}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
-                        {fmt(h.costBasis)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-right tabular-nums font-medium text-slate-800">
-                        {fmt(h.currentValue)}
-                      </td>
-                      <td
-                        className={`px-4 py-3 text-sm text-right tabular-nums font-semibold ${
-                          gl >= 0 ? "text-emerald-600" : "text-red-500"
-                        }`}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" data-ocid="portfolio.table">
+                <thead>
+                  <tr style={{ backgroundColor: activeTabColor }}>
+                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-white uppercase tracking-wide">
+                      Name/Ticker
+                    </th>
+                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-white uppercase tracking-wide">
+                      Category
+                    </th>
+                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-white uppercase tracking-wide">
+                      Qty
+                    </th>
+                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-white uppercase tracking-wide">
+                      Buy Price
+                    </th>
+                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-white uppercase tracking-wide">
+                      Invested Value
+                    </th>
+                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-white uppercase tracking-wide">
+                      Current Value
+                    </th>
+                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-white uppercase tracking-wide">
+                      Gain / Loss
+                    </th>
+                    <th className="px-4 py-3 text-center text-[11px] font-semibold text-white uppercase tracking-wide">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filtered.map((h, i) => {
+                    const invested = h.costBasis * h.quantity;
+                    const gl = h.currentValue - invested;
+                    const glPct = invested > 0 ? (gl / invested) * 100 : 0;
+                    return (
+                      <tr
+                        key={h.id}
+                        data-ocid={`portfolio.item.${i + 1}`}
+                        className="hover:bg-slate-50/80 transition-colors"
                       >
-                        {gl >= 0 ? "+" : ""}
-                        {fmt(gl)}{" "}
-                        <span className="text-xs font-normal opacity-75">
-                          ({glPct.toFixed(1)}%)
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-1 justify-center">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-slate-400 hover:text-slate-700"
-                            data-ocid={`portfolio.edit_button.${i + 1}`}
-                            onClick={() => openEdit(h)}
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-slate-300 hover:text-red-500"
-                            data-ocid={`portfolio.delete_button.${i + 1}`}
-                            onClick={() => del(h.id)}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        <td className="px-4 py-3 text-sm font-medium text-slate-800">
+                          {h.name}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-500">
+                          {h.notes || "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
+                          {h.quantity}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
+                          {fmt(h.costBasis)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-700 font-medium">
+                          {fmt(invested)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right tabular-nums font-medium text-slate-800">
+                          {fmt(h.currentValue)}
+                        </td>
+                        <td
+                          className={`px-4 py-3 text-sm text-right tabular-nums font-semibold ${
+                            gl >= 0 ? "text-emerald-600" : "text-red-500"
+                          }`}
+                        >
+                          {gl >= 0 ? "+" : ""}
+                          {fmt(gl)}{" "}
+                          <span className="text-xs font-normal opacity-75">
+                            ({glPct.toFixed(1)}%)
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-1 justify-center">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-slate-400 hover:text-slate-700"
+                              data-ocid={`portfolio.edit_button.${i + 1}`}
+                              onClick={() => openEdit(h)}
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-slate-300 hover:text-red-500"
+                              data-ocid={`portfolio.delete_button.${i + 1}`}
+                              onClick={() => del(h.id)}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Holdings Distribution Pie Chart */}
@@ -377,106 +570,159 @@ export default function PortfolioPage() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent data-ocid="portfolio.dialog">
+        <DialogContent data-ocid="portfolio.dialog" className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
               {editing ? "Edit Holding" : "Add Holding"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div>
+              <Label>Name/Ticker</Label>
+              <Input
+                data-ocid="portfolio.name.input"
+                value={form.name}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
+              />
+            </div>
+
+            {/* Asset Type + Category side by side */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Name</Label>
-                <Input
-                  data-ocid="portfolio.name.input"
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, name: e.target.value }))
-                  }
-                />
+                <Label>Asset Type</Label>
+                <Select
+                  value={form.assetType}
+                  onValueChange={(v) => handleAssetTypeChange(v as AssetType)}
+                >
+                  <SelectTrigger data-ocid="portfolio.assettype.select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assetTypes.map((at) => (
+                      <SelectItem key={at.value} value={at.value}>
+                        {at.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <Label>Ticker</Label>
-                <Input
-                  data-ocid="portfolio.ticker.input"
-                  value={form.ticker}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, ticker: e.target.value }))
-                  }
-                />
+                <Label>Category</Label>
+                <Select
+                  value={form.category}
+                  onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}
+                >
+                  <SelectTrigger data-ocid="portfolio.category.select">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(categoryOptions[form.assetType] ?? []).map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+
+            {/* Quantity */}
             <div>
-              <Label>Asset Type</Label>
-              <Select
-                value={form.assetType}
-                onValueChange={(v) =>
-                  setForm((f) => ({ ...f, assetType: v as AssetType }))
-                }
-              >
-                <SelectTrigger data-ocid="portfolio.assettype.select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {assetTypes.map((at) => (
-                    <SelectItem key={at.value} value={at.value}>
-                      {at.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <Label>Quantity</Label>
-                <Input
-                  data-ocid="portfolio.quantity.input"
-                  type="number"
-                  value={form.quantity}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, quantity: Number(e.target.value) }))
-                  }
-                />
-              </div>
-              <div>
-                <Label>Cost Basis</Label>
-                <Input
-                  data-ocid="portfolio.costbasis.input"
-                  type="number"
-                  value={form.costBasis}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      costBasis: Number(e.target.value),
-                    }))
-                  }
-                />
-              </div>
-              <div>
-                <Label>Current Value</Label>
-                <Input
-                  data-ocid="portfolio.currentvalue.input"
-                  type="number"
-                  value={form.currentValue}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      currentValue: Number(e.target.value),
-                    }))
-                  }
-                />
-              </div>
-            </div>
-            <div>
-              <Label>Notes</Label>
-              <Textarea
-                data-ocid="portfolio.notes.textarea"
-                value={form.notes}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, notes: e.target.value }))
-                }
-                rows={2}
+              <Label>Quantity</Label>
+              <Input
+                data-ocid="portfolio.quantity.input"
+                type="number"
+                value={form.quantity}
+                onChange={(e) => handleQuantityChange(Number(e.target.value))}
               />
+            </div>
+
+            {/* Buy Details */}
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                Buy Details
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Buy Price (per unit)</Label>
+                  <Input
+                    data-ocid="portfolio.buyprice.input"
+                    type="number"
+                    value={form.buyPrice}
+                    disabled={investedMode === "invested"}
+                    onChange={(e) =>
+                      handleBuyPriceChange(Number(e.target.value))
+                    }
+                    className={
+                      investedMode === "invested"
+                        ? "bg-slate-50 text-slate-400 cursor-not-allowed"
+                        : ""
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Invested Value</Label>
+                  <Input
+                    data-ocid="portfolio.invested.input"
+                    type="number"
+                    value={form.invested}
+                    disabled={investedMode === "buyPrice"}
+                    onChange={(e) =>
+                      handleInvestedChange(Number(e.target.value))
+                    }
+                    className={
+                      investedMode === "buyPrice"
+                        ? "bg-slate-50 text-slate-400 cursor-not-allowed"
+                        : ""
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Current Value Details */}
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                Current Value Details
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Market Price (per unit)</Label>
+                  <Input
+                    data-ocid="portfolio.marketprice.input"
+                    type="number"
+                    value={form.marketPrice}
+                    disabled={currentMode === "currentValue"}
+                    onChange={(e) =>
+                      handleMarketPriceChange(Number(e.target.value))
+                    }
+                    className={
+                      currentMode === "currentValue"
+                        ? "bg-slate-50 text-slate-400 cursor-not-allowed"
+                        : ""
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Current Value</Label>
+                  <Input
+                    data-ocid="portfolio.currentvalue.input"
+                    type="number"
+                    value={form.currentValue}
+                    disabled={currentMode === "marketPrice"}
+                    onChange={(e) =>
+                      handleCurrentValueChange(Number(e.target.value))
+                    }
+                    className={
+                      currentMode === "marketPrice"
+                        ? "bg-slate-50 text-slate-400 cursor-not-allowed"
+                        : ""
+                    }
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter>

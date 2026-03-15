@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BarChart3,
   CalendarDays,
+  CheckCircle2,
   ChevronDown,
   CreditCard,
   DollarSign,
@@ -12,6 +13,7 @@ import {
   Shield,
   Target,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -40,69 +42,113 @@ const TOP_20_CURRENCIES = [
   { country: "Russia", code: "RUB", symbol: "₽", flag: "🇷🇺" },
 ];
 
+// Module icon colors — distinct per module
+const MODULE_COLORS = [
+  {
+    bg: "oklch(0.93 0.06 240)",
+    icon: "oklch(0.45 0.20 240)",
+    border: "oklch(0.85 0.10 240)",
+  }, // Dashboard → blue
+  {
+    bg: "oklch(0.93 0.06 290)",
+    icon: "oklch(0.45 0.20 290)",
+    border: "oklch(0.85 0.10 290)",
+  }, // Goals → violet
+  {
+    bg: "oklch(0.93 0.06 185)",
+    icon: "oklch(0.45 0.15 185)",
+    border: "oklch(0.85 0.10 185)",
+  }, // Portfolio → teal
+  {
+    bg: "oklch(0.93 0.06 145)",
+    icon: "oklch(0.42 0.18 145)",
+    border: "oklch(0.85 0.10 145)",
+  }, // Budgeting → green
+  {
+    bg: "oklch(0.93 0.06 265)",
+    icon: "oklch(0.40 0.20 265)",
+    border: "oklch(0.85 0.10 265)",
+  }, // Financial Model → indigo
+  {
+    bg: "oklch(0.95 0.08 55)",
+    icon: "oklch(0.55 0.18 55)",
+    border: "oklch(0.88 0.12 55)",
+  }, // Financial Planner → orange
+  {
+    bg: "oklch(0.94 0.06 355)",
+    icon: "oklch(0.52 0.18 355)",
+    border: "oklch(0.87 0.10 355)",
+  }, // Financial Rules → pink
+  {
+    bg: "oklch(0.95 0.07 85)",
+    icon: "oklch(0.58 0.18 85)",
+    border: "oklch(0.88 0.12 85)",
+  }, // Loans → amber
+];
+
 const modules = [
   {
     icon: LayoutDashboard,
     name: "Dashboard",
-    tagline: "Your complete financial picture at a glance",
+    tagline: "Complete financial overview",
     description:
-      "At-a-glance financial health with net worth, asset breakdown, and key performance metrics.",
+      "Net worth, asset breakdown, and key performance metrics at a glance.",
     path: "/dashboard",
   },
   {
     icon: Target,
     name: "Goals",
-    tagline: "Turn ambitions into measurable milestones",
+    tagline: "Turn ambitions into milestones",
     description:
-      "Set, track, and achieve financial goals with milestone planning and visual progress tracking.",
+      "Set, track, and achieve financial goals with visual progress and milestone planning.",
     path: "/goals",
   },
   {
     icon: TrendingUp,
     name: "Portfolio",
-    tagline: "8 asset classes, one unified view",
+    tagline: "8 asset classes, one view",
     description:
-      "Multi-asset portfolio management across Retirement, Mutual Funds, ETFs, Crypto, Commodities, Real Estate, Fixed Income, and more.",
+      "Manage Retirement, Mutual Funds, ETFs, Crypto, Commodities, Real Estate, and more.",
     path: "/portfolio",
   },
   {
     icon: PiggyBank,
     name: "Budgeting",
-    tagline: "Know your net savings position every month",
+    tagline: "Know your savings position",
     description:
-      "Monthly budget tracking with income vs. planned vs. actual expense analysis and category-level insights.",
+      "Monthly income vs. planned vs. actual expense tracking with category-level insights.",
     path: "/budgeting",
   },
   {
     icon: BarChart3,
     name: "Financial Model",
-    tagline: "Scenario-plan your financial future",
+    tagline: "Scenario-plan your future",
     description:
-      "Advanced tabbed modeling across Asset Allocation, Portfolio, Retirement, Insurance, and Crypto.",
+      "Advanced modeling across Asset Allocation, Portfolio, Retirement, Insurance, and Crypto.",
     path: "/financial-model",
   },
   {
     icon: CalendarDays,
     name: "Financial Planner",
-    tagline: "35+ professional-grade calculators",
+    tagline: "35+ professional calculators",
     description:
-      "Calculators across 6 categories: Investment, Retirement, Loan & EMI, Tax, Savings, and Life Planning.",
+      "Calculators across Investment, Retirement, Loan & EMI, Tax, Savings, and Life Planning.",
     path: "/financial-planner",
   },
   {
     icon: Shield,
     name: "Financial Rules",
-    tagline: "Automate and guide your money decisions",
+    tagline: "AI-guided money decisions",
     description:
-      "Define smart financial rules with 80+ knowledge-base rules and AI-driven risk-profile recommendations.",
+      "80+ knowledge-base rules with AI-driven risk-profile recommendations (Conservative, Moderate, Aggressive).",
     path: "/financial-rules",
   },
   {
     icon: CreditCard,
     name: "Loans",
-    tagline: "Know exactly where you stand on every debt",
+    tagline: "Know every debt detail",
     description:
-      "Track and manage all loan accounts with amortization schedules, payoff planning, and interest analysis.",
+      "Track all loan accounts with amortization schedules, payoff planning, and interest analysis.",
     path: "/loans",
   },
 ];
@@ -121,22 +167,31 @@ const pillars = [
     icon: TrendingUp,
     title: "Portfolio Intelligence",
     description:
-      "Track 8 asset classes in one unified view. Real-time allocation breakdowns, growth projections, and diversification analysis help you make smarter investment decisions.",
-    stat: "8 Asset Classes",
+      "Track 8 asset classes in one unified view. Real-time allocation breakdowns, growth projections, and diversification analysis.",
+    stat: "8",
+    statLabel: "Asset Classes",
+    color: "oklch(0.45 0.20 240)",
+    bgColor: "oklch(0.93 0.06 240)",
   },
   {
     icon: PiggyBank,
     title: "Smart Budgeting",
     description:
-      "Monthly income vs. planned vs. actual expense tracking with visual breakdowns and category-level insights. Know your net savings position at every moment.",
-    stat: "360° Budget View",
+      "Monthly income vs. planned vs. actual expense tracking with visual breakdowns. Know your net savings position at every moment.",
+    stat: "360°",
+    statLabel: "Budget View",
+    color: "oklch(0.42 0.18 145)",
+    bgColor: "oklch(0.93 0.06 145)",
   },
   {
     icon: CalendarDays,
     title: "Financial Planning",
     description:
-      "From SIP to FIRE to retirement readiness — 35+ professional-grade calculators to model every financial decision with charts, projections, and actionable insights.",
-    stat: "35+ Calculators",
+      "From SIP to FIRE to retirement readiness — 35+ professional-grade calculators with charts, projections, and actionable insights.",
+    stat: "35+",
+    statLabel: "Calculators",
+    color: "oklch(0.55 0.18 55)",
+    bgColor: "oklch(0.95 0.08 55)",
   },
 ];
 
@@ -210,27 +265,28 @@ function CurrencyDropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors hover:bg-white/5"
+        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border text-sm font-medium transition-all hover:shadow-sm"
         style={{
-          borderColor: "oklch(0.28 0.01 240)",
-          color: "oklch(0.85 0 0)",
-          background: "oklch(0.13 0.01 240)",
+          borderColor: "oklch(0.88 0.02 240)",
+          color: "oklch(0.30 0.02 240)",
+          background: "oklch(0.97 0.005 240)",
         }}
         data-ocid="currency.select.toggle"
       >
         <span className="text-base leading-none">{selected.flag}</span>
-        <span
-          className="font-semibold"
-          style={{ color: "oklch(0.72 0.17 160)" }}
-        >
+        <span className="font-bold" style={{ color: "oklch(0.45 0.20 270)" }}>
           {selected.symbol}
         </span>
-        {/* Hide currency code on small screens to save space */}
-        <span className="hidden sm:inline">{selected.code}</span>
+        <span
+          className="hidden sm:inline text-xs font-semibold"
+          style={{ color: "oklch(0.40 0.02 240)" }}
+        >
+          {selected.code}
+        </span>
         <ChevronDown
-          className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform"
+          className="w-3 h-3 transition-transform"
           style={{
-            color: "oklch(0.55 0 0)",
+            color: "oklch(0.55 0.02 240)",
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
           }}
         />
@@ -238,12 +294,13 @@ function CurrencyDropdown({
 
       {open && (
         <div
-          className="absolute right-0 mt-2 w-52 rounded-xl border overflow-hidden shadow-2xl z-50"
+          className="absolute right-0 mt-2 w-56 rounded-xl border overflow-hidden z-50"
           style={{
-            background: "oklch(0.13 0.01 240)",
-            borderColor: "oklch(0.22 0.01 240)",
+            background: "#ffffff",
+            borderColor: "oklch(0.90 0.01 240)",
             maxHeight: "320px",
             overflowY: "auto",
+            boxShadow: "0 8px 32px oklch(0.15 0.05 240 / 0.15)",
           }}
         >
           {TOP_20_CURRENCIES.map((c) => (
@@ -254,28 +311,43 @@ function CurrencyDropdown({
                 onSelect(c);
                 setOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left transition-colors hover:bg-white/5"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left transition-colors"
               style={{
                 color:
                   c.code === selected.code
-                    ? "oklch(0.72 0.17 160)"
-                    : "oklch(0.80 0 0)",
+                    ? "oklch(0.45 0.20 270)"
+                    : "oklch(0.30 0.02 240)",
                 background:
                   c.code === selected.code
-                    ? "oklch(0.72 0.17 160 / 0.08)"
+                    ? "oklch(0.93 0.06 270)"
                     : "transparent",
+              }}
+              onMouseEnter={(e) => {
+                if (c.code !== selected.code) {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "oklch(0.97 0.005 240)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (c.code !== selected.code) {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "transparent";
+                }
               }}
               data-ocid={`currency.option.${c.code.toLowerCase()}`}
             >
               <span className="text-base">{c.flag}</span>
               <span
-                className="font-semibold w-8"
-                style={{ color: "oklch(0.72 0.17 160)" }}
+                className="font-bold w-8"
+                style={{ color: "oklch(0.45 0.20 270)" }}
               >
                 {c.symbol}
               </span>
-              <span className="flex-1">{c.code}</span>
-              <span className="text-xs" style={{ color: "oklch(0.50 0 0)" }}>
+              <span className="flex-1 font-medium">{c.code}</span>
+              <span
+                className="text-xs"
+                style={{ color: "oklch(0.58 0.01 240)" }}
+              >
                 {c.country}
               </span>
             </button>
@@ -290,7 +362,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const { login, isLoggingIn } = useInternetIdentity();
   const [selectedCurrency, setSelectedCurrency] = useState(
-    TOP_20_CURRENCIES[0], // default INR
+    TOP_20_CURRENCIES[0],
   );
 
   const scrollToFeatures = () => {
@@ -300,48 +372,39 @@ export default function LandingPage() {
   return (
     <div
       className="min-h-screen font-sans"
-      style={{ background: "oklch(0.08 0.01 240)" }}
+      style={{ background: "#ffffff", color: "oklch(0.15 0.01 240)" }}
     >
-      {/* Premium top border line */}
-      <div
-        className="fixed top-0 left-0 right-0 h-px z-[60] pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent 0%, oklch(0.72 0.17 160 / 0.8) 40%, oklch(0.72 0.17 160) 50%, oklch(0.72 0.17 160 / 0.8) 60%, transparent 100%)",
-        }}
-      />
-
       {/* Nav */}
       <nav
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b"
+        className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-8 py-3 border-b"
         style={{
-          background: "oklch(0.08 0.01 240 / 0.90)",
+          background: "rgba(255,255,255,0.95)",
           backdropFilter: "blur(16px)",
-          borderColor: "oklch(0.18 0.01 240)",
-          marginTop: "1px",
+          borderColor: "oklch(0.92 0.01 240)",
+          boxShadow: "0 1px 8px oklch(0.15 0.05 240 / 0.06)",
         }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+        <div className="flex items-center gap-2.5">
           <div
-            className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-md"
-            style={{ background: "oklch(0.72 0.17 160 / 0.15)" }}
+            className="flex items-center justify-center w-8 h-8 rounded-lg"
+            style={{ background: "oklch(0.93 0.06 270)" }}
           >
             <DollarSign
-              className="w-5 h-5"
-              style={{ color: "oklch(0.72 0.17 160)" }}
+              className="w-4.5 h-4.5"
+              style={{ color: "oklch(0.45 0.20 270)" }}
             />
           </div>
           <span
-            className="text-lg sm:text-xl font-bold tracking-tight font-display truncate"
-            style={{ color: "oklch(0.95 0 0)" }}
+            className="text-lg font-bold tracking-tight"
+            style={{ color: "oklch(0.45 0.20 270)" }}
           >
             FinanceOS
           </span>
         </div>
 
-        {/* Top-right: Currency dropdown + Login */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        {/* Right: Currency + Login */}
+        <div className="flex items-center gap-2 sm:gap-3">
           <CurrencyDropdown
             selected={selectedCurrency}
             onSelect={setSelectedCurrency}
@@ -349,137 +412,132 @@ export default function LandingPage() {
           <Button
             onClick={login}
             disabled={isLoggingIn}
-            className="text-xs sm:text-sm font-semibold px-3 py-1.5 sm:px-5 sm:py-2 h-auto"
+            className="text-xs sm:text-sm font-bold px-4 py-2 h-auto rounded-lg"
             style={{
-              background: "oklch(0.72 0.17 160)",
-              color: "oklch(0.08 0.01 240)",
+              background: "oklch(0.45 0.20 270)",
+              color: "#ffffff",
             }}
             data-ocid="nav.login.primary_button"
           >
-            Login
+            {isLoggingIn ? "Signing in..." : "Login"}
           </Button>
         </div>
       </nav>
 
       {/* Hero */}
       <section
-        className="relative flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 text-center pt-16 sm:pt-20 overflow-hidden"
+        className="relative px-4 sm:px-8 pt-16 pb-20 sm:pt-20 sm:pb-28 overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(160deg, #ffffff 0%, oklch(0.96 0.015 265) 50%, oklch(0.94 0.02 270) 100%)",
+        }}
         data-ocid="hero.section"
       >
-        {/* Dot grid */}
+        {/* Subtle grid lines background */}
         <div
-          className="absolute inset-0 opacity-25"
+          className="absolute inset-0 pointer-events-none opacity-30"
           style={{
             backgroundImage:
-              "radial-gradient(circle, oklch(0.30 0.02 240) 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
+              "linear-gradient(oklch(0.88 0.04 270 / 0.4) 1px, transparent 1px), linear-gradient(90deg, oklch(0.88 0.04 270 / 0.4) 1px, transparent 1px)",
+            backgroundSize: "64px 64px",
           }}
         />
-        {/* Emerald glow top-right */}
+        {/* Right glow */}
         <div
-          className="absolute top-0 right-0 w-[700px] h-[700px] rounded-full pointer-events-none"
+          className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full pointer-events-none"
           style={{
             background:
-              "radial-gradient(circle at center, oklch(0.72 0.17 160 / 0.10) 0%, transparent 70%)",
-          }}
-        />
-        {/* Emerald glow bottom-left */}
-        <div
-          className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(circle at center, oklch(0.72 0.17 160 / 0.06) 0%, transparent 70%)",
-          }}
-        />
-        {/* Bottom fade */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to top, oklch(0.08 0.01 240), transparent)",
+              "radial-gradient(circle at center, oklch(0.70 0.15 270 / 0.12) 0%, transparent 70%)",
           }}
         />
 
-        <div className="relative z-10 max-w-5xl mx-auto w-full">
+        <div className="relative z-10 max-w-5xl mx-auto">
           {/* Trust badge */}
           <AnimatedSection delay={0}>
-            <div
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold mb-6 sm:mb-8 border tracking-wide uppercase"
-              style={{
-                background: "oklch(0.72 0.17 160 / 0.08)",
-                borderColor: "oklch(0.72 0.17 160 / 0.25)",
-                color: "oklch(0.72 0.17 160)",
-              }}
-            >
+            <div className="mb-6 sm:mb-8">
               <span
-                className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0"
-                style={{ background: "oklch(0.72 0.17 160)" }}
-              />
-              Trusted Financial Intelligence Platform
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase border"
+                style={{
+                  background: "oklch(0.93 0.06 270)",
+                  borderColor: "oklch(0.80 0.12 270)",
+                  color: "oklch(0.40 0.20 270)",
+                }}
+              >
+                <Zap className="w-3 h-3" />
+                All-in-One Financial Platform
+              </span>
             </div>
           </AnimatedSection>
 
           {/* Headline */}
           <AnimatedSection delay={100}>
             <h1
-              className="font-display font-bold leading-tight mb-5 sm:mb-6"
+              className="font-display font-bold mb-5 leading-tight"
               style={{
-                fontSize: "clamp(2.2rem, 7vw, 5.5rem)",
-                color: "oklch(0.95 0 0)",
-                lineHeight: 1.08,
+                fontSize: "clamp(2.2rem, 5.5vw, 4rem)",
+                color: "oklch(0.15 0.01 240)",
+                letterSpacing: "-0.02em",
               }}
             >
-              Your Financial{" "}
-              <span style={{ color: "oklch(0.72 0.17 160)" }}>Operating</span>
-              <br />
-              System
+              Smart Investing,{" "}
+              <span
+                style={{
+                  background:
+                    "linear-gradient(135deg, oklch(0.45 0.20 270), oklch(0.55 0.15 185))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                Starts Here
+              </span>
             </h1>
           </AnimatedSection>
 
           {/* Sub-headline */}
           <AnimatedSection delay={200}>
             <p
-              className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed px-2 sm:px-0"
-              style={{ color: "oklch(0.58 0 0)" }}
+              className="text-base sm:text-lg max-w-2xl mb-8 sm:mb-10 leading-relaxed"
+              style={{ color: "oklch(0.42 0.02 240)" }}
             >
-              One intelligent platform to manage your portfolio, plan your
-              future, and track every{" "}
+              One intelligent platform to track your portfolio, plan your goals,
+              and manage every{" "}
               <span
                 className="font-bold"
-                style={{ color: "oklch(0.72 0.17 160)" }}
+                style={{ color: "oklch(0.45 0.20 270)" }}
               >
                 {selectedCurrency.symbol}
               </span>{" "}
-              with precision — powered by cutting-edge financial tools.
+              with precision. Built for serious investors.
             </p>
           </AnimatedSection>
 
           {/* CTAs */}
           <AnimatedSection delay={300}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-12 sm:mb-16">
               <Button
                 size="lg"
                 onClick={login}
                 disabled={isLoggingIn}
-                className="w-full sm:w-auto px-8 py-3 text-base font-semibold rounded-lg transition-all hover:opacity-90 hover:shadow-lg"
+                className="w-full sm:w-auto px-8 py-3 text-base font-bold rounded-xl transition-all hover:opacity-90"
                 style={{
-                  background: "oklch(0.72 0.17 160)",
-                  color: "oklch(0.08 0.01 240)",
-                  boxShadow: "0 0 32px oklch(0.72 0.17 160 / 0.30)",
+                  background: "oklch(0.45 0.20 270)",
+                  color: "#ffffff",
+                  boxShadow: "0 4px 20px oklch(0.45 0.20 270 / 0.35)",
                 }}
                 data-ocid="hero.login.primary_button"
               >
-                Login
+                Get Started Free
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 onClick={scrollToFeatures}
-                className="w-full sm:w-auto px-8 py-3 text-base font-semibold rounded-lg transition-all hover:bg-white/5"
+                className="w-full sm:w-auto px-8 py-3 text-base font-semibold rounded-xl transition-all"
                 style={{
-                  borderColor: "oklch(0.28 0.01 240)",
-                  color: "oklch(0.78 0 0)",
+                  borderColor: "oklch(0.75 0.10 270)",
+                  color: "oklch(0.45 0.20 270)",
                   background: "transparent",
                 }}
                 data-ocid="hero.explore.secondary_button"
@@ -489,39 +547,32 @@ export default function LandingPage() {
             </div>
           </AnimatedSection>
 
-          {/* Animated floating stats bar */}
+          {/* Stats bar */}
           <AnimatedSection delay={400}>
-            <div
-              className="inline-flex flex-wrap justify-center items-center divide-x rounded-2xl border overflow-hidden"
-              style={{
-                borderColor: "oklch(0.20 0.01 240)",
-                background: "oklch(0.11 0.01 240 / 0.80)",
-                backdropFilter: "blur(8px)",
-              }}
-            >
+            <div className="flex flex-wrap gap-4 sm:gap-6">
               {[
                 { value: "35+", label: "Calculators" },
                 { value: "8", label: "Asset Classes" },
                 { value: "8", label: "Core Modules" },
-              ].map(({ value, label }, i) => (
+              ].map(({ value, label }) => (
                 <div
                   key={label}
-                  className="flex flex-col items-center px-4 sm:px-8 py-3 sm:py-4"
+                  className="flex items-center gap-3 px-5 py-3 rounded-xl border"
                   style={{
-                    borderColor: "oklch(0.20 0.01 240)",
-                    borderRight:
-                      i < 2 ? "1px solid oklch(0.20 0.01 240)" : "none",
+                    background: "#ffffff",
+                    borderColor: "oklch(0.88 0.04 270)",
+                    boxShadow: "0 2px 8px oklch(0.45 0.20 270 / 0.08)",
                   }}
                 >
                   <span
-                    className="text-xl sm:text-2xl font-bold font-display"
-                    style={{ color: "oklch(0.72 0.17 160)" }}
+                    className="text-2xl font-bold"
+                    style={{ color: "oklch(0.45 0.20 270)" }}
                   >
                     {value}
                   </span>
                   <span
-                    className="text-xs tracking-widest uppercase mt-0.5"
-                    style={{ color: "oklch(0.48 0 0)" }}
+                    className="text-sm font-medium"
+                    style={{ color: "oklch(0.50 0.02 240)" }}
                   >
                     {label}
                   </span>
@@ -532,123 +583,141 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Module Showcase */}
-      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6">
+      {/* Module Grid */}
+      <section
+        id="features"
+        className="py-16 sm:py-24 px-4 sm:px-8"
+        style={{ background: "#ffffff" }}
+      >
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
-            <div className="text-center mb-12 sm:mb-16">
+            <div className="mb-10 sm:mb-14">
               <p
-                className="text-sm tracking-widest uppercase mb-3 font-semibold"
-                style={{ color: "oklch(0.72 0.17 160)" }}
+                className="text-sm font-bold tracking-widest uppercase mb-2"
+                style={{ color: "oklch(0.45 0.20 270)" }}
               >
                 Everything you need
               </p>
               <h2
-                className="font-display font-bold mb-4"
+                className="font-display font-bold"
                 style={{
-                  fontSize: "clamp(1.8rem, 4vw, 3rem)",
-                  color: "oklch(0.95 0 0)",
+                  fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
+                  color: "oklch(0.15 0.01 240)",
+                  letterSpacing: "-0.02em",
                 }}
               >
-                8 Powerful Modules. One Platform.
+                8 Powerful Modules
               </h2>
               <p
-                className="max-w-xl mx-auto px-2 sm:px-0"
-                style={{ color: "oklch(0.52 0 0)" }}
+                className="mt-3 max-w-lg text-base"
+                style={{ color: "oklch(0.48 0.02 240)" }}
               >
-                From daily budget tracking to long-term retirement modeling,
-                FinanceOS covers every dimension of your financial life.
+                From daily budgeting to long-term retirement modeling — every
+                dimension of your financial life, in one place.
               </p>
             </div>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-            {modules.map((mod, i) => (
-              <AnimatedSection key={mod.name} delay={i * 60}>
-                <Link to={mod.path} data-ocid={`modules.item.${i + 1}`}>
-                  <div
-                    className="group h-full p-5 sm:p-6 rounded-xl border cursor-pointer transition-all duration-300 hover:-translate-y-1"
-                    style={{
-                      background:
-                        "linear-gradient(160deg, oklch(0.11 0.015 230), oklch(0.13 0.01 240))",
-                      borderColor: "oklch(0.20 0.01 240)",
-                      borderTop: "2px solid oklch(0.72 0.17 160 / 0.25)",
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.borderColor = "oklch(0.72 0.17 160 / 0.40)";
-                      el.style.borderTop = "2px solid oklch(0.72 0.17 160)";
-                      el.style.boxShadow =
-                        "0 0 24px oklch(0.72 0.17 160 / 0.08)";
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.borderColor = "oklch(0.20 0.01 240)";
-                      el.style.borderTop =
-                        "2px solid oklch(0.72 0.17 160 / 0.25)";
-                      el.style.boxShadow = "none";
-                    }}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+            {modules.map((mod, i) => {
+              const colors = MODULE_COLORS[i];
+              return (
+                <AnimatedSection key={mod.name} delay={i * 60}>
+                  <Link
+                    to={mod.path}
+                    className="block h-full"
+                    data-ocid={`modules.item.${i + 1}`}
                   >
                     <div
-                      className="flex items-center justify-center w-12 h-12 rounded-xl mb-4"
-                      style={{ background: "oklch(0.72 0.17 160 / 0.12)" }}
+                      className="group h-full p-5 rounded-2xl border cursor-pointer transition-all duration-200"
+                      style={{
+                        background: "#ffffff",
+                        borderColor: "oklch(0.91 0.01 240)",
+                      }}
+                      onMouseEnter={(e) => {
+                        const el = e.currentTarget as HTMLElement;
+                        el.style.borderColor = colors.border;
+                        el.style.boxShadow = `0 4px 24px ${colors.icon}22`;
+                        el.style.transform = "translateY(-2px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        const el = e.currentTarget as HTMLElement;
+                        el.style.borderColor = "oklch(0.91 0.01 240)";
+                        el.style.boxShadow = "none";
+                        el.style.transform = "translateY(0)";
+                      }}
                     >
-                      <mod.icon
-                        className="w-6 h-6"
-                        style={{ color: "oklch(0.72 0.17 160)" }}
-                      />
+                      {/* Icon circle */}
+                      <div
+                        className="flex items-center justify-center w-11 h-11 rounded-xl mb-4"
+                        style={{ background: colors.bg }}
+                      >
+                        <mod.icon
+                          className="w-5 h-5"
+                          style={{ color: colors.icon }}
+                        />
+                      </div>
+
+                      {/* Module name */}
+                      <h3
+                        className="font-bold text-base mb-1"
+                        style={{ color: "oklch(0.18 0.01 240)" }}
+                      >
+                        {mod.name}
+                      </h3>
+
+                      {/* Tagline */}
+                      <p
+                        className="text-xs font-semibold mb-2"
+                        style={{ color: colors.icon }}
+                      >
+                        {mod.tagline}
+                      </p>
+
+                      {/* Description */}
+                      <p
+                        className="text-sm leading-relaxed"
+                        style={{ color: "oklch(0.52 0.01 240)" }}
+                      >
+                        {mod.description}
+                      </p>
+
+                      {/* Arrow on hover */}
+                      <div
+                        className="mt-4 flex items-center gap-1 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ color: colors.icon }}
+                      >
+                        Open module <ArrowRight className="w-3 h-3" />
+                      </div>
                     </div>
-                    <p
-                      className="text-xs font-semibold mb-1 tracking-wide uppercase"
-                      style={{ color: "oklch(0.68 0.14 160)" }}
-                    >
-                      {mod.tagline}
-                    </p>
-                    <h3
-                      className="font-semibold mb-2 text-base"
-                      style={{ color: "oklch(0.92 0 0)" }}
-                    >
-                      {mod.name}
-                    </h3>
-                    <p
-                      className="text-sm leading-relaxed"
-                      style={{ color: "oklch(0.52 0 0)" }}
-                    >
-                      {mod.description}
-                    </p>
-                    <div
-                      className="mt-4 flex items-center gap-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ color: "oklch(0.72 0.17 160)" }}
-                    >
-                      Open module <ArrowRight className="w-3 h-3" />
-                    </div>
-                  </div>
-                </Link>
-              </AnimatedSection>
-            ))}
+                  </Link>
+                </AnimatedSection>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* Three Pillars */}
       <section
-        className="py-16 sm:py-24 px-4 sm:px-6"
-        style={{ background: "oklch(0.10 0.01 240)" }}
+        className="py-16 sm:py-24 px-4 sm:px-8"
+        style={{ background: "oklch(0.97 0.005 240)" }}
       >
         <div className="max-w-7xl mx-auto">
           <AnimatedSection>
             <div className="text-center mb-12 sm:mb-16">
               <p
-                className="text-sm tracking-widest uppercase mb-3 font-semibold"
-                style={{ color: "oklch(0.72 0.17 160)" }}
+                className="text-sm font-bold tracking-widest uppercase mb-2"
+                style={{ color: "oklch(0.45 0.20 270)" }}
               >
                 Core strengths
               </p>
               <h2
                 className="font-display font-bold"
                 style={{
-                  fontSize: "clamp(1.8rem, 4vw, 3rem)",
-                  color: "oklch(0.95 0 0)",
+                  fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
+                  color: "oklch(0.15 0.01 240)",
+                  letterSpacing: "-0.02em",
                 }}
               >
                 Built on Three Pillars
@@ -656,43 +725,58 @@ export default function LandingPage() {
             </div>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {pillars.map((pillar, i) => (
               <AnimatedSection key={pillar.title} delay={i * 100}>
                 <div
                   className="relative p-6 sm:p-8 rounded-2xl border h-full"
                   style={{
-                    background: "oklch(0.12 0.01 240)",
-                    borderColor: "oklch(0.20 0.01 240)",
+                    background: "#ffffff",
+                    borderColor: "oklch(0.91 0.01 240)",
+                    borderLeft: `4px solid ${pillar.color}`,
+                    boxShadow: "0 2px 12px oklch(0.15 0.05 240 / 0.05)",
                   }}
                 >
+                  {/* Large stat number */}
                   <div
-                    className="absolute top-5 sm:top-6 right-5 sm:right-6 text-xs font-bold px-3 py-1 rounded-full"
+                    className="font-display font-bold mb-1"
                     style={{
-                      background: "oklch(0.72 0.17 160 / 0.12)",
-                      color: "oklch(0.72 0.17 160)",
+                      fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
+                      color: pillar.color,
+                      lineHeight: 1,
                     }}
                   >
                     {pillar.stat}
                   </div>
                   <div
-                    className="flex items-center justify-center w-12 h-12 rounded-xl mb-5 sm:mb-6"
-                    style={{ background: "oklch(0.72 0.17 160 / 0.10)" }}
+                    className="text-sm font-bold mb-5 tracking-wide uppercase"
+                    style={{ color: pillar.color }}
                   >
-                    <pillar.icon
-                      className="w-6 h-6"
-                      style={{ color: "oklch(0.72 0.17 160)" }}
-                    />
+                    {pillar.statLabel}
                   </div>
-                  <h3
-                    className="font-display font-semibold text-xl mb-3"
-                    style={{ color: "oklch(0.92 0 0)" }}
-                  >
-                    {pillar.title}
-                  </h3>
+
+                  {/* Icon + Title */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div
+                      className="flex items-center justify-center w-9 h-9 rounded-lg"
+                      style={{ background: pillar.bgColor }}
+                    >
+                      <pillar.icon
+                        className="w-5 h-5"
+                        style={{ color: pillar.color }}
+                      />
+                    </div>
+                    <h3
+                      className="font-bold text-lg"
+                      style={{ color: "oklch(0.18 0.01 240)" }}
+                    >
+                      {pillar.title}
+                    </h3>
+                  </div>
+
                   <p
-                    className="leading-relaxed"
-                    style={{ color: "oklch(0.55 0 0)" }}
+                    className="text-sm leading-relaxed"
+                    style={{ color: "oklch(0.50 0.01 240)" }}
                   >
                     {pillar.description}
                   </p>
@@ -704,77 +788,92 @@ export default function LandingPage() {
       </section>
 
       {/* Financial Planner Highlight */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6">
+      <section
+        className="py-16 sm:py-24 px-4 sm:px-8"
+        style={{ background: "#ffffff" }}
+      >
         <div className="max-w-5xl mx-auto">
           <AnimatedSection>
             <div
-              className="relative rounded-2xl overflow-hidden p-6 sm:p-10 md:p-14 text-center border"
+              className="relative rounded-3xl overflow-hidden p-8 sm:p-12 md:p-14"
               style={{
                 background:
-                  "linear-gradient(135deg, oklch(0.12 0.02 220) 0%, oklch(0.10 0.02 180) 50%, oklch(0.12 0.015 160) 100%)",
-                borderColor: "oklch(0.72 0.17 160 / 0.25)",
-                boxShadow: "0 0 80px oklch(0.72 0.17 160 / 0.08)",
+                  "linear-gradient(135deg, oklch(0.45 0.20 270) 0%, oklch(0.55 0.15 185) 100%)",
               }}
             >
-              {/* bg accent */}
+              {/* Subtle dot overlay */}
               <div
-                className="absolute inset-0 opacity-5 pointer-events-none"
+                className="absolute inset-0 opacity-10 pointer-events-none"
                 style={{
                   backgroundImage:
-                    "radial-gradient(circle, oklch(0.72 0.17 160) 1px, transparent 1px)",
-                  backgroundSize: "24px 24px",
+                    "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)",
+                  backgroundSize: "28px 28px",
                 }}
               />
+
+              {/* Top-right decorative circles */}
+              <div
+                className="absolute -top-12 -right-12 w-48 h-48 rounded-full pointer-events-none"
+                style={{ background: "rgba(255,255,255,0.06)" }}
+              />
+              <div
+                className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full pointer-events-none"
+                style={{ background: "rgba(255,255,255,0.06)" }}
+              />
+
               <div className="relative z-10">
-                <div
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium mb-5 sm:mb-6 border"
-                  style={{
-                    background: "oklch(0.72 0.17 160 / 0.10)",
-                    borderColor: "oklch(0.72 0.17 160 / 0.30)",
-                    color: "oklch(0.72 0.17 160)",
-                  }}
-                >
-                  Financial Planner Module
+                <div className="flex items-center gap-2 mb-4">
+                  <div
+                    className="flex items-center justify-center w-10 h-10 rounded-xl"
+                    style={{ background: "rgba(255,255,255,0.20)" }}
+                  >
+                    <CalendarDays className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-sm font-bold text-white/80 tracking-wide uppercase">
+                    Financial Planner Module
+                  </span>
                 </div>
+
                 <h2
-                  className="font-display font-bold mb-4"
+                  className="font-display font-bold text-white mb-3"
                   style={{
-                    fontSize: "clamp(1.5rem, 4vw, 2.8rem)",
-                    color: "oklch(0.95 0 0)",
+                    fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
+                    letterSpacing: "-0.02em",
                   }}
                 >
                   Professional-Grade Financial Calculators
                 </h2>
                 <p
-                  className="max-w-2xl mx-auto mb-7 sm:mb-8 leading-relaxed px-2 sm:px-0"
-                  style={{ color: "oklch(0.58 0 0)" }}
+                  className="max-w-xl mb-8 text-base leading-relaxed"
+                  style={{ color: "rgba(255,255,255,0.80)" }}
                 >
-                  Make data-driven financial decisions with our comprehensive
-                  calculator suite. From compound interest to retirement
-                  readiness, every tool you need in one place.
+                  From SIP step-up to FIRE number to loan amortization — 35+
+                  calculators with live charts for every financial decision.
                 </p>
-                <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10">
+
+                <div className="flex flex-wrap gap-2 mb-8">
                   {calculatorCategories.map((cat) => (
-                    <Badge
+                    <span
                       key={cat}
-                      className="px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-full border"
+                      className="px-3.5 py-1.5 rounded-full text-xs font-semibold border"
                       style={{
-                        background: "oklch(0.72 0.17 160 / 0.10)",
-                        borderColor: "oklch(0.72 0.17 160 / 0.25)",
-                        color: "oklch(0.80 0.08 160)",
+                        background: "rgba(255,255,255,0.15)",
+                        borderColor: "rgba(255,255,255,0.30)",
+                        color: "rgba(255,255,255,0.95)",
                       }}
                     >
                       {cat}
-                    </Badge>
+                    </span>
                   ))}
                 </div>
+
                 <Button
                   size="lg"
                   onClick={() => navigate("/financial-planner")}
-                  className="px-6 sm:px-8 font-semibold rounded-lg transition-all hover:opacity-90"
+                  className="px-8 font-bold rounded-xl transition-all hover:opacity-90 hover:shadow-lg"
                   style={{
-                    background: "oklch(0.72 0.17 160)",
-                    color: "oklch(0.08 0.01 240)",
+                    background: "#ffffff",
+                    color: "oklch(0.45 0.20 270)",
                   }}
                   data-ocid="planner.explore.primary_button"
                 >
@@ -787,44 +886,95 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Trust / Feature highlights strip */}
+      <section
+        className="py-12 px-4 sm:px-8 border-y"
+        style={{
+          background: "oklch(0.97 0.005 240)",
+          borderColor: "oklch(0.91 0.01 240)",
+        }}
+      >
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+            {[
+              {
+                icon: CheckCircle2,
+                text: "Per-user data isolation & privacy",
+                color: "oklch(0.42 0.18 145)",
+              },
+              {
+                icon: Shield,
+                text: "Secured with Internet Identity",
+                color: "oklch(0.45 0.20 270)",
+              },
+              {
+                icon: Zap,
+                text: "Instant calculations, zero lag",
+                color: "oklch(0.55 0.18 55)",
+              },
+            ].map(({ icon: Icon, text, color }) => (
+              <div key={text} className="flex flex-col items-center gap-3">
+                <div
+                  className="flex items-center justify-center w-10 h-10 rounded-full"
+                  style={{ background: `${color}18` }}
+                >
+                  <Icon className="w-5 h-5" style={{ color }} />
+                </div>
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: "oklch(0.35 0.02 240)" }}
+                >
+                  {text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section
-        className="py-16 sm:py-24 px-4 sm:px-6 text-center"
+        className="py-20 sm:py-28 px-4 sm:px-8 text-center"
         style={{
           background:
-            "linear-gradient(135deg, oklch(0.20 0.08 160) 0%, oklch(0.15 0.06 180) 50%, oklch(0.18 0.07 155) 100%)",
+            "linear-gradient(160deg, oklch(0.45 0.20 270) 0%, oklch(0.38 0.18 290) 50%, oklch(0.35 0.15 300) 100%)",
         }}
         data-ocid="cta.section"
       >
         <AnimatedSection>
           <div className="max-w-2xl mx-auto">
             <h2
-              className="font-display font-bold mb-4 sm:mb-5"
+              className="font-display font-bold text-white mb-4"
               style={{
-                fontSize: "clamp(1.8rem, 5vw, 3.5rem)",
-                color: "oklch(0.95 0 0)",
+                fontSize: "clamp(1.75rem, 5vw, 3rem)",
+                letterSpacing: "-0.02em",
               }}
             >
               Take Control of Your Financial Future
             </h2>
             <p
-              className="text-base sm:text-lg mb-8 sm:mb-10 leading-relaxed px-2 sm:px-0"
-              style={{ color: "oklch(0.78 0.05 160)" }}
+              className="text-base sm:text-lg mb-10 leading-relaxed"
+              style={{ color: "rgba(255,255,255,0.78)" }}
             >
-              Start managing your finances — it&apos;s free.
+              Join thousands of investors managing every{" "}
+              <span className="font-bold text-white">
+                {selectedCurrency.symbol}
+              </span>{" "}
+              with clarity and confidence.
             </p>
             <Button
               size="lg"
               onClick={login}
               disabled={isLoggingIn}
-              className="px-8 sm:px-10 py-3 sm:py-4 text-base font-bold rounded-lg transition-all hover:shadow-2xl hover:scale-105"
+              className="px-10 py-4 text-base font-bold rounded-xl transition-all hover:shadow-2xl hover:scale-105"
               style={{
-                background: "oklch(0.95 0 0)",
-                color: "oklch(0.12 0.05 200)",
+                background: "#ffffff",
+                color: "oklch(0.45 0.20 270)",
+                boxShadow: "0 4px 32px rgba(0,0,0,0.20)",
               }}
               data-ocid="cta.login.primary_button"
             >
-              Login
+              {isLoggingIn ? "Signing in..." : "Get Started — It's Free"}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </div>
@@ -833,28 +983,28 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer
-        className="py-10 sm:py-12 px-4 sm:px-6 border-t"
+        className="py-10 px-4 sm:px-8 border-t"
         style={{
-          background: "oklch(0.07 0.01 240)",
-          borderColor: "oklch(0.18 0.01 240)",
+          background: "oklch(0.97 0.005 240)",
+          borderColor: "oklch(0.91 0.01 240)",
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Brand */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <div
-                className="flex items-center justify-center w-8 h-8 rounded-md"
-                style={{ background: "oklch(0.72 0.17 160 / 0.15)" }}
+                className="flex items-center justify-center w-8 h-8 rounded-lg"
+                style={{ background: "oklch(0.93 0.06 270)" }}
               >
                 <DollarSign
-                  className="w-5 h-5"
-                  style={{ color: "oklch(0.72 0.17 160)" }}
+                  className="w-4 h-4"
+                  style={{ color: "oklch(0.45 0.20 270)" }}
                 />
               </div>
               <span
-                className="text-xl font-bold font-display"
-                style={{ color: "oklch(0.92 0 0)" }}
+                className="text-lg font-bold"
+                style={{ color: "oklch(0.45 0.20 270)" }}
               >
                 FinanceOS
               </span>
@@ -871,8 +1021,8 @@ export default function LandingPage() {
                 <Link
                   key={label}
                   to={path}
-                  className="text-sm transition-colors hover:text-primary"
-                  style={{ color: "oklch(0.50 0 0)" }}
+                  className="text-sm font-medium transition-colors hover:text-primary"
+                  style={{ color: "oklch(0.50 0.02 240)" }}
                   data-ocid={`footer.${label.toLowerCase().replace(" ", "-")}.link`}
                 >
                   {label}
@@ -883,14 +1033,15 @@ export default function LandingPage() {
             {/* Copyright */}
             <p
               className="text-xs text-center md:text-right"
-              style={{ color: "oklch(0.40 0 0)" }}
+              style={{ color: "oklch(0.58 0.01 240)" }}
             >
               © {new Date().getFullYear()}.{" "}
               <a
                 href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
+                className="hover:underline"
+                style={{ color: "oklch(0.45 0.20 270)" }}
               >
                 Built with ♥ using caffeine.ai
               </a>

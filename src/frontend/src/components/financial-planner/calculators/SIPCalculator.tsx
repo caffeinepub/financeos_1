@@ -23,16 +23,28 @@ export function SIPCalculator() {
   const [monthly, setMonthly] = useState("5000");
   const [rate, setRate] = useState("12");
   const [years, setYears] = useState("10");
+  const [stepUp, setStepUp] = useState("10");
 
   const result = useMemo(() => {
-    const P = Number.parseFloat(monthly) || 0;
+    let P = Number.parseFloat(monthly) || 0;
     const r = (Number.parseFloat(rate) || 0) / 100 / 12;
     const n = (Number.parseFloat(years) || 0) * 12;
-    if (r === 0) return { invested: P * n, returns: 0, total: P * n };
-    const total = P * (((1 + r) ** n - 1) / r) * (1 + r);
-    const invested = P * n;
+    const stepUpRate = (Number.parseFloat(stepUp) || 0) / 100;
+
+    if (n === 0) return { invested: 0, returns: 0, total: 0 };
+
+    let total = 0;
+    let invested = 0;
+    for (let month = 0; month < n; month++) {
+      // Increase SIP amount each year
+      if (month > 0 && month % 12 === 0) {
+        P = P * (1 + stepUpRate);
+      }
+      invested += P;
+      total += P * (1 + r) ** (n - month);
+    }
     return { invested, returns: total - invested, total };
-  }, [monthly, rate, years]);
+  }, [monthly, rate, years, stepUp]);
 
   const chartData = [
     { name: "Invested", value: result.invested, color: "#6366f1" },
@@ -74,6 +86,16 @@ export function SIPCalculator() {
               type="number"
               placeholder="10"
               data-ocid="sip.years.input"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Annual Step-Up (% per year)</Label>
+            <Input
+              value={stepUp}
+              onChange={(e) => setStepUp(e.target.value)}
+              type="number"
+              placeholder="10"
+              data-ocid="sip.stepup.input"
             />
           </div>
         </CardContent>

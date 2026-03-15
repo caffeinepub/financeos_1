@@ -33,9 +33,9 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
 const portfolioSubItems = [
-  { label: "Retirement", path: "/portfolio/Retirement" },
+  { label: "Retiral", path: "/portfolio/Retirement" },
   { label: "Mutual Fund", path: "/portfolio/MutualFund" },
-  { label: "ETF / Equity Stocks", path: "/portfolio/ETF" },
+  { label: "Equity (ETF/Stocks)", path: "/portfolio/ETF" },
   { label: "Crypto", path: "/portfolio/Crypto" },
   { label: "Commodity", path: "/portfolio/Commodity" },
   { label: "Real Estate", path: "/portfolio/RealEstate" },

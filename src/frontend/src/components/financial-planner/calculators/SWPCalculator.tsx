@@ -15,27 +15,36 @@ export function SWPCalculator() {
   const [withdrawal, setWithdrawal] = useState("10000");
   const [rate, setRate] = useState("8");
   const [years, setYears] = useState("10");
+  const [stepUp, setStepUp] = useState("5");
 
   const result = useMemo(() => {
     const P = Number.parseFloat(initial) || 0;
-    const W = Number.parseFloat(withdrawal) || 0;
+    let W = Number.parseFloat(withdrawal) || 0;
     const r = (Number.parseFloat(rate) || 0) / 100 / 12;
     const n = (Number.parseFloat(years) || 0) * 12;
+    const stepUpRate = (Number.parseFloat(stepUp) || 0) / 100;
+
     let balance = P;
+    let totalWithdrawal = 0;
+
     for (let i = 0; i < n; i++) {
+      // Increase withdrawal amount each year
+      if (i > 0 && i % 12 === 0) {
+        W = W * (1 + stepUpRate);
+      }
       balance = balance * (1 + r) - W;
+      totalWithdrawal += W;
       if (balance < 0) {
         balance = 0;
         break;
       }
     }
-    const totalWithdrawal = W * n;
     return {
       totalWithdrawal,
       finalValue: Math.max(balance, 0),
       totalReturns: Math.max(balance + totalWithdrawal - P, 0),
     };
-  }, [initial, withdrawal, rate, years]);
+  }, [initial, withdrawal, rate, years, stepUp]);
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -78,6 +87,15 @@ export function SWPCalculator() {
               onChange={(e) => setYears(e.target.value)}
               type="number"
               data-ocid="swp.years.input"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Annual Step-Up (% per year)</Label>
+            <Input
+              value={stepUp}
+              onChange={(e) => setStepUp(e.target.value)}
+              type="number"
+              data-ocid="swp.stepup.input"
             />
           </div>
         </CardContent>

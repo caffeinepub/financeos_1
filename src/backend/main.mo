@@ -81,14 +81,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create goals");
     };
-    let userMap = switch (userGoals.get(caller)) {
-      case (?m) { m };
-      case null {
-        let newMap = Map.empty<Text, Goal>();
-        userGoals.add(caller, newMap);
-        newMap;
-      };
-    };
+    let userMap = Utils.getOrCreateUserMap(userGoals, caller);
     userMap.add(goal.id, goal);
     goal;
   };
@@ -145,14 +138,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create portfolio holdings");
     };
-    let userMap = switch (userPortfolios.get(caller)) {
-      case (?m) { m };
-      case null {
-        let newMap = Map.empty<Text, PortfolioHolding>();
-        userPortfolios.add(caller, newMap);
-        newMap;
-      };
-    };
+    let userMap = Utils.getOrCreateUserMap(userPortfolios, caller);
     userMap.add(holding.id, holding);
     holding;
   };
@@ -209,14 +195,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create budget categories");
     };
-    let userMap = switch (userBudgetCategories.get(caller)) {
-      case (?m) { m };
-      case null {
-        let newMap = Map.empty<Text, BudgetCategory>();
-        userBudgetCategories.add(caller, newMap);
-        newMap;
-      };
-    };
+    let userMap = Utils.getOrCreateUserMap(userBudgetCategories, caller);
     userMap.add(category.id, category);
     category;
   };
@@ -273,14 +252,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create transactions");
     };
-    let userMap = switch (userTransactions.get(caller)) {
-      case (?m) { m };
-      case null {
-        let newMap = Map.empty<Text, Transaction>();
-        userTransactions.add(caller, newMap);
-        newMap;
-      };
-    };
+    let userMap = Utils.getOrCreateUserMap(userTransactions, caller);
     userMap.add(transaction.id, transaction);
     transaction;
   };
@@ -337,14 +309,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create loans");
     };
-    let userMap = switch (userLoans.get(caller)) {
-      case (?m) { m };
-      case null {
-        let newMap = Map.empty<Text, Loan>();
-        userLoans.add(caller, newMap);
-        newMap;
-      };
-    };
+    let userMap = Utils.getOrCreateUserMap(userLoans, caller);
     userMap.add(loan.id, loan);
     loan;
   };
@@ -401,14 +366,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create financial rules");
     };
-    let userMap = switch (userRules.get(caller)) {
-      case (?m) { m };
-      case null {
-        let newMap = Map.empty<Text, FinancialRule>();
-        userRules.add(caller, newMap);
-        newMap;
-      };
-    };
+    let userMap = Utils.getOrCreateUserMap(userRules, caller);
     userMap.add(rule.id, rule);
     rule;
   };
@@ -465,14 +423,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create planner events");
     };
-    let userMap = switch (userEvents.get(caller)) {
-      case (?m) { m };
-      case null {
-        let newMap = Map.empty<Text, PlannerEvent>();
-        userEvents.add(caller, newMap);
-        newMap;
-      };
-    };
+    let userMap = Utils.getOrCreateUserMap(userEvents, caller);
     userMap.add(event.id, event);
     event;
   };
@@ -529,14 +480,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create financial models");
     };
-    let userMap = switch (userModels.get(caller)) {
-      case (?m) { m };
-      case null {
-        let newMap = Map.empty<Text, FinancialModel>();
-        userModels.add(caller, newMap);
-        newMap;
-      };
-    };
+    let userMap = Utils.getOrCreateUserMap(userModels, caller);
     userMap.add(model.id, model);
     model;
   };

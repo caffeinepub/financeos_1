@@ -1,27 +1,33 @@
 # FinanceOS
 
 ## Current State
-- Backend is split into `Types.mo` (12 type definitions) and `Storage.mo` (State record + init factory).
-- `main.mo` imports both modules and contains all CRUD logic.
-- `main.mo` still holds a `var idCounter : Nat` and a local `generateId()` function whose body duplicates logic that belongs in a utility module.
-- No `Utils.mo` exists yet.
+Backend is modularized into Types.mo, Storage.mo, Utils.mo (with generateId), and main.mo.
+Every `create*` function in main.mo contained an identical 6-line block:
+```
+switch (userXxx.get(caller)) {
+  case (?m) { m };
+  case null {
+    let newMap = Map.empty<Text, SomeType>();
+    userXxx.add(caller, newMap);
+    newMap;
+  };
+};
+```
+This block appeared 8 times (Goals, Portfolio, BudgetCategories, Transactions, Loans, Rules, Events, Models).
 
 ## Requested Changes (Diff)
 
 ### Add
-- `src/backend/Utils.mo`: exports a pure `generateId(counter: Nat) : Text` function that combines a counter value with the current timestamp. No mutable state.
+- `Utils.getOrCreateUserMap<V>(outerMap, caller)` -- a generic function that returns the existing inner map for a caller, or creates and registers a fresh empty one.
 
 ### Modify
-- `src/backend/main.mo`:
-  - Add `import Utils "Utils"`.
-  - Keep `var idCounter : Nat = 0` (mutable state must stay in the actor).
-  - Replace the body of the local `generateId()` wrapper with a delegation to `Utils.generateId(idCounter)`.
-  - No other changes.
+- `Utils.mo`: add `getOrCreateUserMap` with `import Map` and `import Principal`.
+- `main.mo`: replace the repeated switch/empty/add block in all 8 `create*` functions with a single `Utils.getOrCreateUserMap(userXxx, caller)` call.
 
 ### Remove
-- Nothing removed from public API or CRUD logic.
+- The 8 inline boilerplate switch blocks in create functions (replaced by the utility call).
 
 ## Implementation Plan
-1. Create `Utils.mo` with the pure `generateId(counter)` function.
-2. Update `main.mo` to import `Utils` and delegate `generateId()` to it.
-3. Validate that no logic, UI, or public API is changed.
+1. Add `getOrCreateUserMap<V>` to Utils.mo with proper imports.
+2. Replace all 8 create-function boilerplate blocks in main.mo with the new utility call.
+3. No logic, public API, or UI changes.

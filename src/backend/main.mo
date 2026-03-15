@@ -13,6 +13,13 @@ import AccessControl "authorization/access-control";
 import Types "Types";
 import Storage "Storage";
 import Utils "Utils";
+import GoalsModule "modules/Goals";
+import PortfolioModule "modules/Portfolio";
+import BudgetingModule "modules/Budgeting";
+import LoansModule "modules/Loans";
+import FinancialRulesModule "modules/FinancialRules";
+import FinancialPlannerModule "modules/FinancialPlanner";
+import FinancialModelModule "modules/FinancialModel";
 
 actor {
   // Initialize the access control system
@@ -76,460 +83,292 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Goals CRUD
+  // Goals CRUD — delegated to GoalsModule
   public shared ({ caller }) func createGoal(goal : Goal) : async Goal {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create goals");
     };
-    let userMap = Utils.getOrCreateUserMap(userGoals, caller);
-    userMap.add(goal.id, goal);
-    goal;
+    GoalsModule.create(userGoals, caller, goal);
   };
 
   public query ({ caller }) func getGoal(id : Text) : async ?Goal {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view goals");
     };
-    switch (userGoals.get(caller)) {
-      case (?userMap) { userMap.get(id) };
-      case null { null };
-    };
+    GoalsModule.get(userGoals, caller, id);
   };
 
   public query ({ caller }) func getAllGoals() : async [Goal] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view goals");
     };
-    switch (userGoals.get(caller)) {
-      case (?userMap) { userMap.values().toArray() };
-      case null { [] };
-    };
+    GoalsModule.getAll(userGoals, caller);
   };
 
   public shared ({ caller }) func updateGoal(id : Text, goal : Goal) : async ?Goal {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update goals");
     };
-    switch (userGoals.get(caller)) {
-      case (?userMap) {
-        userMap.add(id, goal);
-        ?goal;
-      };
-      case null { null };
-    };
+    GoalsModule.update(userGoals, caller, id, goal);
   };
 
   public shared ({ caller }) func deleteGoal(id : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can delete goals");
     };
-    switch (userGoals.get(caller)) {
-      case (?userMap) {
-        let existed = userMap.containsKey(id);
-        userMap.remove(id);
-        existed;
-      };
-      case null { false };
-    };
+    GoalsModule.delete(userGoals, caller, id);
   };
 
-  // PortfolioHolding CRUD
+  // Portfolio CRUD — delegated to PortfolioModule
   public shared ({ caller }) func createPortfolioHolding(holding : PortfolioHolding) : async PortfolioHolding {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create portfolio holdings");
     };
-    let userMap = Utils.getOrCreateUserMap(userPortfolios, caller);
-    userMap.add(holding.id, holding);
-    holding;
+    PortfolioModule.create(userPortfolios, caller, holding);
   };
 
   public query ({ caller }) func getPortfolioHolding(id : Text) : async ?PortfolioHolding {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view portfolio holdings");
     };
-    switch (userPortfolios.get(caller)) {
-      case (?userMap) { userMap.get(id) };
-      case null { null };
-    };
+    PortfolioModule.get(userPortfolios, caller, id);
   };
 
   public query ({ caller }) func getAllPortfolioHoldings() : async [PortfolioHolding] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view portfolio holdings");
     };
-    switch (userPortfolios.get(caller)) {
-      case (?userMap) { userMap.values().toArray() };
-      case null { [] };
-    };
+    PortfolioModule.getAll(userPortfolios, caller);
   };
 
   public shared ({ caller }) func updatePortfolioHolding(id : Text, holding : PortfolioHolding) : async ?PortfolioHolding {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update portfolio holdings");
     };
-    switch (userPortfolios.get(caller)) {
-      case (?userMap) {
-        userMap.add(id, holding);
-        ?holding;
-      };
-      case null { null };
-    };
+    PortfolioModule.update(userPortfolios, caller, id, holding);
   };
 
   public shared ({ caller }) func deletePortfolioHolding(id : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can delete portfolio holdings");
     };
-    switch (userPortfolios.get(caller)) {
-      case (?userMap) {
-        let existed = userMap.containsKey(id);
-        userMap.remove(id);
-        existed;
-      };
-      case null { false };
-    };
+    PortfolioModule.delete(userPortfolios, caller, id);
   };
 
-  // BudgetCategory CRUD
+  // BudgetCategory CRUD — delegated to BudgetingModule
   public shared ({ caller }) func createBudgetCategory(category : BudgetCategory) : async BudgetCategory {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create budget categories");
     };
-    let userMap = Utils.getOrCreateUserMap(userBudgetCategories, caller);
-    userMap.add(category.id, category);
-    category;
+    BudgetingModule.createCategory(userBudgetCategories, caller, category);
   };
 
   public query ({ caller }) func getBudgetCategory(id : Text) : async ?BudgetCategory {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view budget categories");
     };
-    switch (userBudgetCategories.get(caller)) {
-      case (?userMap) { userMap.get(id) };
-      case null { null };
-    };
+    BudgetingModule.getCategory(userBudgetCategories, caller, id);
   };
 
   public query ({ caller }) func getAllBudgetCategories() : async [BudgetCategory] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view budget categories");
     };
-    switch (userBudgetCategories.get(caller)) {
-      case (?userMap) { userMap.values().toArray() };
-      case null { [] };
-    };
+    BudgetingModule.getAllCategories(userBudgetCategories, caller);
   };
 
   public shared ({ caller }) func updateBudgetCategory(id : Text, category : BudgetCategory) : async ?BudgetCategory {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update budget categories");
     };
-    switch (userBudgetCategories.get(caller)) {
-      case (?userMap) {
-        userMap.add(id, category);
-        ?category;
-      };
-      case null { null };
-    };
+    BudgetingModule.updateCategory(userBudgetCategories, caller, id, category);
   };
 
   public shared ({ caller }) func deleteBudgetCategory(id : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can delete budget categories");
     };
-    switch (userBudgetCategories.get(caller)) {
-      case (?userMap) {
-        let existed = userMap.containsKey(id);
-        userMap.remove(id);
-        existed;
-      };
-      case null { false };
-    };
+    BudgetingModule.deleteCategory(userBudgetCategories, caller, id);
   };
 
-  // Transaction CRUD
+  // Transaction CRUD — delegated to BudgetingModule
   public shared ({ caller }) func createTransaction(transaction : Transaction) : async Transaction {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create transactions");
     };
-    let userMap = Utils.getOrCreateUserMap(userTransactions, caller);
-    userMap.add(transaction.id, transaction);
-    transaction;
+    BudgetingModule.createTransaction(userTransactions, caller, transaction);
   };
 
   public query ({ caller }) func getTransaction(id : Text) : async ?Transaction {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view transactions");
     };
-    switch (userTransactions.get(caller)) {
-      case (?userMap) { userMap.get(id) };
-      case null { null };
-    };
+    BudgetingModule.getTransaction(userTransactions, caller, id);
   };
 
   public query ({ caller }) func getAllTransactions() : async [Transaction] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view transactions");
     };
-    switch (userTransactions.get(caller)) {
-      case (?userMap) { userMap.values().toArray() };
-      case null { [] };
-    };
+    BudgetingModule.getAllTransactions(userTransactions, caller);
   };
 
   public shared ({ caller }) func updateTransaction(id : Text, transaction : Transaction) : async ?Transaction {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update transactions");
     };
-    switch (userTransactions.get(caller)) {
-      case (?userMap) {
-        userMap.add(id, transaction);
-        ?transaction;
-      };
-      case null { null };
-    };
+    BudgetingModule.updateTransaction(userTransactions, caller, id, transaction);
   };
 
   public shared ({ caller }) func deleteTransaction(id : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can delete transactions");
     };
-    switch (userTransactions.get(caller)) {
-      case (?userMap) {
-        let existed = userMap.containsKey(id);
-        userMap.remove(id);
-        existed;
-      };
-      case null { false };
-    };
+    BudgetingModule.deleteTransaction(userTransactions, caller, id);
   };
 
-  // Loan CRUD
+  // Loan CRUD — delegated to LoansModule
   public shared ({ caller }) func createLoan(loan : Loan) : async Loan {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create loans");
     };
-    let userMap = Utils.getOrCreateUserMap(userLoans, caller);
-    userMap.add(loan.id, loan);
-    loan;
+    LoansModule.create(userLoans, caller, loan);
   };
 
   public query ({ caller }) func getLoan(id : Text) : async ?Loan {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view loans");
     };
-    switch (userLoans.get(caller)) {
-      case (?userMap) { userMap.get(id) };
-      case null { null };
-    };
+    LoansModule.get(userLoans, caller, id);
   };
 
   public query ({ caller }) func getAllLoans() : async [Loan] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view loans");
     };
-    switch (userLoans.get(caller)) {
-      case (?userMap) { userMap.values().toArray() };
-      case null { [] };
-    };
+    LoansModule.getAll(userLoans, caller);
   };
 
   public shared ({ caller }) func updateLoan(id : Text, loan : Loan) : async ?Loan {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update loans");
     };
-    switch (userLoans.get(caller)) {
-      case (?userMap) {
-        userMap.add(id, loan);
-        ?loan;
-      };
-      case null { null };
-    };
+    LoansModule.update(userLoans, caller, id, loan);
   };
 
   public shared ({ caller }) func deleteLoan(id : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can delete loans");
     };
-    switch (userLoans.get(caller)) {
-      case (?userMap) {
-        let existed = userMap.containsKey(id);
-        userMap.remove(id);
-        existed;
-      };
-      case null { false };
-    };
+    LoansModule.delete(userLoans, caller, id);
   };
 
-  // FinancialRule CRUD
+  // FinancialRule CRUD — delegated to FinancialRulesModule
   public shared ({ caller }) func createFinancialRule(rule : FinancialRule) : async FinancialRule {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create financial rules");
     };
-    let userMap = Utils.getOrCreateUserMap(userRules, caller);
-    userMap.add(rule.id, rule);
-    rule;
+    FinancialRulesModule.create(userRules, caller, rule);
   };
 
   public query ({ caller }) func getFinancialRule(id : Text) : async ?FinancialRule {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view financial rules");
     };
-    switch (userRules.get(caller)) {
-      case (?userMap) { userMap.get(id) };
-      case null { null };
-    };
+    FinancialRulesModule.get(userRules, caller, id);
   };
 
   public query ({ caller }) func getAllFinancialRules() : async [FinancialRule] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view financial rules");
     };
-    switch (userRules.get(caller)) {
-      case (?userMap) { userMap.values().toArray() };
-      case null { [] };
-    };
+    FinancialRulesModule.getAll(userRules, caller);
   };
 
   public shared ({ caller }) func updateFinancialRule(id : Text, rule : FinancialRule) : async ?FinancialRule {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update financial rules");
     };
-    switch (userRules.get(caller)) {
-      case (?userMap) {
-        userMap.add(id, rule);
-        ?rule;
-      };
-      case null { null };
-    };
+    FinancialRulesModule.update(userRules, caller, id, rule);
   };
 
   public shared ({ caller }) func deleteFinancialRule(id : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can delete financial rules");
     };
-    switch (userRules.get(caller)) {
-      case (?userMap) {
-        let existed = userMap.containsKey(id);
-        userMap.remove(id);
-        existed;
-      };
-      case null { false };
-    };
+    FinancialRulesModule.delete(userRules, caller, id);
   };
 
-  // PlannerEvent CRUD
+  // PlannerEvent CRUD — delegated to FinancialPlannerModule
   public shared ({ caller }) func createPlannerEvent(event : PlannerEvent) : async PlannerEvent {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create planner events");
     };
-    let userMap = Utils.getOrCreateUserMap(userEvents, caller);
-    userMap.add(event.id, event);
-    event;
+    FinancialPlannerModule.create(userEvents, caller, event);
   };
 
   public query ({ caller }) func getPlannerEvent(id : Text) : async ?PlannerEvent {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view planner events");
     };
-    switch (userEvents.get(caller)) {
-      case (?userMap) { userMap.get(id) };
-      case null { null };
-    };
+    FinancialPlannerModule.get(userEvents, caller, id);
   };
 
   public query ({ caller }) func getAllPlannerEvents() : async [PlannerEvent] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view planner events");
     };
-    switch (userEvents.get(caller)) {
-      case (?userMap) { userMap.values().toArray() };
-      case null { [] };
-    };
+    FinancialPlannerModule.getAll(userEvents, caller);
   };
 
   public shared ({ caller }) func updatePlannerEvent(id : Text, event : PlannerEvent) : async ?PlannerEvent {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update planner events");
     };
-    switch (userEvents.get(caller)) {
-      case (?userMap) {
-        userMap.add(id, event);
-        ?event;
-      };
-      case null { null };
-    };
+    FinancialPlannerModule.update(userEvents, caller, id, event);
   };
 
   public shared ({ caller }) func deletePlannerEvent(id : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can delete planner events");
     };
-    switch (userEvents.get(caller)) {
-      case (?userMap) {
-        let existed = userMap.containsKey(id);
-        userMap.remove(id);
-        existed;
-      };
-      case null { false };
-    };
+    FinancialPlannerModule.delete(userEvents, caller, id);
   };
 
-  // FinancialModel CRUD
+  // FinancialModel CRUD — delegated to FinancialModelModule
   public shared ({ caller }) func createFinancialModel(model : FinancialModel) : async FinancialModel {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create financial models");
     };
-    let userMap = Utils.getOrCreateUserMap(userModels, caller);
-    userMap.add(model.id, model);
-    model;
+    FinancialModelModule.create(userModels, caller, model);
   };
 
   public query ({ caller }) func getFinancialModel(id : Text) : async ?FinancialModel {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view financial models");
     };
-    switch (userModels.get(caller)) {
-      case (?userMap) { userMap.get(id) };
-      case null { null };
-    };
+    FinancialModelModule.get(userModels, caller, id);
   };
 
   public query ({ caller }) func getAllFinancialModels() : async [FinancialModel] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view financial models");
     };
-    switch (userModels.get(caller)) {
-      case (?userMap) { userMap.values().toArray() };
-      case null { [] };
-    };
+    FinancialModelModule.getAll(userModels, caller);
   };
 
   public shared ({ caller }) func updateFinancialModel(id : Text, model : FinancialModel) : async ?FinancialModel {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update financial models");
     };
-    switch (userModels.get(caller)) {
-      case (?userMap) {
-        userMap.add(id, model);
-        ?model;
-      };
-      case null { null };
-    };
+    FinancialModelModule.update(userModels, caller, id, model);
   };
 
   public shared ({ caller }) func deleteFinancialModel(id : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can delete financial models");
     };
-    switch (userModels.get(caller)) {
-      case (?userMap) {
-        let existed = userMap.containsKey(id);
-        userMap.remove(id);
-        existed;
-      };
-      case null { false };
-    };
+    FinancialModelModule.delete(userModels, caller, id);
   };
 
   // Special functions
@@ -586,38 +425,14 @@ actor {
     };
 
     {
-      goalCount = switch (userGoals.get(caller)) {
-        case (?m) { m.size() };
-        case null { 0 };
-      };
-      portfolioCount = switch (userPortfolios.get(caller)) {
-        case (?m) { m.size() };
-        case null { 0 };
-      };
-      budgetCategoryCount = switch (userBudgetCategories.get(caller)) {
-        case (?m) { m.size() };
-        case null { 0 };
-      };
-      transactionCount = switch (userTransactions.get(caller)) {
-        case (?m) { m.size() };
-        case null { 0 };
-      };
-      loanCount = switch (userLoans.get(caller)) {
-        case (?m) { m.size() };
-        case null { 0 };
-      };
-      ruleCount = switch (userRules.get(caller)) {
-        case (?m) { m.size() };
-        case null { 0 };
-      };
-      eventCount = switch (userEvents.get(caller)) {
-        case (?m) { m.size() };
-        case null { 0 };
-      };
-      modelCount = switch (userModels.get(caller)) {
-        case (?m) { m.size() };
-        case null { 0 };
-      };
+      goalCount          = Utils.getUserMapSize(userGoals,            caller);
+      portfolioCount     = Utils.getUserMapSize(userPortfolios,       caller);
+      budgetCategoryCount = Utils.getUserMapSize(userBudgetCategories, caller);
+      transactionCount   = Utils.getUserMapSize(userTransactions,     caller);
+      loanCount          = Utils.getUserMapSize(userLoans,            caller);
+      ruleCount          = Utils.getUserMapSize(userRules,            caller);
+      eventCount         = Utils.getUserMapSize(userEvents,           caller);
+      modelCount         = Utils.getUserMapSize(userModels,           caller);
       totalIncome;
       totalExpenses;
     };

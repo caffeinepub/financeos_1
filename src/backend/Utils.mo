@@ -29,4 +29,19 @@ module {
       };
     };
   };
+
+  /// Returns the number of entries in the caller's inner map, or 0 if no
+  /// map has been created yet.  Used by read-side helpers (e.g.
+  /// getDashboardSummary) to collapse the repeated
+  ///   switch (map.get(caller)) { case (?m) { m.size() }; case null { 0 } }
+  /// pattern into a single line.
+  public func getUserMapSize<V>(
+    outerMap : Map.Map<Principal, Map.Map<Text, V>>,
+    caller   : Principal
+  ) : Nat {
+    switch (outerMap.get(caller)) {
+      case (?m) { m.size() };
+      case null { 0 };
+    };
+  };
 };

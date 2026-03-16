@@ -82,36 +82,39 @@ export function GoalsTab() {
     ],
   );
 
+  // Current savings = sum of currentValue for all linked investments per goal
   const goalCurrentSavings = useMemo(() => {
-    const savingsMap = new Map<string, number>();
+    const map = new Map<string, number>();
     for (const goal of goals) {
-      let goalSavings = 0;
-      for (const invId of goal.linkedInvestments) {
+      const savings = goal.linkedInvestments.reduce((sum, invId) => {
         const inv = allInvestments.find((i) => i.id === invId);
-        if (inv) goalSavings += inv.currentValue;
-      }
-      savingsMap.set(goal.id, goalSavings);
+        return sum + (inv?.currentValue ?? 0);
+      }, 0);
+      map.set(goal.id, savings);
     }
-    return savingsMap;
+    return map;
   }, [goals, allInvestments]);
 
-  const currentSavings = useMemo(
-    () =>
-      Array.from(goalCurrentSavings.values()).reduce((acc, v) => acc + v, 0),
-    [goalCurrentSavings],
-  );
-
-  const avgProgress = useMemo(() => {
-    if (goals.length === 0) return 0;
-    const totalProgress = goals.reduce((sum, g) => {
-      const savings = goalCurrentSavings.get(g.id) || 0;
-      const pct = g.targetAmount > 0 ? (savings / g.targetAmount) * 100 : 0;
-      return sum + pct;
-    }, 0);
-    return totalProgress / goals.length;
-  }, [goals, goalCurrentSavings]);
+  // Sum current value of all UNIQUE investments linked to any goal
+  const currentSavings = useMemo(() => {
+    const uniqueIds = new Set<string>();
+    for (const goal of goals) {
+      for (const id of goal.linkedInvestments) uniqueIds.add(id);
+    }
+    let total = 0;
+    for (const invId of uniqueIds) {
+      const inv = allInvestments.find((i) => i.id === invId);
+      total += inv?.currentValue ?? 0;
+    }
+    return total;
+  }, [goals, allInvestments]);
 
   const totalTargetAmount = goals.reduce((sum, g) => sum + g.targetAmount, 0);
+
+  const overallProgress = useMemo(() => {
+    if (totalTargetAmount === 0) return 0;
+    return (currentSavings / totalTargetAmount) * 100;
+  }, [currentSavings, totalTargetAmount]);
 
   const analyticsData = useMemo(() => {
     if (goals.length === 0)
@@ -162,32 +165,32 @@ export function GoalsTab() {
 
       goalDiversification: [
         {
-          name: "Short-term (<2y)",
+          name: "Short (<2y)",
           value: goals.filter((g) => {
-            const yearsLeft =
+            const y =
               Number(g.targetDate - BigInt(Date.now() * 1000000)) /
               (365 * 24 * 60 * 60 * 1e9);
-            return yearsLeft < 2;
+            return y < 2;
           }).length,
           color: "#3b82f6",
         },
         {
-          name: "Medium-term (2-5y)",
+          name: "Medium (2-5y)",
           value: goals.filter((g) => {
-            const yearsLeft =
+            const y =
               Number(g.targetDate - BigInt(Date.now() * 1000000)) /
               (365 * 24 * 60 * 60 * 1e9);
-            return yearsLeft >= 2 && yearsLeft < 5;
+            return y >= 2 && y < 5;
           }).length,
           color: "#10b981",
         },
         {
-          name: "Long-term (5y+)",
+          name: "Long (5y+)",
           value: goals.filter((g) => {
-            const yearsLeft =
+            const y =
               Number(g.targetDate - BigInt(Date.now() * 1000000)) /
               (365 * 24 * 60 * 60 * 1e9);
-            return yearsLeft >= 5;
+            return y >= 5;
           }).length,
           color: "#8b5cf6",
         },
@@ -215,155 +218,157 @@ export function GoalsTab() {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="shadow-sm border-gray-200/50 bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex-1">
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg">
-                  <Target className="h-5 w-5 text-white" />
+    <div className="space-y-4">
+      {/* Main Goals Card */}
+      <Card
+        data-ocid="goals.main.card"
+        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+      >
+        <CardHeader className="pb-2 pt-4 px-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-sm font-semibold text-slate-700 tracking-tight">
+                <div className="p-1.5 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow">
+                  <Target className="h-4 w-4 text-white" />
                 </div>
-                <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  Financial Goals
-                </span>
+                Financial Goals
               </CardTitle>
-              <CardDescription>
-                Track your progress toward achieving your financial objectives
+              <CardDescription className="text-xs text-slate-400 mt-0.5">
+                Track your progress toward financial objectives
               </CardDescription>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="text-sm font-semibold text-blue-600">
-                  Advise
-                </div>
-                <div className="text-xs text-gray-600">
-                  Investment recommendations
-                </div>
-              </div>
-              <Button
-                onClick={() => setIsAddDialogOpen(true)}
-                className="gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg"
-                data-ocid="goals.add_button"
-              >
-                <Plus className="h-4 w-4" /> Add Goal
-              </Button>
-            </div>
+            <Button
+              onClick={() => setIsAddDialogOpen(true)}
+              size="sm"
+              className="gap-1.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow text-xs"
+              data-ocid="goals.add_button"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add Goal
+            </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-5 pb-5">
           {goals.length === 0 ? (
             <div className="text-center py-12" data-ocid="goals.empty_state">
-              <Target className="h-16 w-16 mx-auto mb-4 text-green-400 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">No goals set yet</h3>
-              <p className="text-gray-600 mb-4">
+              <Target className="h-12 w-12 mx-auto mb-3 text-green-400 opacity-40" />
+              <h3 className="text-base font-semibold mb-1 text-slate-700">
+                No goals set yet
+              </h3>
+              <p className="text-slate-400 text-sm mb-4">
                 Define your financial goals and track your progress
               </p>
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
-                className="gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg"
+                size="sm"
+                className="gap-1.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow text-xs"
                 data-ocid="goals.empty.add_button"
               >
-                <Plus className="h-4 w-4" /> Set Your First Goal
+                <Plus className="h-3.5 w-3.5" /> Set Your First Goal
               </Button>
             </div>
           ) : (
             <>
-              <div className="grid gap-4 md:grid-cols-3 mb-6">
-                <Card className="shadow-sm border-green-200/50 bg-gradient-to-br from-green-50 to-emerald-100">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-green-900">
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                <Card className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-green-100 shadow-sm">
+                  <CardHeader className="pb-1 pt-3 px-4">
+                    <CardTitle className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">
                       Total Target
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-600">
+                  <CardContent className="pb-3 px-4">
+                    <p className="text-xl font-bold text-emerald-600 tabular-nums truncate">
                       {formatCurrency(totalTargetAmount)}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
                       Combined goal amount
                     </p>
                   </CardContent>
                 </Card>
-                <Card className="shadow-sm border-purple-200/50 bg-gradient-to-br from-purple-50 to-pink-100">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-purple-900">
+
+                <Card className="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-pink-100 shadow-sm">
+                  <CardHeader className="pb-1 pt-3 px-4">
+                    <CardTitle className="text-xs font-semibold text-purple-700 uppercase tracking-wide">
                       Current Savings
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-purple-600">
+                  <CardContent className="pb-3 px-4">
+                    <p className="text-xl font-bold text-purple-600 tabular-nums truncate">
                       {formatCurrency(currentSavings)}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
                       From linked investments
                     </p>
                   </CardContent>
                 </Card>
-                <Card className="shadow-sm border-blue-200/50 bg-gradient-to-br from-blue-50 to-cyan-100">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-blue-900">
-                      Average Progress
+
+                <Card className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-100 shadow-sm">
+                  <CardHeader className="pb-1 pt-3 px-4">
+                    <CardTitle className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                      Overall Progress
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-blue-600">
-                      {avgProgress.toFixed(1)}%
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Across {goals.length} goals
+                  <CardContent className="pb-3 px-4">
+                    <p className="text-xl font-bold text-blue-600">
+                      {overallProgress.toFixed(1)}%
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {goals.length} goal{goals.length !== 1 ? "s" : ""}
                     </p>
                   </CardContent>
                 </Card>
               </div>
-              <GoalList goals={goals} />
+
+              <GoalList goals={goals} allInvestments={allInvestments} />
             </>
           )}
         </CardContent>
       </Card>
 
+      {/* Analytics Section */}
       {goals.length > 0 && (
-        <Card className="shadow-sm border-gray-200/50 bg-gradient-to-br from-blue-50/50 to-purple-50/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-                <TrendingUp className="h-5 w-5 text-white" />
+        <Card
+          data-ocid="goals.analytics.card"
+          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+        >
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-slate-700 tracking-tight">
+              <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 shadow">
+                <TrendingUp className="h-4 w-4 text-white" />
               </div>
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Goals Analytics
-              </span>
+              Goals Analytics
             </CardTitle>
-            <CardDescription>
-              Industry-standard analysis of your goal achievement quality,
-              savings adequacy, and diversification
+            <CardDescription className="text-xs text-slate-400">
+              Achievement quality, savings adequacy and diversification
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-6 md:grid-cols-3">
-              <Card className="shadow-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <BarChart3 className="h-4 w-4 text-primary" />
+          <CardContent className="px-5 pb-5">
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* Savings Adequacy */}
+              <Card className="rounded-xl border border-slate-100 shadow-sm">
+                <CardHeader className="pb-2 pt-3 px-4">
+                  <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                    <BarChart3 className="h-3.5 w-3.5 text-blue-500" />
                     Savings Adequacy
                   </CardTitle>
-                  <CardDescription className="text-xs">
-                    Current vs target amounts
+                  <CardDescription className="text-[11px] text-slate-400">
+                    Current vs target
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-3 pb-3">
                   {analyticsData.savingsAdequacy.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={250}>
+                    <ResponsiveContainer width="100%" height={220}>
                       <BarChart data={analyticsData.savingsAdequacy}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                         <XAxis
                           dataKey="name"
-                          tick={{ fontSize: 10 }}
+                          tick={{ fontSize: 9 }}
                           angle={-15}
                           textAnchor="end"
-                          height={60}
+                          height={50}
                         />
                         <YAxis
-                          tick={{ fontSize: 10 }}
+                          tick={{ fontSize: 9 }}
                           tickFormatter={(v) => formatCurrency(v)}
                         />
                         <Tooltip
@@ -373,42 +378,43 @@ export function GoalsTab() {
                             borderRadius: "8px",
                           }}
                         />
-                        <Legend wrapperStyle={{ fontSize: "12px" }} />
+                        <Legend wrapperStyle={{ fontSize: "11px" }} />
                         <Bar
                           dataKey="target"
                           fill="#3b82f6"
                           name="Target"
-                          radius={[4, 4, 0, 0]}
+                          radius={[3, 3, 0, 0]}
                         />
                         <Bar
                           dataKey="current"
                           fill="#10b981"
                           name="Current Value"
-                          radius={[4, 4, 0, 0]}
+                          radius={[3, 3, 0, 0]}
                         />
                       </BarChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">
-                      No data available
+                    <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
+                      No data
                     </div>
                   )}
                 </CardContent>
               </Card>
 
-              <Card className="shadow-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <PieChart className="h-4 w-4 text-primary" />
+              {/* Achievement Quality */}
+              <Card className="rounded-xl border border-slate-100 shadow-sm">
+                <CardHeader className="pb-2 pt-3 px-4">
+                  <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                    <PieChart className="h-3.5 w-3.5 text-emerald-500" />
                     Achievement Quality
                   </CardTitle>
-                  <CardDescription className="text-xs">
-                    Distribution by progress status
+                  <CardDescription className="text-[11px] text-slate-400">
+                    By progress status
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-3 pb-3">
                   {analyticsData.achievementQuality.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={250}>
+                    <ResponsiveContainer width="100%" height={220}>
                       <RechartsPieChart>
                         <Pie
                           data={analyticsData.achievementQuality}
@@ -421,9 +427,9 @@ export function GoalsTab() {
                                 (s, d) => s + d.value,
                                 0,
                               );
-                            return `${entry.name}: ${((entry.value / total) * 100).toFixed(0)}%`;
+                            return `${((entry.value / total) * 100).toFixed(0)}%`;
                           }}
-                          outerRadius={80}
+                          outerRadius={75}
                           dataKey="value"
                         >
                           {analyticsData.achievementQuality.map((entry) => (
@@ -436,30 +442,31 @@ export function GoalsTab() {
                           ))}
                         </Pie>
                         <Tooltip contentStyle={{ fontSize: "11px" }} />
-                        <Legend wrapperStyle={{ fontSize: "12px" }} />
+                        <Legend wrapperStyle={{ fontSize: "11px" }} />
                       </RechartsPieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">
-                      No data available
+                    <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
+                      No data
                     </div>
                   )}
                 </CardContent>
               </Card>
 
-              <Card className="shadow-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Target className="h-4 w-4 text-primary" />
+              {/* Goal Diversification */}
+              <Card className="rounded-xl border border-slate-100 shadow-sm">
+                <CardHeader className="pb-2 pt-3 px-4">
+                  <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                    <Target className="h-3.5 w-3.5 text-purple-500" />
                     Goal Diversification
                   </CardTitle>
-                  <CardDescription className="text-xs">
-                    Distribution by time horizon
+                  <CardDescription className="text-[11px] text-slate-400">
+                    By time horizon
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-3 pb-3">
                   {analyticsData.goalDiversification.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={250}>
+                    <ResponsiveContainer width="100%" height={220}>
                       <RechartsPieChart>
                         <Pie
                           data={analyticsData.goalDiversification}
@@ -472,9 +479,9 @@ export function GoalsTab() {
                                 (s, d) => s + d.value,
                                 0,
                               );
-                            return `${entry.name}: ${((entry.value / total) * 100).toFixed(0)}%`;
+                            return `${((entry.value / total) * 100).toFixed(0)}%`;
                           }}
-                          outerRadius={80}
+                          outerRadius={75}
                           dataKey="value"
                         >
                           {analyticsData.goalDiversification.map((entry) => (
@@ -487,12 +494,12 @@ export function GoalsTab() {
                           ))}
                         </Pie>
                         <Tooltip contentStyle={{ fontSize: "11px" }} />
-                        <Legend wrapperStyle={{ fontSize: "12px" }} />
+                        <Legend wrapperStyle={{ fontSize: "11px" }} />
                       </RechartsPieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">
-                      No data available
+                    <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
+                      No data
                     </div>
                   )}
                 </CardContent>
@@ -509,15 +516,18 @@ export function GoalsTab() {
 
 function GoalsSkeleton() {
   return (
-    <Card data-ocid="goals.loading_state">
-      <CardHeader>
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-4 w-64" />
+    <Card
+      data-ocid="goals.loading_state"
+      className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+    >
+      <CardHeader className="px-5 pt-4 pb-2">
+        <Skeleton className="h-5 w-40" />
+        <Skeleton className="h-3 w-56" />
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-5 pb-5">
         <div className="space-y-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-16 w-full" />
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-12 w-full" />
           ))}
         </div>
       </CardContent>

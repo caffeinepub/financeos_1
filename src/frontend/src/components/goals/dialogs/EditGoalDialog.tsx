@@ -52,6 +52,7 @@ export function EditGoalDialog({
         targetAmount: targetAmountNum,
         targetDate: goal.targetDate,
         linkedInvestments: goal.linkedInvestments,
+        investmentAllocations: goal.investmentAllocations ?? {},
         priority: goal.priority,
         inflationRate: goal.inflationRate,
       });

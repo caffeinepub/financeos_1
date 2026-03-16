@@ -36,6 +36,7 @@ import { Button } from "../components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
@@ -56,6 +57,14 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Skeleton } from "../components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
 import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
 
@@ -1024,15 +1033,6 @@ function PortfolioOverview({
     });
   }, [holdings]);
 
-  // Bar chart data
-  const barData = assetSummaries.map((s) => ({
-    name: s.label
-      .replace(" (ETF/Stocks)", "")
-      .replace("Fixed Income", "Fixed Inc."),
-    invested: s.invested,
-    current: s.current,
-  }));
-
   // Equity cap distribution (assetType === ETF, category stored in notes)
   const equityCapData = useMemo(() => {
     const eq = holdings.filter((h) => h.assetType === AssetType.ETF);
@@ -1098,201 +1098,274 @@ function PortfolioOverview({
     Other: "#94a3b8",
   };
 
-  const CustomCapLabel = ({
-    x,
-    y,
-    width,
-    value,
-    pct,
-  }: {
-    x?: number;
-    y?: number;
-    width?: number;
-    value?: number;
-    pct?: string;
-  }) => {
-    if (!value || value === 0) return null;
-    return (
-      <text
-        x={(x ?? 0) + (width ?? 0) / 2}
-        y={(y ?? 0) - 4}
-        textAnchor="middle"
-        fontSize={10}
-        fill="#64748b"
-      >
-        {pct}%
-      </text>
-    );
-  };
+  const renderPieLabel = ({ name, pct }: { name: string; pct: string }) =>
+    `${name}: ${pct}%`;
+
+  // Total invested and current across all types
+  const totalInvested = assetSummaries.reduce((s, a) => s + a.invested, 0);
+  const totalCurrent = assetSummaries.reduce((s, a) => s + a.current, 0);
+
+  // Horizontal bar chart data
+  const barData = assetSummaries
+    .filter((s) => s.invested > 0 || s.current > 0)
+    .map((s) => ({
+      name: s.label
+        .replace(" (ETF/Stocks)", "")
+        .replace("Fixed Income", "Fixed Inc."),
+      Invested: s.invested,
+      Current: s.current,
+    }));
 
   return (
-    <div className="space-y-6">
-      {/* Asset Type Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {assetSummaries.map((s) => {
-          const iconInfo = assetIcons[s.value];
-          const IconComp = iconInfo?.Icon;
-          return (
-            <Card
-              key={s.value}
-              className="rounded-2xl border border-slate-100 shadow-sm bg-white hover:shadow-md transition-shadow"
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: `${iconInfo?.color}18` }}
-                  >
-                    {IconComp && (
-                      <IconComp
-                        className="w-4 h-4"
-                        style={{ color: iconInfo?.color }}
-                      />
-                    )}
-                  </div>
-                  <span className="text-xs font-semibold text-slate-600 leading-tight">
-                    {s.label.replace(" (ETF/Stocks)", "")}
-                  </span>
-                </div>
-                <div className="space-y-1">
-                  <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">
-                      Invested
-                    </p>
-                    <p className="text-sm font-bold text-slate-700 tabular-nums">
-                      {fmt(s.invested)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">
-                      Current
-                    </p>
-                    <p className="text-sm font-bold text-slate-800 tabular-nums">
-                      {fmt(s.current)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1 pt-1">
-                    <span
-                      className={`text-xs font-semibold tabular-nums ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
-                    >
-                      {s.gl >= 0 ? "+" : ""}
-                      {fmt(s.gl)}
-                    </span>
-                    <span
-                      className={`text-[10px] font-medium px-1 py-0.5 rounded ${s.glPct >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}
-                    >
-                      {s.glPct >= 0 ? "+" : ""}
-                      {s.glPct.toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Consolidated Invested vs Current Bar Chart */}
+    <div className="space-y-4">
+      {/* Overview Table */}
       <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
         <CardHeader className="pb-2 pt-4 px-5">
-          <CardTitle className="text-sm font-semibold text-slate-700">
-            Invested vs Current Value — All Asset Types
+          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+            Portfolio Overview
           </CardTitle>
+          <CardDescription className="text-xs text-slate-400">
+            Summary across all investment modules
+          </CardDescription>
         </CardHeader>
-        <CardContent className="px-4 pb-4">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={barData}
-              margin={{ top: 10, right: 10, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#94a3b8" }} />
-              <YAxis
-                tick={{ fontSize: 10, fill: "#94a3b8" }}
-                tickFormatter={(v) => fmt(v)}
-                width={80}
-              />
-              <Tooltip
-                formatter={(value: number, name: string) => [fmt(value), name]}
-                contentStyle={{
-                  fontSize: "11px",
-                  borderRadius: "10px",
-                  border: "1px solid #e2e8f0",
-                }}
-              />
-              <Legend wrapperStyle={{ fontSize: "11px" }} />
-              <Bar
-                dataKey="invested"
-                name="Invested Value"
-                fill="#3b82f6"
-                radius={[4, 4, 0, 0]}
-              />
-              <Bar
-                dataKey="current"
-                name="Current Value"
-                fill="#10b981"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+        <CardContent className="px-0 pb-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-700 hover:bg-slate-700">
+                  <TableHead className="text-white text-xs font-semibold uppercase">
+                    Investment Module
+                  </TableHead>
+                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
+                    Total Invested
+                  </TableHead>
+                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
+                    Current Value
+                  </TableHead>
+                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
+                    Gain / Loss
+                  </TableHead>
+                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
+                    % Gain/Loss
+                  </TableHead>
+                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
+                    % Allocation
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {assetSummaries.map((s) => {
+                  const iconInfo = assetIcons[s.value];
+                  const IconComp = iconInfo?.Icon;
+                  const alloc =
+                    totalCurrent > 0 ? (s.current / totalCurrent) * 100 : 0;
+                  return (
+                    <TableRow key={s.value} className="hover:bg-slate-50/60">
+                      <TableCell className="py-2.5">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: `${iconInfo?.color}18` }}
+                          >
+                            {IconComp && (
+                              <IconComp
+                                className="w-3.5 h-3.5"
+                                style={{ color: iconInfo?.color }}
+                              />
+                            )}
+                          </div>
+                          <span className="text-xs font-medium text-slate-700">
+                            {s.label.replace(" (ETF/Stocks)", " ETF/Stocks")}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
+                        {fmt(s.invested)}
+                      </TableCell>
+                      <TableCell className="text-right text-xs tabular-nums font-semibold text-slate-800 py-2.5">
+                        {fmt(s.current)}
+                      </TableCell>
+                      <TableCell
+                        className={`text-right text-xs tabular-nums font-semibold py-2.5 ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                      >
+                        {s.gl >= 0 ? "+" : ""}
+                        {fmt(s.gl)}
+                      </TableCell>
+                      <TableCell className="text-right py-2.5">
+                        <span
+                          className={`text-xs font-semibold px-1.5 py-0.5 rounded ${s.glPct >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}
+                        >
+                          {s.glPct >= 0 ? "+" : ""}
+                          {s.glPct.toFixed(1)}%
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
+                        {alloc.toFixed(1)}%
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {/* Totals row */}
+                <TableRow className="bg-slate-50 border-t-2 border-slate-200">
+                  <TableCell className="py-2.5 text-xs font-bold text-slate-700">
+                    Total
+                  </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
+                    {fmt(totalInvested)}
+                  </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-800 py-2.5">
+                    {fmt(totalCurrent)}
+                  </TableCell>
+                  <TableCell
+                    className={`text-right text-xs tabular-nums font-bold py-2.5 ${(totalCurrent - totalInvested) >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                  >
+                    {totalCurrent - totalInvested >= 0 ? "+" : ""}
+                    {fmt(totalCurrent - totalInvested)}
+                  </TableCell>
+                  <TableCell className="text-right py-2.5">
+                    {totalInvested > 0 && (
+                      <span
+                        className={`text-xs font-bold px-1.5 py-0.5 rounded ${(((totalCurrent - totalInvested) / totalInvested) * 100) >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}
+                      >
+                        {((totalCurrent - totalInvested) / totalInvested) *
+                          100 >=
+                        0
+                          ? "+"
+                          : ""}
+                        {(
+                          ((totalCurrent - totalInvested) / totalInvested) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
+                    100%
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Cap Distribution Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Equity Cap Distribution */}
+      {/* Horizontal Bar Chart: Invested vs Current */}
+      <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+        <CardHeader className="pb-2 pt-4 px-5">
+          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+            Invested vs Current Value — All Asset Types
+          </CardTitle>
+          <CardDescription className="text-xs text-slate-400">
+            Horizontal comparison across modules
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-4 pb-4">
+          {barData.length === 0 ? (
+            <div className="h-48 flex items-center justify-center text-slate-300 text-sm">
+              No holdings yet
+            </div>
+          ) : (
+            <ResponsiveContainer
+              width="100%"
+              height={Math.max(200, barData.length * 52)}
+            >
+              <BarChart
+                data={barData}
+                layout="vertical"
+                margin={{ top: 5, right: 40, left: 10, bottom: 5 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#f1f5f9"
+                  horizontal={false}
+                />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 10, fill: "#94a3b8" }}
+                  tickFormatter={(v) => fmt(v)}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 11, fill: "#475569" }}
+                  width={80}
+                />
+                <Tooltip
+                  formatter={(value: number, name: string) => [
+                    fmt(value),
+                    name,
+                  ]}
+                  contentStyle={{
+                    fontSize: "11px",
+                    borderRadius: "10px",
+                    border: "1px solid #e2e8f0",
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: "11px" }} />
+                <Bar
+                  dataKey="Invested"
+                  name="Invested"
+                  fill="#3b82f6"
+                  radius={[0, 4, 4, 0]}
+                  barSize={16}
+                />
+                <Bar
+                  dataKey="Current"
+                  name="Current Value"
+                  fill="#10b981"
+                  radius={[0, 4, 4, 0]}
+                  barSize={16}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Cap Distribution Pie Charts */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
           <CardHeader className="pb-2 pt-4 px-5">
             <CardTitle className="text-sm font-semibold text-slate-700">
-              Equity — Cap Distribution
+              Equity — Cap Allocation
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {equityCapData.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
-                <BarChart
-                  data={equityCapData}
-                  margin={{ top: 20, right: 10, left: 0, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: "#94a3b8" }}
-                    tickFormatter={(v) => fmt(v)}
-                    width={80}
-                  />
-                  <Tooltip
-                    formatter={(
-                      value: number,
-                      _name: string,
-                      props: { payload?: { pct?: string } },
-                    ) => [
-                      `${fmt(value)} (${props.payload?.pct ?? "0"}%)`,
-                      "Current Value",
-                    ]}
-                    contentStyle={{
-                      fontSize: "11px",
-                      borderRadius: "10px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Bar
+                <PieChart>
+                  <Pie
+                    data={equityCapData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderPieLabel}
+                    outerRadius={90}
                     dataKey="value"
-                    name="Current Value"
-                    radius={[4, 4, 0, 0]}
-                    label={<CustomCapLabel />}
                   >
                     {equityCapData.map((entry) => (
                       <Cell
                         key={entry.name}
                         fill={CAP_COLORS[entry.name] ?? "#94a3b8"}
+                        stroke="#fff"
+                        strokeWidth={2}
                       />
                     ))}
-                  </Bar>
-                </BarChart>
+                  </Pie>
+                  <Tooltip
+                    formatter={(
+                      v: number,
+                      _n: string,
+                      p: { payload?: { pct?: string } },
+                    ) => [
+                      `${fmt(v)} (${p.payload?.pct ?? "0"}%)`,
+                      "Current Value",
+                    ]}
+                    contentStyle={{ fontSize: "11px", borderRadius: "10px" }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                </PieChart>
               </ResponsiveContainer>
             ) : (
               <div className="h-[240px] flex items-center justify-center text-slate-300 text-sm">
@@ -1302,11 +1375,10 @@ function PortfolioOverview({
           </CardContent>
         </Card>
 
-        {/* Mutual Fund Cap Distribution */}
         <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
           <CardHeader className="pb-2 pt-4 px-5">
             <CardTitle className="text-sm font-semibold text-slate-700">
-              Mutual Fund — Cap Distribution
+              Mutual Fund — Cap Allocation
             </CardTitle>
             <p className="text-[11px] text-slate-400 mt-0.5">
               Flexi, Multi Cap & Multi Asset counted as Large Cap
@@ -1315,49 +1387,38 @@ function PortfolioOverview({
           <CardContent className="px-4 pb-4">
             {mfCapData.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
-                <BarChart
-                  data={mfCapData}
-                  margin={{ top: 20, right: 10, left: 0, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: "#94a3b8" }}
-                    tickFormatter={(v) => fmt(v)}
-                    width={80}
-                  />
-                  <Tooltip
-                    formatter={(
-                      value: number,
-                      _name: string,
-                      props: { payload?: { pct?: string } },
-                    ) => [
-                      `${fmt(value)} (${props.payload?.pct ?? "0"}%)`,
-                      "Current Value",
-                    ]}
-                    contentStyle={{
-                      fontSize: "11px",
-                      borderRadius: "10px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Bar
+                <PieChart>
+                  <Pie
+                    data={mfCapData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderPieLabel}
+                    outerRadius={90}
                     dataKey="value"
-                    name="Current Value"
-                    radius={[4, 4, 0, 0]}
-                    label={<CustomCapLabel />}
                   >
                     {mfCapData.map((entry) => (
                       <Cell
                         key={entry.name}
                         fill={CAP_COLORS[entry.name] ?? "#94a3b8"}
+                        stroke="#fff"
+                        strokeWidth={2}
                       />
                     ))}
-                  </Bar>
-                </BarChart>
+                  </Pie>
+                  <Tooltip
+                    formatter={(
+                      v: number,
+                      _n: string,
+                      p: { payload?: { pct?: string } },
+                    ) => [
+                      `${fmt(v)} (${p.payload?.pct ?? "0"}%)`,
+                      "Current Value",
+                    ]}
+                    contentStyle={{ fontSize: "11px", borderRadius: "10px" }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                </PieChart>
               </ResponsiveContainer>
             ) : (
               <div className="h-[240px] flex items-center justify-center text-slate-300 text-sm">

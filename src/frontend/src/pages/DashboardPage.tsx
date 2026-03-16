@@ -340,44 +340,6 @@ export default function DashboardPage() {
     [byType],
   );
 
-  const forecast25 = useMemo(() => {
-    const yr = new Date().getFullYear();
-    const groups: Record<string, string[]> = {
-      Retiral: ["Retirement"],
-      MF: ["MutualFund"],
-      ETF: ["ETF"],
-      FDs: ["FixedIncome"],
-      Crypto: ["Crypto"],
-      Other: ["Commodity", "RealEstate", "Other"],
-    };
-    const baseByGroup: Record<string, number> = {};
-    const cagrByGroup: Record<string, number> = {
-      Retiral: 0.08,
-      MF: 0.12,
-      ETF: 0.12,
-      FDs: 0.07,
-      Crypto: 0.2,
-      Other: 0.08,
-    };
-    for (const [grp, types] of Object.entries(groups)) {
-      baseByGroup[grp] = types.reduce((s, t) => s + (byType[t] ?? 0), 0);
-    }
-    return Array.from({ length: 26 }, (_, i) => {
-      const row: Record<string, number | string> = {
-        year: yr + i,
-        age: 35 + i,
-      };
-      let total = 0;
-      for (const grp of Object.keys(groups)) {
-        const v = Math.round(baseByGroup[grp] * (1 + cagrByGroup[grp]) ** i);
-        row[grp] = v;
-        total += v;
-      }
-      row.Total = total;
-      return row;
-    });
-  }, [byType]);
-
   // ── Section 6 data ──
   const incomeExpenseTrend = useMemo(() => {
     const now = new Date();
@@ -651,139 +613,75 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* ── Section 3: 20-Year Forecast + Goals Progress ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card
-          data-ocid="dashboard.forecast20.card"
-          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-        >
-          <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-              20-Year Portfolio Forecast
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
-              Projected growth by asset type using historical CAGR rates
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-5 pb-5">
-            {totalNAV === 0 ? (
-              <div className="h-64 flex flex-col items-center justify-center gap-2">
-                <span className="text-3xl">🔮</span>
-                <p className="text-sm text-slate-400">
-                  Add holdings to see forecast
-                </p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart
-                  data={forecast20}
-                  margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+      {/* ── Section 3: Goals Progress ── */}
+      <Card
+        data-ocid="dashboard.goals.card"
+        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+      >
+        <CardHeader className="pb-2 pt-4 px-5">
+          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+            Goals Progress
+          </CardTitle>
+          <CardDescription className="text-xs text-slate-400">
+            Top 5 goals linked to portfolio investments
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          {goalsProgress.length === 0 ? (
+            <div
+              data-ocid="dashboard.goals.empty_state"
+              className="h-64 flex flex-col items-center justify-center gap-2"
+            >
+              <span className="text-3xl">🎯</span>
+              <p className="text-sm text-slate-400">
+                No goals yet. Add goals in the Goals module.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3 pt-1">
+              {goalsProgress.map((g, idx) => (
+                <div
+                  key={g.id}
+                  data-ocid={`dashboard.goals.item.${idx + 1}`}
+                  className="rounded-xl border border-slate-100 bg-slate-50/50 px-3.5 py-3 space-y-2"
                 >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                  <XAxis dataKey="year" tick={{ fontSize: 9 }} interval={4} />
-                  <YAxis
-                    tick={{ fontSize: 9 }}
-                    tickFormatter={(v: number) => shortNum(v, sym)}
-                  />
-                  <Tooltip
-                    formatter={(v: number, name: string) => [
-                      formatCurrency(v),
-                      ASSET_CONFIG[name]?.shortLabel ?? name,
-                    ]}
-                    contentStyle={{
-                      fontSize: "11px",
-                      borderRadius: "10px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    }}
-                  />
-                  <Legend
-                    wrapperStyle={{ fontSize: "10px" }}
-                    formatter={(v: string) => ASSET_CONFIG[v]?.shortLabel ?? v}
-                  />
-                  {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => (
-                    <Bar
-                      key={t}
-                      dataKey={t}
-                      stackId="a"
-                      fill={ASSET_CONFIG[t].color}
-                    />
-                  ))}
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card
-          data-ocid="dashboard.goals.card"
-          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-        >
-          <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-              Goals Progress
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
-              Top 5 goals linked to portfolio investments
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-5 pb-5">
-            {goalsProgress.length === 0 ? (
-              <div
-                data-ocid="dashboard.goals.empty_state"
-                className="h-64 flex flex-col items-center justify-center gap-2"
-              >
-                <span className="text-3xl">🎯</span>
-                <p className="text-sm text-slate-400">
-                  No goals yet. Add goals in the Goals module.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3 pt-1">
-                {goalsProgress.map((g, idx) => (
-                  <div
-                    key={g.id}
-                    data-ocid={`dashboard.goals.item.${idx + 1}`}
-                    className="rounded-xl border border-slate-100 bg-slate-50/50 px-3.5 py-3 space-y-2"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-medium text-slate-700 truncate max-w-[180px]">
-                        {g.name}
-                      </span>
-                      {statusBadge(g.pct)}
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-300"
-                        style={{
-                          width: `${g.pct}%`,
-                          background:
-                            g.pct >= 75
-                              ? "#10b981"
-                              : g.pct >= 50
-                                ? "#f59e0b"
-                                : "#ef4444",
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[11px] text-slate-400">
-                      <span className="tabular-nums">
-                        {formatCurrency(g.currentAmount)}
-                      </span>
-                      <span className="tabular-nums font-medium text-slate-500">
-                        {formatCurrency(g.targetAmount)}
-                      </span>
-                    </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-slate-700 truncate max-w-[180px]">
+                      {g.name}
+                    </span>
+                    {statusBadge(g.pct)}
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{
+                        width: `${g.pct}%`,
+                        background:
+                          g.pct >= 75
+                            ? "#10b981"
+                            : g.pct >= 50
+                              ? "#f59e0b"
+                              : "#ef4444",
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[11px] text-slate-400">
+                    <span className="tabular-nums">
+                      {formatCurrency(g.currentAmount)}
+                    </span>
+                    <span className="tabular-nums font-medium text-slate-500">
+                      {formatCurrency(g.targetAmount)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* ── Section 4: Budget 6M + Risk vs Return ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* ── Section 4: Budget 6M ── */}
+      <div className="grid grid-cols-1 gap-4">
         <Card
           data-ocid="dashboard.budget.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -827,179 +725,7 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-
-        <Card
-          data-ocid="dashboard.riskreturn.card"
-          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-        >
-          <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-              Risk vs Return
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
-              Annual return (%) vs risk (std dev %) for held asset types
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-5 pb-5">
-            {riskReturn.length === 0 ? (
-              <div className="h-64 flex flex-col items-center justify-center gap-2">
-                <span className="text-3xl">⚖️</span>
-                <p className="text-sm text-slate-400">No portfolio data yet</p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={280}>
-                <ScatterChart
-                  margin={{ top: 20, right: 20, bottom: 20, left: 10 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis
-                    type="number"
-                    dataKey="x"
-                    name="Risk"
-                    tick={{ fontSize: 10 }}
-                    label={{
-                      value: "Risk (%)",
-                      position: "insideBottom",
-                      offset: -10,
-                      fontSize: 11,
-                    }}
-                  />
-                  <YAxis
-                    type="number"
-                    dataKey="y"
-                    name="Return"
-                    tick={{ fontSize: 10 }}
-                    label={{
-                      value: "Return (%)",
-                      angle: -90,
-                      position: "insideLeft",
-                      fontSize: 11,
-                    }}
-                  />
-                  <Tooltip
-                    cursor={{ strokeDasharray: "3 3" }}
-                    formatter={(v: number, name: string) => [
-                      `${v}%`,
-                      name === "x" ? "Risk" : "Return",
-                    ]}
-                    contentStyle={{
-                      fontSize: "11px",
-                      borderRadius: "10px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    }}
-                  />
-                  <Scatter
-                    data={riskReturn}
-                    shape={(p: {
-                      cx?: number;
-                      cy?: number;
-                      payload?: { label: string; color: string };
-                    }) => <CustomDot cx={p.cx} cy={p.cy} payload={p.payload} />}
-                  />
-                </ScatterChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
       </div>
-
-      {/* ── Section 5: 25-Year Forecast Table (bottom scrollbar via rotateX) ── */}
-      <Card
-        data-ocid="dashboard.forecast25.card"
-        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-      >
-        <CardHeader className="pb-2 pt-4 px-5">
-          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-            25-Year Portfolio Forecast
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-400">
-            Detailed year-by-year projection using asset-specific CAGR rates
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-0 pb-0">
-          <div
-            style={
-              {
-                transform: "rotateX(180deg)",
-                overflowX: "auto",
-                WebkitOverflowScrolling: "touch",
-              } as React.CSSProperties
-            }
-          >
-            <div style={{ transform: "rotateX(180deg)", minWidth: 700 }}>
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-b border-slate-100">
-                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
-                      Year
-                    </TableHead>
-                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-14">
-                      Age
-                    </TableHead>
-                    {(
-                      [
-                        "Retiral",
-                        "MF",
-                        "ETF",
-                        "FDs",
-                        "Crypto",
-                        "Other",
-                      ] as const
-                    ).map((col) => (
-                      <TableHead
-                        key={col}
-                        className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right"
-                      >
-                        {col}
-                      </TableHead>
-                    ))}
-                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right">
-                      Total
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {forecast25.map((row, idx) => (
-                    <TableRow
-                      key={String(row.year)}
-                      data-ocid={`dashboard.forecast.row.${idx + 1}`}
-                      className={`hover:bg-slate-50/80 transition-colors ${idx % 5 === 0 ? "bg-blue-50/30" : ""}`}
-                    >
-                      <TableCell className="text-xs font-semibold text-slate-700 tabular-nums">
-                        {String(row.year)}
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-400 tabular-nums">
-                        {String(row.age)}
-                      </TableCell>
-                      {(
-                        [
-                          "Retiral",
-                          "MF",
-                          "ETF",
-                          "FDs",
-                          "Crypto",
-                          "Other",
-                        ] as const
-                      ).map((col) => (
-                        <TableCell
-                          key={col}
-                          className="text-xs text-right text-slate-600 tabular-nums"
-                        >
-                          {shortNum(Number(row[col]), sym)}
-                        </TableCell>
-                      ))}
-                      <TableCell className="text-xs text-right font-bold text-emerald-700 tabular-nums">
-                        {shortNum(Number(row.Total), sym)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* ── Section 6: Advanced Finance Analytics ── */}
       <div>
@@ -1240,6 +966,163 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+      {/* ── Risk vs Return ── */}
+      <Card
+        data-ocid="dashboard.riskreturn.card"
+        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+      >
+        <CardHeader className="pb-2 pt-4 px-5">
+          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+            Risk vs Return
+          </CardTitle>
+          <CardDescription className="text-xs text-slate-400">
+            Annual return (%) vs risk (std dev %) for held asset types
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          {riskReturn.length === 0 ? (
+            <div className="h-64 flex flex-col items-center justify-center gap-2">
+              <span className="text-3xl">⚖️</span>
+              <p className="text-sm text-slate-400">No portfolio data yet</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <ScatterChart
+                margin={{ top: 20, right: 20, bottom: 20, left: 10 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                <XAxis
+                  type="number"
+                  dataKey="x"
+                  name="Risk"
+                  tick={{ fontSize: 10 }}
+                  label={{
+                    value: "Risk (%)",
+                    position: "insideBottom",
+                    offset: -10,
+                    fontSize: 11,
+                  }}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="y"
+                  name="Return"
+                  tick={{ fontSize: 10 }}
+                  label={{
+                    value: "Return (%)",
+                    angle: -90,
+                    position: "insideLeft",
+                    fontSize: 11,
+                  }}
+                />
+                <Tooltip
+                  cursor={{ strokeDasharray: "3 3" }}
+                  formatter={(v: number, name: string) => [
+                    `${v}%`,
+                    name === "x" ? "Risk" : "Return",
+                  ]}
+                  contentStyle={{
+                    fontSize: "11px",
+                    borderRadius: "10px",
+                    border: "1px solid #e2e8f0",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  }}
+                />
+                <Scatter
+                  data={riskReturn}
+                  shape={(p: {
+                    cx?: number;
+                    cy?: number;
+                    payload?: { label: string; color: string };
+                  }) => <CustomDot cx={p.cx} cy={p.cy} payload={p.payload} />}
+                />
+              </ScatterChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── 20-Year Forecast Table ── */}
+      <Card
+        data-ocid="dashboard.forecast20_table.card"
+        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+      >
+        <CardHeader className="pb-2 pt-4 px-5">
+          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+            20-Year Portfolio Forecast
+          </CardTitle>
+          <CardDescription className="text-xs text-slate-400">
+            Year-by-year projection using asset-specific CAGR rates
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-0 pb-0">
+          <div
+            style={
+              {
+                transform: "rotateX(180deg)",
+                overflowX: "auto",
+                WebkitOverflowScrolling: "touch",
+              } as React.CSSProperties
+            }
+          >
+            <div style={{ transform: "rotateX(180deg)", minWidth: 600 }}>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
+                      Year
+                    </TableHead>
+                    {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map(
+                      (t) => (
+                        <TableHead
+                          key={t}
+                          className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right"
+                        >
+                          {ASSET_CONFIG[t].shortLabel}
+                        </TableHead>
+                      ),
+                    )}
+                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right">
+                      Total
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {forecast20.map((row, idx) => {
+                    const total = ASSET_TYPES.filter(
+                      (t) => (byType[t] ?? 0) > 0,
+                    ).reduce((s, t) => s + Number(row[t] ?? 0), 0);
+                    return (
+                      <TableRow
+                        key={String(row.year)}
+                        data-ocid={`dashboard.forecast20.row.${idx + 1}`}
+                        className={`hover:bg-slate-50/80 ${idx % 5 === 0 ? "bg-blue-50/30" : ""}`}
+                      >
+                        <TableCell className="text-xs font-semibold text-slate-700 tabular-nums">
+                          {String(row.year)}
+                        </TableCell>
+                        {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map(
+                          (t) => (
+                            <TableCell
+                              key={t}
+                              className="text-xs text-right text-slate-600 tabular-nums"
+                            >
+                              {shortNum(Number(row[t] ?? 0), sym)}
+                            </TableCell>
+                          ),
+                        )}
+                        <TableCell className="text-xs text-right font-bold text-emerald-700 tabular-nums">
+                          {shortNum(total, sym)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

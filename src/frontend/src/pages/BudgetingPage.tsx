@@ -362,86 +362,159 @@ export default function BudgetingPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-slate-200">
-              <table className="w-full text-sm" data-ocid="budgeting.table">
-                <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
-                  <tr>
-                    <th className="px-4 py-3 text-left">Name</th>
-                    <th className="px-4 py-3 text-left">Type</th>
-                    <th className="px-4 py-3 text-right">Monthly Limit</th>
-                    <th className="px-4 py-3 text-center">Color</th>
-                    <th className="px-4 py-3 text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {categories.map((c, i) => (
-                    <tr
-                      key={c.id}
-                      data-ocid={`budgeting.item.${i + 1}`}
-                      className="hover:bg-slate-50"
-                    >
-                      <td className="px-4 py-3 font-medium">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: c.color }}
-                          />
-                          {c.name}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge
-                          variant={
-                            c.categoryType === TransactionType.Income
-                              ? "default"
-                              : "destructive"
-                          }
-                          className={
-                            c.categoryType === TransactionType.Income
-                              ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
-                              : "bg-red-100 text-red-700 hover:bg-red-100"
-                          }
-                        >
-                          {c.categoryType}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        {fmt(c.monthlyLimit)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center">
-                          <div
-                            className="w-6 h-6 rounded-full border border-slate-200"
-                            style={{ backgroundColor: c.color }}
-                          />
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-1 justify-center">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            data-ocid={`budgeting.edit_button.${i + 1}`}
-                            onClick={() => openEdit(c)}
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-red-500"
-                            data-ocid={`budgeting.delete_button.${i + 1}`}
-                            onClick={() => del(c.id)}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div
+              className="overflow-x-auto rounded-xl border border-slate-200"
+              data-ocid="budgeting.table"
+            >
+              {/* Income group */}
+              {(() => {
+                const INCOME_ORDER = [
+                  "Salary & Wages",
+                  "Business Income",
+                  "Freelance / Consulting",
+                  "Investment Returns",
+                  "Rental Income",
+                  "Other Income",
+                ];
+                const EXPENSE_ORDER = [
+                  "Housing & Rent",
+                  "Groceries & Food",
+                  "Utilities & Bills",
+                  "Transportation",
+                  "Debt Payments & EMI",
+                  "Healthcare & Medical",
+                  "Insurance",
+                  "Education",
+                  "Savings & Investments",
+                  "Dining & Restaurants",
+                  "Entertainment & Leisure",
+                  "Personal Care & Wellness",
+                  "Clothing & Apparel",
+                  "Subscriptions & Software",
+                  "Travel & Vacation",
+                  "Gifts & Donations",
+                  "Home Maintenance",
+                  "Children & Family",
+                  "Taxes & Levies",
+                  "Miscellaneous",
+                ];
+                const sortFn =
+                  (order: string[]) =>
+                  (a: BudgetCategory, b: BudgetCategory) => {
+                    const ai = order.indexOf(a.name);
+                    const bi = order.indexOf(b.name);
+                    if (ai === -1 && bi === -1)
+                      return a.name.localeCompare(b.name);
+                    if (ai === -1) return 1;
+                    if (bi === -1) return -1;
+                    return ai - bi;
+                  };
+                const incomes = categories
+                  .filter((c) => c.categoryType === TransactionType.Income)
+                  .sort(sortFn(INCOME_ORDER));
+                const expenses = categories
+                  .filter((c) => c.categoryType === TransactionType.Expense)
+                  .sort(sortFn(EXPENSE_ORDER));
+                let globalIdx = 0;
+                const renderRows = (list: BudgetCategory[]) =>
+                  list.map((c) => {
+                    const i = globalIdx++;
+                    return (
+                      <tr
+                        key={c.id}
+                        data-ocid={`budgeting.item.${i + 1}`}
+                        className="hover:bg-slate-50"
+                      >
+                        <td className="px-4 py-2.5 font-medium text-sm">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: c.color }}
+                            />
+                            {c.name}
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5 text-right text-sm">
+                          {fmt(c.monthlyLimit)}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex justify-center">
+                            <div
+                              className="w-5 h-5 rounded-full border border-slate-200"
+                              style={{ backgroundColor: c.color }}
+                            />
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex gap-1 justify-center">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              data-ocid={`budgeting.edit_button.${i + 1}`}
+                              onClick={() => openEdit(c)}
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-red-500"
+                              data-ocid={`budgeting.delete_button.${i + 1}`}
+                              onClick={() => del(c.id)}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  });
+                return (
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-700 text-white text-xs uppercase">
+                      <tr>
+                        <th className="px-4 py-3 text-left">Name</th>
+                        <th className="px-4 py-3 text-right">Monthly Limit</th>
+                        <th className="px-4 py-3 text-center">Color</th>
+                        <th className="px-4 py-3 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {incomes.length > 0 && (
+                        <>
+                          <tr>
+                            <td
+                              colSpan={4}
+                              className="px-4 py-2 bg-emerald-50 border-b border-emerald-100"
+                            >
+                              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                                Income ({incomes.length})
+                              </span>
+                            </td>
+                          </tr>
+                          {renderRows(incomes)}
+                        </>
+                      )}
+                      {expenses.length > 0 && (
+                        <>
+                          <tr>
+                            <td
+                              colSpan={4}
+                              className="px-4 py-2 bg-red-50 border-b border-red-100"
+                            >
+                              <span className="text-xs font-bold text-red-700 uppercase tracking-wider">
+                                Expenses ({expenses.length})
+                              </span>
+                            </td>
+                          </tr>
+                          {renderRows(expenses)}
+                        </>
+                      )}
+                    </tbody>
+                  </table>
+                );
+              })()}
             </div>
           )}
         </TabsContent>

@@ -17,30 +17,25 @@ import {
 import { Link as LinkIcon, Pencil, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../contexts/CurrencyContext";
-import {
-  type Goal,
-  useGetAllInvestmentsByCategory,
-} from "../../hooks/useGoals";
+import type { Goal, Investment } from "../../hooks/useGoals";
 import { DeleteGoalDialog } from "./dialogs/DeleteGoalDialog";
 import { EditGoalDialog } from "./dialogs/EditGoalDialog";
 import { LinkInvestmentDialog } from "./dialogs/LinkInvestmentDialog";
 
 interface GoalListProps {
   goals: Goal[];
+  allInvestments: Investment[];
 }
 
-export function GoalList({ goals }: GoalListProps) {
+export function GoalList({ goals, allInvestments }: GoalListProps) {
   const { formatCurrency } = useCurrency();
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [deletingGoal, setDeletingGoal] = useState<Goal | null>(null);
   const [linkingGoal, setLinkingGoal] = useState<Goal | null>(null);
-  const { data: allInvestments = [] } = useGetAllInvestmentsByCategory();
 
   const investmentMap = useMemo(() => {
     const map = new Map<string, string>();
-    for (const inv of allInvestments) {
-      map.set(inv.id.toString(), inv.name);
-    }
+    for (const inv of allInvestments) map.set(inv.id, inv.name);
     return map;
   }, [allInvestments]);
 
@@ -48,7 +43,7 @@ export function GoalList({ goals }: GoalListProps) {
     if (goal.linkedInvestments.length === 0) return 0;
     return goal.linkedInvestments.reduce((sum, invId) => {
       const investment = allInvestments.find((inv) => inv.id === invId);
-      return sum + (investment?.currentValue || 0);
+      return sum + (investment?.currentValue ?? 0);
     }, 0);
   };
 
@@ -77,7 +72,6 @@ export function GoalList({ goals }: GoalListProps) {
   return (
     <>
       <div className="w-full relative">
-        {/* rotateX(180deg) flip trick: scrollbar appears at the BOTTOM on all browsers including mobile Safari */}
         <div
           style={
             {
@@ -104,25 +98,25 @@ export function GoalList({ goals }: GoalListProps) {
                   <TableHead className="text-white w-[90px] min-w-[90px]">
                     Date
                   </TableHead>
-                  <TableHead className="text-white w-[60px] min-w-[60px]">
-                    Priority
+                  <TableHead className="text-white w-[50px] min-w-[50px]">
+                    Pri.
                   </TableHead>
-                  <TableHead className="text-white w-[200px] min-w-[200px]">
-                    Linked Inv.
+                  <TableHead className="text-white w-[180px] min-w-[180px]">
+                    Linked Investments
                   </TableHead>
-                  <TableHead className="text-white text-right w-[100px] min-w-[100px]">
-                    Current
+                  <TableHead className="text-white text-right w-[110px] min-w-[110px]">
+                    Current Value
                   </TableHead>
-                  <TableHead className="text-white text-center w-[70px] min-w-[70px]">
+                  <TableHead className="text-white text-center w-[60px] min-w-[60px]">
                     Months
                   </TableHead>
                   <TableHead className="text-white w-[120px] min-w-[120px]">
-                    Advise
+                    SIP Advise
                   </TableHead>
-                  <TableHead className="text-white w-[180px] min-w-[180px]">
+                  <TableHead className="text-white w-[160px] min-w-[160px]">
                     Progress
                   </TableHead>
-                  <TableHead className="text-white text-right w-[100px] min-w-[100px] pr-4">
+                  <TableHead className="text-white text-right w-[90px] min-w-[90px] pr-4">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -143,9 +137,8 @@ export function GoalList({ goals }: GoalListProps) {
                     monthsLeft > 0 ? amountNeeded / monthsLeft : 0;
                   const isAchieved = progress >= 100;
                   const progressBarColor = getProgressBarColor(progress);
-
                   const linkedInvestmentNames = goal.linkedInvestments
-                    .map((id) => investmentMap.get(id.toString()))
+                    .map((id) => investmentMap.get(id))
                     .filter(Boolean);
 
                   return (
@@ -178,38 +171,35 @@ export function GoalList({ goals }: GoalListProps) {
                               <TooltipTrigger asChild>
                                 <div className="flex flex-wrap gap-1 cursor-help">
                                   {linkedInvestmentNames
-                                    .slice(0, 3)
-                                    .map((name, i) => (
+                                    .slice(0, 2)
+                                    .map((name) => (
                                       <Badge
-                                        key={name || String(i)}
+                                        key={name}
                                         variant="secondary"
                                         className="text-xs px-1.5 py-0"
                                       >
-                                        {name && name.length > 12
-                                          ? `${name.substring(0, 12)}...`
+                                        {name && name.length > 10
+                                          ? `${name.substring(0, 10)}...`
                                           : name}
                                       </Badge>
                                     ))}
-                                  {linkedInvestmentNames.length > 3 && (
+                                  {linkedInvestmentNames.length > 2 && (
                                     <Badge
                                       variant="secondary"
                                       className="text-xs px-1.5 py-0"
                                     >
-                                      +{linkedInvestmentNames.length - 3}
+                                      +{linkedInvestmentNames.length - 2}
                                     </Badge>
                                   )}
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent className="max-w-xs">
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-xs mb-2">
+                                  <p className="font-semibold text-xs mb-1">
                                     Linked Investments:
                                   </p>
-                                  {linkedInvestmentNames.map((name, i) => (
-                                    <p
-                                      key={name || String(i)}
-                                      className="text-xs"
-                                    >
+                                  {linkedInvestmentNames.map((name) => (
+                                    <p key={name} className="text-xs">
                                       • {name}
                                     </p>
                                   ))}
@@ -255,19 +245,19 @@ export function GoalList({ goals }: GoalListProps) {
                         </div>
                       </TableCell>
                       <TableCell className="py-2">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between gap-2">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between gap-1">
                             <span className="text-xs font-medium">
                               {progress.toFixed(1)}%
                             </span>
                             <Badge
                               variant={isAchieved ? "default" : "secondary"}
-                              className={`text-xs px-2 py-0.5 ${isAchieved ? "bg-green-600 text-white" : ""}`}
+                              className={`text-xs px-1.5 py-0 ${isAchieved ? "bg-green-600 text-white" : ""}`}
                             >
-                              {isAchieved ? "✓ Achieved" : "In Progress"}
+                              {isAchieved ? "✓" : "In Progress"}
                             </Badge>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                             <div
                               className={`h-full transition-all duration-300 ${progressBarColor}`}
                               style={{ width: `${Math.min(progress, 100)}%` }}

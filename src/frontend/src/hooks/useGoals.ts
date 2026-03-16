@@ -11,6 +11,8 @@ export interface Goal {
   priority: bigint;
   inflationRate: number;
   linkedInvestments: string[];
+  // allocation % per investment id, default 100
+  investmentAllocations: Record<string, number>;
   progress: number;
 }
 
@@ -19,6 +21,7 @@ export interface Investment {
   name: string;
   currentValue: number;
   assetType?: string;
+  category?: string;
 }
 
 // Serialize rich Goal to backend Goal format
@@ -28,6 +31,7 @@ function toBackendGoal(g: Omit<Goal, "id" | "progress"> & { goalId?: string }) {
     priority: g.priority.toString(),
     inflationRate: g.inflationRate,
     linkedInvestments: g.linkedInvestments,
+    investmentAllocations: g.investmentAllocations,
   });
   const deadline = new Date(Number(g.targetDate) / 1000000)
     .toISOString()
@@ -57,6 +61,7 @@ function fromBackendGoal(bg: {
   let priority = BigInt(1);
   let inflationRate = 6;
   let linkedInvestments: string[] = [];
+  let investmentAllocations: Record<string, number> = {};
 
   try {
     const parsed = JSON.parse(bg.notes || "{}");
@@ -65,8 +70,9 @@ function fromBackendGoal(bg: {
     if (parsed.inflationRate !== undefined)
       inflationRate = parsed.inflationRate;
     if (parsed.linkedInvestments) linkedInvestments = parsed.linkedInvestments;
+    if (parsed.investmentAllocations)
+      investmentAllocations = parsed.investmentAllocations;
   } catch {
-    // fallback: try to parse deadline as date
     if (bg.deadline) {
       try {
         targetDate = BigInt(new Date(bg.deadline).getTime() * 1000000);
@@ -84,8 +90,22 @@ function fromBackendGoal(bg: {
     priority,
     inflationRate,
     linkedInvestments,
+    investmentAllocations,
     progress: 0, // computed in components
   };
+}
+
+// Extract assetType string safely from a PortfolioHolding
+// The Candid backend may return a variant object { ETF: null } OR a plain string "ETF"
+function extractAssetTypeKey(
+  assetType: AssetType | Record<string, unknown>,
+): string {
+  if (typeof assetType === "string") return assetType;
+  if (typeof assetType === "object" && assetType !== null) {
+    const keys = Object.keys(assetType as Record<string, unknown>);
+    if (keys.length > 0) return keys[0];
+  }
+  return "Other";
 }
 
 // ---- Goal hooks ----
@@ -115,7 +135,11 @@ export function useCreateGoal() {
       inflationRate: number;
     }) => {
       if (!actor) throw new Error("No actor");
-      const bg = toBackendGoal({ ...data, linkedInvestments: [] });
+      const bg = toBackendGoal({
+        ...data,
+        linkedInvestments: [],
+        investmentAllocations: {},
+      });
       return actor.createGoal(bg);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["goals"] }),
@@ -134,6 +158,7 @@ export function useUpdateGoalProgress() {
       priority: bigint;
       inflationRate: number;
       linkedInvestments: string[];
+      investmentAllocations: Record<string, number>;
     }) => {
       if (!actor) throw new Error("No actor");
       const bg = toBackendGoal({ ...data, goalId: data.goalId });
@@ -165,12 +190,18 @@ function usePortfolioByType(assetType: AssetType) {
       if (!actor) throw new Error("No actor");
       const holdings = await actor.getAllPortfolioHoldings();
       return (holdings as PortfolioHolding[])
-        .filter((h) => Object.keys(h.assetType)[0] === assetType)
+        .filter(
+          (h) =>
+            extractAssetTypeKey(
+              h.assetType as AssetType | Record<string, unknown>,
+            ) === assetType,
+        )
         .map((h) => ({
           id: h.id,
           name: h.name,
           currentValue: h.currentValue,
           assetType,
+          category: h.notes || "",
         }));
     },
     enabled: !!actor,
@@ -213,7 +244,11 @@ export function useGetAllInvestmentsByCategory() {
         id: h.id,
         name: h.name,
         currentValue: h.currentValue,
-        assetType: Object.keys(h.assetType)[0],
+        // Safely extract the string key whether backend returns string or variant object
+        assetType: extractAssetTypeKey(
+          h.assetType as AssetType | Record<string, unknown>,
+        ),
+        category: h.notes || "",
       }));
     },
     enabled: !!actor,

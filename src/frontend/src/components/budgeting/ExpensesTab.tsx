@@ -14,6 +14,7 @@ import {
   type Transaction,
   TransactionType,
 } from "../../backend.d";
+import { useCurrency } from "../../contexts/CurrencyContext";
 import { useActor } from "../../hooks/useActor";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -44,15 +45,17 @@ const emptyForm = {
   amount: 0,
 };
 
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(n);
-}
-
 export function ExpensesTab() {
   const { actor } = useActor();
+  const { country } = useCurrency();
+
+  function fmt(n: number) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: country.code,
+    }).format(n);
+  }
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<BudgetCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,9 +102,15 @@ export function ExpensesTab() {
     setSaving(true);
     try {
       if (editing) {
-        await actor.updateTransaction(editing.id, { ...editing, ...form });
+        await actor.updateTransaction(editing.id, {
+          id: editing.id,
+          ...form,
+        });
       } else {
-        await actor.createTransaction({ id: crypto.randomUUID(), ...form });
+        await actor.createTransaction({
+          id: "",
+          ...form,
+        });
       }
       setOpen(false);
       load();
@@ -116,20 +125,14 @@ export function ExpensesTab() {
     load();
   };
 
-  const catName = (id: string) =>
-    categories.find((c) => c.id === id)?.name ?? "-";
-
   const filtered = transactions.filter((t) => {
-    const matchType = typeFilter === "All" || t.transactionType === typeFilter;
     const matchSearch =
-      !search ||
       t.description.toLowerCase().includes(search.toLowerCase()) ||
-      catName(t.categoryId).toLowerCase().includes(search.toLowerCase()) ||
       t.account.toLowerCase().includes(search.toLowerCase());
-    return matchType && matchSearch;
+    const matchType = typeFilter === "All" || t.transactionType === typeFilter;
+    return matchSearch && matchType;
   });
 
-  // Totals computed from ALL transactions (not just filtered) for summary
   const allIncome = transactions
     .filter((t) => t.transactionType === TransactionType.Income)
     .reduce((s, t) => s + t.amount, 0);
@@ -138,7 +141,6 @@ export function ExpensesTab() {
     .reduce((s, t) => s + t.amount, 0);
   const netBalance = allIncome - allExpense;
 
-  // Totals for filtered view
   const filteredIncome = filtered
     .filter((t) => t.transactionType === TransactionType.Income)
     .reduce((s, t) => s + t.amount, 0);
@@ -146,259 +148,223 @@ export function ExpensesTab() {
     .filter((t) => t.transactionType === TransactionType.Expense)
     .reduce((s, t) => s + t.amount, 0);
 
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Skeleton key={n} className="h-14 w-full" />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {/* Summary Cards */}
+      {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 flex items-center gap-3">
-          <div className="bg-emerald-100 rounded-lg p-2">
-            <TrendingUp className="w-5 h-5 text-emerald-600" />
-          </div>
-          <div>
-            <div className="text-xs text-emerald-600 font-medium">
+        <div className="rounded-xl border border-border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="h-4 w-4 text-green-600" />
+            <span className="text-xs font-medium text-muted-foreground">
               Total Income
-            </div>
-            <div className="text-xl font-bold text-emerald-700">
-              {fmt(allIncome)}
-            </div>
+            </span>
+          </div>
+          <div className="text-xl font-bold text-green-600">
+            {fmt(allIncome)}
           </div>
         </div>
-        <div className="bg-red-50 rounded-xl p-4 border border-red-200 flex items-center gap-3">
-          <div className="bg-red-100 rounded-lg p-2">
-            <TrendingDown className="w-5 h-5 text-red-600" />
-          </div>
-          <div>
-            <div className="text-xs text-red-600 font-medium">
+        <div className="rounded-xl border border-border bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingDown className="h-4 w-4 text-red-500" />
+            <span className="text-xs font-medium text-muted-foreground">
               Total Expenses
-            </div>
-            <div className="text-xl font-bold text-red-700">
-              {fmt(allExpense)}
-            </div>
+            </span>
+          </div>
+          <div className="text-xl font-bold text-red-500">
+            {fmt(allExpense)}
           </div>
         </div>
-        <div
-          className={`rounded-xl p-4 border flex items-center gap-3 ${
-            netBalance >= 0
-              ? "bg-blue-50 border-blue-200"
-              : "bg-orange-50 border-orange-200"
-          }`}
-        >
-          <div
-            className={`rounded-lg p-2 ${
-              netBalance >= 0 ? "bg-blue-100" : "bg-orange-100"
-            }`}
-          >
-            <Wallet
-              className={`w-5 h-5 ${
-                netBalance >= 0 ? "text-blue-600" : "text-orange-600"
-              }`}
-            />
-          </div>
-          <div>
-            <div
-              className={`text-xs font-medium ${
-                netBalance >= 0 ? "text-blue-600" : "text-orange-600"
-              }`}
-            >
+        <div className="rounded-xl border border-border bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Wallet className="h-4 w-4 text-blue-600" />
+            <span className="text-xs font-medium text-muted-foreground">
               Net Balance
-            </div>
-            <div
-              className={`text-xl font-bold ${
-                netBalance >= 0 ? "text-blue-700" : "text-orange-700"
-              }`}
+            </span>
+          </div>
+          <div
+            className={`text-xl font-bold ${netBalance >= 0 ? "text-blue-600" : "text-red-500"}`}
+          >
+            {fmt(netBalance)}
+          </div>
+        </div>
+      </div>
+
+      {/* Filters + Add */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            data-ocid="expenses.search_input"
+            className="pl-9"
+            placeholder="Search transactions…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-2">
+          {(
+            ["All", TransactionType.Income, TransactionType.Expense] as const
+          ).map((f) => (
+            <Button
+              key={f}
+              size="sm"
+              variant={typeFilter === f ? "default" : "outline"}
+              onClick={() => setTypeFilter(f)}
+              data-ocid={`expenses.filter.${String(f).toLowerCase()}.toggle`}
             >
-              {netBalance >= 0 ? "+" : ""}
-              {fmt(netBalance)}
-            </div>
-          </div>
+              {f === "All" ? (
+                <ArrowLeftRight className="h-3 w-3 mr-1" />
+              ) : f === TransactionType.Income ? (
+                <TrendingUp className="h-3 w-3 mr-1" />
+              ) : (
+                <TrendingDown className="h-3 w-3 mr-1" />
+              )}
+              {f === TransactionType.Income
+                ? "Income"
+                : f === TransactionType.Expense
+                  ? "Expense"
+                  : "All"}
+            </Button>
+          ))}
+          <Button
+            data-ocid="expenses.add.open_modal_button"
+            onClick={openAdd}
+            className="gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            Add
+          </Button>
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex gap-3 flex-wrap items-center">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-            <Input
-              data-ocid="expenses.search_input"
-              placeholder="Search transactions..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 w-56"
-            />
-          </div>
-          <div className="flex gap-2">
-            {(
-              ["All", TransactionType.Income, TransactionType.Expense] as const
-            ).map((t) => (
-              <Button
-                key={t}
-                variant={typeFilter === t ? "default" : "outline"}
-                size="sm"
-                data-ocid={`expenses.${t === "All" ? "all" : t === TransactionType.Income ? "income" : "expense"}.tab`}
-                onClick={() => setTypeFilter(t)}
-              >
-                {t}
-                {t !== "All" && (
-                  <span className="ml-1.5 text-xs opacity-70">
-                    (
-                    {
-                      transactions.filter((tx) => tx.transactionType === t)
-                        .length
-                    }
-                    )
-                  </span>
-                )}
-              </Button>
-            ))}
-          </div>
-        </div>
-        <Button
-          data-ocid="expenses.add_button"
-          onClick={openAdd}
-          className="gap-2"
-        >
-          <Plus className="w-4 h-4" /> Add Transaction
-        </Button>
-      </div>
-
-      {/* Filtered subtotals when filter is active */}
-      {(typeFilter !== "All" || search) && filtered.length > 0 && (
-        <div className="flex gap-3 text-sm text-slate-500 bg-slate-50 rounded-lg px-4 py-2 border border-slate-100">
+      {/* Filtered summary */}
+      {(search || typeFilter !== "All") && (
+        <div className="flex gap-4 text-sm text-muted-foreground px-1">
           <span>
-            Showing {filtered.length} transaction
-            {filtered.length !== 1 ? "s" : ""}
+            Income:{" "}
+            <strong className="text-green-600">{fmt(filteredIncome)}</strong>
           </span>
-          {filteredIncome > 0 && (
-            <span className="text-emerald-600">
-              Income: {fmt(filteredIncome)}
-            </span>
-          )}
-          {filteredExpense > 0 && (
-            <span className="text-red-600">
-              Expenses: {fmt(filteredExpense)}
-            </span>
-          )}
+          <span>
+            Expenses:{" "}
+            <strong className="text-red-500">{fmt(filteredExpense)}</strong>
+          </span>
         </div>
       )}
 
       {/* Table */}
-      {loading ? (
-        <Skeleton data-ocid="expenses.loading_state" className="h-64" />
-      ) : filtered.length === 0 ? (
+      {filtered.length === 0 ? (
         <div
           data-ocid="expenses.empty_state"
-          className="flex flex-col items-center justify-center py-16 text-slate-400"
+          className="text-center py-16 text-muted-foreground"
         >
-          <ArrowLeftRight className="w-12 h-12 mb-3 opacity-30" />
-          <p className="font-medium">No transactions found</p>
-          {search || typeFilter !== "All" ? (
-            <p className="text-xs mt-1">Try adjusting your filters</p>
-          ) : (
-            <p className="text-xs mt-1">
-              Click "Add Transaction" to log your first entry
-            </p>
-          )}
+          <Wallet className="h-10 w-10 mx-auto mb-3 opacity-30" />
+          <p className="text-sm">No transactions found</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-slate-200">
-          <table className="w-full text-sm" data-ocid="expenses.table">
-            <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
-              <tr>
-                <th className="px-4 py-3 text-left">Date</th>
-                <th className="px-4 py-3 text-left">Description</th>
-                <th className="px-4 py-3 text-left">Account</th>
-                <th className="px-4 py-3 text-left">Category</th>
-                <th className="px-4 py-3 text-center">Type</th>
-                <th className="px-4 py-3 text-right">Amount</th>
-                <th className="px-4 py-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filtered.map((t, i) => (
-                <tr
-                  key={t.id}
-                  data-ocid={`expenses.item.${i + 1}`}
-                  className="hover:bg-slate-50"
-                >
-                  <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
-                    {t.date}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-slate-800">
-                    {t.description}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">
-                    {t.account || "-"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5">
-                      {(() => {
-                        const cat = categories.find(
-                          (c) => c.id === t.categoryId,
-                        );
-                        return cat ? (
-                          <>
-                            <div
-                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: cat.color }}
-                            />
-                            <span className="text-slate-500">{cat.name}</span>
-                          </>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        );
-                      })()}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center">
-                      <Badge
-                        className={
-                          t.transactionType === TransactionType.Income
-                            ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
-                            : "bg-red-100 text-red-700 hover:bg-red-100"
-                        }
-                      >
-                        {t.transactionType}
-                      </Badge>
-                    </div>
-                  </td>
-                  <td
-                    className={`px-4 py-3 text-right font-semibold ${
-                      t.transactionType === TransactionType.Income
-                        ? "text-emerald-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {t.transactionType === TransactionType.Income ? "+" : "-"}
-                    {fmt(t.amount)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1 justify-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        data-ocid={`expenses.edit_button.${i + 1}`}
-                        onClick={() => openEdit(t)}
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-red-500"
-                        data-ocid={`expenses.delete_button.${i + 1}`}
-                        onClick={() => del(t.id)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                  </td>
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-muted/50 border-b border-border">
+                  <th className="text-left p-3 font-semibold text-xs">Date</th>
+                  <th className="text-left p-3 font-semibold text-xs">
+                    Description
+                  </th>
+                  <th className="text-left p-3 font-semibold text-xs hidden sm:table-cell">
+                    Account
+                  </th>
+                  <th className="text-left p-3 font-semibold text-xs hidden md:table-cell">
+                    Category
+                  </th>
+                  <th className="text-left p-3 font-semibold text-xs">Type</th>
+                  <th className="text-right p-3 font-semibold text-xs">
+                    Amount
+                  </th>
+                  <th className="text-right p-3 font-semibold text-xs">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((t, i) => {
+                  const cat = categories.find((c) => c.id === t.categoryId);
+                  const isIncome = t.transactionType === TransactionType.Income;
+                  return (
+                    <tr
+                      key={t.id.toString()}
+                      data-ocid={`expenses.item.${i + 1}`}
+                      className="border-t border-border hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
+                        {t.date}
+                      </td>
+                      <td className="p-3 text-xs font-medium max-w-[120px] truncate">
+                        {t.description}
+                      </td>
+                      <td className="p-3 text-xs hidden sm:table-cell text-muted-foreground">
+                        {t.account}
+                      </td>
+                      <td className="p-3 text-xs hidden md:table-cell">
+                        {cat ? (
+                          <Badge variant="secondary" className="text-xs">
+                            {cat.name}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        <Badge
+                          variant={isIncome ? "default" : "destructive"}
+                          className={`text-xs ${isIncome ? "bg-green-100 text-green-700 hover:bg-green-100" : ""}`}
+                        >
+                          {isIncome ? "Income" : "Expense"}
+                        </Badge>
+                      </td>
+                      <td
+                        className={`p-3 text-xs font-bold text-right ${isIncome ? "text-green-600" : "text-red-500"}`}
+                      >
+                        {isIncome ? "+" : "-"}
+                        {fmt(t.amount)}
+                      </td>
+                      <td className="p-3 text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            data-ocid={`expenses.edit_button.${i + 1}`}
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => openEdit(t)}
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            data-ocid={`expenses.delete_button.${i + 1}`}
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:text-destructive"
+                            onClick={() => del(t.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -410,105 +376,100 @@ export function ExpensesTab() {
               {editing ? "Edit Transaction" : "Add Transaction"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
                 <Label>Date</Label>
                 <Input
                   data-ocid="expenses.date.input"
                   type="date"
                   value={form.date}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, date: e.target.value }))
+                    setForm((p) => ({ ...p, date: e.target.value }))
                   }
                 />
               </div>
-              <div>
-                <Label>Amount</Label>
-                <Input
-                  data-ocid="expenses.amount.input"
-                  type="number"
-                  value={form.amount}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, amount: Number(e.target.value) }))
+              <div className="space-y-2">
+                <Label>Type</Label>
+                <Select
+                  value={form.transactionType as string}
+                  onValueChange={(v) =>
+                    setForm((p) => ({
+                      ...p,
+                      transactionType: v as TransactionType,
+                    }))
                   }
-                />
+                >
+                  <SelectTrigger data-ocid="expenses.type.select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={TransactionType.Income as string}>
+                      Income
+                    </SelectItem>
+                    <SelectItem value={TransactionType.Expense as string}>
+                      Expense
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Description</Label>
               <Input
                 data-ocid="expenses.description.input"
                 value={form.description}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, description: e.target.value }))
+                  setForm((p) => ({ ...p, description: e.target.value }))
                 }
+                placeholder="e.g. Grocery shopping"
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Account</Label>
               <Input
                 data-ocid="expenses.account.input"
                 value={form.account}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, account: e.target.value }))
+                  setForm((p) => ({ ...p, account: e.target.value }))
                 }
+                placeholder="e.g. HDFC Savings"
               />
             </div>
-            <div>
-              <Label>Type</Label>
-              <Select
-                value={form.transactionType}
-                onValueChange={(v) =>
-                  setForm((f) => ({
-                    ...f,
-                    transactionType: v as TransactionType,
-                  }))
-                }
-              >
-                <SelectTrigger data-ocid="expenses.type.select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={TransactionType.Income}>Income</SelectItem>
-                  <SelectItem value={TransactionType.Expense}>
-                    Expense
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
+            <div className="space-y-2">
               <Label>Category</Label>
               <Select
                 value={form.categoryId}
-                onValueChange={(v) => setForm((f) => ({ ...f, categoryId: v }))}
+                onValueChange={(v) => setForm((p) => ({ ...p, categoryId: v }))}
               >
                 <SelectTrigger data-ocid="expenses.category.select">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories
-                    .filter((c) => c.categoryType === form.transactionType)
-                    .map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  {categories.filter(
-                    (c) => c.categoryType === form.transactionType,
-                  ).length === 0 && (
-                    <SelectItem value="" disabled>
-                      No categories for this type
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
                     </SelectItem>
-                  )}
+                  ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Amount ({country.symbol})</Label>
+              <Input
+                data-ocid="expenses.amount.input"
+                type="number"
+                value={form.amount}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, amount: Number(e.target.value) }))
+                }
+              />
             </div>
           </div>
           <DialogFooter>
             <Button
-              variant="outline"
               data-ocid="expenses.cancel_button"
+              variant="outline"
               onClick={() => setOpen(false)}
             >
               Cancel
@@ -518,7 +479,7 @@ export function ExpensesTab() {
               onClick={save}
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving…" : editing ? "Update" : "Add"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,32 +1,34 @@
 # FinanceOS
 
 ## Current State
-The Financial Model module has 5 tabs: Asset Allocation (risk profiles + pie chart), Model Portfolio (growth/value/dividend/index strategies), Model Retirement (corpus calculator + growth chart), Model Insurance (life/health/term/critical illness calculators), and Model Crypto (risk-based crypto allocation). All tabs are functional with basic educational content.
+- `CurrencyProvider` is NOT in `main.tsx` or `App.tsx` — so `useCurrency()`'s `setCountry` is always a no-op (uses default context), causing currency selection to never persist and always showing ₹.
+- `ExpensesTab.tsx` has a hardcoded `currency: "USD"` in its Intl formatter instead of using the selected currency.
+- `MonthlyTrackerTab.tsx` has hardcoded `currency: "INR"` in its formatter.
+- `CurrencyContext.tsx` uses only React state (no localStorage), so selected currency resets on every page refresh/login.
+- Financial Model tab has adequate but not world-class UI — not structured beginner-to-expert, no skill-level progression, no risk profile color differentiation across all tabs.
+- Backend integration works at the actor level but may not be visible if the app doesn't render properly due to context issues.
 
 ## Requested Changes (Diff)
 
 ### Add
-- New **Investment Fundamentals** tab (6th tab) covering 8 core learning concepts: Compound Interest interactive calculator + chart, Rule of 72, SIP vs Lump Sum comparison with chart, Market Cycles education, Inflation Impact calculator, Diversification Benefits, CAGR calculator, and P/E Ratio explained
-- Educational "Learn" callout panels on each existing tab (Modern Portfolio Theory basics on Asset Allocation; Factor Investing concepts on Model Portfolio; 4% Rule / SWR explanation on Retirement; HLV method explanation on Insurance; DCA strategy education on Crypto)
-- Historical returns data table (asset class CAGR by decade) on Asset Allocation tab
-- Indian market model portfolio option (Nifty large-cap stocks) in Model Portfolio tab
-- FIRE (Financial Independence Retire Early) number calculator on Retirement tab
-- Glide-path visual progress bar on Retirement tab
+- `CurrencyProvider` wrapping the full app in `main.tsx` (above `App`)
+- localStorage persistence in `CurrencyContext.tsx` — on mount read from `localStorage.getItem('financeOS_currency')`, on `setCountry` write to localStorage
+- World-class Financial Model UI: skill progression banner (Beginner → Intermediate → Advanced → Expert), risk profile color badges on all tabs, mobile-first responsive layout improvements, section headers with level indicators, interactive learning callouts
 
 ### Modify
-- FinancialModelingTab.tsx: add 6th tab trigger and content for Fundamentals
-- ModelPortfolioTab.tsx: add India strategy option + educational rationale panel
-- ModelRetirementTab.tsx: add FIRE number, richer education panel, SWR explanation
-- ModelInsuranceTab.tsx: add HLV method card and needs-analysis framework callout
-- ModelCryptoPortfolioTab.tsx: add DCA education and crypto market cycle callout
+- `main.tsx`: wrap `<App />` with `<CurrencyProvider>`
+- `CurrencyContext.tsx`: initialize state from localStorage; persist on change
+- `ExpensesTab.tsx`: replace hardcoded `currency: "USD"` with `country.code` from `useCurrency()`
+- `MonthlyTrackerTab.tsx`: replace hardcoded `currency: "INR"` with `country.code` from `useCurrency()`
+- `FinancialModelingTab.tsx`: redesign tab bar with color-coded risk badges, add skill level progression header, improve section cards with level indicators, ensure all 6 tabs are mobile-friendly with proper responsive grids
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Create `ModelFundamentalsTab.tsx` with 8 interactive investor education concepts
-2. Update `FinancialModelingTab.tsx` to add Fundamentals as tab 6
-3. Enhance `ModelPortfolioTab.tsx` with India strategy and education panel
-4. Enhance `ModelRetirementTab.tsx` with FIRE number and SWR education
-5. Enhance `ModelInsuranceTab.tsx` with HLV method callout
-6. Enhance `ModelCryptoPortfolioTab.tsx` with DCA and market cycle education
+1. Fix `CurrencyContext.tsx` — localStorage init + persist
+2. Fix `main.tsx` — add `CurrencyProvider` wrapper
+3. Fix `ExpensesTab.tsx` — use dynamic `country.code`
+4. Fix `MonthlyTrackerTab.tsx` — use dynamic `country.code`
+5. Redesign `FinancialModelingTab.tsx` — world-class UI with skill progression, risk profile color coding, mobile-friendly layout
+6. Validate and build

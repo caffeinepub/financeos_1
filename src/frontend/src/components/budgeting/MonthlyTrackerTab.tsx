@@ -69,10 +69,10 @@ const MONTHS = [
   "December",
 ];
 
-const fmt = (n: number) =>
+const fmt = (n: number, cur?: { code: string }) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "INR",
+    currency: (cur ?? { code: "INR" }).code,
     maximumFractionDigits: 0,
   }).format(n);
 
@@ -271,7 +271,7 @@ export function MonthlyTrackerTab() {
                   Monthly Income
                 </p>
                 <p className="text-xl font-bold text-emerald-700 mt-1">
-                  {fmt(totalIncome)}
+                  {fmt(totalIncome, country)}
                 </p>
               </div>
               <TrendingUp className="w-5 h-5 text-emerald-500 mt-1" />
@@ -289,7 +289,7 @@ export function MonthlyTrackerTab() {
                   Planned Expenses
                 </p>
                 <p className="text-xl font-bold text-blue-700 mt-1">
-                  {fmt(totalPlanned)}
+                  {fmt(totalPlanned, country)}
                 </p>
               </div>
               <Wallet className="w-5 h-5 text-blue-500 mt-1" />
@@ -307,7 +307,7 @@ export function MonthlyTrackerTab() {
                   Actual Expenses
                 </p>
                 <p className="text-xl font-bold text-red-700 mt-1">
-                  {fmt(totalActual)}
+                  {fmt(totalActual, country)}
                 </p>
               </div>
               <TrendingDown className="w-5 h-5 text-red-500 mt-1" />
@@ -333,7 +333,7 @@ export function MonthlyTrackerTab() {
                 <p
                   className={`text-xl font-bold mt-1 ${netSavings >= 0 ? "text-green-700" : "text-orange-700"}`}
                 >
-                  {fmt(netSavings)}
+                  {fmt(netSavings, country)}
                 </p>
               </div>
               <PiggyBank
@@ -364,7 +364,7 @@ export function MonthlyTrackerTab() {
                 tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                 width={50}
               />
-              <Tooltip formatter={(v: number) => fmt(v)} />
+              <Tooltip formatter={(v: number) => fmt(v, country)} />
               <Legend iconType="circle" iconSize={10} />
               <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
               <Bar
@@ -437,14 +437,14 @@ export function MonthlyTrackerTab() {
                         </TableCell>
                         <TableCell className="text-right text-sm">
                           {cat.monthlyLimit > 0 ? (
-                            fmt(cat.monthlyLimit)
+                            fmt(cat.monthlyLimit, country)
                           ) : (
                             <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
                         <TableCell className="text-right text-sm">
                           {actual > 0 ? (
-                            fmt(actual)
+                            fmt(actual, country)
                           ) : (
                             <span className="text-muted-foreground">
                               {sym}0
@@ -461,7 +461,7 @@ export function MonthlyTrackerTab() {
                               }
                             >
                               {variance >= 0 ? "+" : ""}
-                              {fmt(variance)}
+                              {fmt(variance, country)}
                             </span>
                           ) : (
                             <span className="text-muted-foreground">—</span>
@@ -560,7 +560,7 @@ export function MonthlyTrackerTab() {
                           {tx.transactionType === TransactionType.Income
                             ? "+"
                             : "-"}
-                          {fmt(tx.amount)}
+                          {fmt(tx.amount, country)}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-1 justify-center">

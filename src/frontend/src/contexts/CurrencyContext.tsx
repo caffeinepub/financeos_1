@@ -33,6 +33,22 @@ export const COUNTRIES: CountryInfo[] = [
 
 export const SUPPORTED_CURRENCIES = COUNTRIES;
 
+const STORAGE_KEY = "financeOS_currency";
+
+function loadPersistedCountry(): CountryInfo {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as CountryInfo;
+      const valid = COUNTRIES.find((c) => c.code === parsed.code);
+      if (valid) return valid;
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return COUNTRIES[0];
+}
+
 interface CurrencyContextType {
   country: CountryInfo;
   setCountry: (c: CountryInfo) => void;
@@ -46,7 +62,17 @@ const CurrencyContext = createContext<CurrencyContextType>({
 });
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
-  const [country, setCountry] = useState<CountryInfo>(COUNTRIES[0]);
+  const [country, setCountryState] =
+    useState<CountryInfo>(loadPersistedCountry);
+
+  const setCountry = (c: CountryInfo) => {
+    setCountryState(c);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(c));
+    } catch {
+      // ignore storage errors
+    }
+  };
 
   const formatCurrency = (amount: number): string => {
     try {

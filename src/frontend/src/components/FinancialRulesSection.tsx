@@ -2096,11 +2096,36 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
   );
 }
 
-export function FinancialRulesSection() {
+export function FinancialRulesSection({
+  levelFilter,
+}: { levelFilter?: string } = {}) {
   const [selectedRule, setSelectedRule] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const selectedRuleData = financialRules.find((r) => r.id === selectedRule);
+
+  const CATEGORY_LEVELS: Record<string, string> = {
+    "Investment Rules": "Intermediate",
+    "Budgeting Rules": "Beginner",
+    "Emergency & Risk Rules": "Beginner",
+    "Retirement Rules": "Advanced",
+    "Debt Management Rules": "Beginner",
+    "Valuation & Stock Selection Rules": "Expert",
+  };
+  const getCategoryLevel = (catName: string) =>
+    CATEGORY_LEVELS[catName] ?? "Intermediate";
+
+  const LEVEL_BADGE_COLORS: Record<string, string> = {
+    Beginner: "bg-green-100 text-green-700 border-green-200",
+    Intermediate: "bg-blue-100 text-blue-700 border-blue-200",
+    Advanced: "bg-orange-100 text-orange-700 border-orange-200",
+    Expert: "bg-purple-100 text-purple-700 border-purple-200",
+  };
+
+  const filteredCategories =
+    levelFilter && levelFilter !== "All"
+      ? categories.filter((cat) => getCategoryLevel(cat.name) === levelFilter)
+      : categories;
 
   const filteredRules = financialRules.filter(
     (rule) =>
@@ -2227,7 +2252,7 @@ export function FinancialRulesSection() {
             />
           </div>
           <div className="grid gap-4">
-            {categories.map((category) => {
+            {filteredCategories.map((category) => {
               const CategoryIcon = category.icon;
               const categoryRules = filteredRules.filter(
                 (r) => r.category === category.name,
@@ -2246,9 +2271,16 @@ export function FinancialRulesSection() {
                         <CategoryIcon className="h-4 w-4 text-white" />
                       </div>
                       <div>
-                        <CardTitle className="text-sm font-semibold text-white">
-                          {category.name}
-                        </CardTitle>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CardTitle className="text-sm font-semibold text-white">
+                            {category.name}
+                          </CardTitle>
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${LEVEL_BADGE_COLORS[getCategoryLevel(category.name)] ?? "bg-blue-100 text-blue-700 border-blue-200"}`}
+                          >
+                            {getCategoryLevel(category.name)}
+                          </span>
+                        </div>
                         <CardDescription className="text-xs text-white/80">
                           {categoryRules.length} Rules
                         </CardDescription>

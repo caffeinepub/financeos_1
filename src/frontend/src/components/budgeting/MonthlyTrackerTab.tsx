@@ -102,6 +102,60 @@ export function MonthlyTrackerTab() {
   const [form, setForm] = useState<Omit<Transaction, "id">>(emptyTx);
   const [saving, setSaving] = useState(false);
 
+  // Per-month planned expense overrides (localStorage only, no backend)
+  const LS_KEY = "budgeting_planned_overrides";
+  const monthKey = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}`;
+
+  const getOverrides = (): Record<string, Record<string, number>> => {
+    try {
+      return JSON.parse(localStorage.getItem(LS_KEY) ?? "{}");
+    } catch {
+      return {};
+    }
+  };
+  const getPlannedAmount = (catId: string, defaultLimit: number): number => {
+    try {
+      const allOv: Record<string, Record<string, number>> = JSON.parse(
+        localStorage.getItem(LS_KEY) ?? "{}",
+      );
+      const ov = allOv[monthKey] ?? {};
+      return catId in ov ? ov[catId] : defaultLimit;
+    } catch {
+      return defaultLimit;
+    }
+  };
+  const saveMonthOverrides = (overrides: Record<string, number>) => {
+    const all = getOverrides();
+    all[monthKey] = overrides;
+    localStorage.setItem(LS_KEY, JSON.stringify(all));
+  };
+
+  const [editPlannedOpen, setEditPlannedOpen] = useState(false);
+  const [plannedDraft, setPlannedDraft] = useState<Record<string, number>>({});
+
+  const openEditPlanned = () => {
+    const drafts: Record<string, number> = {};
+    for (const cat of expenseCategories) {
+      drafts[cat.id] = getPlannedAmount(cat.id, cat.monthlyLimit);
+    }
+    setPlannedDraft(drafts);
+    setEditPlannedOpen(true);
+  };
+  const savePlanned = () => {
+    saveMonthOverrides(plannedDraft);
+    setEditPlannedOpen(false);
+  };
+  const resetMonth = () => {
+    const all = getOverrides();
+    delete all[monthKey];
+    localStorage.setItem(LS_KEY, JSON.stringify(all));
+    setEditPlannedOpen(false);
+  };
+
+  // Recompute when month/year changes (trigger re-render by accessing monthKey in render)
+  const [, forceUpdate] = useState(0);
+  const refreshPlanned = () => forceUpdate((n) => n + 1);
+
   const load = () => {
     if (!actor) return;
     setLoading(true);
@@ -139,13 +193,21 @@ export function MonthlyTrackerTab() {
         .reduce((s, t) => s + t.amount, 0),
     [monthTxns],
   );
-  const totalPlanned = useMemo(
-    () =>
-      categories
-        .filter((c) => c.categoryType === TransactionType.Expense)
-        .reduce((s, c) => s + c.monthlyLimit, 0),
-    [categories],
-  );
+  // totalPlanned uses per-month overrides when available
+  const totalPlanned = useMemo(() => {
+    const allOv = (() => {
+      try {
+        return JSON.parse(localStorage.getItem(LS_KEY) ?? "{}");
+      } catch {
+        return {};
+      }
+    })() as Record<string, Record<string, number>>;
+    const mk = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}`;
+    const ov = allOv[mk] ?? {};
+    return categories
+      .filter((c) => c.categoryType === TransactionType.Expense)
+      .reduce((s, c) => s + (c.id in ov ? ov[c.id] : c.monthlyLimit), 0);
+  }, [categories, selectedMonth, selectedYear]);
   const netSavings = totalIncome - totalActual;
 
   const chartData = [
@@ -385,9 +447,23 @@ export function MonthlyTrackerTab() {
       {/* Category Breakdown */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">
-            Category Breakdown — Expense Categories
-          </CardTitle>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <CardTitle className="text-sm">
+              Category Breakdown — Expense Categories
+            </CardTitle>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 h-7 text-xs"
+                onClick={openEditPlanned}
+                data-ocid="budgeting.edit_planned.button"
+              >
+                <Pencil className="w-3 h-3" />
+                Edit Planned
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div
@@ -423,7 +499,8 @@ export function MonthlyTrackerTab() {
                           t.transactionType === TransactionType.Expense,
                       )
                       .reduce((s, t) => s + t.amount, 0);
-                    const variance = cat.monthlyLimit - actual;
+                    const planned = getPlannedAmount(cat.id, cat.monthlyLimit);
+                    const variance = planned - actual;
                     return (
                       <TableRow key={cat.id}>
                         <TableCell>
@@ -436,8 +513,8 @@ export function MonthlyTrackerTab() {
                           </div>
                         </TableCell>
                         <TableCell className="text-right text-sm">
-                          {cat.monthlyLimit > 0 ? (
-                            fmt(cat.monthlyLimit, country)
+                          {planned > 0 ? (
+                            fmt(planned, country)
                           ) : (
                             <span className="text-muted-foreground">—</span>
                           )}
@@ -452,7 +529,7 @@ export function MonthlyTrackerTab() {
                           )}
                         </TableCell>
                         <TableCell className="text-right text-sm">
-                          {cat.monthlyLimit > 0 ? (
+                          {planned > 0 ? (
                             <span
                               className={
                                 variance >= 0
@@ -595,6 +672,72 @@ export function MonthlyTrackerTab() {
       </Card>
 
       {/* Add/Edit Transaction Dialog */}
+      {/* Edit Planned Expenses Dialog */}
+      <Dialog open={editPlannedOpen} onOpenChange={setEditPlannedOpen}>
+        <DialogContent data-ocid="budgeting.edit_planned.dialog">
+          <DialogHeader>
+            <DialogTitle>
+              Edit Planned Expenses — {MONTHS[selectedMonth - 1]} {selectedYear}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+            {expenseCategories.map((cat) => (
+              <div key={cat.id} className="flex items-center gap-3">
+                <div
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: cat.color }}
+                />
+                <Label className="flex-1 text-sm">{cat.name}</Label>
+                <Input
+                  type="number"
+                  className="w-32 h-8 text-sm"
+                  value={plannedDraft[cat.id] ?? 0}
+                  onChange={(e) =>
+                    setPlannedDraft((d) => ({
+                      ...d,
+                      [cat.id]: Number(e.target.value),
+                    }))
+                  }
+                  data-ocid="budgeting.planned_amount.input"
+                />
+              </div>
+            ))}
+          </div>
+          <DialogFooter className="flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-red-600 border-red-200 hover:bg-red-50"
+              onClick={() => {
+                resetMonth();
+                refreshPlanned();
+              }}
+              data-ocid="budgeting.reset_planned.button"
+            >
+              Reset Month
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditPlannedOpen(false)}
+              data-ocid="budgeting.cancel_planned.button"
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                savePlanned();
+                refreshPlanned();
+              }}
+              data-ocid="budgeting.save_planned.button"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent data-ocid="budgeting.dialog">
           <DialogHeader>

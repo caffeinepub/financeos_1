@@ -11,7 +11,6 @@ import {
   Bitcoin,
   BookOpen,
   Briefcase,
-  GraduationCap,
   PieChart,
   PiggyBank,
   Shield,
@@ -27,12 +26,22 @@ import {
   Tooltip,
 } from "recharts";
 import { ModelCryptoPortfolioTab } from "./ModelCryptoPortfolioTab";
-import { ModelFundamentalsTab } from "./ModelFundamentalsTab";
 import { ModelInsuranceTab } from "./ModelInsuranceTab";
 import { ModelPortfolioTab } from "./ModelPortfolioTab";
 import { ModelRetirementTab } from "./ModelRetirementTab";
 
 const TABS = [
+  {
+    id: "modelinsurance",
+    label: "Insurance",
+    shortLabel: "Insurance",
+    icon: Shield,
+    level: "Beginner",
+    levelColor: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300",
+    activeGradient: "from-sky-500 to-cyan-600",
+    activeBg: "bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-lg",
+    borderColor: "border-t-sky-500",
+  },
   {
     id: "assetallocation",
     label: "Asset Allocation",
@@ -73,17 +82,6 @@ const TABS = [
     borderColor: "border-t-emerald-500",
   },
   {
-    id: "modelinsurance",
-    label: "Insurance",
-    shortLabel: "Insurance",
-    icon: Shield,
-    level: "Beginner",
-    levelColor: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300",
-    activeGradient: "from-sky-500 to-cyan-600",
-    activeBg: "bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-lg",
-    borderColor: "border-t-sky-500",
-  },
-  {
     id: "modelcrypto",
     label: "Crypto",
     shortLabel: "Crypto",
@@ -96,19 +94,6 @@ const TABS = [
       "bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-lg",
     borderColor: "border-t-orange-500",
   },
-  {
-    id: "fundamentals",
-    label: "Fundamentals",
-    shortLabel: "Learn",
-    icon: GraduationCap,
-    level: "All Levels",
-    levelColor:
-      "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
-    activeGradient: "from-violet-500 to-purple-600",
-    activeBg:
-      "bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg",
-    borderColor: "border-t-violet-500",
-  },
 ];
 
 const PROGRESSION_STEPS = [
@@ -117,7 +102,7 @@ const PROGRESSION_STEPS = [
     desc: "Basics & protection",
     color: "bg-blue-500",
     textColor: "text-blue-600",
-    tabs: ["Asset Allocation", "Insurance"],
+    tabs: ["Insurance", "Asset Allocation"],
   },
   {
     label: "Intermediate",
@@ -133,13 +118,6 @@ const PROGRESSION_STEPS = [
     textColor: "text-orange-600",
     tabs: ["Crypto"],
   },
-  {
-    label: "Expert",
-    desc: "Core concepts",
-    color: "bg-violet-500",
-    textColor: "text-violet-600",
-    tabs: ["Fundamentals"],
-  },
 ];
 
 function SkillProgressionBanner({ activeTab }: { activeTab: string }) {
@@ -148,7 +126,6 @@ function SkillProgressionBanner({ activeTab }: { activeTab: string }) {
     Beginner: 0,
     Intermediate: 1,
     Advanced: 2,
-    "All Levels": 3,
   };
   const activeLevel = levelMap[activeTabInfo?.level ?? "Beginner"] ?? 0;
 
@@ -157,7 +134,7 @@ function SkillProgressionBanner({ activeTab }: { activeTab: string }) {
       <div className="flex items-center gap-2 mb-3">
         <TrendingUp className="h-4 w-4 text-blue-600" />
         <span className="text-sm font-semibold text-foreground">
-          Learning Path — Beginner to Expert
+          Learning Path — Beginner to Advanced
         </span>
         {activeTabInfo && (
           <Badge className={`ml-auto text-xs ${activeTabInfo.levelColor}`}>
@@ -210,7 +187,7 @@ function SkillProgressionBanner({ activeTab }: { activeTab: string }) {
 }
 
 function FinancialModelingTab() {
-  const [activeSubTab, setActiveSubTab] = useState("assetallocation");
+  const [activeSubTab, setActiveSubTab] = useState("modelinsurance");
 
   return (
     <div className="space-y-4">
@@ -259,6 +236,9 @@ function FinancialModelingTab() {
           </TabsList>
         </div>
 
+        <TabsContent value="modelinsurance" className="space-y-6">
+          <ModelInsuranceTab />
+        </TabsContent>
         <TabsContent value="assetallocation" className="space-y-6">
           <AssetAllocationTab />
         </TabsContent>
@@ -268,14 +248,8 @@ function FinancialModelingTab() {
         <TabsContent value="modelretirement" className="space-y-6">
           <ModelRetirementTab />
         </TabsContent>
-        <TabsContent value="modelinsurance" className="space-y-6">
-          <ModelInsuranceTab />
-        </TabsContent>
         <TabsContent value="modelcrypto" className="space-y-6">
           <ModelCryptoPortfolioTab />
-        </TabsContent>
-        <TabsContent value="fundamentals" className="space-y-6">
-          <ModelFundamentalsTab />
         </TabsContent>
       </Tabs>
     </div>

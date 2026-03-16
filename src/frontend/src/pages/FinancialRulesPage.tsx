@@ -1,8 +1,17 @@
-import { Brain, Pencil, Plus, Shield, Trash2 } from "lucide-react";
+import {
+  Brain,
+  GraduationCap,
+  Pencil,
+  Plus,
+  Shield,
+  Trash2,
+  TrendingUp,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import type { FinancialRule } from "../backend.d";
 import { AIRulesAnalysis } from "../components/AIRulesAnalysis";
 import { FinancialRulesSection } from "../components/FinancialRulesSection";
+import { ModelFundamentalsTab } from "../components/financial-model/ModelFundamentalsTab";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
@@ -35,6 +44,39 @@ const emptyForm = {
   isActive: true,
 };
 
+const LEVEL_STEPS = [
+  {
+    label: "All",
+    color: "bg-slate-500",
+    textColor: "text-slate-600",
+    desc: "All rules",
+  },
+  {
+    label: "Beginner",
+    color: "bg-green-500",
+    textColor: "text-green-600",
+    desc: "Foundations",
+  },
+  {
+    label: "Intermediate",
+    color: "bg-blue-500",
+    textColor: "text-blue-600",
+    desc: "Growth",
+  },
+  {
+    label: "Advanced",
+    color: "bg-orange-500",
+    textColor: "text-orange-600",
+    desc: "Advanced",
+  },
+  {
+    label: "Expert",
+    color: "bg-purple-500",
+    textColor: "text-purple-600",
+    desc: "Expert",
+  },
+];
+
 export default function FinancialRulesPage() {
   const { actor } = useActor();
   const [rules, setRules] = useState<FinancialRule[]>([]);
@@ -44,6 +86,7 @@ export default function FinancialRulesPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [showAIAnalysis, setShowAIAnalysis] = useState(false);
+  const [levelFilter, setLevelFilter] = useState("All");
 
   const load = () => {
     if (!actor) return;
@@ -132,15 +175,86 @@ export default function FinancialRulesPage() {
             value="knowledge"
             data-ocid="financialrules.knowledge.tab"
           >
-            Knowledge Base
+            Rules
+          </TabsTrigger>
+          <TabsTrigger value="basics" data-ocid="financialrules.basics.tab">
+            <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
+            Basics
           </TabsTrigger>
           <TabsTrigger value="my-rules" data-ocid="financialrules.myrules.tab">
             My Rules
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="knowledge" className="mt-4">
-          <FinancialRulesSection />
+        <TabsContent value="knowledge" className="mt-4 space-y-4">
+          {/* Level Selector Banner */}
+          <div className="rounded-xl border border-border/60 bg-gradient-to-r from-slate-50 to-blue-50/50 dark:from-slate-900/50 dark:to-blue-950/20 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-semibold text-foreground">
+                Filter by Level
+              </span>
+              {levelFilter !== "All" && (
+                <Badge
+                  className={`ml-auto text-xs ${
+                    levelFilter === "Beginner"
+                      ? "bg-green-100 text-green-700"
+                      : levelFilter === "Intermediate"
+                        ? "bg-blue-100 text-blue-700"
+                        : levelFilter === "Advanced"
+                          ? "bg-orange-100 text-orange-700"
+                          : "bg-purple-100 text-purple-700"
+                  }`}
+                >
+                  {levelFilter}
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-0">
+              {LEVEL_STEPS.map((step, idx) => (
+                <div key={step.label} className="flex items-center flex-1">
+                  <button
+                    type="button"
+                    data-ocid={`financialrules.level.${step.label.toLowerCase()}.toggle`}
+                    className="flex flex-col items-center gap-1 flex-1 cursor-pointer"
+                    onClick={() => setLevelFilter(step.label)}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white transition-all duration-300 ${
+                        levelFilter === step.label
+                          ? `${step.color} ring-2 ring-offset-2 ring-offset-background scale-110`
+                          : "bg-muted-foreground/20 hover:bg-muted-foreground/40"
+                      }`}
+                    >
+                      {idx === 0 ? "★" : idx}
+                    </div>
+                    <div className="text-center">
+                      <div
+                        className={`text-xs font-semibold transition-colors ${
+                          levelFilter === step.label
+                            ? step.textColor
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {step.label}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground hidden sm:block">
+                        {step.desc}
+                      </div>
+                    </div>
+                  </button>
+                  {idx < LEVEL_STEPS.length - 1 && (
+                    <div className="h-0.5 flex-1 mx-1 rounded-full bg-border" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          <FinancialRulesSection levelFilter={levelFilter} />
+        </TabsContent>
+
+        <TabsContent value="basics" className="mt-4">
+          <ModelFundamentalsTab />
         </TabsContent>
 
         <TabsContent value="my-rules" className="mt-4">

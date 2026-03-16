@@ -102,15 +102,9 @@ export function ExpensesTab() {
     setSaving(true);
     try {
       if (editing) {
-        await actor.updateTransaction(editing.id, {
-          id: editing.id,
-          ...form,
-        });
+        await actor.updateTransaction(editing.id, { id: editing.id, ...form });
       } else {
-        await actor.createTransaction({
-          id: "",
-          ...form,
-        });
+        await actor.createTransaction({ id: "", ...form });
       }
       setOpen(false);
       load();
@@ -157,6 +151,81 @@ export function ExpensesTab() {
       </div>
     );
   }
+
+  // Separate income and expense rows for grouped display
+  const incomeRows = filtered.filter(
+    (t) => t.transactionType === TransactionType.Income,
+  );
+  const expenseRows = filtered.filter(
+    (t) => t.transactionType === TransactionType.Expense,
+  );
+
+  const renderRow = (t: Transaction, rowIndex: number) => {
+    const cat = categories.find((c) => c.id === t.categoryId);
+    const isIncome = t.transactionType === TransactionType.Income;
+    return (
+      <tr
+        key={t.id.toString()}
+        data-ocid={`expenses.item.${rowIndex}`}
+        className="border-t border-border hover:bg-muted/30 transition-colors"
+      >
+        <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
+          {t.date}
+        </td>
+        <td className="p-3 text-xs font-medium max-w-[120px] truncate">
+          {t.description}
+        </td>
+        <td className="p-3 text-xs hidden sm:table-cell text-muted-foreground">
+          {t.account}
+        </td>
+        <td className="p-3 text-xs hidden md:table-cell">
+          {cat ? (
+            <Badge variant="secondary" className="text-xs">
+              {cat.name}
+            </Badge>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )}
+        </td>
+        <td className="p-3">
+          <Badge
+            variant={isIncome ? "default" : "destructive"}
+            className={`text-xs ${isIncome ? "bg-green-100 text-green-700 hover:bg-green-100" : ""}`}
+          >
+            {isIncome ? "Income" : "Expense"}
+          </Badge>
+        </td>
+        <td
+          className={`p-3 text-xs font-bold text-right ${isIncome ? "text-green-600" : "text-red-500"}`}
+        >
+          {isIncome ? "+" : "-"}
+          {fmt(t.amount)}
+        </td>
+        <td className="p-3 text-right">
+          <div className="flex justify-end gap-1">
+            <Button
+              data-ocid={`expenses.edit_button.${rowIndex}`}
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => openEdit(t)}
+            >
+              <Pencil className="h-3 w-3" />
+            </Button>
+            <Button
+              data-ocid={`expenses.delete_button.${rowIndex}`}
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-destructive hover:text-destructive"
+              onClick={() => del(t.id)}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        </td>
+      </tr>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -241,8 +310,7 @@ export function ExpensesTab() {
             onClick={openAdd}
             className="gap-1"
           >
-            <Plus className="h-4 w-4" />
-            Add
+            <Plus className="h-4 w-4" /> Add
           </Button>
         </div>
       </div>
@@ -275,93 +343,65 @@ export function ExpensesTab() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-muted/50 border-b border-border">
-                  <th className="text-left p-3 font-semibold text-xs">Date</th>
-                  <th className="text-left p-3 font-semibold text-xs">
+                <tr className="bg-slate-700 border-b border-border">
+                  <th className="text-left p-3 font-semibold text-xs text-white">
+                    Date
+                  </th>
+                  <th className="text-left p-3 font-semibold text-xs text-white">
                     Description
                   </th>
-                  <th className="text-left p-3 font-semibold text-xs hidden sm:table-cell">
+                  <th className="text-left p-3 font-semibold text-xs text-white hidden sm:table-cell">
                     Account
                   </th>
-                  <th className="text-left p-3 font-semibold text-xs hidden md:table-cell">
+                  <th className="text-left p-3 font-semibold text-xs text-white hidden md:table-cell">
                     Category
                   </th>
-                  <th className="text-left p-3 font-semibold text-xs">Type</th>
-                  <th className="text-right p-3 font-semibold text-xs">
+                  <th className="text-left p-3 font-semibold text-xs text-white">
+                    Type
+                  </th>
+                  <th className="text-right p-3 font-semibold text-xs text-white">
                     Amount
                   </th>
-                  <th className="text-right p-3 font-semibold text-xs">
+                  <th className="text-right p-3 font-semibold text-xs text-white">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((t, i) => {
-                  const cat = categories.find((c) => c.id === t.categoryId);
-                  const isIncome = t.transactionType === TransactionType.Income;
-                  return (
-                    <tr
-                      key={t.id.toString()}
-                      data-ocid={`expenses.item.${i + 1}`}
-                      className="border-t border-border hover:bg-muted/30 transition-colors"
-                    >
-                      <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
-                        {t.date}
-                      </td>
-                      <td className="p-3 text-xs font-medium max-w-[120px] truncate">
-                        {t.description}
-                      </td>
-                      <td className="p-3 text-xs hidden sm:table-cell text-muted-foreground">
-                        {t.account}
-                      </td>
-                      <td className="p-3 text-xs hidden md:table-cell">
-                        {cat ? (
-                          <Badge variant="secondary" className="text-xs">
-                            {cat.name}
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
+                {typeFilter === "All" ? (
+                  <>
+                    {incomeRows.length > 0 && (
+                      <>
+                        <tr>
+                          <td
+                            colSpan={7}
+                            className="px-3 py-1.5 bg-green-50 border-b border-green-100 text-xs font-bold text-green-700 uppercase tracking-wide"
+                          >
+                            Income
+                          </td>
+                        </tr>
+                        {incomeRows.map((t, i) => renderRow(t, i + 1))}
+                      </>
+                    )}
+                    {expenseRows.length > 0 && (
+                      <>
+                        <tr>
+                          <td
+                            colSpan={7}
+                            className="px-3 py-1.5 bg-red-50 border-b border-red-100 text-xs font-bold text-red-700 uppercase tracking-wide"
+                          >
+                            Expenses
+                          </td>
+                        </tr>
+                        {expenseRows.map((t, i) =>
+                          renderRow(t, incomeRows.length + i + 1),
                         )}
-                      </td>
-                      <td className="p-3">
-                        <Badge
-                          variant={isIncome ? "default" : "destructive"}
-                          className={`text-xs ${isIncome ? "bg-green-100 text-green-700 hover:bg-green-100" : ""}`}
-                        >
-                          {isIncome ? "Income" : "Expense"}
-                        </Badge>
-                      </td>
-                      <td
-                        className={`p-3 text-xs font-bold text-right ${isIncome ? "text-green-600" : "text-red-500"}`}
-                      >
-                        {isIncome ? "+" : "-"}
-                        {fmt(t.amount)}
-                      </td>
-                      <td className="p-3 text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            data-ocid={`expenses.edit_button.${i + 1}`}
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => openEdit(t)}
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            data-ocid={`expenses.delete_button.${i + 1}`}
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive hover:text-destructive"
-                            onClick={() => del(t.id)}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  filtered.map((t, i) => renderRow(t, i + 1))
+                )}
               </tbody>
             </table>
           </div>

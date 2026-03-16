@@ -162,29 +162,33 @@ export default function FinancialRulesPage() {
     <div data-ocid="financialrules.page" className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Financial Rules</h2>
+          <h2 className="text-2xl font-bold text-slate-800">Learn Finance</h2>
           <p className="text-slate-500 text-sm mt-1">
             Define your financial guardrails
           </p>
         </div>
       </div>
 
-      <Tabs defaultValue="knowledge">
+      <Tabs defaultValue="basics">
         <TabsList>
+          <TabsTrigger value="basics" data-ocid="financialrules.basics.tab">
+            <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
+            Basics
+          </TabsTrigger>
           <TabsTrigger
             value="knowledge"
             data-ocid="financialrules.knowledge.tab"
           >
             Rules
           </TabsTrigger>
-          <TabsTrigger value="basics" data-ocid="financialrules.basics.tab">
-            <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
-            Basics
-          </TabsTrigger>
           <TabsTrigger value="my-rules" data-ocid="financialrules.myrules.tab">
             My Rules
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="basics" className="mt-4">
+          <ModelFundamentalsTab />
+        </TabsContent>
 
         <TabsContent value="knowledge" className="mt-4 space-y-4">
           {/* Level Selector Banner */}
@@ -253,13 +257,8 @@ export default function FinancialRulesPage() {
           <FinancialRulesSection levelFilter={levelFilter} />
         </TabsContent>
 
-        <TabsContent value="basics" className="mt-4">
-          <ModelFundamentalsTab />
-        </TabsContent>
-
         <TabsContent value="my-rules" className="mt-4">
           <div className="space-y-4">
-            {/* Action Bar */}
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <Button
                 variant={showAIAnalysis ? "default" : "outline"}
@@ -283,7 +282,6 @@ export default function FinancialRulesPage() {
               </Button>
             </div>
 
-            {/* AI Analysis Panel */}
             {showAIAnalysis && (
               <Card className="border-violet-200 shadow-sm">
                 <CardContent className="p-5">
@@ -295,7 +293,6 @@ export default function FinancialRulesPage() {
               </Card>
             )}
 
-            {/* Rules List */}
             {loading ? (
               <div className="space-y-3">
                 {[1, 2].map((i) => (
@@ -327,11 +324,7 @@ export default function FinancialRulesPage() {
                           )}
                           <Badge
                             variant={r.isActive ? "default" : "secondary"}
-                            className={`text-xs ${
-                              r.isActive
-                                ? "bg-emerald-100 text-emerald-700"
-                                : ""
-                            }`}
+                            className={`text-xs ${r.isActive ? "bg-emerald-100 text-emerald-700" : ""}`}
                           >
                             {r.isActive ? "Active" : "Inactive"}
                           </Badge>

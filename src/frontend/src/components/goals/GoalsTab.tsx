@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertCircle,
@@ -51,7 +50,6 @@ export function GoalsTab() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { formatCurrency } = useCurrency();
 
-  // Fetch all investments to calculate current savings
   const { data: retirals = [] } = useGetAllRetirals();
   const { data: equityStocks = [] } = useGetAllETFStocks();
   const { data: mutualFunds = [] } = useGetAllMutualFunds();
@@ -61,7 +59,6 @@ export function GoalsTab() {
   const { data: realEstates = [] } = useGetAllRealEstates();
   const { data: otherInvestments = [] } = useGetAllOtherInvestments();
 
-  // All investments combined for lookup
   const allInvestments = useMemo(
     () => [
       ...retirals,
@@ -85,7 +82,6 @@ export function GoalsTab() {
     ],
   );
 
-  // Calculate current savings from linked investments for each goal
   const goalCurrentSavings = useMemo(() => {
     const savingsMap = new Map<string, number>();
     for (const goal of goals) {
@@ -99,15 +95,12 @@ export function GoalsTab() {
     return savingsMap;
   }, [goals, allInvestments]);
 
-  // Calculate total current savings
-  const currentSavings = useMemo(() => {
-    return Array.from(goalCurrentSavings.values()).reduce(
-      (acc, v) => acc + v,
-      0,
-    );
-  }, [goalCurrentSavings]);
+  const currentSavings = useMemo(
+    () =>
+      Array.from(goalCurrentSavings.values()).reduce((acc, v) => acc + v, 0),
+    [goalCurrentSavings],
+  );
 
-  // Calculate weighted average progress
   const avgProgress = useMemo(() => {
     if (goals.length === 0) return 0;
     const totalProgress = goals.reduce((sum, g) => {
@@ -120,7 +113,6 @@ export function GoalsTab() {
 
   const totalTargetAmount = goals.reduce((sum, g) => sum + g.targetAmount, 0);
 
-  // AI Analytics Data
   const analyticsData = useMemo(() => {
     if (goals.length === 0)
       return {
@@ -203,9 +195,7 @@ export function GoalsTab() {
     };
   }, [goals, goalCurrentSavings]);
 
-  if (isLoading) {
-    return <GoalsSkeleton />;
-  }
+  if (isLoading) return <GoalsSkeleton />;
 
   if (isError) {
     return (
@@ -256,8 +246,7 @@ export function GoalsTab() {
                 className="gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg"
                 data-ocid="goals.add_button"
               >
-                <Plus className="h-4 w-4" />
-                Add Goal
+                <Plus className="h-4 w-4" /> Add Goal
               </Button>
             </div>
           </div>
@@ -275,13 +264,11 @@ export function GoalsTab() {
                 className="gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg"
                 data-ocid="goals.empty.add_button"
               >
-                <Plus className="h-4 w-4" />
-                Set Your First Goal
+                <Plus className="h-4 w-4" /> Set Your First Goal
               </Button>
             </div>
           ) : (
             <>
-              {/* Summary Cards */}
               <div className="grid gap-4 md:grid-cols-3 mb-6">
                 <Card className="shadow-sm border-green-200/50 bg-gradient-to-br from-green-50 to-emerald-100">
                   <CardHeader className="pb-3">
@@ -329,16 +316,12 @@ export function GoalsTab() {
                   </CardContent>
                 </Card>
               </div>
-
-              <ScrollArea className="w-full">
-                <GoalList goals={goals} />
-              </ScrollArea>
+              <GoalList goals={goals} />
             </>
           )}
         </CardContent>
       </Card>
 
-      {/* AI Analytics Section */}
       {goals.length > 0 && (
         <Card className="shadow-sm border-gray-200/50 bg-gradient-to-br from-blue-50/50 to-purple-50/50">
           <CardHeader>
@@ -357,7 +340,6 @@ export function GoalsTab() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-6 md:grid-cols-3">
-              {/* Savings Adequacy */}
               <Card className="shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -401,7 +383,7 @@ export function GoalsTab() {
                         <Bar
                           dataKey="current"
                           fill="#10b981"
-                          name="Current"
+                          name="Current Value"
                           radius={[4, 4, 0, 0]}
                         />
                       </BarChart>
@@ -414,7 +396,6 @@ export function GoalsTab() {
                 </CardContent>
               </Card>
 
-              {/* Goal Achievement Quality */}
               <Card className="shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -466,7 +447,6 @@ export function GoalsTab() {
                 </CardContent>
               </Card>
 
-              {/* Goal Diversification */}
               <Card className="shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -536,11 +516,9 @@ function GoalsSkeleton() {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
         </div>
       </CardContent>
     </Card>

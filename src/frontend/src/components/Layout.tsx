@@ -59,7 +59,7 @@ const navItems = [
     path: "/financial-planner",
     icon: CalendarDays,
   },
-  { label: "Financial Rules", path: "/financial-rules", icon: Shield },
+  { label: "Learn Finance", path: "/financial-rules", icon: Shield },
   { label: "Loans", path: "/loans", icon: CreditCard },
 ];
 
@@ -73,7 +73,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     location.pathname.startsWith("/portfolio"),
   );
 
-  // Profile state
   const [profile, setProfile] = useState<{
     name: string;
     email: string;
@@ -85,12 +84,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const isPortfolioActive = location.pathname.startsWith("/portfolio");
 
-  // Auto-open on desktop, auto-close on mobile
   useEffect(() => {
     setSidebarOpen(!isMobile);
   }, [isMobile]);
 
-  // Load profile when actor is ready
   useEffect(() => {
     if (!actor || isFetching) return;
     actor
@@ -98,9 +95,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       .then((p) => {
         setProfile(p);
       })
-      .catch(() => {
-        // silently ignore
-      });
+      .catch(() => {});
   }, [actor, isFetching]);
 
   const openProfileDialog = () => {
@@ -124,24 +119,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const getInitials = (name: string) => {
-    return name
+  const getInitials = (name: string) =>
+    name
       .split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase()
       .slice(0, 2);
-  };
 
   const handleNavClick = () => {
     if (isMobile) setSidebarOpen(false);
   };
-
   const closeBackdrop = () => setSidebarOpen(false);
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      {/* Mobile backdrop */}
       {isMobile && sidebarOpen && (
         <button
           type="button"
@@ -151,7 +143,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
           ${
@@ -166,7 +157,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           bg-slate-900 text-white flex flex-col
         `}
       >
-        {/* Logo */}
         <div className="flex items-center gap-2 px-5 py-5 border-b border-slate-700">
           <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
             <DollarSign className="w-4 h-4 text-white" />
@@ -174,7 +164,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <span className="font-bold text-lg tracking-tight">FinanceOS</span>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-4 px-2">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -244,9 +233,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* Profile + Logout */}
         <div className="px-3 py-4 border-t border-slate-700 space-y-2">
-          {/* Profile section */}
           <div className="flex items-center gap-2 px-2 py-1.5">
             <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
               {profile?.name ? (
@@ -277,8 +264,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Edit2 className="w-3.5 h-3.5" />
             </button>
           </div>
-
-          {/* Logout */}
           <Button
             data-ocid="nav.logout.button"
             variant="ghost"
@@ -292,7 +277,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Profile Dialog */}
       <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
         <DialogContent data-ocid="profile.dialog" className="sm:max-w-md">
           <DialogHeader>
@@ -341,9 +325,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </DialogContent>
       </Dialog>
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
         <header className="bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3">
           <Button
             variant="ghost"
@@ -365,8 +347,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             )?.label ?? "FinanceOS"}
           </h1>
         </header>
-
-        {/* Content */}
         <main className="flex-1 overflow-y-auto p-3 md:p-6">{children}</main>
       </div>
     </div>

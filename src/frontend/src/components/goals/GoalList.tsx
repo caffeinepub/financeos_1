@@ -36,7 +36,6 @@ export function GoalList({ goals }: GoalListProps) {
   const [linkingGoal, setLinkingGoal] = useState<Goal | null>(null);
   const { data: allInvestments = [] } = useGetAllInvestmentsByCategory();
 
-  // Create a map of investment IDs to names for quick lookup
   const investmentMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const inv of allInvestments) {
@@ -45,7 +44,6 @@ export function GoalList({ goals }: GoalListProps) {
     return map;
   }, [allInvestments]);
 
-  // Calculate current amount from linked investments
   const calculateCurrentAmount = (goal: Goal): number => {
     if (goal.linkedInvestments.length === 0) return 0;
     return goal.linkedInvestments.reduce((sum, invId) => {
@@ -54,7 +52,6 @@ export function GoalList({ goals }: GoalListProps) {
     }, 0);
   };
 
-  // Calculate months left until target date
   const calculateMonthsLeft = (goal: Goal): number => {
     const now = new Date();
     const targetDate = new Date(Number(goal.targetDate) / 1000000);
@@ -63,7 +60,6 @@ export function GoalList({ goals }: GoalListProps) {
     return Math.max(0, yearsDiff * 12 + monthsDiff);
   };
 
-  // Calculate progress based on linked investments
   const calculateProgress = (goal: Goal): number => {
     if (goal.linkedInvestments.length === 0) return 0;
     const currentAmount = calculateCurrentAmount(goal);
@@ -72,7 +68,6 @@ export function GoalList({ goals }: GoalListProps) {
       : 0;
   };
 
-  // Get progress bar color based on percentage
   const getProgressBarColor = (progress: number): string => {
     if (progress >= 80) return "bg-green-500";
     if (progress >= 50) return "bg-yellow-500";
@@ -82,47 +77,52 @@ export function GoalList({ goals }: GoalListProps) {
   return (
     <>
       <div className="w-full relative">
-        {/* rotateX(180deg) flip trick: scrollbar appears at the bottom on all browsers including mobile Safari */}
+        {/* rotateX(180deg) flip trick: scrollbar appears at the BOTTOM on all browsers including mobile Safari */}
         <div
-          style={{
-            transform: "rotateX(180deg)",
-            overflowX: "auto",
-            overflowY: "visible",
-            paddingBottom: "8px",
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "thin",
-          }}
+          style={
+            {
+              transform: "rotateX(180deg)",
+              overflowX: "auto",
+              overflowY: "visible",
+              paddingBottom: "12px",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#94a3b8 #f1f5f9",
+            } as React.CSSProperties
+          }
         >
-          <div style={{ transform: "rotateX(180deg)", minWidth: "1200px" }}>
+          <div style={{ transform: "rotateX(180deg)", minWidth: "1100px" }}>
             <Table data-ocid="goals.table">
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[120px] min-w-[120px]">
+                <TableRow className="bg-slate-700 hover:bg-slate-700">
+                  <TableHead className="text-white w-[120px] min-w-[120px]">
                     Goal Name
                   </TableHead>
-                  <TableHead className="text-right w-[100px] min-w-[100px]">
+                  <TableHead className="text-white text-right w-[100px] min-w-[100px]">
                     Target
                   </TableHead>
-                  <TableHead className="w-[90px] min-w-[90px]">Date</TableHead>
-                  <TableHead className="w-[60px] min-w-[60px]">
+                  <TableHead className="text-white w-[90px] min-w-[90px]">
+                    Date
+                  </TableHead>
+                  <TableHead className="text-white w-[60px] min-w-[60px]">
                     Priority
                   </TableHead>
-                  <TableHead className="w-[200px] min-w-[200px]">
+                  <TableHead className="text-white w-[200px] min-w-[200px]">
                     Linked Inv.
                   </TableHead>
-                  <TableHead className="text-right w-[100px] min-w-[100px]">
+                  <TableHead className="text-white text-right w-[100px] min-w-[100px]">
                     Current
                   </TableHead>
-                  <TableHead className="text-center w-[70px] min-w-[70px]">
+                  <TableHead className="text-white text-center w-[70px] min-w-[70px]">
                     Months
                   </TableHead>
-                  <TableHead className="w-[120px] min-w-[120px]">
+                  <TableHead className="text-white w-[120px] min-w-[120px]">
                     Advise
                   </TableHead>
-                  <TableHead className="w-[180px] min-w-[180px]">
+                  <TableHead className="text-white w-[180px] min-w-[180px]">
                     Progress
                   </TableHead>
-                  <TableHead className="text-right w-[100px] min-w-[100px] pr-4">
+                  <TableHead className="text-white text-right w-[100px] min-w-[100px] pr-4">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -223,7 +223,7 @@ export function GoalList({ goals }: GoalListProps) {
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-right font-semibold text-blue-600 dark:text-blue-400 text-xs py-2">
+                      <TableCell className="text-right font-semibold text-blue-600 text-xs py-2">
                         {formatCurrency(currentAmount)}
                       </TableCell>
                       <TableCell className="text-center py-2">
@@ -267,7 +267,7 @@ export function GoalList({ goals }: GoalListProps) {
                               {isAchieved ? "✓ Achieved" : "In Progress"}
                             </Badge>
                           </div>
-                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                          <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                             <div
                               className={`h-full transition-all duration-300 ${progressBarColor}`}
                               style={{ width: `${Math.min(progress, 100)}%` }}
@@ -313,7 +313,6 @@ export function GoalList({ goals }: GoalListProps) {
             </Table>
           </div>
         </div>
-        {/* Mobile scroll hint */}
         <p className="text-xs text-muted-foreground mt-1 sm:hidden text-center">
           ← Scroll to see more →
         </p>

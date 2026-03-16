@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -29,7 +31,6 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Progress } from "../components/ui/progress";
-import { ScrollArea } from "../components/ui/scroll-area";
 import { Skeleton } from "../components/ui/skeleton";
 import {
   Table,
@@ -45,6 +46,17 @@ import {
   useGetAllGoals,
   useGetAllInvestmentsByCategory,
 } from "../hooks/useGoals";
+
+const SLICE_COLORS = [
+  "#60a5fa",
+  "#34d399",
+  "#a78bfa",
+  "#f87171",
+  "#fbbf24",
+  "#fb923c",
+  "#22d3ee",
+  "#94a3b8",
+];
 
 // ─── Asset Config ────────────────────────────────────────────────────────────
 const ASSET_CONFIG: Record<
@@ -154,7 +166,6 @@ function statusBadge(pct: number) {
   );
 }
 
-// Custom scatter dot with label
 function CustomDot(props: {
   cx?: number;
   cy?: number;
@@ -192,7 +203,6 @@ export default function DashboardPage() {
   const { formatCurrency, country } = useCurrency();
   const sym = country.symbol;
 
-  // ── Data Fetches ──
   const { data: holdings = [], isLoading: hLoad } = useQuery<
     PortfolioHolding[]
   >({
@@ -231,7 +241,6 @@ export default function DashboardPage() {
 
   const isLoading = hLoad || tLoad || bLoad || gLoad;
 
-  // ── Portfolio by type ──
   const byType = useMemo(() => {
     const m: Record<string, number> = {};
     for (const h of holdings) {
@@ -246,7 +255,6 @@ export default function DashboardPage() {
     [byType],
   );
 
-  // ── Allocation pie ──
   const allocationPie = useMemo(
     () =>
       ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => ({
@@ -259,7 +267,6 @@ export default function DashboardPage() {
     [byType, totalNAV],
   );
 
-  // ── Investment categories bar ──
   const categoryBar = useMemo(
     () =>
       ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => ({
@@ -270,7 +277,6 @@ export default function DashboardPage() {
     [byType],
   );
 
-  // ── 20-Year Forecast (stacked bar) ──
   const forecast20 = useMemo(() => {
     const yr = new Date().getFullYear();
     return Array.from({ length: 21 }, (_, i) => {
@@ -282,7 +288,6 @@ export default function DashboardPage() {
     });
   }, [byType]);
 
-  // ── Goals with computed progress ──
   const goalsProgress = useMemo(() => {
     const invMap = new Map<string, number>();
     for (const inv of allInvestments)
@@ -298,7 +303,6 @@ export default function DashboardPage() {
     });
   }, [goals, allInvestments]);
 
-  // ── Budget: last 6 months ──
   const budgetChart = useMemo(() => {
     const now = new Date();
     const totalPlanned = budgetCats.reduce((s, c) => s + c.monthlyLimit, 0);
@@ -324,7 +328,6 @@ export default function DashboardPage() {
     });
   }, [transactions, budgetCats]);
 
-  // ── Risk vs Return ──
   const riskReturn = useMemo(
     () =>
       ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => ({
@@ -337,7 +340,6 @@ export default function DashboardPage() {
     [byType],
   );
 
-  // ── 25-Year Forecast Table ──
   const forecast25 = useMemo(() => {
     const yr = new Date().getFullYear();
     const groups: Record<string, string[]> = {
@@ -376,7 +378,73 @@ export default function DashboardPage() {
     });
   }, [byType]);
 
-  // ── Loading skeleton ──
+  // ── Section 6 data ──
+  const incomeExpenseTrend = useMemo(() => {
+    const now = new Date();
+    return Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - 11 + i, 1);
+      const yr = d.getFullYear();
+      const mo = d.getMonth();
+      const label = d.toLocaleDateString("en-IN", {
+        month: "short",
+        year: "2-digit",
+      });
+      const income = transactions
+        .filter((t) => {
+          const td = new Date(t.date);
+          return (
+            td.getFullYear() === yr &&
+            td.getMonth() === mo &&
+            getKey(t.transactionType) === "Income"
+          );
+        })
+        .reduce((s, t) => s + t.amount, 0);
+      const expense = transactions
+        .filter((t) => {
+          const td = new Date(t.date);
+          return (
+            td.getFullYear() === yr &&
+            td.getMonth() === mo &&
+            getKey(t.transactionType) === "Expense"
+          );
+        })
+        .reduce((s, t) => s + t.amount, 0);
+      return {
+        month: label,
+        Income: income,
+        Expense: expense,
+        Savings: income - expense,
+      };
+    });
+  }, [transactions]);
+
+  const expenseByCategory = useMemo(() => {
+    const catTotals: Record<string, number> = {};
+    for (const t of transactions) {
+      if (getKey(t.transactionType) === "Expense" && t.categoryId) {
+        catTotals[t.categoryId] = (catTotals[t.categoryId] ?? 0) + t.amount;
+      }
+    }
+    return budgetCats
+      .map((c, i) => ({
+        name: c.name,
+        value: catTotals[c.id] ?? 0,
+        color: SLICE_COLORS[i % SLICE_COLORS.length],
+      }))
+      .filter((d) => d.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+  }, [transactions, budgetCats]);
+
+  const savingsRate = useMemo(
+    () =>
+      incomeExpenseTrend.map((d) => ({
+        month: d.month,
+        rate: d.Income > 0 ? Math.round((d.Savings / d.Income) * 100) : 0,
+      })),
+    [incomeExpenseTrend],
+  );
+
   if (isLoading) {
     return (
       <div data-ocid="dashboard.loading_state" className="space-y-6 pb-8">
@@ -397,10 +465,8 @@ export default function DashboardPage() {
     );
   }
 
-  // ─── Render ──────────────────────────────────────────────────────────────────
   return (
     <div data-ocid="dashboard.page" className="space-y-5 pb-10">
-      {/* Page title */}
       <div>
         <h2 className="text-2xl font-bold text-slate-800">Dashboard</h2>
         <p className="text-slate-500 text-sm mt-0.5">
@@ -413,7 +479,6 @@ export default function DashboardPage() {
         <Card className="border-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-lg rounded-2xl overflow-hidden">
           <CardContent className="px-5 py-4">
             <div className="flex items-center gap-6 flex-wrap">
-              {/* Left: total NAV */}
               <div className="min-w-[160px]">
                 <p className="text-slate-400 text-[10px] uppercase tracking-widest font-medium mb-0.5">
                   Portfolio NAV
@@ -425,11 +490,7 @@ export default function DashboardPage() {
                   {holdings.length} holding{holdings.length !== 1 ? "s" : ""}
                 </p>
               </div>
-
-              {/* Divider */}
               <div className="hidden sm:block w-px h-10 bg-slate-700" />
-
-              {/* Right: asset pills */}
               <div className="flex flex-wrap gap-1.5 flex-1">
                 {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => (
                   <div
@@ -472,7 +533,6 @@ export default function DashboardPage() {
 
       {/* ── Section 2: Allocation + Categories ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Asset Allocation Pie */}
         <Card
           data-ocid="dashboard.allocation.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -501,7 +561,6 @@ export default function DashboardPage() {
                     outerRadius={90}
                     dataKey="value"
                     labelLine={false}
-                    label={({ name, pct }) => `${name}: ${pct}%`}
                   >
                     {allocationPie.map((entry) => (
                       <Cell
@@ -513,7 +572,14 @@ export default function DashboardPage() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(v: number) => [formatCurrency(v), "Value"]}
+                    formatter={(
+                      v: number,
+                      _n: string,
+                      props: { payload?: { name: string; pct: string } },
+                    ) => [
+                      `${formatCurrency(v)} (${props.payload?.pct ?? "0"}%)`,
+                      props.payload?.name ?? "",
+                    ]}
                     contentStyle={{
                       fontSize: "11px",
                       borderRadius: "10px",
@@ -528,7 +594,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Investment Categories Bar */}
         <Card
           data-ocid="dashboard.categories.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -588,7 +653,6 @@ export default function DashboardPage() {
 
       {/* ── Section 3: 20-Year Forecast + Goals Progress ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* 20-Year Stacked Forecast */}
         <Card
           data-ocid="dashboard.forecast20.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -651,7 +715,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Goals Progress */}
         <Card
           data-ocid="dashboard.goals.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -721,7 +784,6 @@ export default function DashboardPage() {
 
       {/* ── Section 4: Budget 6M + Risk vs Return ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Budgeting 6 months */}
         <Card
           data-ocid="dashboard.budget.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -766,7 +828,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Risk vs Return Scatter */}
         <Card
           data-ocid="dashboard.riskreturn.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -843,7 +904,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* ── Section 5: 25-Year Forecast Table ── */}
+      {/* ── Section 5: 25-Year Forecast Table (bottom scrollbar via rotateX) ── */}
       <Card
         data-ocid="dashboard.forecast25.card"
         className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -857,15 +918,23 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-0 pb-0">
-          <ScrollArea className="w-full">
-            <div style={{ minWidth: 700 }}>
+          <div
+            style={
+              {
+                transform: "rotateX(180deg)",
+                overflowX: "auto",
+                WebkitOverflowScrolling: "touch",
+              } as React.CSSProperties
+            }
+          >
+            <div style={{ transform: "rotateX(180deg)", minWidth: 700 }}>
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-slate-100">
-                    <TableHead className="sticky top-0 z-10 bg-slate-50 text-[11px] font-medium text-slate-500 uppercase tracking-wide w-16">
+                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
                       Year
                     </TableHead>
-                    <TableHead className="sticky top-0 z-10 bg-slate-50 text-[11px] font-medium text-slate-500 uppercase tracking-wide w-14">
+                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-14">
                       Age
                     </TableHead>
                     {(
@@ -880,12 +949,12 @@ export default function DashboardPage() {
                     ).map((col) => (
                       <TableHead
                         key={col}
-                        className="sticky top-0 z-10 bg-slate-50 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right"
+                        className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right"
                       >
                         {col}
                       </TableHead>
                     ))}
-                    <TableHead className="sticky top-0 z-10 bg-slate-50 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">
+                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right">
                       Total
                     </TableHead>
                   </TableRow>
@@ -895,11 +964,9 @@ export default function DashboardPage() {
                     <TableRow
                       key={String(row.year)}
                       data-ocid={`dashboard.forecast.row.${idx + 1}`}
-                      className={`hover:bg-slate-50/80 transition-colors ${
-                        idx % 5 === 0 ? "bg-blue-50/30" : ""
-                      }`}
+                      className={`hover:bg-slate-50/80 transition-colors ${idx % 5 === 0 ? "bg-blue-50/30" : ""}`}
                     >
-                      <TableCell className="text-xs font-semibold text-slate-700 tabular-nums sticky left-0 bg-white">
+                      <TableCell className="text-xs font-semibold text-slate-700 tabular-nums">
                         {String(row.year)}
                       </TableCell>
                       <TableCell className="text-xs text-slate-400 tabular-nums">
@@ -930,9 +997,249 @@ export default function DashboardPage() {
                 </TableBody>
               </Table>
             </div>
-          </ScrollArea>
+          </div>
         </CardContent>
       </Card>
+
+      {/* ── Section 6: Advanced Finance Analytics ── */}
+      <div>
+        <h3 className="text-sm font-semibold text-slate-600 mb-3 uppercase tracking-wide">
+          Advanced Analytics
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Income vs Expense Trend */}
+          <Card
+            data-ocid="dashboard.incomevexpense.card"
+            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+          >
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+                Income vs Expense Trend
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400">
+                12-month view showing income, expenses &amp; savings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              {incomeExpenseTrend.every(
+                (d) => d.Income === 0 && d.Expense === 0,
+              ) ? (
+                <div className="h-64 flex flex-col items-center justify-center gap-2">
+                  <span className="text-3xl">📊</span>
+                  <p className="text-sm text-slate-400">
+                    No transaction data yet
+                  </p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <AreaChart
+                    data={incomeExpenseTrend}
+                    margin={{ top: 5, right: 10, left: 10, bottom: 30 }}
+                  >
+                    <defs>
+                      <linearGradient
+                        id="colorIncome"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#10b981"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#10b981"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="colorExpense"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#ef4444"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#ef4444"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fontSize: 9 }}
+                      angle={-20}
+                      textAnchor="end"
+                      height={45}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 9 }}
+                      tickFormatter={(v: number) => shortNum(v, sym)}
+                    />
+                    <Tooltip
+                      formatter={(v: number, name: string) => [
+                        formatCurrency(v),
+                        name,
+                      ]}
+                      contentStyle={{
+                        fontSize: "11px",
+                        borderRadius: "10px",
+                        border: "1px solid #e2e8f0",
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: "11px" }} />
+                    <Area
+                      type="monotone"
+                      dataKey="Income"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      fill="url(#colorIncome)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="Expense"
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      fill="url(#colorExpense)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Expense by Category Donut */}
+          <Card
+            data-ocid="dashboard.expcat.card"
+            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+          >
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+                Expense by Category
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400">
+                Top spending categories breakdown
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              {expenseByCategory.length === 0 ? (
+                <div className="h-64 flex flex-col items-center justify-center gap-2">
+                  <span className="text-3xl">🧾</span>
+                  <p className="text-sm text-slate-400">No expense data yet</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart>
+                    <Pie
+                      data={expenseByCategory}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={90}
+                      dataKey="value"
+                      labelLine={false}
+                    >
+                      {expenseByCategory.map((entry) => (
+                        <Cell
+                          key={entry.name}
+                          fill={entry.color}
+                          stroke="#fff"
+                          strokeWidth={2}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(v: number) => [formatCurrency(v), "Spent"]}
+                      contentStyle={{
+                        fontSize: "11px",
+                        borderRadius: "10px",
+                        border: "1px solid #e2e8f0",
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: "11px" }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Savings Rate Trend */}
+        <Card
+          data-ocid="dashboard.savingsrate.card"
+          className="rounded-2xl shadow-sm border border-slate-100 bg-white mt-4"
+        >
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              Monthly Savings Rate (%)
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-400">
+              Percentage of income saved each month — industry benchmark is 20%+
+              (50/30/20 rule)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-5 pb-5">
+            {savingsRate.every((d) => d.rate === 0) ? (
+              <div className="h-48 flex flex-col items-center justify-center gap-2">
+                <span className="text-3xl">💰</span>
+                <p className="text-sm text-slate-400">No data yet</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart
+                  data={savingsRate}
+                  margin={{ top: 5, right: 10, left: 10, bottom: 30 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 9 }}
+                    angle={-20}
+                    textAnchor="end"
+                    height={45}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 9 }}
+                    tickFormatter={(v: number) => `${v}%`}
+                  />
+                  <Tooltip
+                    formatter={(v: number) => [`${v}%`, "Savings Rate"]}
+                    contentStyle={{
+                      fontSize: "11px",
+                      borderRadius: "10px",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  />
+                  <Bar dataKey="rate" radius={[4, 4, 0, 0]}>
+                    {savingsRate.map((entry) => (
+                      <Cell
+                        key={entry.month}
+                        fill={
+                          entry.rate >= 20
+                            ? "#10b981"
+                            : entry.rate >= 10
+                              ? "#f59e0b"
+                              : "#ef4444"
+                        }
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

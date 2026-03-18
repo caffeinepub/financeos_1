@@ -492,11 +492,14 @@ export default function PortfolioPage() {
   return (
     <div data-ocid="portfolio.page" className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Portfolio</h2>
-          <p className="text-slate-500 text-sm mt-1">
-            Manage your investment holdings
-          </p>
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #0891b2, #06b6d4)" }}
+          >
+            <TrendingUp className="w-4 h-4 text-white" />
+          </div>
+          <h1 className="text-lg font-bold text-slate-800">Portfolio</h1>
         </div>
         <Button
           data-ocid="portfolio.add_button"
@@ -623,6 +626,20 @@ export default function PortfolioPage() {
                         </th>
                         <th
                           className={thClassRight}
+                          onClick={() => toggleSort("allocPct")}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") toggleSort("allocPct");
+                          }}
+                        >
+                          % Allocation{" "}
+                          <SortIcon
+                            col="allocPct"
+                            sortCol={sortCol}
+                            sortDir={sortDir}
+                          />
+                        </th>
+                        <th
+                          className={thClassRight}
                           onClick={() => toggleSort("invested")}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") toggleSort("invested");
@@ -645,20 +662,6 @@ export default function PortfolioPage() {
                           Current Value{" "}
                           <SortIcon
                             col="currentValue"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th
-                          className={thClassRight}
-                          onClick={() => toggleSort("allocPct")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("allocPct");
-                          }}
-                        >
-                          Allocation %{" "}
-                          <SortIcon
-                            col="allocPct"
                             sortCol={sortCol}
                             sortDir={sortDir}
                           />
@@ -717,14 +720,14 @@ export default function PortfolioPage() {
                             <td className="px-4 py-3 text-sm text-slate-500">
                               {h.notes || "-"}
                             </td>
+                            <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
+                              {allocPct.toFixed(1)}%
+                            </td>
                             <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-700 font-medium">
                               {fmt(invested)}
                             </td>
                             <td className="px-4 py-3 text-sm text-right tabular-nums font-medium text-slate-800">
                               {fmt(h.currentValue)}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
-                              {allocPct.toFixed(1)}%
                             </td>
                             <td
                               className={`px-4 py-3 text-sm text-right tabular-nums font-semibold ${
@@ -1116,49 +1119,106 @@ function PortfolioOverview({
       Current: s.current,
     }));
 
+  const [overviewSort, setOverviewSort] = useState<{
+    col: "label" | "invested" | "current" | "gl" | "glPct" | "alloc";
+    dir: "asc" | "desc";
+  }>({ col: "current", dir: "desc" });
+
+  const sortedSummaries = useMemo(() => {
+    const totCur = assetSummaries.reduce((s, a) => s + a.current, 0);
+    const withAlloc = assetSummaries.map((s) => ({
+      ...s,
+      alloc: totCur > 0 ? (s.current / totCur) * 100 : 0,
+    }));
+    return [...withAlloc].sort((a, b) => {
+      let av = 0;
+      let bv = 0;
+      if (overviewSort.col === "label") {
+        const cmp = a.label.localeCompare(b.label);
+        return overviewSort.dir === "asc" ? cmp : -cmp;
+      }
+      av = a[overviewSort.col] as number;
+      bv = b[overviewSort.col] as number;
+      return overviewSort.dir === "asc" ? av - bv : bv - av;
+    });
+  }, [assetSummaries, overviewSort]);
+
+  const toggleSort = (col: typeof overviewSort.col) => {
+    setOverviewSort((prev) =>
+      prev.col === col
+        ? { col, dir: prev.dir === "asc" ? "desc" : "asc" }
+        : { col, dir: "desc" },
+    );
+  };
+
+  const SortArrow = ({ col }: { col: typeof overviewSort.col }) => (
+    <span className="ml-1 opacity-70">
+      {overviewSort.col === col
+        ? overviewSort.dir === "asc"
+          ? "▲"
+          : "▼"
+        : "▽"}
+    </span>
+  );
+
   return (
     <div className="space-y-4">
       {/* Overview Table */}
       <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-        <CardHeader className="pb-2 pt-4 px-5">
-          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-            Portfolio Overview
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-400">
-            Summary across all investment modules
-          </CardDescription>
-        </CardHeader>
         <CardContent className="px-0 pb-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-700 hover:bg-slate-700">
-                  <TableHead className="text-white text-xs font-semibold uppercase">
+                  <TableHead
+                    className="text-white text-xs font-semibold uppercase cursor-pointer select-none"
+                    onClick={() => toggleSort("label")}
+                  >
                     Investment Module
+                    <SortArrow col="label" />
                   </TableHead>
-                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
-                    Total Invested
-                  </TableHead>
-                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
-                    Current Value
-                  </TableHead>
-                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
-                    Gain / Loss
-                  </TableHead>
-                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
-                    % Gain/Loss
-                  </TableHead>
-                  <TableHead className="text-white text-xs font-semibold uppercase text-right">
+                  <TableHead
+                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                    onClick={() => toggleSort("alloc")}
+                  >
                     % Allocation
+                    <SortArrow col="alloc" />
+                  </TableHead>
+                  <TableHead
+                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                    onClick={() => toggleSort("invested")}
+                  >
+                    Total Invested
+                    <SortArrow col="invested" />
+                  </TableHead>
+                  <TableHead
+                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                    onClick={() => toggleSort("current")}
+                  >
+                    Current Value
+                    <SortArrow col="current" />
+                  </TableHead>
+                  <TableHead
+                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                    onClick={() => toggleSort("gl")}
+                  >
+                    Gain / Loss
+                    <SortArrow col="gl" />
+                  </TableHead>
+                  <TableHead
+                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                    onClick={() => toggleSort("glPct")}
+                  >
+                    % Gain/Loss
+                    <SortArrow col="glPct" />
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {assetSummaries.map((s) => {
+                {sortedSummaries.map((s) => {
                   const iconInfo = assetIcons[s.value];
                   const IconComp = iconInfo?.Icon;
-                  const alloc =
-                    totalCurrent > 0 ? (s.current / totalCurrent) * 100 : 0;
+                  const alloc = s.alloc;
                   return (
                     <TableRow key={s.value} className="hover:bg-slate-50/60">
                       <TableCell className="py-2.5">
@@ -1180,6 +1240,9 @@ function PortfolioOverview({
                         </div>
                       </TableCell>
                       <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
+                        {alloc.toFixed(1)}%
+                      </TableCell>
+                      <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
                         {fmt(s.invested)}
                       </TableCell>
                       <TableCell className="text-right text-xs tabular-nums font-semibold text-slate-800 py-2.5">
@@ -1199,9 +1262,6 @@ function PortfolioOverview({
                           {s.glPct.toFixed(1)}%
                         </span>
                       </TableCell>
-                      <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
-                        {alloc.toFixed(1)}%
-                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -1209,6 +1269,9 @@ function PortfolioOverview({
                 <TableRow className="bg-slate-50 border-t-2 border-slate-200">
                   <TableCell className="py-2.5 text-xs font-bold text-slate-700">
                     Total
+                  </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
+                    100%
                   </TableCell>
                   <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
                     {fmt(totalInvested)}
@@ -1239,9 +1302,6 @@ function PortfolioOverview({
                         %
                       </span>
                     )}
-                  </TableCell>
-                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
-                    100%
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -1328,7 +1388,7 @@ function PortfolioOverview({
         <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
           <CardHeader className="pb-2 pt-4 px-5">
             <CardTitle className="text-sm font-semibold text-slate-700">
-              Equity — Cap Allocation
+              Equity - Allocation%
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
@@ -1378,7 +1438,7 @@ function PortfolioOverview({
         <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
           <CardHeader className="pb-2 pt-4 px-5">
             <CardTitle className="text-sm font-semibold text-slate-700">
-              Mutual Fund — Cap Allocation
+              Mutual Fund - Allocation%
             </CardTitle>
             <p className="text-[11px] text-slate-400 mt-0.5">
               Flexi, Multi Cap & Multi Asset counted as Large Cap

@@ -104,11 +104,14 @@ export default function LoansPage() {
   return (
     <div data-ocid="loans.page" className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Loans</h2>
-          <p className="text-slate-500 text-sm mt-1">
-            Track your loan balances and payoff progress
-          </p>
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #9333ea, #a855f7)" }}
+          >
+            <CreditCard className="w-4 h-4 text-white" />
+          </div>
+          <h1 className="text-lg font-bold text-slate-800">Loans</h1>
         </div>
         <Button
           data-ocid="loans.add_button"

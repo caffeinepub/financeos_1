@@ -63,10 +63,19 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
       : 0;
   };
 
-  const getProgressBarColor = (progress: number): string => {
-    if (progress >= 80) return "bg-green-500";
-    if (progress >= 50) return "bg-yellow-500";
-    return "bg-red-500";
+  const getPriorityBadgeStyle = (
+    priority: bigint | number,
+  ): { bg: string; text: string; label: string } => {
+    const p = Number(priority);
+    if (p === 1) return { bg: "#fef2f2", text: "#dc2626", label: "P1" };
+    if (p === 2) return { bg: "#fffbeb", text: "#d97706", label: "P2" };
+    return { bg: "#f0fdf4", text: "#16a34a", label: `P${p}` };
+  };
+
+  const getProgressGradient = (progress: number): string => {
+    if (progress >= 80) return "linear-gradient(90deg, #16a34a, #4ade80)";
+    if (progress >= 50) return "linear-gradient(90deg, #d97706, #fbbf24)";
+    return "linear-gradient(90deg, #dc2626, #f87171)";
   };
 
   return (
@@ -85,226 +94,247 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
             } as React.CSSProperties
           }
         >
-          <div style={{ transform: "rotateX(180deg)", minWidth: "1100px" }}>
-            <Table data-ocid="goals.table">
+          <div style={{ transform: "rotateX(180deg)", minWidth: "1200px" }}>
+            <Table>
               <TableHeader>
-                <TableRow className="bg-slate-700 hover:bg-slate-700">
-                  <TableHead className="text-white w-[120px] min-w-[120px]">
+                <TableRow className="bg-slate-800 hover:bg-slate-800">
+                  <TableHead className="text-white text-xs font-semibold w-[60px] min-w-[60px]">
+                    Priority
+                  </TableHead>
+                  <TableHead className="text-white text-xs font-semibold w-[120px] min-w-[120px]">
                     Goal Name
                   </TableHead>
-                  <TableHead className="text-white text-right w-[100px] min-w-[100px]">
+                  <TableHead className="text-white text-xs font-semibold w-[90px] min-w-[90px]">
+                    Goal Date
+                  </TableHead>
+                  <TableHead className="text-white text-xs font-semibold text-right w-[100px] min-w-[100px]">
                     Target
                   </TableHead>
-                  <TableHead className="text-white w-[90px] min-w-[90px]">
-                    Date
+                  <TableHead className="text-white text-xs font-semibold text-right w-[100px] min-w-[100px]">
+                    Current
                   </TableHead>
-                  <TableHead className="text-white w-[50px] min-w-[50px]">
-                    Pri.
+                  <TableHead className="text-white text-xs font-semibold w-[200px] min-w-[200px]">
+                    Linked Inv.
                   </TableHead>
-                  <TableHead className="text-white w-[180px] min-w-[180px]">
-                    Linked Investments
-                  </TableHead>
-                  <TableHead className="text-white text-right w-[110px] min-w-[110px]">
-                    Current Value
-                  </TableHead>
-                  <TableHead className="text-white text-center w-[60px] min-w-[60px]">
+                  <TableHead className="text-white text-xs font-semibold text-center w-[70px] min-w-[70px]">
                     Months
                   </TableHead>
-                  <TableHead className="text-white w-[120px] min-w-[120px]">
-                    SIP Advise
+                  <TableHead className="text-white text-xs font-semibold w-[120px] min-w-[120px]">
+                    Advise
                   </TableHead>
-                  <TableHead className="text-white w-[160px] min-w-[160px]">
+                  <TableHead className="text-white text-xs font-semibold w-[180px] min-w-[180px]">
                     Progress
                   </TableHead>
-                  <TableHead className="text-white text-right w-[90px] min-w-[90px] pr-4">
+                  <TableHead className="text-white text-xs font-semibold text-right w-[100px] min-w-[100px] pr-4">
                     Actions
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {goals.map((goal, idx) => {
-                  const targetDate = new Date(
-                    Number(goal.targetDate) / 1000000,
-                  );
-                  const progress = calculateProgress(goal);
-                  const currentAmount = calculateCurrentAmount(goal);
-                  const monthsLeft = calculateMonthsLeft(goal);
-                  const amountNeeded = Math.max(
-                    0,
-                    goal.targetAmount - currentAmount,
-                  );
-                  const sipPerMonth =
-                    monthsLeft > 0 ? amountNeeded / monthsLeft : 0;
-                  const isAchieved = progress >= 100;
-                  const progressBarColor = getProgressBarColor(progress);
-                  const linkedInvestmentNames = goal.linkedInvestments
-                    .map((id) => investmentMap.get(id))
-                    .filter(Boolean);
+                {[...goals]
+                  .sort((a, b) => b.targetAmount - a.targetAmount)
+                  .map((goal, idx) => {
+                    const targetDate = new Date(
+                      Number(goal.targetDate) / 1000000,
+                    );
+                    const progress = calculateProgress(goal);
+                    const currentAmount = calculateCurrentAmount(goal);
+                    const monthsLeft = calculateMonthsLeft(goal);
+                    const amountNeeded = Math.max(
+                      0,
+                      goal.targetAmount - currentAmount,
+                    );
+                    const sipPerMonth =
+                      monthsLeft > 0 ? amountNeeded / monthsLeft : 0;
+                    const isAchieved = progress >= 100;
+                    const priorityStyle = getPriorityBadgeStyle(goal.priority);
 
-                  return (
-                    <TableRow key={goal.id} data-ocid={`goals.row.${idx + 1}`}>
-                      <TableCell className="font-medium text-xs py-2">
-                        {goal.name}
-                      </TableCell>
-                      <TableCell className="text-right text-xs py-2">
-                        {formatCurrency(goal.targetAmount)}
-                      </TableCell>
-                      <TableCell className="text-xs py-2">
-                        {targetDate.toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "2-digit",
-                        })}
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Badge
-                          variant="outline"
-                          className="text-xs px-1.5 py-0"
-                        >
-                          P{goal.priority.toString()}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-2">
-                        {linkedInvestmentNames.length > 0 ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex flex-wrap gap-1 cursor-help">
-                                  {linkedInvestmentNames
-                                    .slice(0, 2)
-                                    .map((name) => (
+                    const linkedInvestmentNames = goal.linkedInvestments
+                      .map((id) => investmentMap.get(id))
+                      .filter(Boolean) as string[];
+
+                    return (
+                      <TableRow
+                        key={goal.id}
+                        data-ocid={`goals.item.${idx + 1}`}
+                        className="hover:bg-slate-50 transition-colors"
+                      >
+                        <TableCell className="py-2.5">
+                          <span
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold"
+                            style={{
+                              background: priorityStyle.bg,
+                              color: priorityStyle.text,
+                            }}
+                          >
+                            {priorityStyle.label}
+                          </span>
+                        </TableCell>
+                        <TableCell className="font-medium text-xs py-2.5 text-slate-800">
+                          {goal.name}
+                        </TableCell>
+                        <TableCell className="text-xs py-2.5 text-slate-600">
+                          {targetDate.toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "2-digit",
+                          })}
+                        </TableCell>
+                        <TableCell className="text-right text-xs py-2.5 font-semibold text-slate-700">
+                          {formatCurrency(goal.targetAmount)}
+                        </TableCell>
+                        <TableCell className="text-right font-bold text-blue-600 text-xs py-2.5">
+                          {formatCurrency(currentAmount)}
+                        </TableCell>
+                        <TableCell className="py-2.5">
+                          {linkedInvestmentNames.length > 0 ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex flex-wrap gap-1 cursor-help">
+                                    {linkedInvestmentNames
+                                      .slice(0, 3)
+                                      .map((name) => (
+                                        <Badge
+                                          key={name}
+                                          variant="secondary"
+                                          className="text-xs px-1.5 py-0"
+                                        >
+                                          {name.length > 12
+                                            ? `${name.substring(0, 12)}...`
+                                            : name}
+                                        </Badge>
+                                      ))}
+                                    {linkedInvestmentNames.length > 3 && (
                                       <Badge
-                                        key={name}
                                         variant="secondary"
                                         className="text-xs px-1.5 py-0"
                                       >
-                                        {name && name.length > 10
-                                          ? `${name.substring(0, 10)}...`
-                                          : name}
+                                        +{linkedInvestmentNames.length - 3}
                                       </Badge>
-                                    ))}
-                                  {linkedInvestmentNames.length > 2 && (
-                                    <Badge
-                                      variant="secondary"
-                                      className="text-xs px-1.5 py-0"
-                                    >
-                                      +{linkedInvestmentNames.length - 2}
-                                    </Badge>
-                                  )}
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent className="max-w-xs">
-                                <div className="space-y-1">
-                                  <p className="font-semibold text-xs mb-1">
-                                    Linked Investments:
-                                  </p>
-                                  {linkedInvestmentNames.map((name) => (
-                                    <p key={name} className="text-xs">
-                                      • {name}
+                                    )}
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <div className="space-y-1">
+                                    <p className="font-semibold text-xs mb-1">
+                                      Linked Investments:
                                     </p>
-                                  ))}
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">
-                            None
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right font-semibold text-blue-600 text-xs py-2">
-                        {formatCurrency(currentAmount)}
-                      </TableCell>
-                      <TableCell className="text-center py-2">
-                        <Badge
-                          variant={
-                            monthsLeft > 12
-                              ? "default"
-                              : monthsLeft > 6
-                                ? "secondary"
-                                : "destructive"
-                          }
-                          className="text-xs px-1.5 py-0"
-                        >
-                          {monthsLeft}m
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <div className="space-y-0.5 text-xs">
-                          <div className="text-muted-foreground">
-                            <span className="font-medium">Need:</span>{" "}
-                            {formatCurrency(amountNeeded)}
+                                    {linkedInvestmentNames.map((name) => (
+                                      <p
+                                        key={`linked-${name}`}
+                                        className="text-xs"
+                                      >
+                                        • {name}
+                                      </p>
+                                    ))}
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            <span className="text-xs text-slate-400">None</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center py-2.5">
+                          <Badge
+                            variant={
+                              monthsLeft > 12
+                                ? "default"
+                                : monthsLeft > 6
+                                  ? "secondary"
+                                  : "destructive"
+                            }
+                            className="text-xs px-1.5 py-0"
+                          >
+                            {monthsLeft}m
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="py-2.5">
+                          <div className="space-y-0.5 text-xs">
+                            <div className="text-slate-500">
+                              <span className="font-medium text-slate-600">
+                                Need:
+                              </span>{" "}
+                              {formatCurrency(amountNeeded)}
+                            </div>
+                            <div className="text-indigo-600 font-semibold">
+                              <span className="font-medium">SIP:</span>{" "}
+                              {monthsLeft > 0
+                                ? formatCurrency(sipPerMonth)
+                                : "N/A"}
+                            </div>
                           </div>
-                          <div className="text-primary font-semibold">
-                            <span className="font-medium">SIP:</span>{" "}
-                            {monthsLeft > 0
-                              ? formatCurrency(sipPerMonth)
-                              : "N/A"}
+                        </TableCell>
+                        <TableCell className="py-2.5">
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-semibold text-slate-700">
+                                {progress.toFixed(1)}%
+                              </span>
+                              <Badge
+                                className={`text-xs px-2 py-0.5 font-semibold ${
+                                  isAchieved
+                                    ? "bg-green-100 text-green-700 border border-green-200"
+                                    : "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {isAchieved ? "✓ Done" : "In Progress"}
+                              </Badge>
+                            </div>
+                            {/* Taller pill-shaped gradient progress bar */}
+                            <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{
+                                  width: `${Math.min(progress, 100)}%`,
+                                  background: getProgressGradient(progress),
+                                }}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-xs font-medium">
-                              {progress.toFixed(1)}%
-                            </span>
-                            <Badge
-                              variant={isAchieved ? "default" : "secondary"}
-                              className={`text-xs px-1.5 py-0 ${isAchieved ? "bg-green-600 text-white" : ""}`}
+                        </TableCell>
+                        <TableCell className="text-right py-2.5 pr-4">
+                          <div className="flex justify-end gap-0.5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                              onClick={() => setLinkingGoal(goal)}
+                              data-ocid={`goals.link.button.${idx + 1}`}
                             >
-                              {isAchieved ? "✓" : "In Progress"}
-                            </Badge>
+                              <LinkIcon className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-slate-500 hover:text-amber-600 hover:bg-amber-50"
+                              onClick={() => setEditingGoal(goal)}
+                              data-ocid={`goals.edit_button.${idx + 1}`}
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-slate-500 hover:text-red-600 hover:bg-red-50"
+                              onClick={() => setDeletingGoal(goal)}
+                              data-ocid={`goals.delete_button.${idx + 1}`}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                            <div
-                              className={`h-full transition-all duration-300 ${progressBarColor}`}
-                              style={{ width: `${Math.min(progress, 100)}%` }}
-                            />
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right py-2 pr-4">
-                        <div className="flex justify-end gap-0.5">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => setLinkingGoal(goal)}
-                            data-ocid={`goals.link_button.${idx + 1}`}
-                          >
-                            <LinkIcon className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => setEditingGoal(goal)}
-                            data-ocid={`goals.edit_button.${idx + 1}`}
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => setDeletingGoal(goal)}
-                            data-ocid={`goals.delete_button.${idx + 1}`}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
               </TableBody>
             </Table>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-1 sm:hidden text-center">
-          ← Scroll to see more →
+        {/* Mobile scroll hint */}
+        <p className="text-[10px] text-slate-400 text-center mt-1 sm:hidden">
+          ← Scroll table to see more →
         </p>
       </div>
 

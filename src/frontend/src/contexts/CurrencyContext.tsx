@@ -58,7 +58,7 @@ interface CurrencyContextType {
 const CurrencyContext = createContext<CurrencyContextType>({
   country: COUNTRIES[0],
   setCountry: () => {},
-  formatCurrency: (n) => `₹${n.toLocaleString("en-IN")}`,
+  formatCurrency: (n) => `₹${n.toFixed(2)}`,
 });
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
@@ -75,15 +75,19 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   };
 
   const formatCurrency = (amount: number): string => {
-    try {
-      return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: country.code,
-        maximumFractionDigits: 0,
-      }).format(amount);
-    } catch {
-      return `${country.symbol}${amount.toLocaleString()}`;
+    const absAmount = Math.abs(amount);
+    const sign = amount < 0 ? "-" : "";
+    const sym = country.symbol;
+    if (absAmount >= 10000000) {
+      return `${sign}${sym}${(absAmount / 10000000).toFixed(2)} Cr`;
     }
+    if (absAmount >= 100000) {
+      return `${sign}${sym}${(absAmount / 100000).toFixed(2)} L`;
+    }
+    if (absAmount >= 1000) {
+      return `${sign}${sym}${(absAmount / 1000).toFixed(2)} K`;
+    }
+    return `${sign}${sym}${absAmount.toFixed(2)}`;
   };
 
   return (
@@ -95,4 +99,22 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
 export function useCurrency() {
   return useContext(CurrencyContext);
+}
+
+export function formatCurrencyWithSymbol(
+  amount: number,
+  symbol: string,
+): string {
+  const absAmount = Math.abs(amount);
+  const sign = amount < 0 ? "-" : "";
+  if (absAmount >= 10000000) {
+    return `${sign}${symbol}${(absAmount / 10000000).toFixed(2)} Cr`;
+  }
+  if (absAmount >= 100000) {
+    return `${sign}${symbol}${(absAmount / 100000).toFixed(2)} L`;
+  }
+  if (absAmount >= 1000) {
+    return `${sign}${symbol}${(absAmount / 1000).toFixed(2)} K`;
+  }
+  return `${sign}${symbol}${absAmount.toFixed(2)}`;
 }

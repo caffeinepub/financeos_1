@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -9,572 +8,319 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { AlertTriangle, Bitcoin, BookOpen, TrendingUp } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Bitcoin } from "lucide-react";
 import { useState } from "react";
 import {
+  CartesianGrid,
   Cell,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
   Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 import { useCurrency } from "../../contexts/CurrencyContext";
 
-type CryptoProfile = "conservative" | "balanced" | "aggressive";
-
-interface CryptoHolding {
-  coin: string;
-  symbol: string;
-  allocation: number;
-  category: string;
-  rationale: string;
-}
-
-const portfolios: Record<
-  CryptoProfile,
-  {
-    holdings: CryptoHolding[];
-    volatility: string;
-    returnRange: string;
-    description: string;
-    color: string;
-    bgGradient: string;
-  }
-> = {
-  conservative: {
-    description: "Capital preservation with dominant blue-chip crypto assets",
-    color: "from-success to-chart-2",
-    bgGradient: "from-success/10 to-chart-2/10",
-    volatility: "Medium (30–50% swings)",
-    returnRange: "20–60% annually",
-    holdings: [
-      {
-        coin: "Bitcoin",
-        symbol: "BTC",
-        allocation: 60,
-        category: "Large Cap",
-        rationale: "Digital gold, store of value",
-      },
-      {
-        coin: "Ethereum",
-        symbol: "ETH",
-        allocation: 30,
-        category: "Large Cap",
-        rationale: "Smart contract platform leader",
-      },
-      {
-        coin: "USD Coin",
-        symbol: "USDC",
-        allocation: 10,
-        category: "Stablecoin",
-        rationale: "Stable yield + dry powder",
-      },
-    ],
-  },
-  balanced: {
-    description: "Mix of large-cap assets with selective alt-coin exposure",
-    color: "from-primary to-accent",
-    bgGradient: "from-primary/10 to-accent/10",
-    volatility: "High (50–80% swings)",
-    returnRange: "40–150% annually",
-    holdings: [
-      {
-        coin: "Bitcoin",
-        symbol: "BTC",
-        allocation: 40,
-        category: "Large Cap",
-        rationale: "Digital gold foundation",
-      },
-      {
-        coin: "Ethereum",
-        symbol: "ETH",
-        allocation: 25,
-        category: "Large Cap",
-        rationale: "DeFi & NFT ecosystem hub",
-      },
-      {
-        coin: "BNB",
-        symbol: "BNB",
-        allocation: 10,
-        category: "Large Cap",
-        rationale: "Exchange token + BSC ecosystem",
-      },
-      {
-        coin: "Solana",
-        symbol: "SOL",
-        allocation: 10,
-        category: "Large Cap",
-        rationale: "High-performance L1 chain",
-      },
-      {
-        coin: "Polygon",
-        symbol: "MATIC",
-        allocation: 8,
-        category: "Layer 2",
-        rationale: "Ethereum scaling solution",
-      },
-      {
-        coin: "Polkadot",
-        symbol: "DOT",
-        allocation: 7,
-        category: "Mid Cap",
-        rationale: "Cross-chain interoperability",
-      },
-    ],
-  },
-  aggressive: {
-    description:
-      "High-conviction growth bets across DeFi and Layer 1/2 ecosystems",
-    color: "from-destructive to-warning",
-    bgGradient: "from-destructive/10 to-warning/10",
-    volatility: "Very High (80–200% swings)",
-    returnRange: "100–500%+ annually",
-    holdings: [
-      {
-        coin: "Bitcoin",
-        symbol: "BTC",
-        allocation: 25,
-        category: "Large Cap",
-        rationale: "Portfolio anchor",
-      },
-      {
-        coin: "Ethereum",
-        symbol: "ETH",
-        allocation: 20,
-        category: "Large Cap",
-        rationale: "Base layer exposure",
-      },
-      {
-        coin: "Solana",
-        symbol: "SOL",
-        allocation: 15,
-        category: "Large Cap",
-        rationale: "High-growth L1 challenger",
-      },
-      {
-        coin: "Avalanche",
-        symbol: "AVAX",
-        allocation: 10,
-        category: "Layer 1",
-        rationale: "Fast finality + subnets",
-      },
-      {
-        coin: "Polygon",
-        symbol: "MATIC",
-        allocation: 8,
-        category: "Layer 2",
-        rationale: "Ethereum scaling leader",
-      },
-      {
-        coin: "Polkadot",
-        symbol: "DOT",
-        allocation: 7,
-        category: "Mid Cap",
-        rationale: "Parachain ecosystem",
-      },
-      {
-        coin: "Chainlink",
-        symbol: "LINK",
-        allocation: 8,
-        category: "DeFi / Oracle",
-        rationale: "Oracle market monopoly",
-      },
-      {
-        coin: "Uniswap",
-        symbol: "UNI",
-        allocation: 7,
-        category: "DeFi",
-        rationale: "Dominant DEX by volume",
-      },
-    ],
-  },
+const cryptoPortfolios = {
+  conservative: { large: 70, mid: 20, small: 10 },
+  moderate: { large: 50, mid: 30, small: 20 },
+  aggressive: { large: 30, mid: 40, small: 30 },
 };
 
-const COLORS = [
-  "#f59e0b",
-  "#6366f1",
-  "#10b981",
-  "#3b82f6",
-  "#8b5cf6",
-  "#ec4899",
-  "#06b6d4",
-  "#f97316",
-];
-
-const categoryColors: Record<string, string> = {
-  "Large Cap": "bg-primary/10 text-primary",
-  Stablecoin: "bg-success/10 text-success",
-  "Layer 2": "bg-accent/10 text-accent-foreground",
-  "Mid Cap": "bg-chart-3/10 text-chart-3",
-  "Layer 1": "bg-chart-1/10 text-chart-1",
-  "DeFi / Oracle": "bg-warning/10 text-warning",
-  DeFi: "bg-chart-4/10 text-chart-4",
-};
-
-const cryptoCycles = [
-  {
-    phase: "Accumulation",
-    icon: "📥",
-    desc: "Market is depressed. Smart money quietly buys. Sentiment is fearful.",
-    color: "bg-blue-50 dark:bg-blue-900/20 text-blue-700",
-  },
-  {
-    phase: "Bull Run",
-    icon: "🚀",
-    desc: "Prices surge. FOMO drives retail inflow. Media coverage explodes.",
-    color: "bg-green-50 dark:bg-green-900/20 text-green-700",
-  },
-  {
-    phase: "Distribution",
-    icon: "📤",
-    desc: "Smart money exits to retail. Extreme euphoria. All-time-highs.",
-    color: "bg-amber-50 dark:bg-amber-900/20 text-amber-700",
-  },
-  {
-    phase: "Bear Market",
-    icon: "📉",
-    desc: "Prices collapse 70–90%. Panic selling. Projects fail. Build time.",
-    color: "bg-red-50 dark:bg-red-900/20 text-red-700",
-  },
-];
+const COLORS = ["#f7931a", "#627eea", "#00d395", "#8247e5", "#26a17b"];
 
 export function ModelCryptoPortfolioTab() {
-  const { country } = useCurrency();
-  const sym = country.symbol;
-  const [profile, setProfile] = useState<CryptoProfile>("balanced");
-  const [dcaAmount, setDcaAmount] = useState(10000);
-  const [dcaMonths, setDcaMonths] = useState(12);
-  const port = portfolios[profile];
+  const { formatCurrency, country } = useCurrency();
+  const [riskProfile, setRiskProfile] = useState<
+    "conservative" | "moderate" | "aggressive"
+  >("moderate");
+  const [initialCapital, setInitialCapital] = useState("100000");
+  const [sipAmount, setSipAmount] = useState("10000");
 
-  const pieData = port.holdings.map((h, i) => ({
-    name: h.symbol,
-    value: h.allocation,
-    fill: COLORS[i % COLORS.length],
-  }));
+  const allocation = cryptoPortfolios[riskProfile];
+  const capital = Number.parseFloat(initialCapital) || 0;
+  const sip = Number.parseFloat(sipAmount) || 0;
 
-  const tierMap: Record<string, number> = {};
-  for (const h of port.holdings) {
-    tierMap[h.category] = (tierMap[h.category] ?? 0) + h.allocation;
-  }
+  const allocationData = [
+    {
+      name: "Large Cap (BTC, ETH)",
+      value: allocation.large,
+      amount: (capital * allocation.large) / 100,
+    },
+    {
+      name: "Mid Cap (SOL, ADA, DOT)",
+      value: allocation.mid,
+      amount: (capital * allocation.mid) / 100,
+    },
+    {
+      name: "Small Cap (Emerging)",
+      value: allocation.small,
+      amount: (capital * allocation.small) / 100,
+    },
+  ];
 
-  // DCA illustration
-  const totalInvested = dcaAmount * dcaMonths;
-  const dcaAvgCostBenefit =
-    "Reduces timing risk by spreading purchases across price fluctuations";
+  const years = 25;
+  const avgReturn =
+    riskProfile === "conservative"
+      ? 0.15
+      : riskProfile === "moderate"
+        ? 0.25
+        : 0.35;
+
+  const forecastData = Array.from({ length: years }, (_, i) => {
+    const year = new Date().getFullYear() + i;
+    const lumpsumValue = capital * (1 + avgReturn) ** i;
+    let sipValue = 0;
+    for (let j = 0; j <= i * 12; j++) {
+      sipValue += sip * (1 + avgReturn / 12) ** (i * 12 - j);
+    }
+    return { year, value: lumpsumValue + sipValue };
+  });
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-premium-lg border-border/50 bg-gradient-to-br from-card to-muted/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-warning/20 to-chart-3/20">
-              <Bitcoin className="h-6 w-6 text-warning" />
-            </div>
-            Model Crypto Portfolio
+      <Card className="rounded-2xl shadow-sm border border-slate-100 bg-white">
+        <CardHeader
+          style={{ borderLeft: "3px solid #f59e0b", paddingLeft: "1.25rem" }}
+        >
+          <CardTitle className="text-base font-bold text-slate-800 flex items-center gap-2">
+            <Bitcoin className="h-5 w-5 text-amber-500" />
+            Model Crypto Portfolio Builder
           </CardTitle>
-          <CardDescription className="text-base">
-            Risk-adjusted cryptocurrency allocation models with investor
-            education
+          <CardDescription>
+            Build a diversified cryptocurrency portfolio based on your risk
+            appetite
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Risk selector */}
-          <div className="flex flex-wrap gap-3">
-            {(
-              ["conservative", "balanced", "aggressive"] as CryptoProfile[]
-            ).map((key) => (
-              <button
-                type="button"
-                key={key}
-                data-ocid={`financialmodel.crypto.${key}.tab`}
-                onClick={() => setProfile(key)}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold capitalize transition-all duration-200 ${profile === key ? `bg-gradient-to-r ${portfolios[key].color} text-white shadow-md` : "bg-muted hover:bg-muted/80 text-muted-foreground"}`}
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Risk Profile</Label>
+              <Select
+                value={riskProfile}
+                onValueChange={(v: any) => setRiskProfile(v)}
               >
-                {key}
-              </button>
-            ))}
-          </div>
-
-          <p className="text-sm text-muted-foreground">{port.description}</p>
-
-          {/* Metrics */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card className={`bg-gradient-to-br ${port.bgGradient}`}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-                  <TrendingUp className="h-4 w-4" /> Potential Return
-                </div>
-                <div className="text-lg font-bold">{port.returnRange}</div>
-              </CardContent>
-            </Card>
-            <Card className={`bg-gradient-to-br ${port.bgGradient}`}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-                  <AlertTriangle className="h-4 w-4" /> Expected Volatility
-                </div>
-                <div className="text-lg font-bold">{port.volatility}</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Pie + Table */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-muted/30 to-transparent">
-              <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
-                Portfolio Allocation
-              </h3>
-              <ResponsiveContainer width="100%" height={280}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({
-                      name,
-                      percent,
-                    }: { name: string; percent: number }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
-                    }
-                    outerRadius="65%"
-                    dataKey="value"
-                  >
-                    {pieData.map((entry) => (
-                      <Cell
-                        key={entry.name}
-                        fill={entry.fill}
-                        stroke="#fff"
-                        strokeWidth={2}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(v: number) => `${v}%`}
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                      fontSize: "12px",
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: "11px" }} />
-                </PieChart>
-              </ResponsiveContainer>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="conservative">
+                    Conservative (15% avg return)
+                  </SelectItem>
+                  <SelectItem value="moderate">
+                    Moderate (25% avg return)
+                  </SelectItem>
+                  <SelectItem value="aggressive">
+                    Aggressive (35% avg return)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Holdings
-              </h3>
-              <div className="rounded-lg border border-border overflow-hidden">
-                <Table data-ocid="financialmodel.crypto.table">
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead className="text-xs">Coin</TableHead>
-                      <TableHead className="text-xs">Category</TableHead>
-                      <TableHead className="text-xs text-right">
-                        Alloc%
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {port.holdings.map((h, i) => (
-                      <TableRow
-                        key={h.symbol}
-                        data-ocid={`financialmodel.crypto.item.${i + 1}`}
-                        className="hover:bg-muted/30"
-                      >
-                        <TableCell className="text-xs">
-                          <div
-                            className="font-bold"
-                            style={{ color: COLORS[i % COLORS.length] }}
-                          >
-                            {h.symbol}
-                          </div>
-                          <div className="text-muted-foreground text-xs">
-                            {h.rationale}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-xs">
-                          <Badge
-                            className={`text-xs ${categoryColors[h.category] ?? ""}`}
-                            variant="outline"
-                          >
-                            {h.category}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right text-xs font-bold">
-                          {h.allocation}%
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Category Breakdown
-                </h4>
-                {Object.entries(tierMap).map(([cat, pct]) => (
-                  <div key={cat} className="space-y-0.5">
-                    <div className="flex justify-between text-xs">
-                      <span>{cat}</span>
-                      <span className="font-semibold">{pct}%</span>
-                    </div>
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-warning/70 rounded-full"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="space-y-2">
+              <Label>Initial Capital ({country.symbol})</Label>
+              <Input
+                type="number"
+                value={initialCapital}
+                onChange={(e) => setInitialCapital(e.target.value)}
+                placeholder="100000"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Monthly SIP ({country.symbol})</Label>
+              <Input
+                type="number"
+                value={sipAmount}
+                onChange={(e) => setSipAmount(e.target.value)}
+                placeholder="10000"
+              />
             </div>
           </div>
 
-          {/* DCA Education */}
-          <Card className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 dark:from-indigo-900/10 dark:to-blue-900/10 border-indigo-200/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-indigo-600" />
-                Dollar Cost Averaging (DCA) — The Smart Investor's Strategy
-              </CardTitle>
-              <CardDescription className="text-xs">
-                DCA means investing a fixed amount at regular intervals
-                regardless of price. It removes emotional decision-making and
-                lowers your average cost in volatile markets.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Monthly DCA Amount ({sym})</Label>
-                  <Input
-                    data-ocid="financialmodel.crypto.dca.amount.input"
-                    type="number"
-                    value={dcaAmount}
-                    onChange={(e) => setDcaAmount(Number(e.target.value))}
-                    className="h-8 text-sm"
-                    min={100}
-                  />
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">
+                  Suggested Allocation
+                </CardTitle>
+                <CardDescription>
+                  Based on {riskProfile} risk profile
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={allocationData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={(entry) =>
+                        `${entry.name.split(" ")[0]}: ${entry.value}%`
+                      }
+                      outerRadius={80}
+                      dataKey="value"
+                    >
+                      {allocationData.map((entry, index) => (
+                        <Cell
+                          key={entry.name}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => `${value}%`} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="mt-4 space-y-2">
+                  {allocationData.map((item, index) => (
+                    <div
+                      key={item.name}
+                      className="flex justify-between items-center p-2 rounded bg-muted/30"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="h-3 w-3 rounded"
+                          style={{ backgroundColor: COLORS[index] }}
+                        />
+                        <span className="text-sm">{item.name}</span>
+                      </div>
+                      <div className="text-sm font-semibold">
+                        {formatCurrency(item.amount)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Duration (months)</Label>
-                  <Input
-                    data-ocid="financialmodel.crypto.dca.months.input"
-                    type="number"
-                    value={dcaMonths}
-                    onChange={(e) => setDcaMonths(Number(e.target.value))}
-                    className="h-8 text-sm"
-                    min={1}
-                    max={60}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="p-2 rounded-lg bg-indigo-100/50 dark:bg-indigo-900/20">
-                  <div className="text-xs text-muted-foreground">
-                    Total Invested
-                  </div>
-                  <div className="font-bold text-indigo-700">
-                    {sym}
-                    {totalInvested.toLocaleString("en-IN")}
-                  </div>
-                </div>
-                <div className="p-2 rounded-lg bg-indigo-100/50 dark:bg-indigo-900/20">
-                  <div className="text-xs text-muted-foreground">Strategy</div>
-                  <div className="font-bold text-indigo-700">
-                    Fixed {sym}
-                    {dcaAmount.toLocaleString("en-IN")}/mo
-                  </div>
-                </div>
-                <div className="p-2 rounded-lg bg-green-100/50 dark:bg-green-900/20">
-                  <div className="text-xs text-muted-foreground">
-                    Key Benefit
-                  </div>
-                  <div className="font-bold text-green-700 text-xs">
-                    Avg cost ↓ in dips
-                  </div>
-                </div>
-              </div>
-              <div className="text-xs text-muted-foreground p-2 rounded-lg bg-muted/30">
-                {dcaAvgCostBenefit}. Historical data shows DCA investors in BTC
-                have outperformed lump-sum investors who tried to time the
-                market.
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Crypto Market Cycles */}
-          <Card className="bg-gradient-to-br from-muted/20 to-transparent">
-            <CardHeader className="pb-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">
+                  Top Crypto Suggestions
+                </CardTitle>
+                <CardDescription>
+                  Recommended cryptocurrencies by category
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-[#f7931a]" />
+                      Large Cap ({allocation.large}%)
+                    </h4>
+                    <ul className="text-sm space-y-1 ml-4">
+                      <li>• Bitcoin (BTC) - Digital Gold</li>
+                      <li>• Ethereum (ETH) - Smart Contracts</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-[#627eea]" />
+                      Mid Cap ({allocation.mid}%)
+                    </h4>
+                    <ul className="text-sm space-y-1 ml-4">
+                      <li>• Solana (SOL) - High Performance</li>
+                      <li>• Cardano (ADA) - Research-Based</li>
+                      <li>• Polkadot (DOT) - Interoperability</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-[#00d395]" />
+                      Small Cap ({allocation.small}%)
+                    </h4>
+                    <ul className="text-sm space-y-1 ml-4">
+                      <li>• Emerging DeFi Projects</li>
+                      <li>• Layer 2 Solutions</li>
+                      <li>• Web3 Infrastructure</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-base">
-                Crypto Market Cycle — 4 Phases
+                25-Year Portfolio Forecast
               </CardTitle>
-              <CardDescription className="text-xs">
-                Understanding cycles helps you buy in fear and sell in greed —
-                the opposite of what most retail investors do.
+              <CardDescription>
+                Projected growth with {formatCurrency(capital)} initial +{" "}
+                {formatCurrency(sip)}/month SIP
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                {cryptoCycles.map((c) => (
-                  <div key={c.phase} className={`p-3 rounded-lg ${c.color}`}>
-                    <div className="font-semibold text-sm mb-1">
-                      {c.icon} {c.phase}
-                    </div>
-                    <div className="text-xs opacity-80">{c.desc}</div>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={forecastData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="year" />
+                  <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                  <Tooltip
+                    formatter={(value: number) => formatCurrency(value)}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#f7931a"
+                    strokeWidth={2}
+                    name="Portfolio Value"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <div className="p-3 rounded-lg bg-muted/30 border">
+                  <div className="text-xs text-muted-foreground">
+                    5 Year Value
                   </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-xs">
-                  <span className="font-bold text-amber-700">⚠️ Rule 1:</span>{" "}
-                  <span className="text-muted-foreground">
-                    Never invest more than 5–10% of your total portfolio in
-                    crypto
-                  </span>
+                  <div className="text-lg font-bold text-primary">
+                    {formatCurrency(forecastData[4]?.value || 0)}
+                  </div>
                 </div>
-                <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-xs">
-                  <span className="font-bold text-red-700">⚠️ Rule 2:</span>{" "}
-                  <span className="text-muted-foreground">
-                    Only invest what you can afford to lose entirely
-                  </span>
+                <div className="p-3 rounded-lg bg-muted/30 border">
+                  <div className="text-xs text-muted-foreground">
+                    15 Year Value
+                  </div>
+                  <div className="text-lg font-bold text-emerald-600">
+                    {formatCurrency(forecastData[14]?.value || 0)}
+                  </div>
                 </div>
-                <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-xs">
-                  <span className="font-bold text-green-700">✅ Rule 3:</span>{" "}
-                  <span className="text-muted-foreground">
-                    HODLing BTC/ETH has historically beaten short-term trading
-                  </span>
+                <div className="p-3 rounded-lg bg-muted/30 border">
+                  <div className="text-xs text-muted-foreground">
+                    25 Year Value
+                  </div>
+                  <div className="text-lg font-bold text-violet-600">
+                    {formatCurrency(forecastData[24]?.value || 0)}
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Disclaimer */}
-          <Card className="border-destructive/30 bg-destructive/5">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground">
-                  <strong className="text-destructive">Risk Disclaimer:</strong>{" "}
-                  Cryptocurrency investments are highly volatile and
-                  speculative. Past performance does not guarantee future
-                  results. You may lose all invested capital. These model
-                  portfolios are for educational purposes only and do not
-                  constitute financial advice. Always consult a qualified
-                  financial advisor before investing in cryptocurrencies.
-                </p>
-              </div>
+          <Card className="bg-amber-50 border-amber-200">
+            <CardHeader>
+              <CardTitle className="text-base text-amber-700">
+                ⚠️ Important Disclaimer
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm space-y-2 text-amber-800">
+              <p>• Cryptocurrency investments are highly volatile and risky</p>
+              <p>• Only invest what you can afford to lose</p>
+              <p>• Past performance does not guarantee future results</p>
+              <p>• Diversification does not eliminate risk</p>
+              <p>• Consult with a financial advisor before investing</p>
+              <p>• Keep your crypto assets secure with hardware wallets</p>
             </CardContent>
           </Card>
         </CardContent>

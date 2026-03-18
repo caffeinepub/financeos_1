@@ -82,7 +82,6 @@ export function GoalsTab() {
     ],
   );
 
-  // Current savings = sum of currentValue for all linked investments per goal
   const goalCurrentSavings = useMemo(() => {
     const map = new Map<string, number>();
     for (const goal of goals) {
@@ -95,7 +94,6 @@ export function GoalsTab() {
     return map;
   }, [goals, allInvestments]);
 
-  // Sum current value of all UNIQUE investments linked to any goal
   const currentSavings = useMemo(() => {
     const uniqueIds = new Set<string>();
     for (const goal of goals) {
@@ -224,18 +222,18 @@ export function GoalsTab() {
         data-ocid="goals.main.card"
         className="rounded-2xl shadow-sm border border-slate-100 bg-white"
       >
-        <CardHeader className="pb-2 pt-4 px-5">
+        <CardHeader
+          className="pb-2 pt-4 px-5"
+          style={{ borderLeft: "3px solid #059669" }}
+        >
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-sm font-semibold text-slate-700 tracking-tight">
-                <div className="p-1.5 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow">
-                  <Target className="h-4 w-4 text-white" />
-                </div>
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow">
+                <Target className="h-4 w-4 text-white" />
+              </div>
+              <CardTitle className="text-base font-bold text-slate-800">
                 Financial Goals
               </CardTitle>
-              <CardDescription className="text-xs text-slate-400 mt-0.5">
-                Track your progress toward financial objectives
-              </CardDescription>
             </div>
             <Button
               onClick={() => setIsAddDialogOpen(true)}
@@ -250,7 +248,9 @@ export function GoalsTab() {
         <CardContent className="px-5 pb-5">
           {goals.length === 0 ? (
             <div className="text-center py-12" data-ocid="goals.empty_state">
-              <Target className="h-12 w-12 mx-auto mb-3 text-green-400 opacity-40" />
+              <div className="w-16 h-16 rounded-2xl bg-green-50 flex items-center justify-center mx-auto mb-4">
+                <Target className="h-8 w-8 text-green-400" />
+              </div>
               <h3 className="text-base font-semibold mb-1 text-slate-700">
                 No goals set yet
               </h3>
@@ -268,55 +268,49 @@ export function GoalsTab() {
             </div>
           ) : (
             <>
-              {/* Summary Cards */}
+              {/* Summary Cards — compact horizontal metric layout */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-                <Card className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-green-100 shadow-sm">
-                  <CardHeader className="pb-1 pt-3 px-4">
-                    <CardTitle className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">
+                <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-green-100 px-4 py-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wide">
                       Total Target
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pb-3 px-4">
-                    <p className="text-xl font-bold text-emerald-600 tabular-nums truncate">
+                    </p>
+                    <p className="text-lg font-extrabold text-emerald-600 tabular-nums truncate">
                       {formatCurrency(totalTargetAmount)}
                     </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Combined goal amount
-                    </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
-                <Card className="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-pink-100 shadow-sm">
-                  <CardHeader className="pb-1 pt-3 px-4">
-                    <CardTitle className="text-xs font-semibold text-purple-700 uppercase tracking-wide">
+                <div className="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-pink-100 px-4 py-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+                    <PieChart className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold text-purple-700 uppercase tracking-wide">
                       Current Savings
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pb-3 px-4">
-                    <p className="text-xl font-bold text-purple-600 tabular-nums truncate">
+                    </p>
+                    <p className="text-lg font-extrabold text-purple-600 tabular-nums truncate">
                       {formatCurrency(currentSavings)}
                     </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      From linked investments
-                    </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
-                <Card className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-100 shadow-sm">
-                  <CardHeader className="pb-1 pt-3 px-4">
-                    <CardTitle className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-100 px-4 py-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+                    <BarChart3 className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wide">
                       Overall Progress
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pb-3 px-4">
-                    <p className="text-xl font-bold text-blue-600">
+                    </p>
+                    <p className="text-lg font-extrabold text-blue-600">
                       {overallProgress.toFixed(1)}%
                     </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      {goals.length} goal{goals.length !== 1 ? "s" : ""}
-                    </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
 
               <GoalList goals={goals} allInvestments={allInvestments} />
@@ -331,20 +325,22 @@ export function GoalsTab() {
           data-ocid="goals.analytics.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
         >
-          <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-slate-700 tracking-tight">
+          <CardHeader
+            className="pb-2 pt-4 px-5"
+            style={{ borderLeft: "3px solid #6366f1" }}
+          >
+            <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
               <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 shadow">
                 <TrendingUp className="h-4 w-4 text-white" />
               </div>
               Goals Analytics
             </CardTitle>
             <CardDescription className="text-xs text-slate-400">
-              Achievement quality, savings adequacy and diversification
+              Achievement quality, savings adequacy, and diversification
             </CardDescription>
           </CardHeader>
           <CardContent className="px-5 pb-5">
             <div className="grid gap-4 md:grid-cols-3">
-              {/* Savings Adequacy */}
               <Card className="rounded-xl border border-slate-100 shadow-sm">
                 <CardHeader className="pb-2 pt-3 px-4">
                   <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
@@ -401,7 +397,6 @@ export function GoalsTab() {
                 </CardContent>
               </Card>
 
-              {/* Achievement Quality */}
               <Card className="rounded-xl border border-slate-100 shadow-sm">
                 <CardHeader className="pb-2 pt-3 px-4">
                   <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
@@ -453,7 +448,6 @@ export function GoalsTab() {
                 </CardContent>
               </Card>
 
-              {/* Goal Diversification */}
               <Card className="rounded-xl border border-slate-100 shadow-sm">
                 <CardHeader className="pb-2 pt-3 px-4">
                   <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
@@ -522,7 +516,6 @@ function GoalsSkeleton() {
     >
       <CardHeader className="px-5 pt-4 pb-2">
         <Skeleton className="h-5 w-40" />
-        <Skeleton className="h-3 w-56" />
       </CardHeader>
       <CardContent className="px-5 pb-5">
         <div className="space-y-2">

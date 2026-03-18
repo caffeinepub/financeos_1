@@ -20,6 +20,11 @@ interface EditGoalDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const toDateString = (nanos: bigint) => {
+  const ms = Number(nanos) / 1_000_000;
+  return new Date(ms).toISOString().split("T")[0];
+};
+
 export function EditGoalDialog({
   goal,
   open,
@@ -29,28 +34,33 @@ export function EditGoalDialog({
   const [targetAmount, setTargetAmount] = useState(
     goal.targetAmount.toString(),
   );
+  const [targetDate, setTargetDate] = useState(toDateString(goal.targetDate));
   const updateGoal = useUpdateGoalProgress();
 
   useEffect(() => {
     if (open) {
       setTargetAmount(goal.targetAmount.toString());
+      setTargetDate(toDateString(goal.targetDate));
     }
   }, [goal, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!targetAmount) return;
+    if (!targetAmount || !targetDate) return;
 
     const targetAmountNum = Number.parseFloat(targetAmount);
     if (targetAmountNum <= 0) return;
+
+    const targetDateNanos =
+      BigInt(new Date(targetDate).getTime()) * BigInt(1_000_000);
 
     try {
       await updateGoal.mutateAsync({
         goalId: goal.id,
         name: goal.name,
         targetAmount: targetAmountNum,
-        targetDate: goal.targetDate,
+        targetDate: targetDateNanos,
         linkedInvestments: goal.linkedInvestments,
         investmentAllocations: goal.investmentAllocations ?? {},
         priority: goal.priority,
@@ -71,7 +81,7 @@ export function EditGoalDialog({
         <DialogHeader>
           <DialogTitle>Edit Goal</DialogTitle>
           <DialogDescription>
-            Update the target amount for {goal.name}
+            Update the target amount and date for {goal.name}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -92,6 +102,17 @@ export function EditGoalDialog({
                 onChange={(e) => setTargetAmount(e.target.value)}
                 required
                 data-ocid="goals.edit.targetamount.input"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="targetDate">Goal Date *</Label>
+              <Input
+                id="targetDate"
+                type="date"
+                value={targetDate}
+                onChange={(e) => setTargetDate(e.target.value)}
+                required
+                data-ocid="goals.edit.targetdate.input"
               />
             </div>
           </div>

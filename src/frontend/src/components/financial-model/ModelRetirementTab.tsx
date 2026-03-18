@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -9,19 +9,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  AlertTriangle,
-  BookOpen,
-  CheckCircle,
-  PiggyBank,
-  TrendingUp,
-  XCircle,
-} from "lucide-react";
-import { useMemo, useState } from "react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { PiggyBank, Shield, TrendingUp } from "lucide-react";
+import { useState } from "react";
 import {
   CartesianGrid,
-  Legend,
+  Cell,
   Line,
   LineChart,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -29,498 +31,376 @@ import {
 } from "recharts";
 import { useCurrency } from "../../contexts/CurrencyContext";
 
-function fmt(n: number, sym: string) {
-  if (n >= 1e7) return `${sym}${(n / 1e7).toFixed(2)}Cr`;
-  if (n >= 1e5) return `${sym}${(n / 1e5).toFixed(2)}L`;
-  return `${sym}${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+type RetirementRiskProfile = "conservative" | "moderate" | "aggressive";
+
+interface AllocationModel {
+  name: string;
+  allocation: Array<{ name: string; value: number; fill: string }>;
+  description: string;
+  expectedReturn: number;
 }
 
-export function ModelRetirementTab() {
-  const { country } = useCurrency();
-  const sym = country.symbol;
-  const [inputs, setInputs] = useState({
-    currentAge: 30,
-    retirementAge: 60,
-    currentSavings: 500000,
-    monthlyContribution: 20000,
+const allocationModels: Record<RetirementRiskProfile, AllocationModel> = {
+  conservative: {
+    name: "Conservative (Low Risk)",
+    allocation: [
+      { name: "Debt Mutual Funds", value: 40, fill: "#3b82f6" },
+      { name: "Fixed Deposits", value: 30, fill: "#f59e0b" },
+      { name: "Bonds", value: 20, fill: "#8b5cf6" },
+      { name: "Index ETFs", value: 10, fill: "#10b981" },
+    ],
+    description:
+      "Focus on capital preservation with minimal risk. Suitable for those nearing retirement or with low risk tolerance.",
+    expectedReturn: 7.5,
+  },
+  moderate: {
+    name: "Moderate (Balanced Risk)",
+    allocation: [
+      { name: "Debt Mutual Funds", value: 35, fill: "#3b82f6" },
+      { name: "Index ETFs", value: 30, fill: "#10b981" },
+      { name: "Fixed Deposits", value: 20, fill: "#f59e0b" },
+      { name: "Bonds", value: 15, fill: "#8b5cf6" },
+    ],
+    description:
+      "Balanced approach with moderate growth potential. Suitable for mid-career professionals planning retirement.",
+    expectedReturn: 9.5,
+  },
+  aggressive: {
+    name: "Aggressive (Higher Risk)",
+    allocation: [
+      { name: "Index ETFs", value: 40, fill: "#10b981" },
+      { name: "Debt Mutual Funds", value: 30, fill: "#3b82f6" },
+      { name: "Equity Mutual Funds", value: 20, fill: "#ef4444" },
+      { name: "Bonds", value: 10, fill: "#8b5cf6" },
+    ],
+    description:
+      "Growth-focused with higher risk tolerance. Suitable for younger investors with longer time horizons.",
     expectedReturn: 12,
-    inflationRate: 6,
-    monthlyExpense: 50000,
+  },
+};
+
+export function ModelRetirementTab() {
+  const { formatCurrency, country } = useCurrency();
+  const [selectedProfile, setSelectedProfile] =
+    useState<RetirementRiskProfile>("moderate");
+  const [initialCapital, setInitialCapital] = useState<string>("1000000");
+  const [monthlySIP, setMonthlySIP] = useState<string>("25000");
+  const [yearsToRetirement, setYearsToRetirement] = useState<string>("20");
+
+  const model = allocationModels[selectedProfile];
+  const capital = Number.parseFloat(initialCapital) || 0;
+  const sip = Number.parseFloat(monthlySIP) || 0;
+  const years = Number.parseInt(yearsToRetirement) || 20;
+
+  const calculateProjection = () => {
+    const monthlyRate = model.expectedReturn / 100 / 12;
+    const months = years * 12;
+    const lumpsumFV = capital * (1 + monthlyRate) ** months;
+    const sipFV =
+      sip *
+      (((1 + monthlyRate) ** months - 1) / monthlyRate) *
+      (1 + monthlyRate);
+    return lumpsumFV + sipFV;
+  };
+
+  const projectedCorpus = calculateProjection();
+
+  const projectionData = Array.from({ length: Math.min(years, 25) }, (_, i) => {
+    const year = i + 1;
+    const months = year * 12;
+    const monthlyRate = model.expectedReturn / 100 / 12;
+    const lumpsumFV = capital * (1 + monthlyRate) ** months;
+    const sipFV =
+      sip *
+      (((1 + monthlyRate) ** months - 1) / monthlyRate) *
+      (1 + monthlyRate);
+    return { year: `Year ${year}`, corpus: Math.round(lumpsumFV + sipFV) };
   });
 
-  const set =
-    (k: keyof typeof inputs) => (e: React.ChangeEvent<HTMLInputElement>) =>
-      setInputs((p) => ({ ...p, [k]: Number(e.target.value) }));
-
-  const result = useMemo(() => {
-    const years = inputs.retirementAge - inputs.currentAge;
-    const r = inputs.expectedReturn / 100 / 12;
-    const n = years * 12;
-    const corpus =
-      r === 0
-        ? inputs.currentSavings + inputs.monthlyContribution * n
-        : inputs.currentSavings * (1 + r) ** n +
-          inputs.monthlyContribution * (((1 + r) ** n - 1) / r);
-
-    const inflatedExpense =
-      inputs.monthlyExpense * (1 + inputs.inflationRate / 100) ** years;
-    const targetCorpus = (inflatedExpense * 12) / 0.04;
-
-    const ratio = corpus / targetCorpus;
-    const status =
-      ratio >= 1 ? "on-track" : ratio >= 0.7 ? "needs-attention" : "critical";
-
-    const chartData: { year: number; savings: number; target: number }[] = [];
-    for (let y = 0; y <= years; y += Math.max(1, Math.floor(years / 10))) {
-      const months = y * 12;
-      const sv =
-        r === 0
-          ? inputs.currentSavings + inputs.monthlyContribution * months
-          : inputs.currentSavings * (1 + r) ** months +
-            inputs.monthlyContribution * (((1 + r) ** months - 1) / r);
-      const targetAtY = targetCorpus * (y / years);
-      chartData.push({
-        year: inputs.currentAge + y,
-        savings: Math.round(sv),
-        target: Math.round(targetAtY),
-      });
-    }
-
-    const equityNow = Math.max(20, 100 - inputs.currentAge);
-    const equityAtRetirement = Math.max(20, 100 - inputs.retirementAge);
-
-    return {
-      corpus,
-      targetCorpus,
-      ratio,
-      status,
-      chartData,
-      equityNow,
-      equityAtRetirement,
-      years,
-      inflatedExpense,
-    };
-  }, [inputs]);
-
-  // FIRE number
-  const fireNumber = inputs.monthlyExpense * 12 * 25;
-  const fireSIPRate = inputs.expectedReturn / 100 / 12;
-  const fireMonths = (inputs.retirementAge - inputs.currentAge) * 12;
-  const fireSIPNeeded =
-    fireSIPRate === 0
-      ? (fireNumber - inputs.currentSavings) / fireMonths
-      : ((fireNumber -
-          inputs.currentSavings * (1 + fireSIPRate) ** fireMonths) *
-          fireSIPRate) /
-        ((1 + fireSIPRate) ** fireMonths - 1);
-
-  const statusConfig = {
-    "on-track": {
-      icon: CheckCircle,
-      color: "text-success",
-      label: "On Track",
-      badge: "default" as const,
-    },
-    "needs-attention": {
-      icon: AlertTriangle,
-      color: "text-warning",
-      label: "Needs Attention",
-      badge: "secondary" as const,
-    },
-    critical: {
-      icon: XCircle,
-      color: "text-destructive",
-      label: "Critical Gap",
-      badge: "destructive" as const,
-    },
-  };
-  const sc = statusConfig[result.status];
-  const StatusIcon = sc.icon;
-
-  const milestones = [
-    {
-      label: "Emergency Fund (6 months)",
-      value: inputs.monthlyExpense * 6,
-      age: inputs.currentAge + 1,
-    },
-    {
-      label: "First 25L milestone",
-      value: 2500000,
-      age:
-        inputs.currentAge +
-        Math.ceil(
-          (2500000 - inputs.currentSavings) / (inputs.monthlyContribution * 12),
-        ),
-    },
-    {
-      label: "Retirement corpus goal",
-      value: result.targetCorpus,
-      age: inputs.retirementAge,
-    },
-  ];
-
-  const retirementRules = [
-    {
-      rule: "25x Rule",
-      desc: "Corpus needed = 25x your annual expenses at retirement",
-      color: "text-blue-600",
-      bg: "bg-blue-50 dark:bg-blue-900/20",
-    },
-    {
-      rule: "4% SWR",
-      desc: "Withdraw 4% of corpus annually for 30+ year sustainability (Bengen, 1994)",
-      color: "text-green-600",
-      bg: "bg-green-50 dark:bg-green-900/20",
-    },
-    {
-      rule: "100 − Age",
-      desc: "Equity allocation % = 100 minus your age (classic glide path rule)",
-      color: "text-purple-600",
-      bg: "bg-purple-50 dark:bg-purple-900/20",
-    },
-    {
-      rule: "6-Month Fund",
-      desc: "Always keep 6 months of expenses in liquid assets before investing",
-      color: "text-amber-600",
-      bg: "bg-amber-50 dark:bg-amber-900/20",
-    },
-  ];
+  const allocationAmounts = model.allocation.map((item) => ({
+    ...item,
+    amount: (capital * item.value) / 100,
+  }));
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-premium-lg border-border/50 bg-gradient-to-br from-card to-muted/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-success/20 to-chart-2/20">
-              <PiggyBank className="h-6 w-6 text-success" />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="rounded-2xl shadow-sm border border-slate-100 bg-white">
+          <CardHeader
+            style={{ borderLeft: "3px solid #10b981", paddingLeft: "1.25rem" }}
+          >
+            <CardTitle className="text-base font-bold text-slate-800 flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Select Your Risk Profile
+            </CardTitle>
+            <CardDescription>
+              Choose a retirement strategy based on your risk tolerance
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-3">
+              <Label>Risk Profile</Label>
+              <Select
+                value={selectedProfile}
+                onValueChange={(value) =>
+                  setSelectedProfile(value as RetirementRiskProfile)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="conservative">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-emerald-500" />
+                      Conservative (Low Risk)
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="moderate">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-primary" />
+                      Moderate (Balanced)
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="aggressive">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-amber-500" />
+                      Aggressive (Growth)
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            Retirement Planning Model
+
+            <Alert>
+              <AlertDescription className="text-sm">
+                <strong>{model.name}</strong>
+                <p className="mt-1">{model.description}</p>
+                <p className="mt-2 text-xs">
+                  Expected Annual Return:{" "}
+                  <strong>{model.expectedReturn}%</strong>
+                </p>
+              </AlertDescription>
+            </Alert>
+
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label>Initial Capital ({country.symbol})</Label>
+                <Input
+                  type="number"
+                  value={initialCapital}
+                  onChange={(e) => setInitialCapital(e.target.value)}
+                  min="0"
+                  step="10000"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Monthly SIP ({country.symbol})</Label>
+                <Input
+                  type="number"
+                  value={monthlySIP}
+                  onChange={(e) => setMonthlySIP(e.target.value)}
+                  min="0"
+                  step="1000"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Years to Retirement</Label>
+                <Input
+                  type="number"
+                  value={yearsToRetirement}
+                  onChange={(e) => setYearsToRetirement(e.target.value)}
+                  min="1"
+                  max="40"
+                />
+              </div>
+            </div>
+
+            <Card className="bg-emerald-50 border-emerald-200">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Projected Retirement Corpus
+                  </p>
+                  <p className="text-3xl font-bold text-emerald-600">
+                    {formatCurrency(projectedCorpus)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    After {years} years at {model.expectedReturn}% annual return
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl shadow-sm border border-slate-100 bg-white">
+          <CardHeader
+            style={{ borderLeft: "3px solid #10b981", paddingLeft: "1.25rem" }}
+          >
+            <CardTitle className="text-base font-bold text-slate-800 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Suggested Asset Allocation
+            </CardTitle>
+            <CardDescription>
+              Recommended distribution for {model.name}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={model.allocation}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={(entry) =>
+                    `${entry.name.split(" ")[0]}: ${entry.value}%`
+                  }
+                  outerRadius={100}
+                  dataKey="value"
+                >
+                  {model.allocation.map((entry) => (
+                    <Cell key={entry.name} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: number) => `${value}%`}
+                  contentStyle={{ fontSize: "12px" }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+
+            <div className="space-y-2">
+              <h4 className="font-semibold text-sm mb-3">
+                Allocation Breakdown
+              </h4>
+              {allocationAmounts.map((item) => (
+                <div
+                  key={item.name}
+                  className="flex items-center justify-between p-2 rounded-lg bg-muted/30"
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: item.fill }}
+                    />
+                    <span className="text-sm">{item.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold">
+                      {formatCurrency(item.amount)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.value}%
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="rounded-2xl shadow-sm border border-slate-100 bg-white">
+        <CardHeader
+          style={{ borderLeft: "3px solid #10b981", paddingLeft: "1.25rem" }}
+        >
+          <CardTitle className="text-base font-bold text-slate-800 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Corpus Growth Projection
           </CardTitle>
-          <CardDescription className="text-base">
-            Project your retirement corpus and assess readiness using
-            industry-standard methods
+          <CardDescription>
+            Year-wise retirement corpus growth over {years} years
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Education callout */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-success/10 to-chart-2/10 border border-success/20">
-            <div className="flex items-start gap-3">
-              <BookOpen className="h-5 w-5 text-success shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <div className="font-semibold text-sm">
-                  4% Safe Withdrawal Rate — William Bengen, 1994
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Bengen's landmark study showed that withdrawing 4% of your
-                  retirement corpus annually (adjusted for inflation) has
-                  survived all historical 30-year periods without running out of
-                  money. This means you need 25x your annual expenses as your
-                  retirement corpus (the "25x Rule").
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Inputs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-xl bg-muted/30">
-            {(
-              [
-                { label: "Current Age", key: "currentAge", min: 18, max: 80 },
-                {
-                  label: "Retirement Age",
-                  key: "retirementAge",
-                  min: 40,
-                  max: 90,
-                },
-                {
-                  label: `Current Savings (${sym})`,
-                  key: "currentSavings",
-                  min: 0,
-                },
-                {
-                  label: `Monthly Contribution (${sym})`,
-                  key: "monthlyContribution",
-                  min: 0,
-                },
-                {
-                  label: "Expected Return (%)",
-                  key: "expectedReturn",
-                  min: 1,
-                  max: 30,
-                  step: 0.5,
-                },
-                {
-                  label: "Inflation Rate (%)",
-                  key: "inflationRate",
-                  min: 0,
-                  max: 20,
-                  step: 0.5,
-                },
-                {
-                  label: `Monthly Expense (${sym})`,
-                  key: "monthlyExpense",
-                  min: 0,
-                },
-              ] as {
-                label: string;
-                key: keyof typeof inputs;
-                min?: number;
-                max?: number;
-                step?: number;
-              }[]
-            ).map((f) => (
-              <div key={f.key} className="space-y-1">
-                <Label className="text-xs">{f.label}</Label>
-                <Input
-                  data-ocid={`financialmodel.retirement.${f.key}.input`}
-                  type="number"
-                  value={inputs[f.key]}
-                  onChange={set(f.key)}
-                  min={f.min}
-                  max={f.max}
-                  step={f.step ?? 1}
-                  className="h-8 text-sm"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-gradient-to-br from-primary/10 to-accent/10">
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">
-                  Projected Corpus at {inputs.retirementAge}
-                </p>
-                <p className="text-2xl font-bold text-primary mt-1">
-                  {fmt(result.corpus, sym)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-chart-1/10 to-chart-2/10">
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">
-                  Target Corpus (4% rule)
-                </p>
-                <p className="text-2xl font-bold mt-1">
-                  {fmt(result.targetCorpus, sym)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card
-              className={`bg-gradient-to-br ${result.status === "on-track" ? "from-success/10 to-chart-2/10" : result.status === "critical" ? "from-destructive/10 to-warning/10" : "from-warning/10 to-chart-3/10"}`}
-            >
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">
-                  Retirement Readiness
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <StatusIcon className={`h-6 w-6 ${sc.color}`} />
-                  <span className={`text-lg font-bold ${sc.color}`}>
-                    {sc.label}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {(result.ratio * 100).toFixed(0)}% funded
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Chart */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
-              Savings Growth Projection
-            </h3>
-            <ResponsiveContainer width="100%" height={260}>
-              <LineChart
-                data={result.chartData}
-                margin={{ top: 4, right: 16, left: 0, bottom: 4 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="hsl(var(--border))"
-                />
-                <XAxis
-                  dataKey="year"
-                  tick={{ fontSize: 11 }}
-                  label={{
-                    value: "Age",
-                    position: "insideBottomRight",
-                    offset: -4,
-                    fontSize: 11,
-                  }}
-                />
-                <YAxis
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(v) => fmt(v, sym)}
-                  width={70}
-                />
-                <Tooltip
-                  formatter={(v: number) => fmt(v, sym)}
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: "12px" }} />
-                <Line
-                  type="monotone"
-                  dataKey="savings"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  dot={false}
-                  name="Projected Savings"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="target"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  dot={false}
-                  name="Target Corpus"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Glide path */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="bg-gradient-to-br from-muted/30 to-transparent">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                  Age-Based Glide Path
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div className="flex justify-between items-center">
-                  <span>Equity now (age {inputs.currentAge})</span>
-                  <Badge variant="outline">{result.equityNow}%</Badge>
-                </div>
-                <div className="h-2.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary/70 rounded-full transition-all"
-                    style={{ width: `${result.equityNow}%` }}
-                  />
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>Debt now</span>
-                  <Badge variant="outline">{100 - result.equityNow}%</Badge>
-                </div>
-                <div className="h-px bg-border" />
-                <div className="flex justify-between items-center">
-                  <span>Equity at retirement (age {inputs.retirementAge})</span>
-                  <Badge variant="outline">{result.equityAtRetirement}%</Badge>
-                </div>
-                <div className="h-2.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-success/70 rounded-full transition-all"
-                    style={{ width: `${result.equityAtRetirement}%` }}
-                  />
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>Debt at retirement</span>
-                  <Badge variant="outline">
-                    {100 - result.equityAtRetirement}%
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-muted/30 to-transparent">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">Key Milestones</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {milestones.map((m) => (
-                  <div key={m.label} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{m.label}</span>
-                    <span className="font-semibold">{fmt(m.value, sym)}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* FIRE Number */}
-          <Card className="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-violet-200/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <span className="text-lg">🔥</span> FIRE Number — Financial
-                Independence, Retire Early
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Your FIRE number is the corpus that makes you financially
-                independent — the point at which your investments can fund your
-                lifestyle forever.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="p-3 rounded-lg bg-violet-100/50 dark:bg-violet-900/20">
-                  <div className="text-xs text-muted-foreground">
-                    Annual Expenses
-                  </div>
-                  <div className="font-bold text-violet-600">
-                    {fmt(inputs.monthlyExpense * 12, sym)}/yr
-                  </div>
-                </div>
-                <div className="p-3 rounded-lg bg-purple-100/50 dark:bg-purple-900/20">
-                  <div className="text-xs text-muted-foreground">
-                    FIRE Number (25x)
-                  </div>
-                  <div className="font-bold text-purple-700 text-lg">
-                    {fmt(fireNumber, sym)}
-                  </div>
-                </div>
-                <div className="p-3 rounded-lg bg-indigo-100/50 dark:bg-indigo-900/20">
-                  <div className="text-xs text-muted-foreground">
-                    SIP Needed to FIRE by {inputs.retirementAge}
-                  </div>
-                  <div className="font-bold text-indigo-600">
-                    {fireSIPNeeded > 0
-                      ? `${fmt(fireSIPNeeded, sym)}/mo`
-                      : "Already Funded!"}
-                  </div>
-                </div>
-              </div>
-              <div className="text-xs text-muted-foreground p-3 rounded-lg bg-muted/30">
-                <strong>How it works:</strong> Invest until your corpus = 25x
-                annual expenses. Then withdraw 4% per year — your investments
-                grow faster than you withdraw, making it theoretically infinite.
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Key Retirement Rules */}
-          <Card className="bg-gradient-to-br from-muted/20 to-transparent">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-primary" />
-                Key Retirement Rules Every Investor Must Know
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {retirementRules.map((r) => (
-                  <div key={r.rule} className={`p-3 rounded-lg ${r.bg}`}>
-                    <div className={`font-bold text-sm mb-1 ${r.color}`}>
-                      {r.rule}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {r.desc}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={350}>
+            <LineChart data={projectionData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="year"
+                tick={{ fontSize: 11 }}
+                angle={-45}
+                textAnchor="end"
+                height={80}
+              />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickFormatter={(value) => formatCurrency(value)}
+              />
+              <Tooltip
+                formatter={(value: number) => [formatCurrency(value), "Corpus"]}
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
+                  fontSize: "12px",
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="corpus"
+                stroke="#10b981"
+                strokeWidth={3}
+                dot={{ fill: "#10b981", r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card className="rounded-xl border border-indigo-100 bg-indigo-50/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <Shield className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <h4 className="font-semibold mb-1">Capital Preservation</h4>
+                <p className="text-sm text-muted-foreground">
+                  Focus on safer instruments to protect your retirement corpus
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl border border-emerald-100 bg-emerald-50/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <TrendingUp className="h-5 w-5 text-emerald-500 mt-0.5" />
+              <div>
+                <h4 className="font-semibold mb-1">Steady Income</h4>
+                <p className="text-sm text-muted-foreground">
+                  Generate regular income through dividends and interest
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl border border-amber-100 bg-amber-50/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <PiggyBank className="h-5 w-5 text-amber-500 mt-0.5" />
+              <div>
+                <h4 className="font-semibold mb-1">Tax Efficiency</h4>
+                <p className="text-sm text-muted-foreground">
+                  Optimize tax benefits through strategic asset allocation
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Alert>
+        <AlertDescription className="text-sm">
+          <strong>Disclaimer:</strong> This is a suggested model portfolio for
+          retirement planning based on industry standards. Actual returns may
+          vary based on market conditions. Please consult with a certified
+          financial advisor before making investment decisions. Past performance
+          does not guarantee future results.
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }

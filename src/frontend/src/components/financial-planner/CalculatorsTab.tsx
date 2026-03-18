@@ -56,6 +56,7 @@ import { FlatVsReducingCalculator } from "./calculators/FlatVsReducingCalculator
 import { GSTCalculator } from "./calculators/GSTCalculator";
 import { GoalCalculator } from "./calculators/GoalCalculator";
 import { GratuityCalculator } from "./calculators/GratuityCalculator";
+import { HLVCalculator } from "./calculators/HLVCalculator";
 import { HRACalculator } from "./calculators/HRACalculator";
 import { HomeLoanCalculator } from "./calculators/HomeLoanCalculator";
 import { InflationCalculator } from "./calculators/InflationCalculator";
@@ -111,7 +112,8 @@ type CalculatorId =
   | "debtincome"
   | "emergencysufficiency"
   | "retirementreadiness"
-  | "inflationimpact";
+  | "inflationimpact"
+  | "hlv";
 
 interface CalculatorItem {
   id: CalculatorId;
@@ -409,6 +411,20 @@ export function CalculatorsTab() {
       gradient: "from-pink-500 to-rose-600",
       calculators: [
         {
+          id: "hlv",
+          name: "Human Life Value (HLV)",
+          icon: Shield,
+          color: "bg-blue-600",
+          hoverColor: "hover:bg-blue-700",
+          keywords: [
+            "hlv",
+            "human life value",
+            "insurance",
+            "irdai",
+            "life cover",
+          ],
+        },
+        {
           id: "childedu",
           name: "Child Education Planner",
           icon: Baby,
@@ -547,6 +563,8 @@ export function CalculatorsTab() {
         return <DebtToIncomeCalculator />;
       case "inflationimpact":
         return <InflationImpactPlanner />;
+      case "hlv":
+        return <HLVCalculator />;
       default:
         return null;
     }

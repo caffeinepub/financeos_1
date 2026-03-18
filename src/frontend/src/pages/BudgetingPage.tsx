@@ -293,18 +293,21 @@ export default function BudgetingPage() {
 
   return (
     <div data-ocid="budgeting.page" className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-800">Budgeting</h2>
-        <p className="text-slate-500 text-sm mt-1">
-          Track monthly income, planned expenses, and actual spending
-        </p>
+      <div className="flex items-center gap-2.5">
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{ background: "linear-gradient(135deg, #7c3aed, #a78bfa)" }}
+        >
+          <PiggyBank className="w-4 h-4 text-white" />
+        </div>
+        <h1 className="text-lg font-bold text-slate-800">Budgeting</h1>
       </div>
 
       <Tabs defaultValue="categories">
         <TabsList data-ocid="budgeting.tab">
-          <TabsTrigger value="categories">Budget Categories</TabsTrigger>
-          <TabsTrigger value="expenses">Income &amp; Expenses</TabsTrigger>
-          <TabsTrigger value="tracker">Monthly Tracker</TabsTrigger>
+          <TabsTrigger value="categories">Plan Budget</TabsTrigger>
+          <TabsTrigger value="expenses">Track Income & Expenses</TabsTrigger>
+          <TabsTrigger value="tracker">Budget Insights</TabsTrigger>
         </TabsList>
 
         <TabsContent value="categories" className="space-y-4 mt-4">

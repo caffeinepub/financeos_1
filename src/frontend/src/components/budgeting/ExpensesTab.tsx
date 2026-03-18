@@ -65,6 +65,13 @@ export function ExpensesTab() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<"All" | TransactionType>("All");
+  const _now = new Date();
+  const [filterMonth, setFilterMonth] = useState<number | "all">(
+    _now.getMonth(),
+  );
+  const [filterYear, setFilterYear] = useState<number | "all">(
+    _now.getFullYear(),
+  );
 
   const load = () => {
     if (!actor) return;
@@ -124,16 +131,11 @@ export function ExpensesTab() {
       t.description.toLowerCase().includes(search.toLowerCase()) ||
       t.account.toLowerCase().includes(search.toLowerCase());
     const matchType = typeFilter === "All" || t.transactionType === typeFilter;
-    return matchSearch && matchType;
+    const td = new Date(t.date);
+    const matchMonth = filterMonth === "all" || td.getMonth() === filterMonth;
+    const matchYear = filterYear === "all" || td.getFullYear() === filterYear;
+    return matchSearch && matchType && matchMonth && matchYear;
   });
-
-  const allIncome = transactions
-    .filter((t) => t.transactionType === TransactionType.Income)
-    .reduce((s, t) => s + t.amount, 0);
-  const allExpense = transactions
-    .filter((t) => t.transactionType === TransactionType.Expense)
-    .reduce((s, t) => s + t.amount, 0);
-  const netBalance = allIncome - allExpense;
 
   const filteredIncome = filtered
     .filter((t) => t.transactionType === TransactionType.Income)
@@ -141,6 +143,7 @@ export function ExpensesTab() {
   const filteredExpense = filtered
     .filter((t) => t.transactionType === TransactionType.Expense)
     .reduce((s, t) => s + t.amount, 0);
+  const netBalance = filteredIncome - filteredExpense;
 
   if (loading) {
     return (
@@ -239,7 +242,7 @@ export function ExpensesTab() {
             </span>
           </div>
           <div className="text-xl font-bold text-green-600">
-            {fmt(allIncome)}
+            {fmt(filteredIncome)}
           </div>
         </div>
         <div className="rounded-xl border border-border bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 p-4">
@@ -250,7 +253,7 @@ export function ExpensesTab() {
             </span>
           </div>
           <div className="text-xl font-bold text-red-500">
-            {fmt(allExpense)}
+            {fmt(filteredExpense)}
           </div>
         </div>
         <div className="rounded-xl border border-border bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4">
@@ -266,6 +269,55 @@ export function ExpensesTab() {
             {fmt(netBalance)}
           </div>
         </div>
+      </div>
+
+      {/* Month/Year Filter */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <select
+          data-ocid="expenses.month.select"
+          className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+          value={filterMonth === "all" ? "all" : String(filterMonth)}
+          onChange={(e) =>
+            setFilterMonth(
+              e.target.value === "all" ? "all" : Number(e.target.value),
+            )
+          }
+        >
+          <option value="all">All Months</option>
+          <option value="0">January</option>
+          <option value="1">February</option>
+          <option value="2">March</option>
+          <option value="3">April</option>
+          <option value="4">May</option>
+          <option value="5">June</option>
+          <option value="6">July</option>
+          <option value="7">August</option>
+          <option value="8">September</option>
+          <option value="9">October</option>
+          <option value="10">November</option>
+          <option value="11">December</option>
+        </select>
+        <select
+          data-ocid="expenses.year.select"
+          className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+          value={filterYear === "all" ? "all" : String(filterYear)}
+          onChange={(e) =>
+            setFilterYear(
+              e.target.value === "all" ? "all" : Number(e.target.value),
+            )
+          }
+        >
+          <option value="all">All Years</option>
+          {[
+            new Date().getFullYear(),
+            new Date().getFullYear() - 1,
+            new Date().getFullYear() - 2,
+          ].map((yr) => (
+            <option key={yr} value={yr}>
+              {yr}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Filters + Add */}

@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -6,728 +5,471 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { BarChart3, PieChart, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
-  Activity,
-  BarChart2,
-  BookOpen,
-  Briefcase,
-  TrendingUp,
-} from "lucide-react";
-import { useState } from "react";
-import {
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart as RechartsPie,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
-type Strategy = "growth" | "value" | "dividend" | "index" | "india";
+const RiskProfile = {
+  conservative: "conservative",
+  moderate: "moderate",
+  high: "high",
+} as const;
+type RiskProfile = (typeof RiskProfile)[keyof typeof RiskProfile];
 
-interface Holding {
-  ticker: string;
+type AssetAllocation = {
   name: string;
-  sector: string;
-  weight: number;
-  rationale: string;
-  dividendYield?: string;
-}
-
-const portfolios: Record<
-  Strategy,
-  {
-    holdings: Holding[];
-    metrics: {
-      expectedReturn: string;
-      volatility: string;
-      sharpeRatio: string;
-    };
-    description: string;
-    color: string;
-    bgGradient: string;
-  }
-> = {
-  india: {
-    description:
-      "India-focused large-cap portfolio aligned with Nifty 50 market leaders",
-    color: "from-orange-500 to-amber-500",
-    bgGradient: "from-orange-500/10 to-amber-500/10",
-    holdings: [
-      {
-        ticker: "RELIANCE",
-        name: "Reliance Industries",
-        sector: "Conglomerate",
-        weight: 12,
-        rationale: "Energy-to-telecom diversified giant",
-      },
-      {
-        ticker: "TCS",
-        name: "Tata Consultancy Services",
-        sector: "IT Services",
-        weight: 10,
-        rationale: "IT export leader, global delivery model",
-      },
-      {
-        ticker: "HDFC BANK",
-        name: "HDFC Bank",
-        sector: "Private Banking",
-        weight: 10,
-        rationale: "Best-in-class Indian private bank",
-      },
-      {
-        ticker: "INFOSYS",
-        name: "Infosys Ltd",
-        sector: "IT Services",
-        weight: 8,
-        rationale: "Consulting + digital transformation",
-      },
-      {
-        ticker: "ICICI BANK",
-        name: "ICICI Bank",
-        sector: "Private Banking",
-        weight: 8,
-        rationale: "Retail banking + ICICI Pru insurance",
-      },
-      {
-        ticker: "HINDUNILVR",
-        name: "Hindustan Unilever",
-        sector: "FMCG",
-        weight: 7,
-        rationale: "India consumer brand portfolio leader",
-      },
-      {
-        ticker: "KOTAKBANK",
-        name: "Kotak Mahindra Bank",
-        sector: "Private Banking",
-        weight: 7,
-        rationale: "Premium banking + asset management",
-      },
-      {
-        ticker: "BHARTIARTL",
-        name: "Bharti Airtel",
-        sector: "Telecom",
-        weight: 6,
-        rationale: "Telecom duopoly + Africa growth",
-      },
-      {
-        ticker: "LT",
-        name: "Larsen & Toubro",
-        sector: "Engineering",
-        weight: 6,
-        rationale: "Infra + defence capex play",
-      },
-      {
-        ticker: "ASIANPAINT",
-        name: "Asian Paints",
-        sector: "FMCG / Paints",
-        weight: 5,
-        rationale: "Dominant paint market share + pricing power",
-      },
-      {
-        ticker: "MARUTI",
-        name: "Maruti Suzuki",
-        sector: "Automobiles",
-        weight: 5,
-        rationale: "India's top passenger vehicle maker",
-      },
-      {
-        ticker: "SUNPHARMA",
-        name: "Sun Pharmaceutical",
-        sector: "Pharma",
-        weight: 4,
-        rationale: "Largest Indian pharma + US generics",
-      },
-      {
-        ticker: "TITAN",
-        name: "Titan Company",
-        sector: "Jewellery / Watches",
-        weight: 4,
-        rationale: "Premium consumer brand with strong moat",
-      },
-      {
-        ticker: "WIPRO",
-        name: "Wipro Ltd",
-        sector: "IT Services",
-        weight: 4,
-        rationale: "IT services + cloud transformation",
-      },
-    ],
-    metrics: {
-      expectedReturn: "12–16%",
-      volatility: "Medium",
-      sharpeRatio: "1.1",
-    },
-  },
-  growth: {
-    description: "High-growth technology and innovation-focused companies",
-    color: "from-primary to-accent",
-    bgGradient: "from-primary/10 to-accent/10",
-    holdings: [
-      {
-        ticker: "AAPL",
-        name: "Apple Inc.",
-        sector: "Technology",
-        weight: 15,
-        rationale: "Ecosystem dominance & services growth",
-      },
-      {
-        ticker: "MSFT",
-        name: "Microsoft Corp.",
-        sector: "Technology",
-        weight: 15,
-        rationale: "Cloud & AI leadership with Azure",
-      },
-      {
-        ticker: "NVDA",
-        name: "NVIDIA Corp.",
-        sector: "Semiconductors",
-        weight: 12,
-        rationale: "AI infrastructure backbone",
-      },
-      {
-        ticker: "GOOGL",
-        name: "Alphabet Inc.",
-        sector: "Technology",
-        weight: 10,
-        rationale: "Search monopoly + cloud growth",
-      },
-      {
-        ticker: "AMZN",
-        name: "Amazon.com",
-        sector: "E-Commerce",
-        weight: 10,
-        rationale: "AWS cloud + retail dominance",
-      },
-      {
-        ticker: "META",
-        name: "Meta Platforms",
-        sector: "Social Media",
-        weight: 8,
-        rationale: "Ad revenue recovery + Reels",
-      },
-      {
-        ticker: "TSLA",
-        name: "Tesla Inc.",
-        sector: "EV / Energy",
-        weight: 8,
-        rationale: "EV market leader + energy storage",
-      },
-      {
-        ticker: "AMD",
-        name: "Advanced Micro Devices",
-        sector: "Semiconductors",
-        weight: 7,
-        rationale: "CPU/GPU challenger",
-      },
-      {
-        ticker: "NFLX",
-        name: "Netflix Inc.",
-        sector: "Streaming",
-        weight: 8,
-        rationale: "Streaming profitability inflection",
-      },
-      {
-        ticker: "ADBE",
-        name: "Adobe Inc.",
-        sector: "Software",
-        weight: 7,
-        rationale: "Creative cloud + AI tools moat",
-      },
-    ],
-    metrics: {
-      expectedReturn: "15–20%",
-      volatility: "High",
-      sharpeRatio: "1.2",
-    },
-  },
-  value: {
-    description: "Undervalued blue-chip companies with strong fundamentals",
-    color: "from-chart-1 to-chart-2",
-    bgGradient: "from-chart-1/10 to-chart-2/10",
-    holdings: [
-      {
-        ticker: "BRK.B",
-        name: "Berkshire Hathaway",
-        sector: "Conglomerate",
-        weight: 15,
-        rationale: "Buffett-managed diversified value play",
-      },
-      {
-        ticker: "JPM",
-        name: "JPMorgan Chase",
-        sector: "Banking",
-        weight: 12,
-        rationale: "Best-in-class US bank by ROE",
-      },
-      {
-        ticker: "JNJ",
-        name: "Johnson & Johnson",
-        sector: "Healthcare",
-        weight: 10,
-        rationale: "Pharma + medtech diversification",
-      },
-      {
-        ticker: "PG",
-        name: "Procter & Gamble",
-        sector: "Consumer Staples",
-        weight: 10,
-        rationale: "Recession-proof consumer brands",
-      },
-      {
-        ticker: "KO",
-        name: "Coca-Cola Co.",
-        sector: "Beverages",
-        weight: 10,
-        rationale: "Global brand moat + pricing power",
-      },
-      {
-        ticker: "WMT",
-        name: "Walmart Inc.",
-        sector: "Retail",
-        weight: 10,
-        rationale: "Low-cost retail dominance",
-      },
-      {
-        ticker: "XOM",
-        name: "Exxon Mobil",
-        sector: "Energy",
-        weight: 8,
-        rationale: "Energy transition beneficiary",
-      },
-      {
-        ticker: "CVX",
-        name: "Chevron Corp.",
-        sector: "Energy",
-        weight: 8,
-        rationale: "Strong cash flow + dividend",
-      },
-      {
-        ticker: "T",
-        name: "AT&T Inc.",
-        sector: "Telecom",
-        weight: 9,
-        rationale: "Deep value + high yield",
-      },
-      {
-        ticker: "VZ",
-        name: "Verizon Comm.",
-        sector: "Telecom",
-        weight: 8,
-        rationale: "5G infrastructure + stable cash",
-      },
-    ],
-    metrics: {
-      expectedReturn: "8–12%",
-      volatility: "Low-Medium",
-      sharpeRatio: "0.9",
-    },
-  },
-  dividend: {
-    description: "High-yield dividend payers for income-focused investors",
-    color: "from-success to-chart-2",
-    bgGradient: "from-success/10 to-chart-2/10",
-    holdings: [
-      {
-        ticker: "T",
-        name: "AT&T Inc.",
-        sector: "Telecom",
-        weight: 12,
-        rationale: "7%+ dividend yield",
-        dividendYield: "7.2%",
-      },
-      {
-        ticker: "VZ",
-        name: "Verizon Comm.",
-        sector: "Telecom",
-        weight: 10,
-        rationale: "Stable telecom dividend",
-        dividendYield: "6.8%",
-      },
-      {
-        ticker: "KO",
-        name: "Coca-Cola Co.",
-        sector: "Beverages",
-        weight: 10,
-        rationale: "Dividend King 60+ years",
-        dividendYield: "3.1%",
-      },
-      {
-        ticker: "JNJ",
-        name: "Johnson & Johnson",
-        sector: "Healthcare",
-        weight: 10,
-        rationale: "Dividend Aristocrat",
-        dividendYield: "3.0%",
-      },
-      {
-        ticker: "PG",
-        name: "Procter & Gamble",
-        sector: "Consumer",
-        weight: 10,
-        rationale: "66-year dividend growth streak",
-        dividendYield: "2.5%",
-      },
-      {
-        ticker: "XOM",
-        name: "Exxon Mobil",
-        sector: "Energy",
-        weight: 8,
-        rationale: "Increased dividend 40+ years",
-        dividendYield: "3.8%",
-      },
-      {
-        ticker: "CVX",
-        name: "Chevron Corp.",
-        sector: "Energy",
-        weight: 8,
-        rationale: "Dividend Aristocrat",
-        dividendYield: "4.1%",
-      },
-      {
-        ticker: "MO",
-        name: "Altria Group",
-        sector: "Tobacco",
-        weight: 8,
-        rationale: "Highest S&P 500 yield",
-        dividendYield: "8.9%",
-      },
-      {
-        ticker: "PM",
-        name: "Philip Morris",
-        sector: "Tobacco",
-        weight: 8,
-        rationale: "International smoke-free pivot",
-        dividendYield: "5.5%",
-      },
-      {
-        ticker: "MMM",
-        name: "3M Company",
-        sector: "Industrial",
-        weight: 8,
-        rationale: "64-year dividend streak",
-        dividendYield: "5.8%",
-      },
-    ],
-    metrics: { expectedReturn: "6–9%", volatility: "Low", sharpeRatio: "0.8" },
-  },
-  index: {
-    description: "Passive index fund strategy with broad market exposure",
-    color: "from-warning to-chart-3",
-    bgGradient: "from-warning/10 to-chart-3/10",
-    holdings: [
-      {
-        ticker: "SPY",
-        name: "SPDR S&P 500 ETF",
-        sector: "US Large Cap",
-        weight: 40,
-        rationale: "Core US market exposure",
-      },
-      {
-        ticker: "QQQ",
-        name: "Invesco QQQ Trust",
-        sector: "US Tech",
-        weight: 20,
-        rationale: "NASDAQ-100 tech tilt",
-      },
-      {
-        ticker: "VTI",
-        name: "Vanguard Total Market",
-        sector: "US Total Market",
-        weight: 15,
-        rationale: "Broad US equity coverage",
-      },
-      {
-        ticker: "IWM",
-        name: "iShares Russell 2000",
-        sector: "US Small Cap",
-        weight: 10,
-        rationale: "Small-cap diversification",
-      },
-      {
-        ticker: "EFA",
-        name: "iShares MSCI EAFE",
-        sector: "International Dev.",
-        weight: 10,
-        rationale: "Developed market exposure",
-      },
-      {
-        ticker: "VWO",
-        name: "Vanguard FTSE EM",
-        sector: "Emerging Markets",
-        weight: 5,
-        rationale: "EM growth potential",
-      },
-    ],
-    metrics: {
-      expectedReturn: "8–10%",
-      volatility: "Medium",
-      sharpeRatio: "1.0",
-    },
-  },
+  allocation: number;
 };
-
-const COLORS = [
-  "#3b82f6",
-  "#10b981",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#ec4899",
-  "#06b6d4",
-  "#14b8a6",
-  "#f97316",
-  "#84cc16",
-  "#a78bfa",
-  "#fb923c",
-  "#34d399",
-  "#60a5fa",
-];
-
-const strategyLabels: Record<Strategy, string> = {
-  india: "India",
-  growth: "Growth",
-  value: "Value",
-  dividend: "Dividend",
-  index: "Index",
-};
-
-const factorInvesting = [
-  {
-    factor: "Quality",
-    desc: "High ROE/ROCE, low debt, consistent earnings",
-    color: "text-blue-600",
-    bg: "bg-blue-50 dark:bg-blue-900/20",
-  },
-  {
-    factor: "Value",
-    desc: "Low P/E, P/B ratios vs peers; margin of safety",
-    color: "text-green-600",
-    bg: "bg-green-50 dark:bg-green-900/20",
-  },
-  {
-    factor: "Momentum",
-    desc: "Stocks trending upward; 52-week high breakouts",
-    color: "text-purple-600",
-    bg: "bg-purple-50 dark:bg-purple-900/20",
-  },
-  {
-    factor: "Low Vol",
-    desc: "Beta < 1; less volatile than market; steady compounders",
-    color: "text-amber-600",
-    bg: "bg-amber-50 dark:bg-amber-900/20",
-  },
-];
 
 export function ModelPortfolioTab() {
-  const [strategy, setStrategy] = useState<Strategy>("india");
-  const port = portfolios[strategy];
+  const { formatCurrency, country } = useCurrency();
+  const [riskProfile, setRiskProfile] = useState<RiskProfile>(
+    RiskProfile.moderate,
+  );
+  const [portfolioType, setPortfolioType] = useState<
+    "mutualFunds" | "etf" | "both"
+  >("both");
+  const [initialCapital, setInitialCapital] = useState<string>("100000");
+  const [investmentType, setInvestmentType] = useState<
+    "sip" | "lumpsum" | null
+  >(null);
+  const [sipAmount, setSipAmount] = useState<string>("5000");
+  const [allocations, setAllocations] = useState<AssetAllocation[]>([]);
+  const [forecastData, setForecastData] = useState<
+    Array<{ year: number; value: number }>
+  >([]);
 
-  const chartData = port.holdings.slice(0, 10).map((h, i) => ({
-    name: h.ticker,
-    weight: h.weight,
-    fill: COLORS[i % COLORS.length],
-  }));
+  const COLORS = [
+    "#0088FE",
+    "#00C49F",
+    "#FFBB28",
+    "#FF8042",
+    "#8884D8",
+    "#82CA9D",
+    "#FFC658",
+    "#FF6B9D",
+  ];
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: functions are stable
+  useEffect(() => {
+    generateModelPortfolio();
+  }, [riskProfile, portfolioType, initialCapital]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: functions are stable
+  useEffect(() => {
+    if (investmentType && allocations.length > 0) {
+      generateForecast();
+    }
+  }, [investmentType, sipAmount, initialCapital, riskProfile, allocations]);
+
+  const generateModelPortfolio = () => {
+    const assets: AssetAllocation[] = [];
+
+    if (portfolioType === "mutualFunds" || portfolioType === "both") {
+      if (riskProfile === RiskProfile.conservative) {
+        assets.push(
+          { name: "Balanced Advantage Fund", allocation: 25 },
+          { name: "Debt Fund", allocation: 30 },
+          { name: "Multi-Asset Fund", allocation: 25 },
+          { name: "Liquid Fund", allocation: 20 },
+        );
+      } else if (riskProfile === RiskProfile.moderate) {
+        assets.push(
+          { name: "Large Cap Fund", allocation: 30 },
+          { name: "Flexi Cap Fund", allocation: 25 },
+          { name: "Multi-Cap Fund", allocation: 25 },
+          { name: "Mid Cap Fund", allocation: 20 },
+        );
+      } else {
+        assets.push(
+          { name: "Flexi Cap Fund", allocation: 30 },
+          { name: "Small Cap Fund", allocation: 25 },
+          { name: "Mid Cap Fund", allocation: 25 },
+          { name: "Multi-Cap Fund", allocation: 20 },
+        );
+      }
+    }
+
+    if (portfolioType === "etf" || portfolioType === "both") {
+      if (riskProfile === RiskProfile.conservative) {
+        assets.push(
+          { name: "Large Cap Index ETF", allocation: 40 },
+          { name: "Nifty 50 ETF", allocation: 35 },
+          { name: "Banking Sector ETF", allocation: 25 },
+        );
+      } else if (riskProfile === RiskProfile.moderate) {
+        assets.push(
+          { name: "Nifty 50 ETF", allocation: 35 },
+          { name: "Large Cap ETF", allocation: 30 },
+          { name: "Midcap 100 ETF", allocation: 35 },
+        );
+      } else {
+        assets.push(
+          { name: "Nifty Next 50 ETF", allocation: 35 },
+          { name: "International Index ETF", allocation: 35 },
+          { name: "Smallcap ETF", allocation: 30 },
+        );
+      }
+    }
+
+    const totalAllocation = assets.reduce(
+      (sum, asset) => sum + asset.allocation,
+      0,
+    );
+    const normalizedAssets = assets.map((asset) => ({
+      ...asset,
+      allocation: (asset.allocation / totalAllocation) * 100,
+    }));
+
+    setAllocations(normalizedAssets);
+  };
+
+  const generateForecast = () => {
+    const capital = Number.parseFloat(initialCapital) || 0;
+    const sip = Number.parseFloat(sipAmount) || 0;
+    const expectedReturn =
+      riskProfile === RiskProfile.conservative
+        ? 0.08
+        : riskProfile === RiskProfile.moderate
+          ? 0.12
+          : 0.15;
+
+    const data: Array<{ year: number; value: number }> = [];
+
+    if (investmentType === "lumpsum") {
+      for (let year = 0; year <= 25; year++) {
+        const value = capital * (1 + expectedReturn) ** year;
+        data.push({ year, value });
+      }
+    } else if (investmentType === "sip") {
+      for (let year = 0; year <= 25; year++) {
+        const lumpsumValue = capital * (1 + expectedReturn) ** year;
+        const sipValue =
+          sip * 12 * (((1 + expectedReturn) ** year - 1) / expectedReturn);
+        data.push({ year, value: lumpsumValue + sipValue });
+      }
+    }
+
+    setForecastData(data);
+  };
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-premium-lg border-border/50 bg-gradient-to-br from-card to-muted/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20">
-              <Briefcase className="h-6 w-6 text-primary" />
-            </div>
-            Model Portfolio
+      <Card className="rounded-2xl shadow-sm border border-slate-100 bg-white">
+        <CardHeader
+          style={{ borderLeft: "3px solid #2563eb", paddingLeft: "1.25rem" }}
+        >
+          <CardTitle className="text-base font-bold text-slate-800 flex items-center gap-2">
+            <PieChart className="h-5 w-5" />
+            Portfolio Configuration
           </CardTitle>
-          <CardDescription className="text-base">
-            Recommended equity portfolios for different investment strategies
+          <CardDescription>
+            Configure your investment preferences - portfolio updates
+            automatically
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Strategy selector */}
-          <div className="flex flex-wrap gap-3">
-            {(Object.keys(portfolios) as Strategy[]).map((key) => (
-              <button
-                type="button"
-                key={key}
-                data-ocid={`financialmodel.portfolio.${key}.tab`}
-                onClick={() => setStrategy(key)}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                  strategy === key
-                    ? `bg-gradient-to-r ${portfolios[key].color} text-white shadow-md`
-                    : "bg-muted hover:bg-muted/80 text-muted-foreground"
-                }`}
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label>Investor Risk Profile</Label>
+              <Select
+                value={riskProfile}
+                onValueChange={(value) => setRiskProfile(value as RiskProfile)}
               >
-                {strategyLabels[key]}
-              </button>
-            ))}
-          </div>
-
-          <p className="text-sm text-muted-foreground">{port.description}</p>
-
-          {/* Metrics */}
-          <div className="grid grid-cols-3 gap-4">
-            <Card className={`bg-gradient-to-br ${port.bgGradient}`}>
-              <CardContent className="p-4 flex flex-col gap-1">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <TrendingUp className="h-4 w-4" /> Expected Return
-                </div>
-                <div className="text-xl font-bold">
-                  {port.metrics.expectedReturn}
-                </div>
-              </CardContent>
-            </Card>
-            <Card className={`bg-gradient-to-br ${port.bgGradient}`}>
-              <CardContent className="p-4 flex flex-col gap-1">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Activity className="h-4 w-4" /> Volatility
-                </div>
-                <div className="text-xl font-bold">
-                  {port.metrics.volatility}
-                </div>
-              </CardContent>
-            </Card>
-            <Card className={`bg-gradient-to-br ${port.bgGradient}`}>
-              <CardContent className="p-4 flex flex-col gap-1">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <BarChart2 className="h-4 w-4" /> Sharpe Ratio
-                </div>
-                <div className="text-xl font-bold">
-                  {port.metrics.sharpeRatio}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Chart + Table */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
-                Weight Distribution
-              </h3>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 4, right: 8, left: -20, bottom: 4 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                  />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 10 }}
-                    angle={-15}
-                    textAnchor="end"
-                    height={40}
-                  />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    formatter={(v: number) => `${v}%`}
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                      fontSize: "12px",
-                    }}
-                  />
-                  <Bar dataKey="weight" radius={[4, 4, 0, 0]}>
-                    {chartData.map((entry) => (
-                      <Cell key={entry.name} fill={entry.fill} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={RiskProfile.conservative}>
+                    Conservative
+                  </SelectItem>
+                  <SelectItem value={RiskProfile.moderate}>Moderate</SelectItem>
+                  <SelectItem value={RiskProfile.high}>Aggressive</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+            <div className="space-y-2">
+              <Label>Portfolio Type</Label>
+              <Select
+                value={portfolioType}
+                onValueChange={(value) =>
+                  setPortfolioType(value as "mutualFunds" | "etf" | "both")
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mutualFunds">Mutual Funds</SelectItem>
+                  <SelectItem value="etf">ETF</SelectItem>
+                  <SelectItem value="both">Both</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Base Initial Capital ({country.symbol})</Label>
+              <Input
+                type="number"
+                value={initialCapital}
+                onChange={(e) => setInitialCapital(e.target.value)}
+                placeholder="100000"
+              />
+            </div>
+          </div>
 
-            <div>
-              <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
-                Holdings
-              </h3>
-              <div className="rounded-lg border border-border overflow-hidden">
-                <div className="max-h-64 overflow-y-auto">
-                  <Table data-ocid="financialmodel.portfolio.table">
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead className="text-xs">Ticker</TableHead>
-                        <TableHead className="text-xs">Sector</TableHead>
-                        <TableHead className="text-xs text-right">
-                          Wt%
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {port.holdings.map((h, i) => (
-                        <TableRow
-                          key={h.ticker}
-                          data-ocid={`financialmodel.portfolio.item.${i + 1}`}
-                          className="hover:bg-muted/30"
+          {allocations.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">
+                      Asset Allocation
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <RechartsPie>
+                        <Pie
+                          data={allocations}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, allocation }) =>
+                            `${name.split(" ")[0]}: ${allocation.toFixed(1)}%`
+                          }
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="allocation"
                         >
-                          <TableCell className="py-1.5">
-                            <div
-                              className="font-mono font-bold text-xs"
-                              style={{ color: COLORS[i % COLORS.length] }}
-                            >
-                              {h.ticker}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {h.rationale}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-xs py-1.5">
-                            <Badge variant="outline" className="text-xs">
-                              {h.sector}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right text-xs font-semibold py-1.5">
-                            {h.weight}%
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            </div>
-          </div>
+                          {allocations.map((item, index) => (
+                            <Cell
+                              key={item.name}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value: number) => `${value.toFixed(2)}%`}
+                        />
+                        <Legend />
+                      </RechartsPie>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
 
-          {/* Factor Investing Education */}
-          <Card className="bg-gradient-to-br from-muted/20 to-transparent border-border/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-primary" />
-                Factor Investing — What Drives Returns?
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Academic research (Fama-French) identifies systematic factors
-                that consistently outperform the market over time.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {factorInvesting.map((f) => (
-                  <div key={f.factor} className={`p-3 rounded-lg ${f.bg}`}>
-                    <div className={`font-semibold text-sm mb-1 ${f.color}`}>
-                      {f.factor}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">
+                      Portfolio Details
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {allocations.map((asset, index) => (
+                        <div
+                          key={asset.name}
+                          className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-4 h-4 rounded"
+                              style={{
+                                backgroundColor: COLORS[index % COLORS.length],
+                              }}
+                            />
+                            <span className="text-sm font-medium">
+                              {asset.name}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold">
+                              {asset.allocation.toFixed(2)}%
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatCurrency(
+                                ((Number.parseFloat(initialCapital) || 0) *
+                                  asset.allocation) /
+                                  100,
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {f.desc}
-                    </div>
-                  </div>
-                ))}
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
+
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    Investment Strategy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setInvestmentType("sip")}
+                      className={`h-auto py-4 rounded-lg border-2 transition-all ${
+                        investmentType === "sip"
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="text-center">
+                        <TrendingUp className="h-6 w-6 mx-auto mb-2" />
+                        <p className="font-semibold">SIP Investment</p>
+                        <p className="text-xs text-muted-foreground">
+                          Systematic Investment Plan
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setInvestmentType("lumpsum")}
+                      className={`h-auto py-4 rounded-lg border-2 transition-all ${
+                        investmentType === "lumpsum"
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="text-center">
+                        <BarChart3 className="h-6 w-6 mx-auto mb-2" />
+                        <p className="font-semibold">Lumpsum Investment</p>
+                        <p className="text-xs text-muted-foreground">
+                          One-time Investment
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                  {investmentType === "sip" && (
+                    <div className="space-y-2">
+                      <Label>Monthly SIP Amount ({country.symbol})</Label>
+                      <Input
+                        type="number"
+                        value={sipAmount}
+                        onChange={(e) => setSipAmount(e.target.value)}
+                        placeholder="5000"
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {forecastData.length > 0 && (
+                <Card className="mt-6">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      25-Year Portfolio Forecast
+                    </CardTitle>
+                    <CardDescription>
+                      Projected portfolio value over 25 years (
+                      {investmentType === "sip" ? "SIP" : "Lumpsum"} investment)
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <LineChart data={forecastData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="year"
+                          label={{
+                            value: "Years",
+                            position: "insideBottom",
+                            offset: -5,
+                          }}
+                        />
+                        <YAxis
+                          tickFormatter={(value) => formatCurrency(value)}
+                        />
+                        <Tooltip
+                          formatter={(value: number) => formatCurrency(value)}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="hsl(var(--primary))"
+                          strokeWidth={3}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                      <Card className="bg-blue-500/5 border-blue-500/20">
+                        <CardContent className="pt-6">
+                          <div className="text-center space-y-1">
+                            <p className="text-xs text-muted-foreground">
+                              Initial Investment
+                            </p>
+                            <p className="text-xl font-bold text-blue-600">
+                              {formatCurrency(
+                                Number.parseFloat(initialCapital) || 0,
+                              )}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-green-500/5 border-green-500/20">
+                        <CardContent className="pt-6">
+                          <div className="text-center space-y-1">
+                            <p className="text-xs text-muted-foreground">
+                              Projected Value (25Y)
+                            </p>
+                            <p className="text-xl font-bold text-green-600">
+                              {formatCurrency(
+                                forecastData[forecastData.length - 1]?.value ||
+                                  0,
+                              )}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-primary/5 border-primary/20">
+                        <CardContent className="pt-6">
+                          <div className="text-center space-y-1">
+                            <p className="text-xs text-muted-foreground">
+                              Expected Returns
+                            </p>
+                            <p className="text-xl font-bold text-primary">
+                              {riskProfile === RiskProfile.conservative
+                                ? "8%"
+                                : riskProfile === RiskProfile.moderate
+                                  ? "12%"
+                                  : "15%"}{" "}
+                              p.a.
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

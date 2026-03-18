@@ -1587,7 +1587,7 @@ const categories = [
 function RuleCalculator({ rule }: { rule: FinancialRule }) {
   const [inputs, setInputs] = useState<Record<string, number>>({});
   const [result, setResult] = useState<string>("");
-  const { formatCurrency } = useCurrency();
+  const { formatCurrency, country } = useCurrency();
 
   const handleCalculate = () => {
     switch (rule.id) {
@@ -1744,7 +1744,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
         return (
           <div className="space-y-2">
             <Label htmlFor="income" className="text-xs">
-              Monthly Income (₹)
+              Monthly Income ({country.symbol})
             </Label>
             <Input
               id="income"
@@ -1765,7 +1765,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
         return (
           <div className="space-y-2">
             <Label htmlFor="annualExpenses" className="text-xs">
-              Annual Expenses (₹)
+              Annual Expenses ({country.symbol})
             </Label>
             <Input
               id="annualExpenses"
@@ -1789,7 +1789,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
         return (
           <div className="space-y-2">
             <Label htmlFor="salary" className="text-xs">
-              Annual Salary (₹)
+              Annual Salary ({country.symbol})
             </Label>
             <Input
               id="salary"
@@ -1813,7 +1813,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
         return (
           <div className="space-y-2">
             <Label htmlFor="portfolio" className="text-xs">
-              Portfolio Value (₹)
+              Portfolio Value ({country.symbol})
             </Label>
             <Input
               id="portfolio"
@@ -1834,7 +1834,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
         return (
           <div className="space-y-2">
             <Label htmlFor="creditLimit" className="text-xs">
-              Credit Card Limit (₹)
+              Credit Card Limit ({country.symbol})
             </Label>
             <Input
               id="creditLimit"
@@ -1855,7 +1855,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
         return (
           <div className="space-y-2">
             <Label htmlFor="monthlyExpenses" className="text-xs">
-              Monthly Expenses (₹)
+              Monthly Expenses ({country.symbol})
             </Label>
             <Input
               id="monthlyExpenses"
@@ -1876,7 +1876,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
         return (
           <div className="space-y-2">
             <Label htmlFor="annualIncome" className="text-xs">
-              Annual Income (₹)
+              Annual Income ({country.symbol})
             </Label>
             <Input
               id="annualIncome"
@@ -1897,7 +1897,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
         return (
           <div className="space-y-2">
             <Label htmlFor="corpus" className="text-xs">
-              Retirement Corpus (₹)
+              Retirement Corpus ({country.symbol})
             </Label>
             <Input
               id="corpus"
@@ -1962,7 +1962,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
         return (
           <div className="space-y-2">
             <Label htmlFor="stream1" className="text-xs">
-              Income Stream 1 (₹)
+              Income Stream 1 ({country.symbol})
             </Label>
             <Input
               id="stream1"
@@ -1978,7 +1978,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
               className="h-8 text-sm"
             />
             <Label htmlFor="stream2" className="text-xs">
-              Income Stream 2 (₹)
+              Income Stream 2 ({country.symbol})
             </Label>
             <Input
               id="stream2"
@@ -1994,7 +1994,7 @@ function RuleCalculator({ rule }: { rule: FinancialRule }) {
               className="h-8 text-sm"
             />
             <Label htmlFor="stream3" className="text-xs">
-              Income Stream 3 (₹)
+              Income Stream 3 ({country.symbol})
             </Label>
             <Input
               id="stream3"

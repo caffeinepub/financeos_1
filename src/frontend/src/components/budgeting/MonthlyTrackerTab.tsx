@@ -406,44 +406,6 @@ export function MonthlyTrackerTab() {
         </Card>
       </div>
 
-      {/* Bar Chart */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">
-            Monthly Overview — Income vs Expenses
-          </CardTitle>
-        </CardHeader>
-        <CardContent data-ocid="budgeting.overview.chart">
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart
-              data={chartData}
-              margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis
-                tick={{ fontSize: 11 }}
-                tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
-                width={50}
-              />
-              <Tooltip formatter={(v: number) => fmt(v, country)} />
-              <Legend iconType="circle" iconSize={10} />
-              <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
-              <Bar
-                dataKey="Planned Expenses"
-                fill="#6366f1"
-                radius={[4, 4, 0, 0]}
-              />
-              <Bar
-                dataKey="Actual Expenses"
-                fill="#ef4444"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
       {/* Category Breakdown */}
       <Card>
         <CardHeader className="pb-2">
@@ -854,6 +816,43 @@ export function MonthlyTrackerTab() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Bar Chart */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">
+            Monthly Overview — Income vs Expenses
+          </CardTitle>
+        </CardHeader>
+        <CardContent data-ocid="budgeting.overview.chart">
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
+                width={50}
+              />
+              <Tooltip formatter={(v: number) => fmt(v, country)} />
+              <Legend iconType="circle" iconSize={10} />
+              <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar
+                dataKey="Planned Expenses"
+                fill="#6366f1"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                dataKey="Actual Expenses"
+                fill="#ef4444"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 }

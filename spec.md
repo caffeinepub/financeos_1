@@ -1,31 +1,37 @@
-# FinanceOS
+# Growfinfire Global
 
 ## Current State
-- Portfolio module has asset-type tabs (Retiral, Mutual Fund, Equity, Crypto, etc.) each showing a holdings table and pie chart
-- Goals module has analytics charts: Savings Adequacy (bar: target vs current), Achievement Quality (pie), Goal Diversification (pie)
-- No Overview tab exists in Portfolio
+- BudgetingPage.tsx has 3 tabs: "Budget Categories", "Income & Expenses", "Monthly Tracker"
+- ExpensesTab.tsx has type filter and search but no Month/Year filter; card totals use all-time data
+- MonthlyTrackerTab.tsx has a Monthly Overview chart somewhere in the page
+- DashboardPage.tsx: Goals Progress shows name + progress bar only; Budgeting 6M "Planned" totals ALL category monthlyLimits (income + expense); Expense by Category pie has no value/% labels; Savings Rate chart has tight margins; Risk vs Return tooltip formatter is correct
+- No admin files exist
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Portfolio Overview tab**: New first tab labeled "Overview" in the portfolio tab bar (before Retiral). Shows:
-  - Summary cards for each asset type (8 cards) with a unique icon per asset type, showing Total Invested, Current Value, and Gain/Loss for that asset type
-  - A grouped bar chart at the bottom: X-axis = asset types, two bars per type = Invested vs Current Value (consolidated across all holdings)
-  - Two cap distribution charts:
-    1. Equity (ETF/Stocks) cap chart: groups holdings by category (Large Cap, Mid Cap, Small Cap, others) showing value and % for each cap
-    2. Mutual Fund cap chart: groups holdings by category (Large Cap, Mid Cap, Small Cap, Flexi Cap, Multi Cap, Multi Asset are treated as-is) showing value and % for each cap
+- ExpensesTab: Month and Year dropdowns (default = current month/year, plus "All" option). Filter transactions and recompute summary cards based on selection.
 
 ### Modify
-- **Goals Savings Adequacy chart**: Rename bar legend label from "Current" to "Current Value" to make it explicit
+- BudgetingPage.tsx tab labels: "Budget Categories" → "Plan Budget"; "Income & Expenses" → "Track Income & Expenses"; "Monthly Tracker" → "Budget Insights"
+- ExpensesTab: summary cards (Income, Expense, Net) recalculate based on month/year filter selection
+- MonthlyTrackerTab: move Monthly Overview — Income vs Expenses chart to the bottom (end) of the page; ensure it shows 6 months
+- DashboardPage Goals Progress: each goal item shows Goal Date (formatted from targetDate BigInt) and estimated SIP amount (=(targetAmount - currentAmount) / monthsRemaining)
+- DashboardPage Budgeting 6M: fix totalPlanned to sum only Expense categories (filter budgetCats by TransactionType.Expense before summing monthlyLimit)
+- DashboardPage Expense by Category: add % labels alongside value in Tooltip and Legend (name: "Category (value | XX%)"), also add renderCustomizedLabel or use label prop on Pie for each slice showing "XX%"
+- DashboardPage Savings Rate chart: increase height to 220, adjust margins to top:10, right:20, left:5, bottom:20 for better fitment
+- DashboardPage Risk vs Return: already correct in tooltip, but ensure chart height is 300 and the ScatterChart has proper margin for axis labels
 
 ### Remove
-- Nothing removed
+- No admin code (already absent)
 
 ## Implementation Plan
-1. Add an "overview" route concept: the tab bar in PortfolioPage gets an "Overview" button that sets a state/param to show the overview panel instead of asset-type table
-2. Create `PortfolioOverviewTab` component (or inline in PortfolioPage) with:
-   - 8 asset type cards with icons (use lucide icons: PiggyBank for Retiral, TrendingUp for Equity, BarChart3 for MutualFund, Bitcoin for Crypto, Gem for Commodity, Building2 for RealEstate, Landmark for FixedIncome, Package for Other)
-   - BarChart using recharts for Invested vs Current Value per asset type
-   - Two cap breakdown bar/pie charts for Equity and MutualFund
-3. In Goals analytics, update the `name` prop on the "current" Bar from `"Current"` to `"Current Value"`
-4. No backend changes, no CRUD changes
+1. Edit `src/frontend/src/pages/BudgetingPage.tsx`: rename 3 tab labels
+2. Edit `src/frontend/src/components/budgeting/ExpensesTab.tsx`: add month/year state, filter transactions by selected month/year, recompute card totals
+3. Edit `src/frontend/src/components/budgeting/MonthlyTrackerTab.tsx`: move Monthly Overview chart to end of component
+4. Edit `src/frontend/src/pages/DashboardPage.tsx`:
+   a. Fix budgetChart useMemo to filter only expense categories
+   b. Update Goals Progress items to show deadline + SIP estimate
+   c. Update Expense by Category pie to show value+% in label/tooltip
+   d. Fix Savings Rate chart height/margins
+   e. Fix Risk vs Return chart height

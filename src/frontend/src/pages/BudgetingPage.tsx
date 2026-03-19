@@ -306,7 +306,7 @@ export default function BudgetingPage() {
       <Tabs defaultValue="categories">
         <TabsList data-ocid="budgeting.tab">
           <TabsTrigger value="categories">Plan Budget</TabsTrigger>
-          <TabsTrigger value="expenses">Track Income & Expenses</TabsTrigger>
+          <TabsTrigger value="expenses">Track Income Vs Expense</TabsTrigger>
           <TabsTrigger value="tracker">Budget Insights</TabsTrigger>
         </TabsList>
 
@@ -315,7 +315,7 @@ export default function BudgetingPage() {
             <div className="grid grid-cols-2 gap-4 flex-1 min-w-0">
               <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
                 <div className="text-xs text-emerald-600 font-medium">
-                  Total Income Budget
+                  Budgeted Income
                 </div>
                 <div className="text-xl font-bold text-emerald-700">
                   {fmt(totalIncome)}
@@ -323,7 +323,7 @@ export default function BudgetingPage() {
               </div>
               <div className="bg-red-50 rounded-xl p-4 border border-red-200">
                 <div className="text-xs text-red-600 font-medium">
-                  Total Expense Budget
+                  Budgeted Expense
                 </div>
                 <div className="text-xl font-bold text-red-700">
                   {fmt(totalExpense)}

@@ -7,15 +7,6 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface Goal {
-    id: string;
-    name: string;
-    deadline: string;
-    targetAmount: number;
-    notes: string;
-    category: string;
-    currentAmount: number;
-}
 export interface FinancialRule {
     id: string;
     ruleType: string;
@@ -25,34 +16,12 @@ export interface FinancialRule {
     isActive: boolean;
     condition: string;
 }
-export interface DashboardSummary {
-    modelCount: bigint;
-    totalIncome: number;
-    loanCount: bigint;
-    goalCount: bigint;
-    budgetCategoryCount: bigint;
-    totalExpenses: number;
-    portfolioCount: bigint;
-    eventCount: bigint;
-    ruleCount: bigint;
-    transactionCount: bigint;
-}
 export interface BudgetCategory {
     id: string;
     categoryType: TransactionType;
     monthlyLimit: number;
     name: string;
     color: string;
-}
-export interface PortfolioHolding {
-    id: string;
-    ticker: string;
-    name: string;
-    currentValue: number;
-    notes: string;
-    quantity: number;
-    costBasis: number;
-    assetType: AssetType;
 }
 export interface Loan {
     id: string;
@@ -75,6 +44,18 @@ export interface FinancialModel {
     years: bigint;
     monthlyContribution: number;
 }
+export interface DashboardSummary {
+    modelCount: bigint;
+    totalIncome: number;
+    loanCount: bigint;
+    goalCount: bigint;
+    budgetCategoryCount: bigint;
+    totalExpenses: number;
+    portfolioCount: bigint;
+    eventCount: bigint;
+    ruleCount: bigint;
+    transactionCount: bigint;
+}
 export interface PlannerEvent {
     id: string;
     title: string;
@@ -84,10 +65,6 @@ export interface PlannerEvent {
     amount: number;
     eventType: string;
 }
-export interface UserProfile {
-    name: string;
-    email: string;
-}
 export interface Transaction {
     id: string;
     categoryId: string;
@@ -96,6 +73,29 @@ export interface Transaction {
     description: string;
     account: string;
     amount: number;
+}
+export interface PortfolioHolding {
+    id: string;
+    ticker: string;
+    name: string;
+    currentValue: number;
+    notes: string;
+    quantity: number;
+    costBasis: number;
+    assetType: AssetType;
+}
+export interface UserProfile {
+    name: string;
+    email: string;
+}
+export interface Goal {
+    id: string;
+    name: string;
+    deadline: string;
+    targetAmount: number;
+    notes: string;
+    category: string;
+    currentAmount: number;
 }
 export enum AssetType {
     ETF = "ETF",
@@ -155,7 +155,7 @@ export interface backendInterface {
     getPortfolioHolding(id: string): Promise<PortfolioHolding | null>;
     getTransaction(id: string): Promise<Transaction | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
-    isCallerAdmin(): Promise<boolean>;
+    isCallerBlocked(): Promise<{ blocked: boolean; reason: string }>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateBudgetCategory(id: string, category: BudgetCategory): Promise<BudgetCategory | null>;
     updateFinancialModel(id: string, model: FinancialModel): Promise<FinancialModel | null>;

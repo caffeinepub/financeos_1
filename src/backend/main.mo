@@ -13,6 +13,7 @@ import AccessControl "authorization/access-control";
 import Types "Types";
 import Storage "Storage";
 import Utils "Utils";
+
 import GoalsModule "modules/Goals";
 import PortfolioModule "modules/Portfolio";
 import BudgetingModule "modules/Budgeting";
@@ -22,11 +23,9 @@ import FinancialPlannerModule "modules/FinancialPlanner";
 import FinancialModelModule "modules/FinancialModel";
 
 actor {
-  // Initialize the access control system
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
-  // Type aliases from Types module
   public type UserProfile = Types.UserProfile;
   public type AssetType = Types.AssetType;
   public type TransactionType = Types.TransactionType;
@@ -40,10 +39,8 @@ actor {
   public type FinancialModel = Types.FinancialModel;
   public type DashboardSummary = Types.DashboardSummary;
 
-  // Per-user data storage (all maps live in Storage.mo)
   let store = Storage.init();
 
-  // Convenience aliases so the rest of the file is unchanged
   let userProfiles         = store.userProfiles;
   let userGoals            = store.userGoals;
   let userPortfolios       = store.userPortfolios;
@@ -54,7 +51,10 @@ actor {
   let userEvents           = store.userEvents;
   let userModels           = store.userModels;
 
-  // Monotonic counter used by generateId; state lives here, logic lives in Utils.
+  // Legacy stable vars retained for upgrade compatibility (do not remove)
+  var blockedUsers     = Map.empty<Principal, { blocked : Bool; reason : Text }>();
+  var userModuleAccess = Map.empty<Principal, Map.Map<Text, Bool>>();
+
   var idCounter : Nat = 0;
   func generateId() : Text {
     idCounter += 1;
@@ -83,7 +83,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Goals CRUD — delegated to GoalsModule
+  // Goals CRUD
   public shared ({ caller }) func createGoal(goal : Goal) : async Goal {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create goals");
@@ -119,7 +119,7 @@ actor {
     GoalsModule.delete(userGoals, caller, id);
   };
 
-  // Portfolio CRUD — delegated to PortfolioModule
+  // Portfolio CRUD
   public shared ({ caller }) func createPortfolioHolding(holding : PortfolioHolding) : async PortfolioHolding {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create portfolio holdings");
@@ -155,7 +155,7 @@ actor {
     PortfolioModule.delete(userPortfolios, caller, id);
   };
 
-  // BudgetCategory CRUD — delegated to BudgetingModule
+  // BudgetCategory CRUD
   public shared ({ caller }) func createBudgetCategory(category : BudgetCategory) : async BudgetCategory {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create budget categories");
@@ -191,7 +191,7 @@ actor {
     BudgetingModule.deleteCategory(userBudgetCategories, caller, id);
   };
 
-  // Transaction CRUD — delegated to BudgetingModule
+  // Transaction CRUD
   public shared ({ caller }) func createTransaction(transaction : Transaction) : async Transaction {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create transactions");
@@ -227,7 +227,7 @@ actor {
     BudgetingModule.deleteTransaction(userTransactions, caller, id);
   };
 
-  // Loan CRUD — delegated to LoansModule
+  // Loan CRUD
   public shared ({ caller }) func createLoan(loan : Loan) : async Loan {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create loans");
@@ -263,7 +263,7 @@ actor {
     LoansModule.delete(userLoans, caller, id);
   };
 
-  // FinancialRule CRUD — delegated to FinancialRulesModule
+  // FinancialRule CRUD
   public shared ({ caller }) func createFinancialRule(rule : FinancialRule) : async FinancialRule {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create financial rules");
@@ -299,7 +299,7 @@ actor {
     FinancialRulesModule.delete(userRules, caller, id);
   };
 
-  // PlannerEvent CRUD — delegated to FinancialPlannerModule
+  // PlannerEvent CRUD
   public shared ({ caller }) func createPlannerEvent(event : PlannerEvent) : async PlannerEvent {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create planner events");
@@ -335,7 +335,7 @@ actor {
     FinancialPlannerModule.delete(userEvents, caller, id);
   };
 
-  // FinancialModel CRUD — delegated to FinancialModelModule
+  // FinancialModel CRUD
   public shared ({ caller }) func createFinancialModel(model : FinancialModel) : async FinancialModel {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create financial models");
@@ -380,7 +380,6 @@ actor {
     var totalAssets : Float = 0.0;
     var totalLiabilities : Float = 0.0;
 
-    // Sum portfolio current values
     switch (userPortfolios.get(caller)) {
       case (?portfolioMap) {
         for (holding in portfolioMap.values()) {
@@ -390,7 +389,6 @@ actor {
       case null {};
     };
 
-    // Sum loan balances
     switch (userLoans.get(caller)) {
       case (?loanMap) {
         for (loan in loanMap.values()) {
@@ -411,7 +409,6 @@ actor {
     var totalIncome : Float = 0.0;
     var totalExpenses : Float = 0.0;
 
-    // Calculate income and expenses from transactions
     switch (userTransactions.get(caller)) {
       case (?txMap) {
         for (tx in txMap.values()) {

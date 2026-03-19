@@ -309,6 +309,128 @@ function getAIResponse(message: string): string {
     return "🗺️ **Getting Started with FinanceOS**\n\n**Recommended flow for new users:**\n\n**Week 1 – Foundation:**\n1. Select your currency on the Landing Page\n2. Log in with Internet Identity\n3. Set up your **Profile** (sidebar bottom) with name and email\n\n**Week 2 – Add Your Data:**\n4. **Portfolio** – Add all current investments by asset type\n5. **Loans** – Add all outstanding loans\n6. **Budgeting** – Set planned amounts for the current month\n\n**Week 3 – Set Goals & Plan:**\n7. **Goals** – Create 3-5 financial goals with target amounts and dates\n8. Link portfolio investments to relevant goals\n9. **Financial Planner** – Use SIP Calculator to find required monthly investment\n\n**Ongoing:**\n10. Update Budgeting actuals monthly\n11. Add new investments as you make them\n12. Review Dashboard monthly\n13. Learn in **Learn Finance** and **Financial Model** at your own pace\n\n💡 Start with the Dashboard after adding investments – all charts auto-populate!";
   }
 
+  // ─── Learn from Mistakes Knowledge Base ─────────────────────────────────────
+
+  // Block 1 — General financial mistakes overview
+  if (
+    m.includes("learn from mistake") ||
+    m.includes("common mistake") ||
+    m.includes("financial mistake") ||
+    m.includes("money mistake") ||
+    (m.includes("mistake") &&
+      !m.includes("credit card") &&
+      !m.includes("insurance") &&
+      !m.includes("invest") &&
+      !m.includes("retirement") &&
+      !m.includes("diversif") &&
+      !m.includes("rebalanc") &&
+      !m.includes("net worth") &&
+      !m.includes("salary") &&
+      !m.includes("lifestyle") &&
+      !m.includes("scam") &&
+      !m.includes("guaranteed"))
+  ) {
+    return "⚠️ **Learn from Mistakes – 50 Common Financial Mistakes**\n\nFound in **Learn Finance → Learn from Mistakes** tab. Here are the key categories:\n\n**💸 Spending & Budgeting Mistakes (1-2, 14-15, 27-28, 48)**\n• Not tracking expenses → Use zero-based budgeting; log every rupee\n• Underestimating outflows → Track 2-3 months to reveal true spending\n• No budget/plan → Follow 50/30/20 rule (Needs 50-60%, Wants 30%, Savings 20%)\n• Lifestyle inflation → Cap spending increases; save raises/bonuses first\n• Ignoring small recurring → Audit subscriptions; pay yourself first\n• Impulse buys → 24-48 hour rule before non-essential purchases\n• Treating salary as free money → Follow budget immediately after salary credit\n\n**🏦 Debt & Credit Mistakes (3, 6, 16, 24-25, 30)**\n• Multiple overlapping EMIs → Debt avalanche: pay highest interest first\n• Living lifestyle on EMIs → EMIs ≤ 30-40% of take-home\n• Minimum credit card payment → Pay full balance; 36-42% interest compounds fast\n• Unnecessary debt → Borrow only for appreciating assets\n• Too many credit cards → Keep 2-3 max; close unused\n• Co-signing loans → Never co-sign unless you can pay the full amount\n\n**🏠 Housing & Insurance Mistakes (8-9, 12, 31-32)**\n• Insurance only for tax → Buy term life (15-25x income) + separate health cover\n• Buying home too early → Rent + invest; buy after 35+; EMI ≤ 30% income\n• No health/term insurance → Family floater health + pure term life\n• Mixing insurance with investment → Separate: insurance = protection, MF = growth\n\n**📈 Investment Mistakes (5, 17-20, 33-35, 38-40)**\n• F&O / crypto addiction → Time in market > timing the market\n• Starting investments late → Rule of 72; start with even ₹500/month SIP\n• Ignoring inflation → Target 10-12% return via equities/mutual funds\n• No diversification → Spread across equity, debt, gold, real estate\n• Following herd mentality → Research based on your goals and risk, not tips\n• Waiting for perfect time → SIP monthly regardless of market conditions\n• Spending windfalls → 50% debt/savings, 30% fun, 20% invest\n• Real estate overexposure → Limit to 30-40% of net worth\n• High MF fees → Choose direct plans / index funds (expense ratio <0.5%)\n• Not rebalancing → Rebalance annually: sell winners, buy laggards\n\n**🏥 Retirement & Goals Mistakes (4, 10, 21, 41-42)**\n• No emergency fund → Build 3-12 months' liquid savings\n• Children as retirement plan → Build independent retirement corpus\n• No retirement planning → Save 15-20%+ income; automate to retirement accounts\n• Borrowing from future self → Build emergency buffer first\n• No financial goals → Set SMART goals linked to specific targets\n\n**📊 Mindset & Other Mistakes (7, 11, 13, 44-50)**\n• Avoiding family money talks → Regular check-ins with partner/family\n• Chasing shortcuts → Small daily habits compound\n• Avoiding the mirror → Monthly net worth review\n• Social pressure spending → Spend on values, not status symbols\n• Not tracking net worth → Quarterly: Assets − Liabilities = progress\n• Guaranteed returns scams → If too good to be true, avoid; stick to regulated options\n• Neglecting skills → Continuous learning = higher earning potential\n\n💡 Open **Learn Finance → Learn from Mistakes** to explore all 50 with linked rules.";
+  }
+
+  // Block 2 — Expense tracking / budget mistakes
+  if (
+    (m.includes("track") && m.includes("expense")) ||
+    m.includes("zero-based budget") ||
+    m.includes("zero based budget") ||
+    m.includes("monthly outflow")
+  ) {
+    return '📝 **Expense Tracking Mistakes**\n\n**Mistake #1:** Not tracking expenses at all\n→ Fix: Zero-based budgeting — assign every rupee a job. Track in Budgeting module.\n\n**Mistake #2:** Underestimating real monthly outflows\n→ Fix: Track ALL outflows for 2-3 months before budgeting. Most people underestimate by 20-30%.\n\n**Mistake #27:** Ignoring small recurring expenses\n→ Fix: Audit subscriptions/apps quarterly. ₹500/month in unused subscriptions = ₹6,000/year wasted.\n\n**Mistake #48:** Treating salary as "free money" post-tax\n→ Fix: Apply the 50/30/20 budget rule the same day salary is credited.\n\n💡 Use **Budgeting → Plan Budget** to set planned amounts, then **Track Income & Expense** to log actuals. The gap = your leakage.';
+  }
+
+  // Block 3 — Credit card mistakes
+  if (
+    m.includes("credit card") &&
+    (m.includes("mistake") ||
+      m.includes("minimum") ||
+      m.includes("interest") ||
+      m.includes("too many"))
+  ) {
+    return "💳 **Credit Card Mistakes**\n\n**Mistake #16:** Paying only the minimum due\n→ Credit cards charge 36-45% annual interest on the outstanding balance.\n→ Fix: Pay full statement balance every month, no exceptions.\n→ ₹50,000 balance at 36% = ₹18,000/year in interest alone.\n\n**Mistake #25:** Having too many credit cards\n→ Too many cards = temptation, complexity, and credit score management overhead.\n→ Fix: Keep 2-3 cards max — one for rewards, one backup.\n\n**Key rule:** Never use credit cards as income supplements. They are convenience tools, not credit lines.\n\n💡 Track credit card repayments in **Loans Module**. Use **Credit Card Payoff Calculator** in Financial Planner to find your payoff timeline.";
+  }
+
+  // Block 4 — Insurance mistakes
+  if (
+    m.includes("insurance") &&
+    (m.includes("mistake") ||
+      m.includes("wrong") ||
+      m.includes("mix") ||
+      m.includes("tax saving"))
+  ) {
+    return "🛡️ **Insurance Mistakes**\n\n**Mistake #8:** Buying insurance only for tax saving\n→ ULIPs, endowment plans, and money-back policies combine insurance + investment poorly.\n→ Fix: Buy pure **term life insurance** (15-25x annual income) for protection.\n→ Invest separately in mutual funds for growth.\n\n**Mistake #12:** No health/term insurance for self or parents\n→ Medical inflation = 10-15% per year. One hospitalisation can wipe 2-3 years of savings.\n→ Fix: ₹10-15L individual health cover + ₹20-25L family floater + term life.\n\n**Mistake #31:** Not having life insurance (pure term)\n→ Term policy = 10-20x annual expenses at 20s/30s age = very low premium.\n\n**Mistake #32:** Mixing insurance with investment\n→ These are separate tools. Insurance = protection. Mutual Funds = growth.\n→ Surrender low-yield LIC/ULIP and reinvest in index funds.\n\n💡 Use **Financial Model → Insurance tab** to calculate your exact term insurance and health cover requirements.";
+  }
+
+  // Block 5 — Investment delay / starting late
+  if (
+    m.includes("start invest") ||
+    m.includes("invest late") ||
+    m.includes("delay invest") ||
+    m.includes("when invest") ||
+    (m.includes("late") && m.includes("invest"))
+  ) {
+    return "⏰ **Mistake #17: Delaying Investments / Starting Late**\n\nThis is one of the most costly mistakes due to the **power of compounding**.\n\n**The numbers:**\n• Start at 25: ₹5,000/month SIP at 12% → ₹1.76 Cr at 55 (30 years)\n• Start at 35: ₹5,000/month SIP at 12% → ₹49.9 L at 55 (20 years)\n• **Waiting 10 years costs you ₹1.26 Cr — 3.5x more wealth lost than invested**\n\n**Rule of 72:** Money doubles every ≈ 6 years at 12% return.\n• ₹1L at 25 → ₹2L at 31 → ₹4L at 37 → ₹8L at 43 → ₹16L at 49 → ₹32L at 55\n\n**Fix:**\n1. Start with ANY amount today — even ₹500/month\n2. Use SIP (auto-debit) so emotions don't stop you\n3. Increase SIP by 10% every year (Step-Up SIP)\n4. Never stop SIP during market falls — that's when you buy more units cheaply\n\n💡 Use **SIP Calculator** in Financial Planner to see your exact wealth projection.";
+  }
+
+  // Block 6 — Retirement planning mistakes
+  if (
+    (m.includes("retirement") && m.includes("mistake")) ||
+    (m.includes("retire") && m.includes("plan") && m.includes("mistake"))
+  ) {
+    return "🌅 **Retirement Planning Mistakes**\n\n**Mistake #21:** No retirement planning at all\n→ Fix: Save 15-20%+ of income. NPS + PPF + Equity MF combination works well.\n→ FIRE Number = Annual Expenses × 25. Use 4% safe withdrawal rate.\n\n**Mistake #10:** Treating children as retirement plan\n→ Fix: Build your own retirement corpus independent of children's support.\n→ Have an open family conversation about mutual support expectations.\n\n**Mistake #22:** Over-relying on conservative investments\n→ FDs and PPF alone won't beat inflation over 30 years.\n→ Fix: Age-based allocation: (100 - your age)% in equities.\n→ At 30: 70% equity, 30% debt. At 50: 50% equity, 50% debt.\n\n**Mistake #9:** Buying home too early (20s/early 30s)\n→ Buying too early locks capital, reduces liquidity, and often leads to EMI overload.\n→ Fix: Rent + invest until 35+. Aim for EMI ≤ 30% of take-home income.\n\n💡 Use **Financial Model → Retirement tab** and **FIRE Calculator** in Financial Planner.";
+  }
+
+  // Block 7 — Diversification / portfolio mistakes
+  if (
+    (m.includes("diversif") ||
+      m.includes("all eggs") ||
+      m.includes("rebalanc")) &&
+    m.includes("mistake")
+  ) {
+    return "📊 **Portfolio & Diversification Mistakes**\n\n**Mistake #19:** Not diversifying investments\n→ Concentration in one asset = higher risk without proportional reward.\n→ Fix: Spread across equity, debt, gold, real estate per your risk profile.\n→ Use **3-Fund Portfolio**: Nifty 50 Index + Midcap + Debt Fund.\n\n**Mistake #38:** Overexposure to real estate\n→ Real estate is illiquid. 1 property = 40-60% of net worth for many Indians.\n→ Fix: Cap real estate at 30-40% of net worth. Maintain liquidity.\n\n**Mistake #39:** Paying high fees on mutual funds\n→ Regular plan vs Direct plan: 0.5-1% higher expense ratio = massive loss over 20 years.\n→ Fix: Switch to Direct plans. Choose index funds (expense ratio 0.05-0.2%).\n→ ₹50L portfolio: Direct plan saves ₹5-10L over 20 years vs regular plan.\n\n**Mistake #40:** Not rebalancing portfolio\n→ Fix: Rebalance annually. Sell outperformers, buy underweighted assets.\n→ Maintains target allocation and enforces buy-low-sell-high discipline.\n\n**Mistake #20:** Following tips/herd mentality\n→ Fix: Invest based on your goals, risk tolerance, and time horizon — not WhatsApp tips.\n\n💡 Use **Portfolio Overview tab** to see your current allocation. Check **Financial Model → Asset Allocation** for target allocations.";
+  }
+
+  // Block 8 — Net worth tracking mistake
+  if (m.includes("net worth") && m.includes("mistake")) {
+    return "📊 **Mistake #45: Not Tracking Net Worth**\n\nMost people track income and expenses but ignore the most important number: **Net Worth = Assets − Liabilities**.\n\n**Why it matters:**\n• It's your financial score — the only number that shows if you're truly building wealth\n• Identifies hidden liabilities you've ignored\n• Motivates you when you see it grow year over year\n\n**How to calculate:**\nAssets: Portfolio value + Real estate value + Bank balances + Gold + PF/NPS\nLiabilities: Home loan outstanding + Car loan + Personal loan + Credit card dues\n\n**Fix:** Review quarterly. Track in the **Dashboard** — your NAV card shows total portfolio value.\n\n**Related Mistake #13:** Avoiding the mirror — face your financial reality monthly.\n\n💡 Add all investments in **Portfolio**, all loans in **Loans Module**, and your Dashboard NAV auto-updates.";
+  }
+
+  // Block 9 — Salary negotiation / multiple income streams mistake
+  if (
+    (m.includes("salary") && m.includes("negotiat")) ||
+    m.includes("multiple income") ||
+    m.includes("side hustle") ||
+    (m.includes("income stream") && m.includes("mistake"))
+  ) {
+    return "💼 **Mistakes #29 & #37: Not Negotiating Salary / No Multiple Income Streams**\n\n**Mistake #29:** Not negotiating salaries or side income\n→ Salary is your biggest wealth-building lever in your 20s-40s.\n→ Every ₹10,000/month raise = ₹1.2L/year more to invest.\n→ At 12% returns: ₹1.2L/year for 20 years = **₹1.08 Cr extra wealth**.\n→ Fix: Research market rates (Glassdoor, LinkedIn). Negotiate at every role change.\n\n**Mistake #37:** Not building multiple income streams\n→ Single income = single point of failure.\n→ Fix: Salary + at least one of: Side hustle/freelance, Dividend income, Rental income.\n→ Even ₹5,000/month passive income = ₹60,000/year = builds a corpus over time.\n\n**3 levels of income diversification:**\n1. **Active:** Salary + freelance / consulting\n2. **Semi-passive:** Rental income, online courses\n3. **Passive:** Dividends, debt fund SWP, REITs\n\n💡 Track all income sources in **Budgeting → Track Income & Expense**.";
+  }
+
+  // Block 10 — Scam / guaranteed returns mistake
+  if (
+    m.includes("scam") ||
+    m.includes("guaranteed return") ||
+    m.includes("get rich quick") ||
+    m.includes("ponzi") ||
+    (m.includes("too good") && m.includes("true"))
+  ) {
+    return '⚠️ **Mistake #46: Falling for "Guaranteed Returns" Scams**\n\nRed flags of financial fraud:\n🚨 "Guaranteed 20-30% annual returns" (legit equity averages 10-12%)\n🚨 "No risk, assured returns" — risk and return are always correlated\n🚨 "Limited time offer" or "exclusive scheme"\n🚨 Recruitment-based earnings (MLM / Ponzi structure)\n🚨 Unlisted / unregulated investment schemes\n\n**Also related — Mistake #5:** F&O and crypto speculation\n→ 90%+ of retail F&O traders lose money (SEBI data).\n→ Crypto extreme volatility — treat as max 5% of portfolio.\n\n**The golden rule:** If it sounds too good to be true, it always is.\n\n**Safe alternatives with good returns:**\n• Index Funds: 10-12% long-term CAGR\n• NPS/PPF: 7-8% tax-advantaged\n• Direct Equity (bluechips): 12-15% long-term\n• REITs: 8-10% yield\n\nAlways verify: SEBI registration, IRDAI license, RBI approval.\n\n💡 Use **Financial Model → Model Portfolio** to design a legitimate high-return portfolio.';
+  }
+
+  // Block 11 — Social pressure / lifestyle inflation mistake
+  if (
+    m.includes("lifestyle inflation") ||
+    m.includes("social pressure") ||
+    m.includes("lifestyle credit") ||
+    (m.includes("wedding") && m.includes("finance")) ||
+    m.includes("keeping up")
+  ) {
+    return '👔 **Lifestyle & Social Pressure Mistakes**\n\n**Mistake #15:** Lifestyle inflation / overspending\n→ Every salary hike gets spent on a bigger car, bigger flat, more dining out.\n→ Fix: "Savings rate, not salary, builds wealth."\n→ When income rises: Save the first 20-30% increase, then lifestyle up on the rest.\n\n**Mistake #44:** Giving in to social pressure (weddings, status symbols)\n→ Big weddings funded by loans = 5-10 years of debt servicing.\n→ "Others\' weddings / cars / holidays" is not your benchmark.\n→ Fix: Spend on what genuinely matters to YOU. Ignore status games.\n\n**Mistake #6:** Living lifestyle on EMIs\n→ EMIs for phones, gadgets, furniture = consumer debt on depreciating items.\n→ Fix: EMIs ≤ 30-40% of take-home. Use cash/debit for non-essentials.\n\n**The 1% Rule for Lifestyle Creep:**\n→ Limit lifestyle upgrade spending to 1% of income increase, save the rest.\n\n💡 Use **Budgeting → Plan Budget** to set hard limits per category before the month begins.';
+  }
+
   // Default fallback
   return "I'm here to help with your financial journey! 🌟\n\nAsk me about any of these topics:\n\n**FinanceOS Modules:**\n• Dashboard, Goals, Portfolio, Budgeting, Loans\n• Financial Model, Financial Planner (35+ calculators), Learn Finance\n\n**Financial Calculators:**\n• SIP / SWP / Lump Sum / CAGR\n• Home Loan EMI / FD / PPF / NPS / RD\n• FIRE Number / Retirement Corpus\n• Tax Planning (80C, LTCG, Old vs New Regime)\n• Emergency Fund / Debt-to-Income Ratio\n• Education Fund / House Down Payment\n\n**Investment Knowledge:**\n• Mutual Funds, Index Funds, Equity, Gold, Crypto, Real Estate\n• Portfolio Design (Conservative / Moderate / Aggressive)\n• Compounding, Rule of 72, Inflation, CAGR\n• Diversification, Rebalancing, Factor Investing\n• Insurance, Tax, Retirement, FIRE strategy\n\nJust ask your question and I'll give you a detailed, actionable answer!";
 }

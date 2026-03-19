@@ -131,11 +131,8 @@ export function ModelRetirementTab() {
           >
             <CardTitle className="text-base font-bold text-slate-800 flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
-              Select Your Risk Profile
+              Retirement Planner
             </CardTitle>
-            <CardDescription>
-              Choose a retirement strategy based on your risk tolerance
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-3">

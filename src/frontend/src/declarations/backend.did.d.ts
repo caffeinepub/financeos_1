@@ -10,6 +10,17 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AdminModuleAccess {
+  'principal' : Principal,
+  'modules' : Array<[string, boolean]>,
+}
+export interface AdminUserInfo {
+  'principal' : Principal,
+  'isBlocked' : boolean,
+  'role' : UserRole,
+  'blockedReason' : string,
+  'profile' : [] | [UserProfile],
+}
 export type AssetType = { 'ETF' : null } |
   { 'RealEstate' : null } |
   { 'MutualFund' : null } |
@@ -18,6 +29,7 @@ export type AssetType = { 'ETF' : null } |
   { 'Crypto' : null } |
   { 'Other' : null } |
   { 'Retirement' : null };
+export interface BlockedStatus { 'blocked' : boolean, 'reason' : string }
 export interface BudgetCategory {
   'id' : string,
   'categoryType' : TransactionType,
@@ -112,6 +124,10 @@ export type UserRole = { 'admin' : null } |
   { 'guest' : null };
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'adminBlockUser' : ActorMethod<[Principal, boolean, string], undefined>,
+  'adminGetAllUserModuleAccess' : ActorMethod<[], Array<AdminModuleAccess>>,
+  'adminGetAllUsers' : ActorMethod<[], Array<AdminUserInfo>>,
+  'adminSetModuleAccess' : ActorMethod<[Principal, string, boolean], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createBudgetCategory' : ActorMethod<[BudgetCategory], BudgetCategory>,
   'createFinancialModel' : ActorMethod<[FinancialModel], FinancialModel>,
@@ -149,8 +165,10 @@ export interface _SERVICE {
   'getPlannerEvent' : ActorMethod<[string], [] | [PlannerEvent]>,
   'getPortfolioHolding' : ActorMethod<[string], [] | [PortfolioHolding]>,
   'getTransaction' : ActorMethod<[string], [] | [Transaction]>,
+  'getUserModuleAccess' : ActorMethod<[], Array<[string, boolean]>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isCallerBlocked' : ActorMethod<[], BlockedStatus>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updateBudgetCategory' : ActorMethod<
     [string, BudgetCategory],

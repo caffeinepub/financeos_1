@@ -7,10 +7,10 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Pencil,
   PieChart,
   PiggyBank,
   Shield,
+  ShieldCheck,
   Target,
   TrendingUp,
 } from "lucide-react";
@@ -50,7 +50,12 @@ const navItems = [
     icon: LayoutDashboard,
     color: "#2563eb",
   },
-  { label: "Goals", path: "/goals", icon: Target, color: "#059669" },
+  {
+    label: "Goals",
+    path: "/goals",
+    icon: Target,
+    color: "#059669",
+  },
   {
     label: "Portfolio",
     path: "/portfolio",
@@ -58,7 +63,12 @@ const navItems = [
     color: "#0891b2",
     children: portfolioSubItems,
   },
-  { label: "Budgeting", path: "/budgeting", icon: PiggyBank, color: "#7c3aed" },
+  {
+    label: "Budgeting",
+    path: "/budgeting",
+    icon: PiggyBank,
+    color: "#7c3aed",
+  },
   {
     label: "Financial Model",
     path: "/financial-model",
@@ -77,8 +87,12 @@ const navItems = [
     icon: Shield,
     color: "#0d9488",
   },
-  { label: "Loans", path: "/loans", icon: CreditCard, color: "#9333ea" },
-  { label: "Help", path: "/help", icon: HelpCircle, color: "#6366f1" },
+  {
+    label: "Loans",
+    path: "/loans",
+    icon: CreditCard,
+    color: "#9333ea",
+  },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -101,6 +115,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [editEmail, setEditEmail] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Blocked status
+  const [blockedStatus, setBlockedStatus] = useState<{
+    blocked: boolean;
+    reason: string;
+  } | null>(null);
+
   const isPortfolioActive = location.pathname.startsWith("/portfolio");
 
   useEffect(() => {
@@ -111,12 +131,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!actor || isFetching) return;
-    actor
-      .getCallerUserProfile()
-      .then((p) => {
-        setProfile(p);
-      })
-      .catch(() => {});
+
+    Promise.all([
+      actor.getCallerUserProfile().catch(() => null),
+      actor.isCallerBlocked().catch(() => ({ blocked: false, reason: "" })),
+    ]).then(([p, blocked]) => {
+      if (p) setProfile(p);
+      setBlockedStatus(blocked as { blocked: boolean; reason: string });
+    });
   }, [actor, isFetching]);
 
   const navigate = useNavigate();
@@ -225,7 +247,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </aside>
   );
 
-  // Collapsed horizontal menu items (no Portfolio sub-items)
+  // Collapsed horizontal menu items
   const collapsedNavItems = navItems
     .filter((item) => !item.children)
     .concat(
@@ -242,6 +264,49 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       const order = navItems.map((n) => n.label);
       return order.indexOf(a.label) - order.indexOf(b.label);
     });
+
+  // Blocked user overlay
+  if (blockedStatus?.blocked) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <div
+          className="bg-white rounded-2xl shadow-xl border border-red-200 p-10 max-w-md w-full text-center space-y-5"
+          data-ocid="blocked.dialog"
+        >
+          <div className="flex justify-center">
+            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+              <ShieldCheck className="w-8 h-8 text-red-500" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-800">Account Blocked</h2>
+          <p className="text-slate-500 text-sm">
+            Your account has been restricted by an administrator.
+          </p>
+          {blockedStatus.reason && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-left">
+              <p className="text-xs font-semibold text-red-700 mb-1">Reason:</p>
+              <p className="text-sm text-red-600">{blockedStatus.reason}</p>
+            </div>
+          )}
+          <p className="text-xs text-slate-400">
+            Please contact support if you believe this is an error.
+          </p>
+          <Button
+            variant="destructive"
+            className="w-full"
+            data-ocid="blocked.signout.button"
+            onClick={() => {
+              clear();
+              navigate("/");
+            }}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
@@ -273,12 +338,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Right: status + user + sign out */}
+        {/* Right: status + user + help + sign out */}
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
           <span className="text-xs text-slate-300 hidden sm:block truncate max-w-[120px]">
             {profile?.name || "User"}
           </span>
+
           <button
             type="button"
             onClick={openProfileDialog}
@@ -287,6 +353,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             title="Edit Profile"
           >
             {profile?.name?.charAt(0)?.toUpperCase() || "U"}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/help")}
+            data-ocid="header.help.button"
+            className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white hover:opacity-90 transition-opacity flex-shrink-0"
+            title="Help & Guide"
+          >
+            <HelpCircle className="w-4 h-4" />
           </button>
           <Button
             variant="ghost"
@@ -412,6 +487,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       <GrowfinfireChat />
     </div>
   );

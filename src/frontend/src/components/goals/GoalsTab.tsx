@@ -45,9 +45,23 @@ import {
 import { GoalList } from "./GoalList";
 import { AddGoalDialog } from "./dialogs/AddGoalDialog";
 
-export function GoalsTab() {
+interface GoalsTabProps {
+  externalAddOpen?: boolean;
+  onExternalAddOpenChange?: (open: boolean) => void;
+}
+
+export function GoalsTab({
+  externalAddOpen,
+  onExternalAddOpenChange,
+}: GoalsTabProps = {}) {
   const { data: goals = [], isLoading, isError } = useGetAllGoals();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [_internalAddOpen, _setInternalAddOpen] = useState(false);
+  const isAddDialogOpen =
+    externalAddOpen !== undefined ? externalAddOpen : _internalAddOpen;
+  const setIsAddDialogOpen = (v: boolean) => {
+    _setInternalAddOpen(v);
+    if (onExternalAddOpenChange) onExternalAddOpenChange(v);
+  };
   const { formatCurrency } = useCurrency();
 
   const { data: retirals = [] } = useGetAllRetirals();
@@ -222,30 +236,7 @@ export function GoalsTab() {
         data-ocid="goals.main.card"
         className="rounded-2xl shadow-sm border border-slate-100 bg-white"
       >
-        <CardHeader
-          className="pb-2 pt-4 px-5"
-          style={{ borderLeft: "3px solid #059669" }}
-        >
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow">
-                <Target className="h-4 w-4 text-white" />
-              </div>
-              <CardTitle className="text-base font-bold text-slate-800">
-                Financial Goals
-              </CardTitle>
-            </div>
-            <Button
-              onClick={() => setIsAddDialogOpen(true)}
-              size="sm"
-              className="gap-1.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow text-xs"
-              data-ocid="goals.add_button"
-            >
-              <Plus className="h-3.5 w-3.5" /> Add Goal
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="px-5 pb-5">
+        <CardContent className="px-5 pb-5 pt-4">
           {goals.length === 0 ? (
             <div className="text-center py-12" data-ocid="goals.empty_state">
               <div className="w-16 h-16 rounded-2xl bg-green-50 flex items-center justify-center mx-auto mb-4">
@@ -514,10 +505,7 @@ function GoalsSkeleton() {
       data-ocid="goals.loading_state"
       className="rounded-2xl shadow-sm border border-slate-100 bg-white"
     >
-      <CardHeader className="px-5 pt-4 pb-2">
-        <Skeleton className="h-5 w-40" />
-      </CardHeader>
-      <CardContent className="px-5 pb-5">
+      <CardContent className="px-5 pb-5 pt-4">
         <div className="space-y-2">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-12 w-full" />

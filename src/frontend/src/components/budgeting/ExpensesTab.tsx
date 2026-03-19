@@ -238,7 +238,7 @@ export function ExpensesTab() {
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="h-4 w-4 text-green-600" />
             <span className="text-xs font-medium text-muted-foreground">
-              Total Income
+              Actual Income
             </span>
           </div>
           <div className="text-xl font-bold text-green-600">
@@ -249,7 +249,7 @@ export function ExpensesTab() {
           <div className="flex items-center gap-2 mb-1">
             <TrendingDown className="h-4 w-4 text-red-500" />
             <span className="text-xs font-medium text-muted-foreground">
-              Total Expenses
+              Actual Expenses
             </span>
           </div>
           <div className="text-xl font-bold text-red-500">
@@ -489,6 +489,7 @@ export function ExpensesTab() {
                     setForm((p) => ({
                       ...p,
                       transactionType: v as TransactionType,
+                      categoryId: "",
                     }))
                   }
                 >
@@ -538,11 +539,13 @@ export function ExpensesTab() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
+                  {categories
+                    .filter((c) => c.categoryType === form.transactionType)
+                    .map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>

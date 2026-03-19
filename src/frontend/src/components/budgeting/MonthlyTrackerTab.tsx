@@ -558,74 +558,116 @@ export function MonthlyTrackerTab() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {monthTxns.map((tx, i) => {
-                    const cat = categories.find((c) => c.id === tx.categoryId);
-                    return (
-                      <TableRow
-                        key={tx.id}
-                        data-ocid={`budgeting.item.${i + 1}`}
-                      >
-                        <TableCell className="text-sm">{tx.date}</TableCell>
-                        <TableCell className="text-sm">
-                          {tx.description || "—"}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {cat ? (
-                            <div className="flex items-center gap-1.5">
-                              <div
-                                className="w-2 h-2 rounded-full"
-                                style={{ backgroundColor: cat.color }}
-                              />
-                              {cat.name}
-                            </div>
-                          ) : (
-                            "—"
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={
-                              tx.transactionType === TransactionType.Income
-                                ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
-                                : "bg-red-100 text-red-700 hover:bg-red-100"
-                            }
-                          >
-                            {tx.transactionType}
-                          </Badge>
-                        </TableCell>
-                        <TableCell
-                          className={`text-right font-semibold text-sm ${tx.transactionType === TransactionType.Income ? "text-emerald-600" : "text-red-600"}`}
-                        >
-                          {tx.transactionType === TransactionType.Income
-                            ? "+"
-                            : "-"}
-                          {fmt(tx.amount, country)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1 justify-center">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              data-ocid={`budgeting.edit_button.${i + 1}`}
-                              onClick={() => openEdit(tx)}
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-red-500"
-                              data-ocid={`budgeting.delete_button.${i + 1}`}
-                              onClick={() => del(tx.id)}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                  {(() => {
+                    const incomeRows = monthTxns.filter(
+                      (t) => t.transactionType === TransactionType.Income,
                     );
-                  })}
+                    const expenseRows = monthTxns.filter(
+                      (t) => t.transactionType === TransactionType.Expense,
+                    );
+                    const renderTx = (tx: Transaction, i: number) => {
+                      const cat = categories.find(
+                        (c) => c.id === tx.categoryId,
+                      );
+                      return (
+                        <TableRow
+                          key={tx.id}
+                          data-ocid={`budgeting.item.${i + 1}`}
+                        >
+                          <TableCell className="text-sm">{tx.date}</TableCell>
+                          <TableCell className="text-sm">
+                            {tx.description || "—"}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {cat ? (
+                              <div className="flex items-center gap-1.5">
+                                <div
+                                  className="w-2 h-2 rounded-full"
+                                  style={{ backgroundColor: cat.color }}
+                                />
+                                {cat.name}
+                              </div>
+                            ) : (
+                              "—"
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              className={
+                                tx.transactionType === TransactionType.Income
+                                  ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+                                  : "bg-red-100 text-red-700 hover:bg-red-100"
+                              }
+                            >
+                              {tx.transactionType}
+                            </Badge>
+                          </TableCell>
+                          <TableCell
+                            className={`text-right font-semibold text-sm ${tx.transactionType === TransactionType.Income ? "text-emerald-600" : "text-red-600"}`}
+                          >
+                            {tx.transactionType === TransactionType.Income
+                              ? "+"
+                              : "-"}
+                            {fmt(tx.amount, country)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1 justify-center">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                data-ocid={`budgeting.edit_button.${i + 1}`}
+                                onClick={() => openEdit(tx)}
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-red-500"
+                                data-ocid={`budgeting.delete_button.${i + 1}`}
+                                onClick={() => del(tx.id)}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    };
+                    return (
+                      <>
+                        {incomeRows.length > 0 && (
+                          <>
+                            <TableRow>
+                              <TableCell
+                                colSpan={6}
+                                className="py-1.5 px-4 bg-green-50 text-green-700 text-xs font-bold uppercase tracking-wide border-b border-green-100"
+                              >
+                                Income
+                              </TableCell>
+                            </TableRow>
+                            {incomeRows.map((tx, i) => renderTx(tx, i))}
+                          </>
+                        )}
+                        {expenseRows.length > 0 && (
+                          <>
+                            <TableRow>
+                              <TableCell
+                                colSpan={6}
+                                className="py-1.5 px-4 bg-red-50 text-red-700 text-xs font-bold uppercase tracking-wide border-b border-red-100"
+                              >
+                                Expenses
+                              </TableCell>
+                            </TableRow>
+                            {expenseRows.map((tx, i) =>
+                              renderTx(tx, incomeRows.length + i),
+                            )}
+                          </>
+                        )}
+                      </>
+                    );
+                  })()}
                 </TableBody>
               </Table>
             </div>

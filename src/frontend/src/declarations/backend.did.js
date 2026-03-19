@@ -8,10 +8,25 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const AdminModuleAccess = IDL.Record({
+  'principal' : IDL.Principal,
+  'modules' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
+});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
+});
+export const UserProfile = IDL.Record({
+  'name' : IDL.Text,
+  'email' : IDL.Text,
+});
+export const AdminUserInfo = IDL.Record({
+  'principal' : IDL.Principal,
+  'isBlocked' : IDL.Bool,
+  'role' : UserRole,
+  'blockedReason' : IDL.Text,
+  'profile' : IDL.Opt(UserProfile),
 });
 export const TransactionType = IDL.Variant({
   'Income' : IDL.Null,
@@ -101,10 +116,6 @@ export const Transaction = IDL.Record({
   'account' : IDL.Text,
   'amount' : IDL.Float64,
 });
-export const UserProfile = IDL.Record({
-  'name' : IDL.Text,
-  'email' : IDL.Text,
-});
 export const DashboardSummary = IDL.Record({
   'modelCount' : IDL.Nat,
   'totalIncome' : IDL.Float64,
@@ -117,9 +128,25 @@ export const DashboardSummary = IDL.Record({
   'ruleCount' : IDL.Nat,
   'transactionCount' : IDL.Nat,
 });
+export const BlockedStatus = IDL.Record({
+  'blocked' : IDL.Bool,
+  'reason' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'adminBlockUser' : IDL.Func([IDL.Principal, IDL.Bool, IDL.Text], [], []),
+  'adminGetAllUserModuleAccess' : IDL.Func(
+      [],
+      [IDL.Vec(AdminModuleAccess)],
+      ['query'],
+    ),
+  'adminGetAllUsers' : IDL.Func([], [IDL.Vec(AdminUserInfo)], ['query']),
+  'adminSetModuleAccess' : IDL.Func(
+      [IDL.Principal, IDL.Text, IDL.Bool],
+      [],
+      [],
+    ),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createBudgetCategory' : IDL.Func([BudgetCategory], [BudgetCategory], []),
   'createFinancialModel' : IDL.Func([FinancialModel], [FinancialModel], []),
@@ -181,12 +208,18 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getTransaction' : IDL.Func([IDL.Text], [IDL.Opt(Transaction)], ['query']),
+  'getUserModuleAccess' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool))],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isCallerBlocked' : IDL.Func([], [BlockedStatus], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'updateBudgetCategory' : IDL.Func(
       [IDL.Text, BudgetCategory],
@@ -225,10 +258,22 @@ export const idlService = IDL.Service({
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const AdminModuleAccess = IDL.Record({
+    'principal' : IDL.Principal,
+    'modules' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
+  });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text, 'email' : IDL.Text });
+  const AdminUserInfo = IDL.Record({
+    'principal' : IDL.Principal,
+    'isBlocked' : IDL.Bool,
+    'role' : UserRole,
+    'blockedReason' : IDL.Text,
+    'profile' : IDL.Opt(UserProfile),
   });
   const TransactionType = IDL.Variant({
     'Income' : IDL.Null,
@@ -318,7 +363,6 @@ export const idlFactory = ({ IDL }) => {
     'account' : IDL.Text,
     'amount' : IDL.Float64,
   });
-  const UserProfile = IDL.Record({ 'name' : IDL.Text, 'email' : IDL.Text });
   const DashboardSummary = IDL.Record({
     'modelCount' : IDL.Nat,
     'totalIncome' : IDL.Float64,
@@ -331,9 +375,25 @@ export const idlFactory = ({ IDL }) => {
     'ruleCount' : IDL.Nat,
     'transactionCount' : IDL.Nat,
   });
+  const BlockedStatus = IDL.Record({
+    'blocked' : IDL.Bool,
+    'reason' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'adminBlockUser' : IDL.Func([IDL.Principal, IDL.Bool, IDL.Text], [], []),
+    'adminGetAllUserModuleAccess' : IDL.Func(
+        [],
+        [IDL.Vec(AdminModuleAccess)],
+        ['query'],
+      ),
+    'adminGetAllUsers' : IDL.Func([], [IDL.Vec(AdminUserInfo)], ['query']),
+    'adminSetModuleAccess' : IDL.Func(
+        [IDL.Principal, IDL.Text, IDL.Bool],
+        [],
+        [],
+      ),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createBudgetCategory' : IDL.Func([BudgetCategory], [BudgetCategory], []),
     'createFinancialModel' : IDL.Func([FinancialModel], [FinancialModel], []),
@@ -407,12 +467,18 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getTransaction' : IDL.Func([IDL.Text], [IDL.Opt(Transaction)], ['query']),
+    'getUserModuleAccess' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool))],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isCallerBlocked' : IDL.Func([], [BlockedStatus], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'updateBudgetCategory' : IDL.Func(
         [IDL.Text, BudgetCategory],

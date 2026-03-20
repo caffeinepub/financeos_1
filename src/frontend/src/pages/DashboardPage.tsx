@@ -278,7 +278,7 @@ export default function DashboardPage() {
     [byType],
   );
 
-  const forecast20 = useMemo(() => {
+  const _forecast20 = useMemo(() => {
     const yr = new Date().getFullYear();
     return Array.from({ length: 21 }, (_, i) => {
       const row: Record<string, number | string> = { year: yr + i };
@@ -545,9 +545,37 @@ export default function DashboardPage() {
                     data={allocationPie}
                     cx="50%"
                     cy="50%"
+                    innerRadius={50}
                     outerRadius={90}
                     dataKey="value"
                     labelLine={false}
+                    label={({
+                      cx,
+                      cy,
+                      midAngle,
+                      innerRadius,
+                      outerRadius,
+                      percent,
+                    }) => {
+                      const RADIAN = Math.PI / 180;
+                      const radius =
+                        innerRadius + (outerRadius - innerRadius) * 0.5;
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      return percent > 0.04 ? (
+                        <text
+                          x={x}
+                          y={y}
+                          fill="white"
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fontSize={11}
+                          fontWeight={600}
+                        >
+                          {`${(percent * 100).toFixed(0)}%`}
+                        </text>
+                      ) : null;
+                    }}
                   >
                     {allocationPie.map((entry) => (
                       <Cell
@@ -1095,87 +1123,6 @@ export default function DashboardPage() {
         </Card>
       </div>
       {/* end savings+risk grid */}
-      {/* ── 20-Year Forecast Table ── */}
-      <Card
-        data-ocid="dashboard.forecast20_table.card"
-        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-      >
-        <CardHeader className="pb-2 pt-4 px-5">
-          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-            20-Year Portfolio Forecast
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-400">
-            Year-by-year projection using asset-specific CAGR rates
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-0 pb-0">
-          <div
-            style={
-              {
-                transform: "rotateX(180deg)",
-                overflowX: "auto",
-                WebkitOverflowScrolling: "touch",
-              } as React.CSSProperties
-            }
-          >
-            <div style={{ transform: "rotateX(180deg)", minWidth: 600 }}>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
-                      Year
-                    </TableHead>
-                    {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map(
-                      (t) => (
-                        <TableHead
-                          key={t}
-                          className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right"
-                        >
-                          {ASSET_CONFIG[t].shortLabel}
-                        </TableHead>
-                      ),
-                    )}
-                    <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right">
-                      Total
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {forecast20.map((row, idx) => {
-                    const total = ASSET_TYPES.filter(
-                      (t) => (byType[t] ?? 0) > 0,
-                    ).reduce((s, t) => s + Number(row[t] ?? 0), 0);
-                    return (
-                      <TableRow
-                        key={String(row.year)}
-                        data-ocid={`dashboard.forecast20.row.${idx + 1}`}
-                        className={`hover:bg-slate-50/80 ${idx % 5 === 0 ? "bg-blue-50/30" : ""}`}
-                      >
-                        <TableCell className="text-xs font-semibold text-slate-700 tabular-nums">
-                          {String(row.year)}
-                        </TableCell>
-                        {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map(
-                          (t) => (
-                            <TableCell
-                              key={t}
-                              className="text-xs text-right text-slate-600 tabular-nums"
-                            >
-                              {shortNum(Number(row[t] ?? 0), sym)}
-                            </TableCell>
-                          ),
-                        )}
-                        <TableCell className="text-xs text-right font-bold text-emerald-700 tabular-nums">
-                          {shortNum(total, sym)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

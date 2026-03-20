@@ -1,1 +1,4 @@
-[{"match": ".well-known", "ignore": false, "headers": {"Access-Control-Allow-Origin": "*", "Content-Type": "text/plain"}}]
+[
+  {"match": ".well-known/ic-domains", "ignore": false, "headers": {"Content-Type": "text/plain", "Access-Control-Allow-Origin": "*"}},
+  {"match": ".well-known/ii-alternative-origins", "ignore": false, "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}}
+]

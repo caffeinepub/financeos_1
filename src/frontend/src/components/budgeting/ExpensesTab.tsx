@@ -36,14 +36,15 @@ import {
 } from "../ui/select";
 import { Skeleton } from "../ui/skeleton";
 
-const emptyForm = {
-  date: "",
+const getEmptyForm = () => ({
+  // date set dynamically in openAdd
+  date: new Date().toISOString().slice(0, 10),
   description: "",
   account: "",
   categoryId: "",
   transactionType: TransactionType.Expense,
   amount: 0,
-};
+});
 
 export function ExpensesTab() {
   const { actor } = useActor();
@@ -61,7 +62,7 @@ export function ExpensesTab() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(getEmptyForm());
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<"All" | TransactionType>("All");
@@ -88,7 +89,7 @@ export function ExpensesTab() {
 
   const openAdd = () => {
     setEditing(null);
-    setForm(emptyForm);
+    setForm(getEmptyForm());
     setOpen(true);
   };
   const openEdit = (t: Transaction) => {
@@ -111,7 +112,7 @@ export function ExpensesTab() {
       if (editing) {
         await actor.updateTransaction(editing.id, { id: editing.id, ...form });
       } else {
-        await actor.createTransaction({ id: "", ...form });
+        await actor.createTransaction({ id: crypto.randomUUID(), ...form });
       }
       setOpen(false);
       load();

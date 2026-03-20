@@ -68,6 +68,12 @@ import {
 import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
 
+function shortNum(n: number, sym: string): string {
+  if (n >= 10_000_000) return `${sym}${(n / 10_000_000).toFixed(2)} Cr`;
+  if (n >= 100_000) return `${sym}${(n / 100_000).toFixed(2)}L`;
+  return `${sym}${Math.round(n).toLocaleString("en-IN")}`;
+}
+
 const SLICE_COLORS = [
   "#60a5fa",
   "#34d399",
@@ -509,6 +515,61 @@ export default function PortfolioPage() {
           <Plus className="w-4 h-4" /> Add Holding
         </Button>
       </div>
+
+      {/* ── Portfolio Summary Cards (all tabs) ── */}
+      {(() => {
+        const _totalInvested = holdings.reduce(
+          (s, h) => s + h.costBasis * h.quantity,
+          0,
+        );
+        const _currentValue = holdings.reduce((s, h) => s + h.currentValue, 0);
+        const _gainLoss = _currentValue - _totalInvested;
+        const _gainLossPct =
+          _totalInvested > 0 ? (_gainLoss / _totalInvested) * 100 : 0;
+        const sym = "₹";
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-1">
+            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+              <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium mb-1">
+                Total Invested
+              </p>
+              <p className="text-sm font-bold text-slate-700 tabular-nums">
+                {shortNum(_totalInvested, sym)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+              <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium mb-1">
+                Current Value
+              </p>
+              <p className="text-sm font-bold text-slate-800 tabular-nums">
+                {shortNum(_currentValue, sym)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+              <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium mb-1">
+                Gain / Loss
+              </p>
+              <p
+                className={`text-sm font-bold tabular-nums ${_gainLoss >= 0 ? "text-emerald-600" : "text-red-500"}`}
+              >
+                {_gainLoss >= 0 ? "+" : ""}
+                {shortNum(_gainLoss, sym)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+              <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium mb-1">
+                % Gain/Loss
+              </p>
+              <p
+                className={`text-sm font-bold tabular-nums ${_gainLossPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
+              >
+                {_gainLossPct >= 0 ? "+" : ""}
+                {_gainLossPct.toFixed(2)}%
+              </p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Industry-standard pill tab bar */}
       <div className="overflow-x-auto pb-1">
@@ -1488,6 +1549,178 @@ function PortfolioOverview({
           </CardContent>
         </Card>
       </div>
+
+      {/* ── 20-Year Portfolio Forecast ── */}
+      {(() => {
+        const PFCFG: Record<
+          string,
+          { shortLabel: string; color: string; cagr: number }
+        > = {
+          Retirement: { shortLabel: "Retiral", color: "#8b5cf6", cagr: 0.08 },
+          ETF: { shortLabel: "Equity", color: "#3b82f6", cagr: 0.12 },
+          MutualFund: {
+            shortLabel: "Mutual Fund",
+            color: "#10b981",
+            cagr: 0.12,
+          },
+          FixedIncome: { shortLabel: "FDs", color: "#f59e0b", cagr: 0.07 },
+          Crypto: { shortLabel: "Crypto", color: "#ef4444", cagr: 0.2 },
+          Commodity: { shortLabel: "Commodity", color: "#f97316", cagr: 0.08 },
+          RealEstate: {
+            shortLabel: "Real Estate",
+            color: "#06b6d4",
+            cagr: 0.1,
+          },
+          Other: { shortLabel: "Other", color: "#6b7280", cagr: 0.08 },
+        };
+        const PTYPES = Object.keys(PFCFG);
+        const pByType: Record<string, number> = {};
+        for (const t of PTYPES) {
+          pByType[t] = holdings
+            .filter((h) => h.assetType === t)
+            .reduce((s, h) => s + h.currentValue, 0);
+        }
+        const activeTypes = PTYPES.filter((t) => (pByType[t] ?? 0) > 0);
+        if (activeTypes.length === 0) return null;
+        const yr = new Date().getFullYear();
+        const forecast = Array.from({ length: 21 }, (_, i) => {
+          const row: Record<string, number | string> = { year: yr + i };
+          for (const t of activeTypes) {
+            row[t] = Math.round((pByType[t] ?? 0) * (1 + PFCFG[t].cagr) ** i);
+          }
+          return row;
+        });
+        const sym = "₹";
+        return (
+          <>
+            {/* Bar Chart */}
+            <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+              <CardHeader className="pb-2 pt-4 px-5">
+                <CardTitle className="text-sm font-semibold text-slate-700">
+                  20-Year Portfolio Forecast
+                </CardTitle>
+                <p className="text-xs text-slate-400">
+                  Year-by-year projection using asset-specific CAGR rates
+                </p>
+              </CardHeader>
+              <CardContent className="px-2 pb-4">
+                <div style={{ overflowX: "auto" }}>
+                  <div style={{ minWidth: 600 }}>
+                    <ResponsiveContainer width="100%" height={260}>
+                      <BarChart
+                        data={forecast.slice(0, 20)}
+                        margin={{ top: 4, right: 8, left: 0, bottom: 4 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                        <XAxis dataKey="year" tick={{ fontSize: 10 }} />
+                        <YAxis
+                          tickFormatter={(v) => shortNum(Number(v), sym)}
+                          tick={{ fontSize: 10 }}
+                          width={56}
+                        />
+                        <Tooltip
+                          formatter={(v: number, name: string) => [
+                            shortNum(v, sym),
+                            PFCFG[name]?.shortLabel ?? name,
+                          ]}
+                          contentStyle={{
+                            fontSize: "11px",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <Legend
+                          wrapperStyle={{ fontSize: "11px" }}
+                          formatter={(name) => PFCFG[name]?.shortLabel ?? name}
+                        />
+                        {activeTypes.map((t) => (
+                          <Bar
+                            key={t}
+                            dataKey={t}
+                            fill={PFCFG[t].color}
+                            stackId="a"
+                            radius={[0, 0, 0, 0]}
+                          />
+                        ))}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Forecast Table */}
+            <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+              <CardHeader className="pb-2 pt-4 px-5">
+                <CardTitle className="text-sm font-semibold text-slate-700">
+                  20-Year Forecast Table
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-0 pb-0">
+                <div
+                  style={
+                    {
+                      transform: "rotateX(180deg)",
+                      overflowX: "auto",
+                    } as React.CSSProperties
+                  }
+                >
+                  <div style={{ transform: "rotateX(180deg)", minWidth: 600 }}>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
+                            Year
+                          </TableHead>
+                          {activeTypes.map((t) => (
+                            <TableHead
+                              key={t}
+                              className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right"
+                            >
+                              {PFCFG[t].shortLabel}
+                            </TableHead>
+                          ))}
+                          <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right">
+                            Total
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {forecast.map((row, idx) => {
+                          const total = activeTypes.reduce(
+                            (s, t) => s + Number(row[t] ?? 0),
+                            0,
+                          );
+                          return (
+                            <TableRow
+                              key={String(row.year)}
+                              className={`hover:bg-slate-50/80 ${idx % 5 === 0 ? "bg-blue-50/30" : ""}`}
+                            >
+                              <TableCell className="text-xs font-semibold text-slate-700 tabular-nums">
+                                {String(row.year)}
+                              </TableCell>
+                              {activeTypes.map((t) => (
+                                <TableCell
+                                  key={t}
+                                  className="text-xs text-right text-slate-600 tabular-nums"
+                                >
+                                  {shortNum(Number(row[t] ?? 0), sym)}
+                                </TableCell>
+                              ))}
+                              <TableCell className="text-xs text-right font-bold text-emerald-700 tabular-nums">
+                                {shortNum(total, sym)}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        );
+      })()}
     </div>
   );
 }

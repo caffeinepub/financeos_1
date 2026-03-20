@@ -12,7 +12,10 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   Legend,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -209,6 +212,24 @@ export function MonthlyTrackerTab() {
       .reduce((s, c) => s + (c.id in ov ? ov[c.id] : c.monthlyLimit), 0);
   }, [categories, selectedMonth, selectedYear]);
   const netSavings = totalIncome - totalActual;
+  const savingsRate = totalIncome > 0 ? (netSavings / totalIncome) * 100 : 0;
+
+  const budgetedIncome = useMemo(
+    () =>
+      categories
+        .filter((c) => c.categoryType === TransactionType.Income)
+        .reduce((s, c) => s + c.monthlyLimit, 0),
+    [categories],
+  );
+  const budgetedExpenses = totalPlanned;
+  const incomePct =
+    budgetedIncome > 0
+      ? Math.min(200, (totalIncome / budgetedIncome) * 100)
+      : 0;
+  const expensePct =
+    budgetedExpenses > 0
+      ? Math.min(200, (totalActual / budgetedExpenses) * 100)
+      : 0;
 
   const chartData = [
     {
@@ -320,90 +341,192 @@ export function MonthlyTrackerTab() {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card
-          data-ocid="budgeting.income.card"
-          className="border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20"
-        >
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs text-emerald-600 font-medium">
-                  Monthly Income
+      {/* Budget Insights Top Panel — Donut Charts + Metric Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Left: Two donut charts */}
+        <Card className="border border-slate-100 shadow-sm bg-white">
+          <CardContent className="pt-4 pb-3 px-3">
+            <div className="grid grid-cols-2 gap-2">
+              {/* Income Budget Donut */}
+              <div className="flex flex-col items-center">
+                <p className="text-xs font-semibold text-slate-600 mb-1">
+                  % of Income Budget
                 </p>
-                <p className="text-xl font-bold text-emerald-700 mt-1">
-                  {fmt(totalIncome, country)}
+                <div className="relative w-[130px] h-[130px]">
+                  <PieChart width={130} height={130}>
+                    <Pie
+                      data={[
+                        { value: incomePct, fill: "#10b981" },
+                        {
+                          value: Math.max(0, 100 - incomePct),
+                          fill: "#f1f5f9",
+                        },
+                      ]}
+                      cx={60}
+                      cy={60}
+                      innerRadius={45}
+                      outerRadius={60}
+                      startAngle={90}
+                      endAngle={-270}
+                      dataKey="value"
+                      strokeWidth={0}
+                    >
+                      {[0, 1].map((i) => (
+                        <Cell key={i} fill={i === 0 ? "#10b981" : "#f1f5f9"} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-bold text-emerald-600">
+                      {incomePct.toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Budget: {fmt(budgetedIncome, country)}
+                </p>
+                <p className="text-[10px] text-slate-500">
+                  Balance:{" "}
+                  {fmt(Math.max(0, budgetedIncome - totalIncome), country)}
                 </p>
               </div>
-              <TrendingUp className="w-5 h-5 text-emerald-500 mt-1" />
+              {/* Expenses Budget Donut */}
+              <div className="flex flex-col items-center">
+                <p className="text-xs font-semibold text-slate-600 mb-1">
+                  % of Expenses Budget
+                </p>
+                <div className="relative w-[130px] h-[130px]">
+                  <PieChart width={130} height={130}>
+                    <Pie
+                      data={[
+                        {
+                          value: expensePct,
+                          fill: expensePct > 90 ? "#ef4444" : "#f97316",
+                        },
+                        {
+                          value: Math.max(0, 100 - expensePct),
+                          fill: "#f1f5f9",
+                        },
+                      ]}
+                      cx={60}
+                      cy={60}
+                      innerRadius={45}
+                      outerRadius={60}
+                      startAngle={90}
+                      endAngle={-270}
+                      dataKey="value"
+                      strokeWidth={0}
+                    >
+                      {[0, 1].map((i) => (
+                        <Cell
+                          key={i}
+                          fill={
+                            i === 0
+                              ? expensePct > 90
+                                ? "#ef4444"
+                                : "#f97316"
+                              : "#f1f5f9"
+                          }
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span
+                      className={`text-lg font-bold ${expensePct > 90 ? "text-red-500" : "text-orange-500"}`}
+                    >
+                      {expensePct.toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Budget: {fmt(budgetedExpenses, country)}
+                </p>
+                <p className="text-[10px] text-slate-500">
+                  Balance:{" "}
+                  {fmt(Math.max(0, budgetedExpenses - totalActual), country)}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card
-          data-ocid="budgeting.planned.card"
-          className="border-blue-200 bg-blue-50 dark:bg-blue-950/20"
-        >
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs text-blue-600 font-medium">
-                  Planned Expenses
-                </p>
-                <p className="text-xl font-bold text-blue-700 mt-1">
-                  {fmt(totalPlanned, country)}
-                </p>
+
+        {/* Right: 4 Metric Cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <Card
+            data-ocid="budgeting.income.card"
+            className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50"
+          >
+            <CardContent className="p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="text-[10px] text-emerald-600 font-medium uppercase tracking-wide">
+                  Actual Income
+                </span>
               </div>
-              <Wallet className="w-5 h-5 text-blue-500 mt-1" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card
-          data-ocid="budgeting.actual.card"
-          className="border-red-200 bg-red-50 dark:bg-red-950/20"
-        >
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs text-red-600 font-medium">
+              <p className="text-base font-bold text-emerald-700">
+                {fmt(totalIncome, country)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card
+            data-ocid="budgeting.actual.card"
+            className="border-red-200 bg-gradient-to-br from-red-50 to-rose-50"
+          >
+            <CardContent className="p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <TrendingDown className="w-3.5 h-3.5 text-red-500" />
+                <span className="text-[10px] text-red-600 font-medium uppercase tracking-wide">
                   Actual Expenses
-                </p>
-                <p className="text-xl font-bold text-red-700 mt-1">
-                  {fmt(totalActual, country)}
-                </p>
+                </span>
               </div>
-              <TrendingDown className="w-5 h-5 text-red-500 mt-1" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card
-          data-ocid="budgeting.savings.card"
-          className={
-            netSavings >= 0
-              ? "border-green-200 bg-green-50 dark:bg-green-950/20"
-              : "border-orange-200 bg-orange-50 dark:bg-orange-950/20"
-          }
-        >
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p
-                  className={`text-xs font-medium ${netSavings >= 0 ? "text-green-600" : "text-orange-600"}`}
+              <p className="text-base font-bold text-red-600">
+                {fmt(totalActual, country)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card
+            data-ocid="budgeting.savings.card"
+            className={
+              netSavings >= 0
+                ? "border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50"
+                : "border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50"
+            }
+          >
+            <CardContent className="p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <PiggyBank
+                  className={`w-3.5 h-3.5 ${netSavings >= 0 ? "text-blue-500" : "text-orange-500"}`}
+                />
+                <span
+                  className={`text-[10px] font-medium uppercase tracking-wide ${netSavings >= 0 ? "text-blue-600" : "text-orange-600"}`}
                 >
                   Net Savings
-                </p>
-                <p
-                  className={`text-xl font-bold mt-1 ${netSavings >= 0 ? "text-green-700" : "text-orange-700"}`}
-                >
-                  {fmt(netSavings, country)}
-                </p>
+                </span>
               </div>
-              <PiggyBank
-                className={`w-5 h-5 mt-1 ${netSavings >= 0 ? "text-green-500" : "text-orange-500"}`}
-              />
-            </div>
-          </CardContent>
-        </Card>
+              <p
+                className={`text-base font-bold ${netSavings >= 0 ? "text-blue-700" : "text-orange-600"}`}
+              >
+                {fmt(netSavings, country)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Wallet className="w-3.5 h-3.5 text-purple-500" />
+                <span className="text-[10px] text-purple-600 font-medium uppercase tracking-wide">
+                  Savings Rate
+                </span>
+              </div>
+              <p
+                className={`text-base font-bold ${savingsRate >= 20 ? "text-purple-700" : "text-orange-600"}`}
+              >
+                {savingsRate.toFixed(1)}%
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Category Breakdown */}

@@ -1,37 +1,34 @@
 # Growfinfire Global
 
 ## Current State
-- BudgetingPage.tsx has 3 tabs: "Budget Categories", "Income & Expenses", "Monthly Tracker"
-- ExpensesTab.tsx has type filter and search but no Month/Year filter; card totals use all-time data
-- MonthlyTrackerTab.tsx has a Monthly Overview chart somewhere in the page
-- DashboardPage.tsx: Goals Progress shows name + progress bar only; Budgeting 6M "Planned" totals ALL category monthlyLimits (income + expense); Expense by Category pie has no value/% labels; Savings Rate chart has tight margins; Risk vs Return tooltip formatter is correct
-- No admin files exist
+- Budgeting has 3 tabs: Plan Budget, Track Income & Expense, Budget Insights
+- Track Income & Expense: transactions are saved to backend via `actor.createTransaction()` but pass `id: ""`, causing all transactions to overwrite each other at key "" in the backend map — data is lost on reload
+- Budget Insights top panel: simple summary cards; actual income/expense values not aggregated from transaction data
+- Dashboard: Asset Allocation uses a PieChart (no donut); 20-year Forecast table sits at the bottom of Dashboard
+- Portfolio: Overview tab shows allocation table and charts; no summary cards on any portfolio page; no forecast chart
 
 ## Requested Changes (Diff)
 
 ### Add
-- ExpensesTab: Month and Year dropdowns (default = current month/year, plus "All" option). Filter transactions and recompute summary cards based on selection.
+- Portfolio: 4 summary cards (Total Invested, Current Value, Gain/Loss, %Gain/Loss) displayed at top of ALL portfolio pages (Overview + all 8 asset-type pages); 2-column grid on mobile, 4-column on md+
+- Portfolio Overview: 20-year Forecast bar chart (grouped bar: each asset type per year) + forecast table moved from Dashboard, placed at the bottom of Portfolio Overview
+- Budget Insights top panel: two donut charts — "% of Income Budget Used" (actual/budgeted income) and "% of Expenses Budget Used" (actual/budgeted expenses) — plus metric cards for Actual Income, Actual Expenses, Net Savings (Actual Income minus Actual Expenses)
 
 ### Modify
-- BudgetingPage.tsx tab labels: "Budget Categories" → "Plan Budget"; "Income & Expenses" → "Track Income & Expenses"; "Monthly Tracker" → "Budget Insights"
-- ExpensesTab: summary cards (Income, Expense, Net) recalculate based on month/year filter selection
-- MonthlyTrackerTab: move Monthly Overview — Income vs Expenses chart to the bottom (end) of the page; ensure it shows 6 months
-- DashboardPage Goals Progress: each goal item shows Goal Date (formatted from targetDate BigInt) and estimated SIP amount (=(targetAmount - currentAmount) / monthsRemaining)
-- DashboardPage Budgeting 6M: fix totalPlanned to sum only Expense categories (filter budgetCats by TransactionType.Expense before summing monthlyLimit)
-- DashboardPage Expense by Category: add % labels alongside value in Tooltip and Legend (name: "Category (value | XX%)"), also add renderCustomizedLabel or use label prop on Pie for each slice showing "XX%"
-- DashboardPage Savings Rate chart: increase height to 220, adjust margins to top:10, right:20, left:5, bottom:20 for better fitment
-- DashboardPage Risk vs Return: already correct in tooltip, but ensure chart height is 300 and the ScatterChart has proper margin for axis labels
+- ExpensesTab.tsx: Fix `save()` function — generate a unique ID via `crypto.randomUUID()` before calling `createTransaction()` so each transaction is stored separately
+- ExpensesTab.tsx: date field added per-transaction (already exists but ensure it's captured); allow multiple transactions per category
+- MonthlyTrackerTab.tsx (Budget Insights): actual income/expense values in top panel aggregate from backend transaction data (sum amounts by transactionType for selected month/year), not hardcoded or category-limit-based
+- MonthlyTrackerTab.tsx: reduce card sizes on mobile to be consistent with Plan Budget and Track Income & Expense tabs; use same compact card height/padding
+- DashboardPage.tsx: Asset Allocation chart — convert from PieChart to donut PieChart (innerRadius set, % labels shown on each slice or in tooltip)
+- DashboardPage.tsx: Remove 20-year Forecast table entirely from Dashboard
 
 ### Remove
-- No admin code (already absent)
+- Dashboard: 20-year Forecast table section removed from DashboardPage.tsx
 
 ## Implementation Plan
-1. Edit `src/frontend/src/pages/BudgetingPage.tsx`: rename 3 tab labels
-2. Edit `src/frontend/src/components/budgeting/ExpensesTab.tsx`: add month/year state, filter transactions by selected month/year, recompute card totals
-3. Edit `src/frontend/src/components/budgeting/MonthlyTrackerTab.tsx`: move Monthly Overview chart to end of component
-4. Edit `src/frontend/src/pages/DashboardPage.tsx`:
-   a. Fix budgetChart useMemo to filter only expense categories
-   b. Update Goals Progress items to show deadline + SIP estimate
-   c. Update Expense by Category pie to show value+% in label/tooltip
-   d. Fix Savings Rate chart height/margins
-   e. Fix Risk vs Return chart height
+1. Fix `ExpensesTab.tsx` `save()`: replace `id: ""` with `id: crypto.randomUUID()` for new transactions
+2. Update `MonthlyTrackerTab.tsx` top panel: fetch all transactions, filter by selected month/year, sum Income and Expense amounts, display as donut charts + metric cards inspired by the attached reference image (two donuts side-by-side, metric cards to the right)
+3. Standardize card sizing across all 3 budgeting tabs for mobile (compact `p-3` cards, consistent height)
+4. `DashboardPage.tsx`: change Asset Allocation PieChart to donut (add `innerRadius={50}`) with % labels rendered via `renderCustomizedLabel` or `Cell` labels; remove the entire forecast table section
+5. `PortfolioPage.tsx`: extract `forecast20` computation (already exists in DashboardPage) and add it to PortfolioOverview component; add grouped BarChart of forecast at bottom of Overview; add forecast table below chart
+6. `PortfolioPage.tsx`: add 4-card summary row (Total Invested, Current Value, Gain/Loss, %Gain/Loss) computed from `holdings` at top of page — visible on ALL tabs (Overview + per-asset pages); grid-cols-2 on mobile, grid-cols-4 on md+

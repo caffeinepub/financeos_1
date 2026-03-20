@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertCircle,
   BarChart3,
+  MinusCircle,
   PieChart,
   Plus,
   Target,
@@ -122,6 +123,7 @@ export function GoalsTab({
   }, [goals, allInvestments]);
 
   const totalTargetAmount = goals.reduce((sum, g) => sum + g.targetAmount, 0);
+  const amountRequired = Math.max(0, totalTargetAmount - currentSavings);
 
   const overallProgress = useMemo(() => {
     if (totalTargetAmount === 0) return 0;
@@ -259,8 +261,9 @@ export function GoalsTab({
             </div>
           ) : (
             <>
-              {/* Summary Cards — compact horizontal metric layout */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+              {/* Summary Cards — 4 cards, 2 per row on mobile, 4 on desktop */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+                {/* Total Target */}
                 <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-green-100 px-4 py-3 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center flex-shrink-0">
                     <TrendingUp className="w-4 h-4 text-green-600" />
@@ -275,6 +278,7 @@ export function GoalsTab({
                   </div>
                 </div>
 
+                {/* Current Savings */}
                 <div className="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-pink-100 px-4 py-3 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
                     <PieChart className="w-4 h-4 text-purple-600" />
@@ -289,6 +293,22 @@ export function GoalsTab({
                   </div>
                 </div>
 
+                {/* Amount Required */}
+                <div className="rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-100 px-4 py-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+                    <MinusCircle className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold text-amber-700 uppercase tracking-wide">
+                      Amount Required
+                    </p>
+                    <p className="text-lg font-extrabold text-amber-600 tabular-nums truncate">
+                      {formatCurrency(amountRequired)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Overall Progress */}
                 <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-100 px-4 py-3 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0">
                     <BarChart3 className="w-4 h-4 text-blue-600" />
@@ -415,6 +435,7 @@ export function GoalsTab({
                               );
                             return `${((entry.value / total) * 100).toFixed(0)}%`;
                           }}
+                          innerRadius={40}
                           outerRadius={75}
                           dataKey="value"
                         >
@@ -466,6 +487,7 @@ export function GoalsTab({
                               );
                             return `${((entry.value / total) * 100).toFixed(0)}%`;
                           }}
+                          innerRadius={40}
                           outerRadius={75}
                           dataKey="value"
                         >

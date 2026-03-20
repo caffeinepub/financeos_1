@@ -18,6 +18,7 @@ import {
   Building2,
   Calculator,
   Car,
+  ChevronDown,
   Coins,
   CreditCard,
   DollarSign,
@@ -136,6 +137,18 @@ export function CalculatorsTab() {
     null,
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    new Set(),
+  );
+
+  const toggleCategory = (name: string) => {
+    setExpandedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
 
   const categories: CalculatorCategory[] = [
     {
@@ -570,6 +583,15 @@ export function CalculatorsTab() {
     }
   };
 
+  const categoryMeta: Record<string, { emoji: string; borderColor: string }> = {
+    "Investment Planners": { emoji: "📈", borderColor: "#3b82f6" },
+    "Retirement & Goals": { emoji: "🎯", borderColor: "#10b981" },
+    "Loan & EMI": { emoji: "🏠", borderColor: "#f97316" },
+    "Tax Planners": { emoji: "📋", borderColor: "#8b5cf6" },
+    "Savings & Deposits": { emoji: "💰", borderColor: "#f59e0b" },
+    "Life Planners": { emoji: "👨‍👩‍👧", borderColor: "#ec4899" },
+  };
+
   if (activeCalculator) {
     const selectedCalc = allCalculators.find((c) => c.id === activeCalculator);
     const CalcIcon = selectedCalc?.icon || Calculator;
@@ -634,59 +656,74 @@ export function CalculatorsTab() {
 
           <div className="grid gap-3">
             {filteredCategories.map((category) => {
-              const CategoryIcon = category.icon;
+              const meta = categoryMeta[category.name] ?? {
+                emoji: "📊",
+                borderColor: "#64748b",
+              };
+              const isExpanded =
+                searchQuery.trim() !== "" ||
+                expandedCategories.has(category.name);
               return (
-                <Card
+                <div
                   key={category.name}
-                  className="shadow-sm border-border/50 overflow-hidden hover:shadow-md transition-all"
+                  className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-all"
+                  style={{ borderLeft: `4px solid ${meta.borderColor}` }}
                 >
-                  <CardHeader
-                    className={`pb-2 pt-3 px-3 bg-gradient-to-r ${category.gradient}`}
+                  <button
+                    type="button"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+                    onClick={() => toggleCategory(category.name)}
+                    data-ocid={`financialplanner.${category.name.toLowerCase().replace(/[^a-z0-9]/g, "_")}.toggle`}
                   >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={
-                          "w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center shadow-md"
-                        }
-                      >
-                        <CategoryIcon className="h-4 w-4 text-white" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-sm font-semibold text-white">
-                          {category.name}
-                        </CardTitle>
-                        <CardDescription className="text-xs text-white/80">
-                          {category.calculators.length} Financial Planners
-                        </CardDescription>
-                      </div>
+                    <span className="text-xl flex-shrink-0">{meta.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-bold text-slate-800">
+                        {category.name}
+                      </span>
                     </div>
-                  </CardHeader>
-                  <CardContent className="px-3 pb-3 pt-2">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
-                      {category.calculators.map((calc) => {
-                        const Icon = calc.icon;
-                        return (
-                          <Button
-                            key={calc.id}
-                            variant="outline"
-                            className={`h-auto flex-col gap-1 p-2 ${calc.hoverColor} hover:text-white hover:border-transparent hover:scale-105 transition-all shadow-sm hover:shadow-md`}
-                            onClick={() => handleSearchSelect(calc.id)}
-                            data-ocid={`financialplanner.${calc.id}.button`}
-                          >
-                            <div
-                              className={`w-7 h-7 rounded-lg ${calc.color} flex items-center justify-center shadow-sm`}
+                    <span
+                      className="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 rounded-full text-xs font-bold text-white flex-shrink-0"
+                      style={{ backgroundColor: meta.borderColor }}
+                    >
+                      {category.calculators.length}
+                    </span>
+                    <ChevronDown
+                      className="h-4 w-4 text-slate-400 flex-shrink-0 transition-transform duration-200"
+                      style={{
+                        transform: isExpanded
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                      }}
+                    />
+                  </button>
+                  {isExpanded && (
+                    <div className="px-4 pb-4 pt-1">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+                        {category.calculators.map((calc) => {
+                          const Icon = calc.icon;
+                          return (
+                            <button
+                              key={calc.id}
+                              type="button"
+                              className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer"
+                              onClick={() => handleSearchSelect(calc.id)}
+                              data-ocid={`financialplanner.${calc.id}.button`}
                             >
-                              <Icon className="h-3.5 w-3.5 text-white" />
-                            </div>
-                            <span className="text-[10px] font-medium text-center leading-tight">
-                              {calc.name}
-                            </span>
-                          </Button>
-                        );
-                      })}
+                              <div
+                                className={`w-8 h-8 rounded-lg ${calc.color} flex items-center justify-center shadow-sm`}
+                              >
+                                <Icon className="h-4 w-4 text-white" />
+                              </div>
+                              <span className="text-[10px] font-medium text-center text-slate-700 leading-tight">
+                                {calc.name}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  )}
+                </div>
               );
             })}
           </div>

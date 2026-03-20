@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard } from "lucide-react";
-import { useMemo } from "react";
+import { ChevronDown, ChevronRight, LayoutDashboard } from "lucide-react";
+import type React from "react";
+import { useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -8,9 +9,14 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  LabelList,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
+  RadialBar,
+  RadialBarChart,
   ResponsiveContainer,
   Scatter,
   ScatterChart,
@@ -20,6 +26,7 @@ import {
 } from "recharts";
 import type {
   BudgetCategory,
+  Loan,
   PortfolioHolding,
   Transaction,
 } from "../backend.d";
@@ -167,6 +174,107 @@ function statusBadge(pct: number) {
   );
 }
 
+function GoalCard({
+  g,
+  idx,
+  formatCurrency,
+}: { g: any; idx: number; formatCurrency: (n: number) => string }) {
+  return (
+    <div
+      data-ocid={`dashboard.goals.item.${idx + 1}`}
+      className="rounded-xl border border-slate-100 bg-slate-50/50 px-3.5 py-3 space-y-2"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-medium text-slate-700 truncate max-w-[180px]">
+          {g.name}
+        </span>
+        {statusBadge(g.pct)}
+      </div>
+      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-300"
+          style={{
+            width: `${Math.min(g.pct, 100)}%`,
+            background:
+              g.pct >= 75 ? "#10b981" : g.pct >= 50 ? "#f59e0b" : "#ef4444",
+          }}
+        />
+      </div>
+      <div className="flex justify-between text-[11px] text-slate-400">
+        <span className="tabular-nums">{formatCurrency(g.currentAmount)}</span>
+        <span className="tabular-nums font-medium text-slate-500">
+          {formatCurrency(g.targetAmount)}
+        </span>
+      </div>
+      <div className="flex justify-between text-[11px] text-slate-400 mt-1">
+        <span>🗓 {(g as { goalDateStr?: string }).goalDateStr ?? ""}</span>
+        {((g as { sipEstimate?: number }).sipEstimate ?? 0) > 0 && (
+          <span className="text-indigo-500 font-medium">
+            SIP:{" "}
+            {formatCurrency((g as { sipEstimate?: number }).sipEstimate ?? 0)}
+            /mo
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function GoalsProgressList({
+  goals,
+  formatCurrency,
+}: { goals: any[]; formatCurrency: (n: number) => string }) {
+  const [showAchieved, setShowAchieved] = useState(false);
+  const activeGoals = goals.filter((g) => g.pct < 100);
+  const achievedGoals = goals.filter((g) => g.pct >= 100);
+  return (
+    <div className="space-y-3 pt-1">
+      {activeGoals.length === 0 ? (
+        <p className="text-sm text-slate-400 text-center py-4">
+          All goals achieved! 🎉
+        </p>
+      ) : (
+        activeGoals.map((g, idx) => (
+          <GoalCard
+            key={g.id}
+            g={g}
+            idx={idx}
+            formatCurrency={formatCurrency}
+          />
+        ))
+      )}
+      {achievedGoals.length > 0 && (
+        <div className="mt-1">
+          <button
+            type="button"
+            onClick={() => setShowAchieved((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1 hover:bg-emerald-100 transition-colors w-full justify-between"
+          >
+            <span>🎉 Achieved Goals ({achievedGoals.length})</span>
+            {showAchieved ? (
+              <ChevronDown className="w-3.5 h-3.5" />
+            ) : (
+              <ChevronRight className="w-3.5 h-3.5" />
+            )}
+          </button>
+          {showAchieved && (
+            <div className="mt-2 space-y-2 opacity-80">
+              {achievedGoals.map((g, idx) => (
+                <GoalCard
+                  key={g.id}
+                  g={g}
+                  idx={1000 + idx}
+                  formatCurrency={formatCurrency}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CustomDot(props: {
   cx?: number;
   cy?: number;
@@ -239,6 +347,15 @@ export default function DashboardPage() {
 
   const { data: goals = [], isLoading: gLoad } = useGetAllGoals();
   const { data: allInvestments = [] } = useGetAllInvestmentsByCategory();
+
+  const { data: loans = [] } = useQuery<Loan[]>({
+    queryKey: ["dashboard", "loans"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllLoans();
+    },
+    enabled: !!actor && !isFetching,
+  });
 
   const isLoading = hLoad || tLoad || bLoad || gLoad;
 
@@ -425,6 +542,7 @@ export default function DashboardPage() {
       incomeExpenseTrend.slice(-6).map((d) => ({
         month: d.month,
         rate: d.Income > 0 ? Math.round((d.Savings / d.Income) * 100) : 0,
+        savings: d.Savings,
       })),
     [incomeExpenseTrend],
   );
@@ -470,7 +588,7 @@ export default function DashboardPage() {
                 <p className="text-slate-400 text-[10px] uppercase tracking-widest font-medium mb-0.5">
                   Portfolio NAV
                 </p>
-                <p className="text-2xl font-bold tabular-nums leading-tight">
+                <p className="text-3xl font-bold tabular-nums leading-tight">
                   {formatCurrency(totalNAV)}
                 </p>
                 <p className="text-slate-400 text-[11px] mt-0.5">
@@ -483,7 +601,7 @@ export default function DashboardPage() {
                   <div
                     key={t}
                     data-ocid={`dashboard.nav.card.${ASSET_TYPES.indexOf(t) + 1}`}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
                     style={{
                       background: `${ASSET_CONFIG[t].color}20`,
                       border: `1px solid ${ASSET_CONFIG[t].color}40`,
@@ -496,7 +614,7 @@ export default function DashboardPage() {
                     <span style={{ color: ASSET_CONFIG[t].color }}>
                       {ASSET_CONFIG[t].shortLabel}
                     </span>
-                    <span className="text-slate-300">
+                    <span className="text-slate-200 font-bold">
                       {shortNum(byType[t] ?? 0, sym)}
                     </span>
                     <span className="text-slate-500">
@@ -658,6 +776,39 @@ export default function DashboardPage() {
                     {categoryBar.map((entry) => (
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
+                    <LabelList
+                      dataKey="value"
+                      position="insideTop"
+                      content={({
+                        x,
+                        y,
+                        width,
+                        value,
+                      }: {
+                        x?: number | string;
+                        y?: number | string;
+                        width?: number | string;
+                        value?: number | string;
+                      }) => {
+                        const numVal = typeof value === "number" ? value : 0;
+                        const numX = typeof x === "number" ? x : 0;
+                        const numY = typeof y === "number" ? y : 0;
+                        const numW = typeof width === "number" ? width : 0;
+                        if (numVal === 0) return null;
+                        return (
+                          <text
+                            x={numX + numW / 2}
+                            y={numY + 14}
+                            fill="#fff"
+                            textAnchor="middle"
+                            fontSize={10}
+                            fontWeight={600}
+                          >
+                            {formatCurrency(numVal)}
+                          </text>
+                        );
+                      }}
+                    />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -692,59 +843,10 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3 pt-1">
-                {goalsProgress.map((g, idx) => (
-                  <div
-                    key={g.id}
-                    data-ocid={`dashboard.goals.item.${idx + 1}`}
-                    className="rounded-xl border border-slate-100 bg-slate-50/50 px-3.5 py-3 space-y-2"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-medium text-slate-700 truncate max-w-[180px]">
-                        {g.name}
-                      </span>
-                      {statusBadge(g.pct)}
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-300"
-                        style={{
-                          width: `${g.pct}%`,
-                          background:
-                            g.pct >= 75
-                              ? "#10b981"
-                              : g.pct >= 50
-                                ? "#f59e0b"
-                                : "#ef4444",
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[11px] text-slate-400">
-                      <span className="tabular-nums">
-                        {formatCurrency(g.currentAmount)}
-                      </span>
-                      <span className="tabular-nums font-medium text-slate-500">
-                        {formatCurrency(g.targetAmount)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                      <span>
-                        🗓 {(g as { goalDateStr?: string }).goalDateStr ?? ""}
-                      </span>
-                      {((g as { sipEstimate?: number }).sipEstimate ?? 0) >
-                        0 && (
-                        <span className="text-indigo-500 font-medium">
-                          SIP:{" "}
-                          {formatCurrency(
-                            (g as { sipEstimate?: number }).sipEstimate ?? 0,
-                          )}
-                          /mo
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <GoalsProgressList
+                goals={goalsProgress}
+                formatCurrency={formatCurrency}
+              />
             )}
           </CardContent>
         </Card>
@@ -763,16 +865,21 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="px-5 pb-5">
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart
                 data={budgetChart}
-                margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  opacity={0.15}
+                  vertical={false}
+                />
+                <XAxis dataKey="month" tick={{ fontSize: 10 }} />
                 <YAxis
                   tick={{ fontSize: 10 }}
                   tickFormatter={(v: number) => shortNum(v, sym)}
+                  width={52}
                 />
                 <Tooltip
                   formatter={(v: number, name: string) => [
@@ -787,8 +894,8 @@ export default function DashboardPage() {
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: "12px" }} />
-                <Bar dataKey="Planned" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Actual" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Planned" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Actual" fill="#f43f5e" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -942,10 +1049,41 @@ export default function DashboardPage() {
                       innerRadius={55}
                       outerRadius={90}
                       dataKey="value"
-                      label={({ name, pct }: { name: string; pct: string }) =>
-                        `${name} (${pct}%)`
-                      }
-                      labelLine={true}
+                      labelLine={false}
+                      label={({
+                        cx: pcx,
+                        cy: pcy,
+                        midAngle,
+                        innerRadius: ir,
+                        outerRadius: or,
+                        percent,
+                      }: {
+                        cx: number;
+                        cy: number;
+                        midAngle: number;
+                        innerRadius: number;
+                        outerRadius: number;
+                        percent: number;
+                      }) => {
+                        if (percent < 0.04) return null;
+                        const RADIAN = Math.PI / 180;
+                        const radius = ir + (or - ir) * 0.5;
+                        const lx = pcx + radius * Math.cos(-midAngle * RADIAN);
+                        const ly = pcy + radius * Math.sin(-midAngle * RADIAN);
+                        return (
+                          <text
+                            x={lx}
+                            y={ly}
+                            fill="#fff"
+                            textAnchor="middle"
+                            dominantBaseline="central"
+                            fontSize={11}
+                            fontWeight={700}
+                          >
+                            {`${(percent * 100).toFixed(0)}%`}
+                          </text>
+                        );
+                      }}
                     >
                       {expenseByCategory.map((entry) => (
                         <Cell
@@ -1040,6 +1178,52 @@ export default function DashboardPage() {
                         }
                       />
                     ))}
+                    <LabelList
+                      content={({
+                        x,
+                        y,
+                        width,
+                        index,
+                      }: {
+                        x?: number | string;
+                        y?: number | string;
+                        width?: number | string;
+                        index?: number;
+                      }) => {
+                        const i = index ?? 0;
+                        const entry = savingsRate[i];
+                        if (!entry || entry.rate === 0) return null;
+                        const numX = typeof x === "number" ? x : 0;
+                        const numY = typeof y === "number" ? y : 0;
+                        const numW = typeof width === "number" ? width : 0;
+                        const cx = numX + numW / 2;
+                        return (
+                          <g>
+                            <text
+                              x={cx}
+                              y={numY + 14}
+                              fill="#fff"
+                              textAnchor="middle"
+                              fontSize={10}
+                              fontWeight={700}
+                            >
+                              {`${entry.rate}%`}
+                            </text>
+                            <text
+                              x={cx}
+                              y={numY + 26}
+                              fill="#fff"
+                              textAnchor="middle"
+                              fontSize={9}
+                              fontWeight={500}
+                              opacity={0.9}
+                            >
+                              {formatCurrency(entry.savings)}
+                            </text>
+                          </g>
+                        );
+                      }}
+                    />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -1101,6 +1285,12 @@ export default function DashboardPage() {
                       `${v}%`,
                       name === "x" ? "Risk" : "Return",
                     ]}
+                    labelFormatter={(_label, payload) => {
+                      const pt = (
+                        payload as Array<{ payload?: { label?: string } }>
+                      )?.[0]?.payload;
+                      return pt?.label ?? "";
+                    }}
                     contentStyle={{
                       fontSize: "11px",
                       borderRadius: "10px",
@@ -1123,6 +1313,342 @@ export default function DashboardPage() {
         </Card>
       </div>
       {/* end savings+risk grid */}
+
+      {/* ── Financial Health Overview ── */}
+      <div>
+        <h3 className="text-sm font-semibold text-slate-600 mb-3 uppercase tracking-wide">
+          Financial Health Overview
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Net Worth Trend */}
+          <Card
+            data-ocid="dashboard.networth.card"
+            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+          >
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+                Projected Net Worth Trend
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400">
+                Total assets minus liabilities over 10 years
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart
+                  data={(() => {
+                    const totalLiabilities = loans.reduce(
+                      (s, l) => s + l.currentBalance,
+                      0,
+                    );
+                    const now = new Date();
+                    const currentYear = now.getFullYear();
+                    // Asset-class-specific return rates (matching ASSET_CONFIG cagr)
+                    const rateMap: Record<string, number> = {
+                      Retirement: 0.08,
+                      ETF: 0.12,
+                      MutualFund: 0.12,
+                      FixedIncome: 0.07,
+                      Commodity: 0.09,
+                      Crypto: 0.15,
+                      RealEstate: 0.06,
+                      Other: 0.08,
+                    };
+                    return Array.from({ length: 10 }, (_, i) => {
+                      const year = i + 1;
+                      const projectedAssets = ASSET_TYPES.reduce((sum, t) => {
+                        const val = byType[t] ?? 0;
+                        const rate = rateMap[t] ?? 0.08;
+                        return sum + val * (1 + rate) ** year;
+                      }, 0);
+                      return {
+                        year: `${currentYear + year}`,
+                        "Net Worth": Math.round(
+                          projectedAssets - totalLiabilities,
+                        ),
+                      };
+                    });
+                  })()}
+                  margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    opacity={0.15}
+                    vertical={false}
+                  />
+                  <XAxis dataKey="year" tick={{ fontSize: 10 }} />
+                  <YAxis
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(v: number) => shortNum(v, sym)}
+                    width={52}
+                  />
+                  <Tooltip
+                    formatter={(v: number) => [
+                      formatCurrency(v),
+                      "Projected Net Worth",
+                    ]}
+                    contentStyle={{
+                      fontSize: "11px",
+                      borderRadius: "10px",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="Net Worth"
+                    stroke="#6366f1"
+                    strokeWidth={2.5}
+                    dot={{ fill: "#6366f1", r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Cash Flow Summary */}
+          <Card
+            data-ocid="dashboard.cashflow.card"
+            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+          >
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+                Cash Flow Summary
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400">
+                Monthly income vs expenses (6 months)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart
+                  data={incomeExpenseTrend.slice(-6)}
+                  margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    opacity={0.15}
+                    vertical={false}
+                  />
+                  <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                  <YAxis
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(v: number) => shortNum(v, sym)}
+                    width={52}
+                  />
+                  <Tooltip
+                    formatter={(v: number, name: string) => [
+                      formatCurrency(v),
+                      name,
+                    ]}
+                    contentStyle={{
+                      fontSize: "11px",
+                      borderRadius: "10px",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: "12px" }} />
+                  <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Expense" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Liability vs Asset */}
+          <Card
+            data-ocid="dashboard.liabilityasset.card"
+            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+          >
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+                Assets vs Liabilities
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400">
+                Total portfolio value vs outstanding loans
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              {(() => {
+                const totalLiabilities = loans.reduce(
+                  (s, l) => s + l.currentBalance,
+                  0,
+                );
+                const pieData = [
+                  { name: "Assets", value: totalNAV, color: "#10b981" },
+                  {
+                    name: "Liabilities",
+                    value: totalLiabilities,
+                    color: "#f43f5e",
+                  },
+                ].filter((d) => d.value > 0);
+                if (pieData.length === 0) {
+                  return (
+                    <div className="h-[180px] flex flex-col items-center justify-center gap-2">
+                      <span className="text-3xl">📊</span>
+                      <p className="text-sm text-slate-400">
+                        No portfolio data yet
+                      </p>
+                    </div>
+                  );
+                }
+                const total = pieData.reduce((s, d) => s + d.value, 0);
+                return (
+                  <div className="flex items-center gap-4">
+                    <ResponsiveContainer width="50%" height={180}>
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={75}
+                          dataKey="value"
+                          label={({ value }: { name: string; value: number }) =>
+                            `${total > 0 ? ((value / total) * 100).toFixed(1) : "0.0"}%`
+                          }
+                          labelLine={false}
+                        >
+                          {pieData.map((entry) => (
+                            <Cell
+                              key={entry.name}
+                              fill={entry.color}
+                              stroke="#fff"
+                              strokeWidth={2}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(v: number, name: string) => [
+                            formatCurrency(v),
+                            name,
+                          ]}
+                          contentStyle={{
+                            fontSize: "11px",
+                            borderRadius: "10px",
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="flex-1 space-y-3">
+                      {pieData.map((d) => (
+                        <div key={d.name}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div
+                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                              style={{ background: d.color }}
+                            />
+                            <span className="text-xs text-slate-500">
+                              {d.name}
+                            </span>
+                          </div>
+                          <p className="text-sm font-bold text-slate-800 ml-4">
+                            {formatCurrency(d.value)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* Debt-to-Income Ratio */}
+          <Card
+            data-ocid="dashboard.dti.card"
+            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+          >
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+                Debt-to-Income Ratio
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400">
+                Monthly loan EMIs ÷ monthly income (industry standard: under
+                36%)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-5 pb-5 space-y-4">
+              {(() => {
+                const monthlyEMI = loans.reduce(
+                  (s, l) => s + l.monthlyPayment,
+                  0,
+                );
+                const monthlyIncome =
+                  incomeExpenseTrend.length > 0
+                    ? incomeExpenseTrend
+                        .slice(-3)
+                        .reduce((s, d) => s + d.Income, 0) / 3
+                    : 0;
+                const dti =
+                  monthlyIncome > 0
+                    ? Math.min(100, (monthlyEMI / monthlyIncome) * 100)
+                    : 0;
+                const color =
+                  dti < 30 ? "#10b981" : dti < 50 ? "#f59e0b" : "#ef4444";
+                const label =
+                  dti < 30 ? "Healthy" : dti < 50 ? "Moderate" : "High Risk";
+                return (
+                  <div className="space-y-5">
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <p
+                          className="text-3xl font-extrabold"
+                          style={{ color }}
+                        >
+                          {dti.toFixed(1)}%
+                        </p>
+                        <p
+                          className="text-xs font-semibold mt-0.5"
+                          style={{ color }}
+                        >
+                          {label}
+                        </p>
+                      </div>
+                      <div className="text-right text-xs text-slate-400 space-y-1">
+                        <p>
+                          Monthly EMI:{" "}
+                          <span className="font-semibold text-slate-700">
+                            {formatCurrency(monthlyEMI)}
+                          </span>
+                        </p>
+                        <p>
+                          Avg Income:{" "}
+                          <span className="font-semibold text-slate-700">
+                            {formatCurrency(monthlyIncome)}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="relative h-3 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{
+                          width: `${Math.min(100, dti)}%`,
+                          background: color,
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[10px] text-slate-400">
+                      <span>0%</span>
+                      <span className="text-emerald-500 font-medium">
+                        Good &lt;30%
+                      </span>
+                      <span className="text-amber-500 font-medium">
+                        36% threshold
+                      </span>
+                      <span className="text-red-500 font-medium">
+                        High &gt;50%
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      {/* end financial health */}
     </div>
   );
 }

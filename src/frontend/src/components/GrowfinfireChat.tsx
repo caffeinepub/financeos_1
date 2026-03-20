@@ -432,6 +432,156 @@ function getAIResponse(message: string): string {
   }
 
   // Default fallback
+  // ── LEARN FINANCE: 8 BASICS ─────────────────────────────────────────────────
+  if (
+    m.includes("basic") ||
+    m.includes("budgeting basic") ||
+    m.includes("learn finance basic")
+  ) {
+    return "📚 **Learn Finance — 8 Financial Basics**\n\n**1. Budgeting**\nTrack every rupee using zero-based budgeting or the 50/30/20 rule (50% needs, 30% wants, 20% savings). Assign every rupee a purpose.\n\n**2. Emergency Fund**\nKeep 3-6 months of expenses in liquid savings (FD or liquid MF). Private job holders: 6-12 months. This is your financial safety net — build it BEFORE investing.\n\n**3. Insurance**\nBuy pure term life insurance (15-20x annual income) + comprehensive health insurance (₹10L+ individual, ₹20L+ family). Never mix insurance with investment — no ULIPs, no endowment plans.\n\n**4. Debt Management**\nPrioritize high-interest debt using the avalanche method. Keep total EMIs below 40% of take-home pay. No lifestyle on credit — phones, gadgets, furniture on EMI = wealth destroyer.\n\n**5. Investing Basics**\nStart early — time is your biggest asset. SIP monthly regardless of market. Rule of 72: years to double = 72 ÷ return%. Time in market > timing the market.\n\n**6. Asset Allocation**\nDiversify across equity, debt, gold, and real estate based on your risk profile. Age-based rule: (100 - age)% in equity. Rebalance annually.\n\n**7. Tax Planning**\nUse Section 80C (PPF, ELSS, LIC up to ₹1.5L), 80D (health insurance), HRA, NPS (additional ₹50K). Always invest first, save tax second — not the other way around.\n\n**8. Retirement Planning**\nStart at 25, not 45. Save 15-20% of income for retirement. Target corpus: 25x annual expenses. Use NPS + EPF + equity mutual funds as the core retirement portfolio.\n\n💡 Explore each topic in **Learn Finance → Basics** module!";
+  }
+
+  // ── LEARN FINANCE: INVESTMENT RULES ──────────────────────────────────────────
+  if (m.includes("rule of 72") || m.includes("72 rule")) {
+    return "⚡ **Rule of 72 — The Doubling Rule**\n\nYears to double your money = 72 ÷ Annual Return Rate\n\nExamples:\n• FD at 7%: 72 ÷ 7 = **10.3 years** to double\n• Index Fund at 12%: 72 ÷ 12 = **6 years** to double\n• Equity at 15%: 72 ÷ 15 = **4.8 years** to double\n• Crypto at 30% (if sustained): 72 ÷ 30 = **2.4 years**\n\n**Reverse:** What return do you need to double in 5 years? 72 ÷ 5 = 14.4% needed.\n\n**Why it matters:** Starting 5 years earlier at 12% means one extra doubling cycle — potentially 2x more wealth at retirement.\n\n💡 Verify your SIP growth in **Financial Planner → SIP Planner**.";
+  }
+
+  if (
+    m.includes("15-15-15") ||
+    (m.includes("15") && m.includes("sip") && m.includes("1 crore"))
+  ) {
+    return "📈 **15-15-15 Rule — The ₹1 Crore SIP Formula**\n\nInvest ₹15,000/month at 15% CAGR for 15 years = approximately **₹1 Crore corpus**\n\nBreakdown:\n• Total invested: ₹15,000 × 180 months = ₹27 Lakhs\n• Corpus at 15%: ≈ ₹1.02 Crore\n• Wealth gained: ≈ ₹75 Lakhs pure returns\n\n**Why 15% is achievable:** Well-selected diversified equity mutual funds / Nifty 500 index have delivered 12-15% CAGR over long periods in India.\n\n**Modified versions:**\n• ₹10,000/month at 12% for 20 years = ₹99.9 Lakhs\n• ₹5,000/month at 15% for 20 years = ₹75.6 Lakhs\n\n💡 Try different scenarios in **Financial Planner → SIP Planner**!";
+  }
+
+  if (
+    m.includes("asset allocation rule") ||
+    m.includes("100 minus age") ||
+    m.includes("100-age")
+  ) {
+    return "⚖️ **Asset Allocation Rules**\n\n**100 - Age Rule (Classic):**\nEquity % = 100 - your age\n• Age 25: 75% equity, 25% debt\n• Age 40: 60% equity, 40% debt\n• Age 60: 40% equity, 60% debt\n\n**110 - Age Rule (Modern, higher life expectancy):**\n• Age 25: 85% equity, 15% debt\n• Age 40: 70% equity, 30% debt\n\n**Growfinfire Model Allocations:**\n🔵 **Conservative:** 20% Equity, 15% MF, 15% Gold, 30% Bond, 10% Debt, 5% FD → 6-8% p.a.\n🟡 **Moderate:** 35% Equity, 25% MF, 10% Gold, 5% Crypto, 10% Bond → 10-12% p.a.\n🔴 **Aggressive:** 45% Equity, 30% MF, 5% Gold, 10% Crypto, 3% Bond → 14-18% p.a.\n\n💡 See full allocations in **Financial Model → Asset Allocation**.";
+  }
+
+  if (m.includes("rebalancing") || m.includes("rebalance portfolio")) {
+    return "🔄 **Rebalancing Rule — Maintain Your Target Allocation**\n\nRebalancing = selling winners and buying laggards to restore your target allocation.\n\n**When to rebalance:**\n• **Annual calendar rebalancing:** Once a year on a fixed date (e.g., April 1st)\n• **Threshold rebalancing:** When any asset class drifts >5-10% from target\n\n**Example:** Target 60/40 equity/debt. After bull run equity becomes 75/25 → sell 15% equity, buy 15% debt.\n\n**Benefits:**\n• Enforces buy-low, sell-high discipline automatically\n• Controls risk — prevents equity overexposure\n• Systematic, emotion-free process\n\n**Tax consideration:** Rebalance using new SIP investments first (no tax), sell assets only if drift is large (check LTCG/STCG implications).\n\n💡 Check current allocation in **Portfolio → Overview** and compare to your target.";
+  }
+
+  // ── LEARN FINANCE: DEBT RULES ─────────────────────────────────────────────────
+  if (
+    m.includes("avalanche") ||
+    m.includes("debt payoff") ||
+    (m.includes("debt") && m.includes("method"))
+  ) {
+    return "💳 **Debt Payoff Methods**\n\n**Avalanche Method (Optimal — saves the most money):**\n1. List all debts by interest rate, highest first\n2. Pay minimums on all debts\n3. Put all extra money toward the HIGHEST interest debt\n4. Once paid, roll that payment to next highest\n\nExample: Credit card 36% → Personal loan 18% → Car loan 10% → Home loan 8%\n→ Attack in this order to minimize total interest paid.\n\n**Snowball Method (Motivational — Dave Ramsey approach):**\n1. List debts by balance, smallest first\n2. Pay off smallest debt first regardless of interest rate\n3. Use psychological wins to build momentum\n\n**Which to choose?**\n• Avalanche: mathematically optimal, saves more money\n• Snowball: better if you need motivation to stay on track\n\n**40% EMI Rule:** Total EMIs must never exceed 40% of take-home pay.\n\n💡 Calculate exact EMIs and payoff timelines in **Financial Planner → EMI Planner**.";
+  }
+
+  // ── LEARN FINANCE: 50 MISTAKES ───────────────────────────────────────────────
+  if (
+    m.includes("common mistake") ||
+    m.includes("financial mistake") ||
+    m.includes("50 mistake") ||
+    m.includes("money mistake")
+  ) {
+    return "⚠️ **50 Common Financial Mistakes — Overview**\n\nGrouped by category:\n\n**Spending & Budgeting (5 mistakes):**\n1. Not tracking expenses → zero-based budgeting\n2. Underestimating outflows → track for 2-3 months\n6. Lifestyle on EMIs → EMIs ≤ 30-40% take-home\n15. Overspending / lifestyle inflation → live below means\n28. Emotional / impulse spending → 24-48 hour rule\n\n**Emergency & Protection (3 mistakes):**\n4. No emergency fund → build 3-12 months liquid savings\n8. Insurance only for tax saving → pure term + health cover\n12. No health/term insurance → insure protection first\n\n**Investment Mistakes (10 mistakes):**\n5. Get-rich-quick (F&O, crypto) → time in market\n17. Delaying investments → start early, Rule of 72\n18. Ignoring inflation → invest for 10-12% returns\n19. Not diversifying → equity, debt, gold\n20. Following tips / herd mentality → do own research\n22. Over-relying on conservative investments → age allocation\n33. Waiting for perfect time → SIP now, dollar-cost average\n34. Not automating savings → auto-transfer\n38. Overexposure to real estate → ≤ 30-40% net worth\n40. Not rebalancing → rebalance annually\n\n**Debt Mistakes (7 mistakes):**\n3. Multiple overlapping loans → avalanche method\n16. Minimum credit card payments → pay full balance monthly\n23. Not reviewing credit score → check annually, utilization <30%\n24. Unnecessary debt → borrow only for assets\n25. Too many credit cards → limit to 2-3\n30. Cosigning loans → never cosign\n41. Borrowing from future self → emergency fund first\n\n**Insurance Mistakes (3 mistakes):**\n31. No pure term life insurance → 10-20x annual expenses\n32. Mixing insurance with investment → separate tools\n43. Underestimating medical inflation → 10-15% rise\n\n**Planning Mistakes (10 mistakes):**\n14. No budget / financial plan → 50/30/20 rule\n21. No retirement planning → save 15-20% income\n26. Not claiming tax benefits → 80C, 80D, HRA\n35. Spending windfalls carelessly → 50% savings, 20% invest\n36. Ignoring professional advice → use fiduciary advisor\n42. No SMART goals tied to money → Goal Planner\n45. Not tracking net worth → track quarterly\n47. Not updating nominees → review annually\n\n**Mindset Mistakes (6 mistakes):**\n7. Never discussing money in family → open money talks\n11. Chasing shortcuts → daily habits compound\n13. Low self-belief → monthly net worth review\n44. Social pressure (status, weddings) → spend on values\n49. Neglecting skill upgradation → continuous learning\n50. Avoiding money conversations → regular check-ins\n\n💡 Explore all 50 mistakes in **Learn Finance → Learn from Mistakes**!";
+  }
+
+  // ── FINANCIAL MODEL: DETAILED ────────────────────────────────────────────────
+  if (
+    m.includes("asset allocation") &&
+    (m.includes("model") ||
+      m.includes("conservative") ||
+      m.includes("moderate") ||
+      m.includes("aggressive"))
+  ) {
+    return "📊 **Financial Model — Asset Allocation**\n\nThree risk profiles with exact allocation targets:\n\n🔵 **Conservative Profile** (6-8% expected return)\n• 20% Equity (ETF/Stocks)\n• 15% Mutual Funds\n• 15% Gold/Commodity\n• 5% Silver\n• 30% Bonds/Fixed Income\n• 10% Debt Funds\n• 5% Fixed Deposits\n→ Best for: Capital preservation, retirees, risk-averse investors\n\n🟡 **Moderate Profile** (10-12% expected return)\n• 35% Equity (ETF/Stocks)\n• 25% Mutual Funds\n• 10% Gold\n• 5% Silver\n• 5% Crypto\n• 10% Bonds\n• 5% Debt Funds\n• 5% FD\n→ Best for: Balanced growth, 5-10 year horizon, medium risk\n\n🔴 **Aggressive Profile** (14-18% expected return)\n• 45% Equity (ETF/Stocks)\n• 30% Mutual Funds\n• 5% Gold\n• 3% Silver\n• 10% Crypto\n• 3% Bonds\n• 2% Debt Funds\n• 2% FD\n→ Best for: Long-term wealth creation (10+ years), high risk tolerance\n\n💡 Open **Financial Model → Asset Allocation**, select your risk profile and see the full allocation breakdown with visual charts!";
+  }
+
+  if (
+    m.includes("model portfolio") ||
+    (m.includes("model") &&
+      (m.includes("mutual fund") || m.includes("etf") || m.includes("mf")))
+  ) {
+    return "📋 **Financial Model — Model Portfolio (MF/ETF/Both)**\n\nThree portfolio construction approaches:\n\n**Mutual Funds Only:**\n• Conservative: Debt funds 60% + Large Cap MF 30% + Gold Fund 10%\n• Moderate: Large Cap 35% + Flexi Cap 25% + Mid Cap 15% + Debt 15% + Gold 10%\n• Aggressive: Small Cap 20% + Mid Cap 25% + Large Cap 20% + Sectoral 15% + International 10% + Gold 10%\n\n**ETFs Only:**\n• Conservative: Nifty 50 ETF 40% + G-Sec ETF 40% + Gold ETF 20%\n• Moderate: Nifty 50 ETF 40% + Nifty Next 50 ETF 20% + G-Sec ETF 25% + Gold ETF 15%\n• Aggressive: Nifty 50 ETF 30% + Nifty Next 50 ETF 25% + Nifty Midcap ETF 20% + International ETF 15% + Gold ETF 10%\n\n**Combined (MF + ETF):**\n• Blend of active mutual funds for alpha + passive ETFs for market returns\n• Core-satellite approach: 70% passive (ETFs) + 30% active (MFs)\n\n💡 Open **Financial Model → Model Portfolio** to explore each profile with detailed fund recommendations!";
+  }
+
+  if (
+    m.includes("model crypto") ||
+    (m.includes("crypto") && m.includes("allocation") && m.includes("model"))
+  ) {
+    return "₿ **Financial Model — Model Crypto Portfolio**\n\nCrypto allocation rules: Never exceed what you can afford to lose completely.\n\n🔵 **Conservative Crypto Allocation:** 1-2% of total portfolio\n• 60% Bitcoin (BTC) — digital gold, most established\n• 40% Ethereum (ETH) — smart contract platform\n• Strategy: Buy and hold, no active trading\n\n🟡 **Moderate Crypto Allocation:** 5-7% of total portfolio\n• 40% BTC, 30% ETH, 15% BNB, 15% large-cap alts (SOL, ADA)\n• DCA monthly rather than lumpsum\n\n🔴 **Aggressive Crypto Allocation:** 10-15% of total portfolio\n• 30% BTC, 25% ETH, 20% mid-cap alts, 15% DeFi tokens, 10% speculative\n• High volatility — 50-80% drawdowns are normal\n\n**Key rules:**\n• Store in hardware wallet for amounts >₹5 Lakhs\n• Never use leverage in crypto\n• Tax: 30% flat + 1% TDS in India on crypto gains\n• 4 market phases: Accumulation → Bull Run → Distribution → Bear Market\n\n💡 See full allocations in **Financial Model → Model Crypto**!";
+  }
+
+  if (
+    m.includes("model insurance") ||
+    (m.includes("insurance") && m.includes("model")) ||
+    m.includes("hlv") ||
+    m.includes("human life value")
+  ) {
+    return "🛡️ **Financial Model — Insurance Planning**\n\n**Term Life Insurance:**\n• Coverage needed: 15-20x your annual income\n• HLV Method: (Annual Income - Personal Expenses) × Years to Retirement\n• Example: ₹12L income, ₹3L personal, 25 years = (₹9L × 25) = ₹2.25 Cr term cover\n• Always buy pure term plan — not ULIP, not endowment, not money-back\n• Recommended age to buy: 25-30 (cheapest premiums)\n\n**Health Insurance:**\n• Individual: Minimum ₹10L base + ₹50L super top-up\n• Family Floater: ₹20-25L for family of 3-4\n• Critical Illness: Separate rider or standalone, 3-5x annual income\n• Parents: Separate senior citizen plan, not included in family floater\n\n**Personal Accident Insurance:**\n• Cover: 5-10x annual income\n• Covers disability, accidental death\n\n**Key principles:**\n→ Insurance is NOT an investment — never mix\n→ Buy online direct from insurer (cheaper)\n→ Claim settlement ratio >95% is good\n→ Review coverage every 5 years or with major life events\n\n💡 Calculate your exact HLV coverage in **Financial Planner → HLV Calculator**!";
+  }
+
+  if (
+    m.includes("model retirement") ||
+    (m.includes("retirement") && m.includes("model"))
+  ) {
+    return "🌅 **Financial Model — Retirement Planning**\n\n**25x Rule (Most Important):**\nRetirement corpus needed = 25 × Annual Expenses (current, inflation-adjusted)\nExample: Monthly expenses ₹50,000 → Annual ₹6L → Corpus needed = ₹1.5 Cr (at today's money)\n\n**4% Withdrawal Rule:**\nWith right corpus, you can safely withdraw 4% annually indefinitely.\n₹1.5 Cr × 4% = ₹6L/year = ₹50,000/month — exactly your expense!\n\n**Strategy by age:**\n🔴 **Age <35 (Aggressive):** 80% equity MF, 20% debt/NPS\n→ Maximum compounding time, can handle volatility\n\n🟡 **Age 35-50 (Moderate):** 60% equity, 40% debt+NPS\n→ Balancing growth with capital protection\n\n🔵 **Age 50+ (Conservative):** 40% equity, 60% debt+annuity\n→ Capital preservation, income generation\n\n**Recommended vehicles:**\n• NPS (National Pension System): Tax benefit + equity exposure\n• EPF: Employer contribution + guaranteed return\n• PPF: Tax-free compounding, 15-year horizon\n• ELSS Mutual Funds: Tax-saving + equity growth\n\n💡 Calculate your exact corpus in **Financial Planner → Retirement Planner**!";
+  }
+
+  // ── FINANCIAL PLANNER: STEP-BY-STEP GUIDES ───────────────────────────────────
+  if (
+    m.includes("sip planner") ||
+    (m.includes("sip") && m.includes("how") && m.includes("calculat"))
+  ) {
+    return "📱 **SIP Planner — Step-by-Step Guide**\n\n**How to use:**\n1. Open **Financial Planner** → click **SIP Planner**\n2. Enter **Monthly SIP Amount** (e.g., ₹10,000)\n3. Enter **Expected Return Rate** (8% conservative, 10-12% moderate, 14-15% aggressive)\n4. Enter **Investment Period** in years (minimum 5, ideal 10-20)\n5. Optionally add **Annual Step-Up %** (increase SIP by this % each year)\n6. Click **Calculate**\n\n**What you get:**\n• Total Invested amount\n• Projected Corpus at maturity\n• Wealth Gained (returns earned)\n• Year-wise growth chart\n\n**Benchmark numbers:**\n• ₹5,000/month for 20 years at 12% = ₹50 Lakhs\n• ₹10,000/month for 15 years at 12% = ₹50 Lakhs\n• ₹15,000/month for 15 years at 15% = ₹1 Crore\n\n💡 Start your SIP today — even ₹500/month compounds to ₹5 Lakhs in 20 years at 12%!";
+  }
+
+  if (
+    m.includes("retirement planner") ||
+    (m.includes("retirement") && m.includes("calculat"))
+  ) {
+    return "🏖️ **Retirement Planner — Step-by-Step Guide**\n\n**How to use:**\n1. Open **Financial Planner** → click **Retirement Planner**\n2. Enter **Current Age** and **Target Retirement Age** (typically 60)\n3. Enter **Current Monthly Expenses** (what you spend today)\n4. Enter **Expected Inflation Rate** (6-7% for India)\n5. Enter **Expected Return Rate** on investments (10-12% equity MF)\n6. Enter **Current Savings/Investments** already accumulated\n7. Click **Calculate**\n\n**What you get:**\n• Inflation-adjusted expenses at retirement age\n• Total corpus needed at retirement\n• Monthly SIP needed today to reach that corpus\n• Years of corpus sustainability\n\n**Example:**\nAge 30, retire at 60, monthly expenses ₹50,000, 7% inflation, 12% returns:\n→ Corpus needed: ₹7.8 Crore\n→ Monthly SIP needed: ₹23,000/month\n→ If you already have ₹5L saved: SIP reduces to ₹21,500/month\n\n💡 Start today — every 5-year delay doubles the required monthly SIP!";
+  }
+
+  if (
+    m.includes("emi planner") ||
+    (m.includes("emi") && m.includes("how") && m.includes("calculat"))
+  ) {
+    return "🏠 **EMI Planner — Step-by-Step Guide**\n\n**How to use:**\n1. Open **Financial Planner** → click **EMI Planner**\n2. Enter **Loan Amount** (principal)\n3. Enter **Annual Interest Rate** (home loan: 8-9%, car: 9-11%, personal: 12-18%)\n4. Enter **Loan Tenure** in months or years\n5. Click **Calculate**\n\n**What you get:**\n• Monthly EMI amount\n• Total Interest payable over loan life\n• Total Payment (principal + interest)\n• Amortization schedule (principal vs interest split per month)\n• Pie chart: Principal vs Interest breakdown\n\n**Key insights:**\n• Home loan ₹50L at 8.5% for 20 years: EMI = ₹43,391, Total interest = ₹54.1L\n• Same loan for 15 years: EMI = ₹49,237, Total interest = ₹38.6L → Save ₹15.5L!\n\n**40% EMI Rule:** Total all EMIs must be < 40% of take-home salary\n\n💡 Use **Home Loan Planner** for prepayment scenarios and **Flat vs Reducing Planner** to check if your bank is using the right method!";
+  }
+
+  if (
+    m.includes("fire planner") ||
+    (m.includes("fire") && m.includes("calculat"))
+  ) {
+    return "🔥 **FIRE Planner — Step-by-Step Guide**\n\n**FIRE = Financial Independence, Retire Early**\n\n**How to use:**\n1. Open **Financial Planner** → click **FIRE Planner**\n2. Enter **Annual Expenses** (current year, what you spend)\n3. Enter **Current Net Worth / Savings**\n4. Enter **Annual Savings Rate** (income minus expenses)\n5. Enter **Expected Return Rate** on investments (8-10%)\n6. Click **Calculate**\n\n**What you get:**\n• **FIRE Number** = 25x annual expenses (at 4% withdrawal)\n• **Years to FIRE** based on current savings rate\n• Savings rate vs years chart (higher savings = faster FIRE)\n\n**FIRE types:**\n• **LeanFIRE:** Bare minimum corpus, frugal lifestyle\n• **FatFIRE:** Generous corpus, comfortable lifestyle\n• **BaristaFIRE:** Partial retirement with part-time work\n\n**Power of savings rate:**\n• Save 10%: FIRE in 40 years\n• Save 25%: FIRE in 30 years\n• Save 50%: FIRE in 17 years\n• Save 75%: FIRE in 7 years!\n\n💡 Track your net worth progress in **Portfolio → Overview**!";
+  }
+
+  if (
+    m.includes("tax planner") ||
+    (m.includes("tax") && m.includes("old") && m.includes("new")) ||
+    m.includes("80c") ||
+    m.includes("80d")
+  ) {
+    return "📋 **Tax Planner — Step-by-Step Guide**\n\n**How to use:**\n1. Open **Financial Planner** → click **Income Tax Planner**\n2. Enter **Gross Annual Income** (CTC)\n3. Enter deductions: **80C** (PPF, ELSS, LIC, EPF up to ₹1.5L), **80D** (health insurance premiums), **HRA** (if applicable), **NPS** (additional ₹50K under 80CCD(1B))\n4. Click **Calculate** to see both Old and New Regime tax\n\n**Old vs New Regime:**\n• **Old Regime:** More deductions, better if you have HRA + 80C + loans\n• **New Regime:** Flat lower rates, better if you don't claim many deductions\n• Break-even point: If deductions >₹3.75L/year → Old regime wins\n\n**Key deductions:**\n• 80C: Up to ₹1,50,000 (PPF, ELSS, EPF, LIC, home loan principal)\n• 80D: ₹25K (self/family) + ₹50K (senior citizen parents) health insurance\n• HRA: Subject to actuals, rent paid, and 40/50% of basic\n• 80CCD(1B): Additional ₹50K for NPS\n• Standard Deduction: ₹50,000 (old regime)\n\n💡 Calculate your exact tax in **Financial Planner → Income Tax Planner**!";
+  }
+
+  if (
+    m.includes("ppf planner") ||
+    (m.includes("ppf") && m.includes("calculat"))
+  ) {
+    return "🏦 **PPF Planner — Step-by-Step Guide**\n\nPPF = Public Provident Fund — India's safest tax-free investment\n\n**How to use:**\n1. Open **Financial Planner** → click **PPF Planner**\n2. Enter **Annual Investment** (max ₹1,50,000/year)\n3. Enter **Current PPF Balance** (if you already have an account)\n4. Enter **Years Remaining** to maturity (15-year lock-in, extendable in 5-year blocks)\n5. Click **Calculate**\n\n**What you get:**\n• Maturity amount at end of tenure\n• Year-wise corpus growth\n• Interest earned over tenure\n\n**Current PPF rate:** 7.1% p.a. (tax-free, government-backed)\n\n**Key benefits:**\n• EEE status: Exempt at investment, accumulation, and maturity\n• Saves up to ₹46,800 in tax (at 31.2% slab)\n• Government guaranteed — zero default risk\n• Partial withdrawal from 7th year onwards\n\n**₹1.5L/year for 15 years at 7.1% = ₹40.7 Lakhs** (entirely tax-free)\n\n💡 Open **Financial Planner → PPF Planner** to model your specific scenario!";
+  }
+
+  if (
+    m.includes("goal planner") ||
+    (m.includes("goal") && m.includes("calculat") && m.includes("sip"))
+  ) {
+    return "🎯 **Goal Planner — Step-by-Step Guide**\n\n**How to use:**\n1. Open **Financial Planner** → click **Goal Planner**\n2. Enter **Goal Name** (e.g., House Down Payment, Child Education)\n3. Enter **Goal Amount** (target corpus needed)\n4. Enter **Time to Goal** in years\n5. Enter **Expected Return Rate** (equity 12%, debt 7%, hybrid 10%)\n6. Enter **Current Savings** toward this goal (if any)\n7. Click **Calculate**\n\n**What you get:**\n• Required Monthly SIP to achieve goal\n• Lumpsum equivalent (if investing once)\n• Year-wise corpus vs target chart\n\n**Common goals & targets:**\n• 🏠 House down payment (20%): ₹20-30L — 5-7 years SIP in equity\n• 🎓 Child education (15 years away): ₹30-50L — ₹5-8K/month SIP\n• 💍 Child marriage (20 years away): ₹20-40L — ₹3-5K/month SIP\n• 🌅 Retirement: 25x expenses (see Retirement Planner)\n\n💡 Create goals in the **Goals Module** and link your portfolio investments to track real-time progress!";
+  }
+
+  if (m.includes("child education") && m.includes("planner")) {
+    return "🎓 **Child Education Planner — Step-by-Step Guide**\n\n**How to use:**\n1. Open **Financial Planner** → click **Child Education Planner**\n2. Enter **Child's Current Age**\n3. Enter **Education Start Age** (typically 17-18 for college)\n4. Enter **Current Education Cost** (today's cost for the course)\n5. Enter **Education Inflation Rate** (8-10% for India — faster than general inflation)\n6. Enter **Investment Return Rate** (12% for equity MF, 7% for debt)\n7. Click **Calculate**\n\n**What you get:**\n• Inflation-adjusted education cost at target year\n• Required Monthly SIP today\n• Lumpsum needed today\n\n**Benchmark:**\nMBA at IIM today: ₹25L → In 15 years at 8% inflation = ₹79L\n→ Monthly SIP needed at 12% returns for 15 years = ₹20,000/month\n\n**Key rule:** Start when child is born, not at age 10!\n→ Starting 10 years earlier at ₹5K/month vs ₹20K/month — same result!\n\n💡 Link Child Education goal in **Goals Module** to your ELSS/equity MF holdings for tracking!";
+  }
+
   return "I'm here to help with your financial journey! 🌟\n\nAsk me about any of these topics:\n\n**FinanceOS Modules:**\n• Dashboard, Goals, Portfolio, Budgeting, Loans\n• Financial Model, Financial Planner (35+ calculators), Learn Finance\n\n**Financial Calculators:**\n• SIP / SWP / Lump Sum / CAGR\n• Home Loan EMI / FD / PPF / NPS / RD\n• FIRE Number / Retirement Corpus\n• Tax Planning (80C, LTCG, Old vs New Regime)\n• Emergency Fund / Debt-to-Income Ratio\n• Education Fund / House Down Payment\n\n**Investment Knowledge:**\n• Mutual Funds, Index Funds, Equity, Gold, Crypto, Real Estate\n• Portfolio Design (Conservative / Moderate / Aggressive)\n• Compounding, Rule of 72, Inflation, CAGR\n• Diversification, Rebalancing, Factor Investing\n• Insurance, Tax, Retirement, FIRE strategy\n\nJust ask your question and I'll give you a detailed, actionable answer!";
 }
 

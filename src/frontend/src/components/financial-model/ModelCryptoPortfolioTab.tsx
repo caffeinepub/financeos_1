@@ -167,6 +167,7 @@ export function ModelCryptoPortfolioTab() {
                       label={(entry) =>
                         `${entry.name.split(" ")[0]}: ${entry.value}%`
                       }
+                      innerRadius={35}
                       outerRadius={80}
                       dataKey="value"
                     >

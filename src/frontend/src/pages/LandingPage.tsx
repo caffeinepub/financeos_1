@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
+import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SUPPORTED_CURRENCIES, useCurrency } from "../contexts/CurrencyContext";
@@ -23,73 +24,65 @@ const MODULE_CONFIGS = [
     icon: LayoutDashboard,
     name: "Dashboard",
     desc: "Net worth, asset breakdown & 20-year forecast",
-    color: "#2563eb",
-    bg: "#eff6ff",
-    border: "#bfdbfe",
+    accent: "#60a5fa",
+    glow: "rgba(96,165,250,0.15)",
   },
   {
     icon: Target,
     name: "Goals",
     desc: "Set, track & hit every financial milestone",
-    color: "#059669",
-    bg: "#f0fdf4",
-    border: "#a7f3d0",
+    accent: "#34d399",
+    glow: "rgba(52,211,153,0.15)",
   },
   {
     icon: TrendingUp,
     name: "Portfolio",
     desc: "8 asset classes in one unified view",
-    color: "#0891b2",
-    bg: "#ecfeff",
-    border: "#a5f3fc",
+    accent: "#38bdf8",
+    glow: "rgba(56,189,248,0.15)",
   },
   {
     icon: PiggyBank,
     name: "Budgeting",
     desc: "Income vs expense monthly tracker",
-    color: "#7c3aed",
-    bg: "#faf5ff",
-    border: "#ddd6fe",
+    accent: "#a78bfa",
+    glow: "rgba(167,139,250,0.15)",
   },
   {
     icon: BarChart3,
     name: "Financial Model",
     desc: "Insurance, allocation & retirement models",
-    color: "#dc2626",
-    bg: "#fef2f2",
-    border: "#fecaca",
+    accent: "#f87171",
+    glow: "rgba(248,113,113,0.15)",
   },
   {
     icon: CalendarDays,
     name: "Financial Planner",
     desc: "35+ professional calculators",
-    color: "#d97706",
-    bg: "#fffbeb",
-    border: "#fde68a",
+    accent: "#fbbf24",
+    glow: "rgba(251,191,36,0.15)",
   },
   {
     icon: Shield,
     name: "Learn Finance",
     desc: "AI-guided money rules & knowledge base",
-    color: "#0d9488",
-    bg: "#f0fdfa",
-    border: "#99f6e4",
+    accent: "#2dd4bf",
+    glow: "rgba(45,212,191,0.15)",
   },
   {
     icon: CreditCard,
     name: "Loans",
     desc: "Track EMIs, payoff & amortization",
-    color: "#9333ea",
-    bg: "#fdf4ff",
-    border: "#e9d5ff",
+    accent: "#c084fc",
+    glow: "rgba(192,132,252,0.15)",
   },
 ];
 
-const TRUST_METRICS = [
-  { icon: CalendarDays, value: "35+", label: "Calculators" },
-  { icon: BarChart3, value: "8", label: "Asset Classes" },
-  { icon: Shield, value: "80+", label: "Finance Rules" },
-  { icon: Bot, value: "AI", label: "Assistant" },
+const STATS = [
+  { value: "35+", label: "Calculators" },
+  { value: "8", label: "Asset Classes" },
+  { value: "80+", label: "Finance Rules" },
+  { value: "50", label: "Mistake Guides" },
 ];
 
 function CurrencyDropdown({
@@ -121,21 +114,21 @@ function CurrencyDropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium bg-white hover:bg-slate-50 transition-colors shadow-sm min-w-[130px] justify-between"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/20 text-sm font-medium bg-white/10 hover:bg-white/20 text-white transition-colors min-w-[130px] justify-between backdrop-blur-sm"
         data-ocid="currency.select.toggle"
       >
         <span className="flex items-center gap-1.5">
-          <span className="text-slate-700 font-medium">{selected.country}</span>
-          <span className="font-bold text-indigo-600">{selected.symbol}</span>
+          <span className="text-white/90 font-medium">{selected.country}</span>
+          <span className="font-bold text-indigo-300">{selected.symbol}</span>
         </span>
         <ChevronDown
-          className="w-3.5 h-3.5 text-slate-400 transition-transform flex-shrink-0"
+          className="w-3.5 h-3.5 text-white/60 transition-transform flex-shrink-0"
           style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
         />
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-60 rounded-xl border border-slate-200 shadow-2xl bg-white z-50 overflow-hidden">
+        <div className="absolute right-0 mt-1 w-60 rounded-xl border border-white/20 shadow-2xl bg-slate-900/95 backdrop-blur-xl z-50 overflow-hidden">
           <div className="max-h-72 overflow-y-auto">
             {SUPPORTED_CURRENCIES.map((c) => (
               <button
@@ -146,17 +139,17 @@ function CurrencyDropdown({
                   onSelect(c);
                   setOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-indigo-50 ${
+                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-indigo-500/20 ${
                   selected.code === c.code
-                    ? "bg-indigo-50 text-indigo-700 font-semibold"
-                    : "text-slate-700"
+                    ? "bg-indigo-500/30 text-indigo-300 font-semibold"
+                    : "text-slate-300"
                 }`}
               >
                 <span className="flex items-center gap-2">
                   <span>{c.flag}</span>
                   <span>{c.country}</span>
                 </span>
-                <span className="font-bold text-indigo-600 ml-2">
+                <span className="font-bold text-indigo-400 ml-2">
                   {c.symbol}
                 </span>
               </button>
@@ -185,20 +178,65 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div
+      className="min-h-screen"
+      style={{
+        background:
+          "linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 70%, #0c1a2e 100%)",
+      }}
+    >
+      {/* Decorative ambient glows */}
+      <div
+        className="fixed inset-0 pointer-events-none overflow-hidden"
+        aria-hidden
+      >
+        <div
+          className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full opacity-20"
+          style={{
+            background: "radial-gradient(circle, #4f46e5 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full opacity-15"
+          style={{
+            background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="absolute bottom-0 left-1/3 w-[500px] h-[500px] rounded-full opacity-10"
+          style={{
+            background: "radial-gradient(circle, #2563eb 0%, transparent 70%)",
+          }}
+        />
+        {/* Grid overlay */}
+        <div
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
+      </div>
+
       {/* Top Nav */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-40 border-b border-white/10 backdrop-blur-xl bg-slate-900/60">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-sm">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+              }}
+            >
               <TrendingUp className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="font-extrabold text-sm text-slate-900 leading-none tracking-tight">
+              <p className="font-extrabold text-sm text-white leading-none tracking-tight">
                 Growfinfire Global
               </p>
-              <p className="text-[10px] text-slate-400 leading-none mt-0.5 hidden sm:block">
+              <p className="text-[10px] text-indigo-300 leading-none mt-0.5 hidden sm:block">
                 Learn Finance. Grow Wealth. Achieve Freedom.
               </p>
             </div>
@@ -211,7 +249,11 @@ export default function LandingPage() {
               onClick={handleLogin}
               disabled={isLoggingIn}
               data-ocid="landing.login.primary_button"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 h-9 rounded-lg shadow-sm"
+              className="text-sm font-semibold px-5 h-9 rounded-lg shadow-lg border-0"
+              style={{
+                background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+                boxShadow: "0 4px 15px rgba(79,70,229,0.4)",
+              }}
             >
               {isLoggingIn ? "Signing in..." : "Login"}
             </Button>
@@ -219,45 +261,38 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 pb-16">
+      <main className="relative z-10 max-w-6xl mx-auto px-4 pb-16">
         {/* Hero Section */}
-        <section className="relative py-12 sm:py-16 text-center overflow-hidden">
-          {/* Animated dot-grid background */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, #c7d2fe 1px, transparent 1px)",
-              backgroundSize: "28px 28px",
-              opacity: 0.55,
-            }}
-          />
-          {/* Glow blobs */}
-          <div className="absolute top-0 left-1/4 w-72 h-72 bg-indigo-200 rounded-full opacity-20 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-violet-200 rounded-full opacity-20 blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 space-y-5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold shadow-sm">
+        <section className="py-16 sm:py-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="space-y-6"
+          >
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-indigo-500/40 bg-indigo-500/10 text-indigo-300 text-xs font-semibold">
               <Sparkles className="w-3 h-3" />
               AI-powered financial operating system
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Your complete{" "}
+            <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.1]">
+              Learn Finance.{" "}
               <span
                 className="text-transparent bg-clip-text"
                 style={{
                   backgroundImage:
-                    "linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #2563eb 100%)",
+                    "linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #60a5fa 100%)",
                 }}
               >
-                financial platform
+                Grow Wealth.
               </span>
+              <br />
+              Achieve Freedom.
             </h1>
 
-            <p className="text-slate-500 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
-              Track investments, plan goals, model scenarios, and learn finance
-              — all in one intelligent platform.
+            <p className="text-slate-400 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+              Your complete financial companion — track, plan, and grow your
+              wealth with institutional-grade tools.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -265,7 +300,12 @@ export default function LandingPage() {
                 onClick={handleLogin}
                 disabled={isLoggingIn}
                 data-ocid="landing.hero.primary_button"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-7 h-11 rounded-xl shadow-md text-sm"
+                className="font-bold px-8 h-12 rounded-xl text-sm border-0 relative overflow-hidden"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+                  boxShadow: "0 8px 25px rgba(79,70,229,0.45)",
+                }}
               >
                 {isLoggingIn ? "Signing in..." : "Get Started — Free"}
               </Button>
@@ -273,82 +313,118 @@ export default function LandingPage() {
                 type="button"
                 onClick={handleLogin}
                 disabled={isLoggingIn}
-                className="text-sm text-indigo-600 font-semibold hover:underline underline-offset-2 transition-colors"
+                className="text-sm text-indigo-400 font-semibold hover:text-indigo-300 transition-colors"
               >
                 Login to existing account →
               </button>
             </div>
-          </div>
-        </section>
+          </motion.div>
 
-        {/* Trust Bar */}
-        <section className="bg-white rounded-2xl border border-slate-100 shadow-sm px-6 py-5 mb-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {TRUST_METRICS.map((m) => {
-              const Icon = m.icon;
-              return (
-                <div key={m.label} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-4 h-4 text-indigo-600" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-extrabold text-slate-900 leading-none">
-                      {m.value}
-                    </p>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5">
-                      {m.label}
-                    </p>
-                  </div>
+          {/* Stats strip */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
+            className="mt-14 inline-flex items-center gap-6 sm:gap-10 px-8 py-4 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm"
+          >
+            {STATS.map((s, i) => (
+              <div key={s.label} className="text-center">
+                <div
+                  className="text-2xl font-extrabold text-transparent bg-clip-text"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${["#818cf8", "#34d399", "#fbbf24", "#f87171"][i % 4]} 0%, white 100%)`,
+                  }}
+                >
+                  {s.value}
                 </div>
-              );
-            })}
-          </div>
+                <div className="text-xs text-slate-500 font-medium mt-0.5">
+                  {s.label}
+                </div>
+              </div>
+            ))}
+          </motion.div>
         </section>
 
         {/* Module Cards */}
-        <section className="mb-10">
-          <div className="text-center mb-5">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400">
-              8 Powerful Modules
+        <section className="mb-14">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-center mb-8"
+          >
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+              Everything you need in one place
             </h2>
-          </div>
+            <p className="text-sm text-slate-500">
+              8 powerful modules covering every aspect of personal finance
+            </p>
+          </motion.div>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
             {MODULE_CONFIGS.map((mod, i) => {
               const Icon = mod.icon;
               return (
-                <div
+                <motion.div
                   key={mod.name}
                   data-ocid={`landing.module_card.item.${i + 1}`}
-                  className="group bg-white rounded-2xl border shadow-sm p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-default"
-                  style={{ borderColor: mod.border }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: 0.5 + i * 0.07,
+                    ease: "easeOut",
+                  }}
+                  className="group rounded-2xl border border-white/10 p-4 cursor-default hover:-translate-y-1 transition-all duration-300 overflow-hidden relative"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%)",
+                    backdropFilter: "blur(12px)",
+                    boxShadow: `0 0 0 0 ${mod.glow}`,
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.boxShadow =
+                      `0 8px 30px ${mod.glow}, 0 0 0 1px ${mod.accent}30`;
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.boxShadow =
+                      `0 0 0 0 ${mod.glow}`;
+                  }}
                 >
+                  {/* Accent line top */}
+                  <div
+                    className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: mod.accent }}
+                  />
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
-                    style={{ background: mod.bg }}
+                    style={{ background: `${mod.accent}20` }}
                   >
-                    <Icon className="w-5 h-5" style={{ color: mod.color }} />
+                    <Icon className="w-5 h-5" style={{ color: mod.accent }} />
                   </div>
-                  <h3 className="text-sm font-bold text-slate-800 leading-tight mb-1">
+                  <h3 className="text-sm font-bold text-white leading-tight mb-1">
                     {mod.name}
                   </h3>
                   <p className="text-xs text-slate-400 leading-snug">
                     {mod.desc}
                   </p>
-                </div>
+                </motion.div>
               );
             })}
           </div>
         </section>
 
         {/* AI Assistant Callout */}
-        <section className="relative overflow-hidden rounded-2xl mb-10">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, #4338ca 0%, #6d28d9 40%, #1d4ed8 100%)",
-            }}
-          />
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.1, ease: "easeOut" }}
+          className="relative overflow-hidden rounded-2xl mb-10 border border-indigo-500/30"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(79,70,229,0.3) 0%, rgba(124,58,237,0.25) 50%, rgba(37,99,235,0.2) 100%)",
+            backdropFilter: "blur(20px)",
+          }}
+        >
           <div
             className="absolute inset-0 pointer-events-none opacity-10"
             style={{
@@ -358,7 +434,10 @@ export default function LandingPage() {
             }}
           />
           <div className="relative z-10 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/20">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 border border-white/20"
+              style={{ background: "rgba(79,70,229,0.4)" }}
+            >
               <Bot className="w-7 h-7 text-white" />
             </div>
             <div className="flex-1">
@@ -370,7 +449,7 @@ export default function LandingPage() {
                   Included
                 </span>
               </div>
-              <p className="text-sm text-white/80 leading-relaxed">
+              <p className="text-sm text-white/70 leading-relaxed">
                 Ask anything about your finances — SIP, FIRE, portfolio design,
                 tax, retirement, and more. Trained on all 8 modules &amp; 35+
                 calculators.
@@ -380,64 +459,72 @@ export default function LandingPage() {
               onClick={handleLogin}
               disabled={isLoggingIn}
               data-ocid="landing.ai.primary_button"
-              className="bg-white text-indigo-700 hover:bg-white/90 font-semibold text-sm px-5 h-10 rounded-xl flex-shrink-0 shadow-lg"
+              className="bg-white text-indigo-700 hover:bg-white/90 font-bold text-sm px-5 h-10 rounded-xl flex-shrink-0 border-0"
+              style={{ boxShadow: "0 4px 15px rgba(0,0,0,0.2)" }}
             >
               <Zap className="w-3.5 h-3.5 mr-1.5" />
               Try it free
             </Button>
           </div>
-        </section>
+        </motion.section>
 
         {/* Feature highlights strip */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-          <div className="bg-white rounded-2xl border border-emerald-100 p-5 flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-              <Shield className="w-4 h-4 text-emerald-600" />
-            </div>
-            <div>
-              <p className="font-bold text-sm text-slate-800">
-                Secure & Private
-              </p>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Powered by Internet Identity — no passwords, no leaks.
-              </p>
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl border border-blue-100 p-5 flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
-            </div>
-            <div>
-              <p className="font-bold text-sm text-slate-800">20 Currencies</p>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Manage wealth in INR, USD, GBP, EUR and 16 more.
-              </p>
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl border border-violet-100 p-5 flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0">
-              <BarChart3 className="w-4 h-4 text-violet-600" />
-            </div>
-            <div>
-              <p className="font-bold text-sm text-slate-800">
-                Institutional Models
-              </p>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Insurance, retirement, crypto & portfolio models built-in.
-              </p>
-            </div>
-          </div>
+          {[
+            {
+              icon: Shield,
+              color: "#34d399",
+              title: "Secure & Private",
+              desc: "Powered by Internet Identity — no passwords, no leaks.",
+            },
+            {
+              icon: TrendingUp,
+              color: "#60a5fa",
+              title: "20 Currencies",
+              desc: "Manage wealth in INR, USD, GBP, EUR and 16 more.",
+            },
+            {
+              icon: BarChart3,
+              color: "#a78bfa",
+              title: "Institutional Models",
+              desc: "Insurance, retirement, crypto & portfolio models built-in.",
+            },
+          ].map((f) => {
+            const Icon = f.icon;
+            return (
+              <div
+                key={f.title}
+                className="rounded-2xl border border-white/10 p-5 flex items-start gap-3"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${f.color}20` }}
+                >
+                  <Icon className="w-4 h-4" style={{ color: f.color }} />
+                </div>
+                <div>
+                  <p className="font-bold text-sm text-white">{f.title}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{f.desc}</p>
+                </div>
+              </div>
+            );
+          })}
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+      <footer className="relative z-10 border-t border-white/10 py-6 text-center text-xs text-slate-600">
         © {new Date().getFullYear()}.{" "}
         <a
           href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
           target="_blank"
           rel="noreferrer"
-          className="hover:text-indigo-600 transition-colors"
+          className="hover:text-indigo-400 transition-colors"
         >
           Built with ❤ using caffeine.ai
         </a>

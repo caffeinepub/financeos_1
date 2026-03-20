@@ -254,6 +254,7 @@ export function ModelRetirementTab() {
                   label={(entry) =>
                     `${entry.name.split(" ")[0]}: ${entry.value}%`
                   }
+                  innerRadius={50}
                   outerRadius={100}
                   dataKey="value"
                 >

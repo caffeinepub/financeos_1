@@ -18,6 +18,7 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
+import type React from "react";
 import { useMemo, useState } from "react";
 import {
   Bar,
@@ -961,7 +962,28 @@ function DiversificationSection() {
   );
 }
 
-export function ModelFundamentalsTab() {
+const SECTION_MAP: Record<string, React.ComponentType> = {
+  compounding: CompoundingSection,
+  "rule-of-72": Rule72Section,
+  "sip-vs-lump": SipVsLumpSumSection,
+  inflation: InflationSection,
+  cagr: CAGRSection,
+  "market-cycles": MarketCyclesSection,
+  "pe-ratio": PERatioSection,
+  diversification: DiversificationSection,
+};
+
+export function ModelFundamentalsTab({
+  showSection,
+}: { showSection?: string | null }) {
+  if (showSection && SECTION_MAP[showSection]) {
+    const Comp = SECTION_MAP[showSection];
+    return (
+      <div className="p-4">
+        <Comp />
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       <Card className="shadow-premium-lg border-border/50 bg-gradient-to-br from-card to-muted/20">

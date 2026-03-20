@@ -358,6 +358,7 @@ function AssetAllocationTab() {
                     }: { name: string; percent: number }) =>
                       `${name}: ${(percent * 100).toFixed(1)}%`
                     }
+                    innerRadius="30%"
                     outerRadius="70%"
                     dataKey="value"
                   >

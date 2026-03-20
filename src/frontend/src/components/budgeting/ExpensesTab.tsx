@@ -176,13 +176,7 @@ export function ExpensesTab() {
         <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
           {t.date}
         </td>
-        <td className="p-3 text-xs font-medium max-w-[120px] truncate">
-          {t.description}
-        </td>
-        <td className="p-3 text-xs hidden sm:table-cell text-muted-foreground">
-          {t.account}
-        </td>
-        <td className="p-3 text-xs hidden md:table-cell">
+        <td className="p-3 text-xs">
           {cat ? (
             <Badge variant="secondary" className="text-xs">
               {cat.name}
@@ -191,7 +185,13 @@ export function ExpensesTab() {
             <span className="text-muted-foreground">—</span>
           )}
         </td>
-        <td className="p-3">
+        <td className="p-3 text-xs font-medium max-w-[120px] truncate hidden sm:table-cell">
+          {t.description}
+        </td>
+        <td className="p-3 text-xs hidden sm:table-cell text-muted-foreground">
+          {t.account}
+        </td>
+        <td className="p-3 hidden md:table-cell">
           <Badge
             variant={isIncome ? "default" : "destructive"}
             className={`text-xs ${isIncome ? "bg-green-100 text-green-700 hover:bg-green-100" : ""}`}
@@ -401,15 +401,15 @@ export function ExpensesTab() {
                     Date
                   </th>
                   <th className="text-left p-3 font-semibold text-xs text-white">
+                    Category
+                  </th>
+                  <th className="text-left p-3 font-semibold text-xs text-white hidden sm:table-cell">
                     Description
                   </th>
                   <th className="text-left p-3 font-semibold text-xs text-white hidden sm:table-cell">
                     Account
                   </th>
                   <th className="text-left p-3 font-semibold text-xs text-white hidden md:table-cell">
-                    Category
-                  </th>
-                  <th className="text-left p-3 font-semibold text-xs text-white">
                     Type
                   </th>
                   <th className="text-right p-3 font-semibold text-xs text-white">

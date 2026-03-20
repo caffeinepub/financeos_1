@@ -9,13 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useCurrency } from "../../../contexts/CurrencyContext";
@@ -31,7 +24,6 @@ export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
   const [name, setName] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
   const [targetDate, setTargetDate] = useState("");
-  const [priority, setPriority] = useState("1");
   const [inflationRate, setInflationRate] = useState("6");
 
   const createGoal = useCreateGoal();
@@ -39,7 +31,7 @@ export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !targetAmount || !targetDate || !priority || !inflationRate) {
+    if (!name || !targetAmount || !targetDate || !inflationRate) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -50,7 +42,7 @@ export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
         name,
         targetAmount: Number.parseFloat(targetAmount),
         targetDate: BigInt(date.getTime() * 1000000),
-        priority: BigInt(priority),
+        priority: BigInt(1),
         inflationRate: Number.parseFloat(inflationRate),
       });
       toast.success("Goal added successfully");
@@ -66,7 +58,6 @@ export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
     setName("");
     setTargetAmount("");
     setTargetDate("");
-    setPriority("1");
     setInflationRate("6");
   };
 
@@ -120,35 +111,17 @@ export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select value={priority} onValueChange={setPriority}>
-                <SelectTrigger id="priority" data-ocid="goals.priority.select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 15 }, (_, i) => i + 1).map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="inflationRate">Goal Inflation (%)</Label>
-              <Input
-                id="inflationRate"
-                type="number"
-                step="0.1"
-                placeholder="6.0"
-                value={inflationRate}
-                onChange={(e) => setInflationRate(e.target.value)}
-                data-ocid="goals.inflation.input"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="inflationRate">Goal Inflation (%)</Label>
+            <Input
+              id="inflationRate"
+              type="number"
+              step="0.1"
+              placeholder="6.0"
+              value={inflationRate}
+              onChange={(e) => setInflationRate(e.target.value)}
+              data-ocid="goals.inflation.input"
+            />
           </div>
 
           <DialogFooter>

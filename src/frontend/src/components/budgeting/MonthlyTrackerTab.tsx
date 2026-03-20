@@ -14,6 +14,8 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -89,7 +91,7 @@ const emptyTx: Omit<Transaction, "id"> = {
 };
 
 export function MonthlyTrackerTab() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const { actor } = useActor();
   const now = new Date();
@@ -245,7 +247,7 @@ export function MonthlyTrackerTab() {
     [categories],
   );
 
-  const openAdd = () => {
+  const _openAdd = () => {
     setEditingTx(null);
     setForm({
       ...emptyTx,
@@ -253,7 +255,7 @@ export function MonthlyTrackerTab() {
     });
     setDialogOpen(true);
   };
-  const openEdit = (tx: Transaction) => {
+  const _openEdit = (tx: Transaction) => {
     setEditingTx(tx);
     setForm({
       categoryId: tx.categoryId,
@@ -282,7 +284,7 @@ export function MonthlyTrackerTab() {
     }
   };
 
-  const del = async (id: string) => {
+  const _del = async (id: string) => {
     if (!actor) return;
     await actor.deleteTransaction(id);
     load();
@@ -533,9 +535,7 @@ export function MonthlyTrackerTab() {
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <CardTitle className="text-sm">
-              Category Breakdown — Expense Categories
-            </CardTitle>
+            <CardTitle className="text-sm">Budget vs Spending</CardTitle>
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -636,165 +636,6 @@ export function MonthlyTrackerTab() {
               </TableBody>
             </Table>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Transaction List */}
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm">
-              Transactions — {MONTHS[selectedMonth - 1]} {selectedYear}
-            </CardTitle>
-            <Button
-              size="sm"
-              onClick={openAdd}
-              className="gap-1"
-              data-ocid="budgeting.add_transaction.button"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          {monthTxns.length === 0 ? (
-            <div
-              data-ocid="budgeting.empty_state"
-              className="text-center text-muted-foreground py-10"
-            >
-              <p className="text-sm">No transactions for this month.</p>
-              <p className="text-xs mt-1">
-                Click "Add" to record your first transaction.
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-50">
-                    <TableHead>Date</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead className="text-center">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(() => {
-                    const incomeRows = monthTxns.filter(
-                      (t) => t.transactionType === TransactionType.Income,
-                    );
-                    const expenseRows = monthTxns.filter(
-                      (t) => t.transactionType === TransactionType.Expense,
-                    );
-                    const renderTx = (tx: Transaction, i: number) => {
-                      const cat = categories.find(
-                        (c) => c.id === tx.categoryId,
-                      );
-                      return (
-                        <TableRow
-                          key={tx.id}
-                          data-ocid={`budgeting.item.${i + 1}`}
-                        >
-                          <TableCell className="text-sm">{tx.date}</TableCell>
-                          <TableCell className="text-sm">
-                            {tx.description || "—"}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {cat ? (
-                              <div className="flex items-center gap-1.5">
-                                <div
-                                  className="w-2 h-2 rounded-full"
-                                  style={{ backgroundColor: cat.color }}
-                                />
-                                {cat.name}
-                              </div>
-                            ) : (
-                              "—"
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              className={
-                                tx.transactionType === TransactionType.Income
-                                  ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
-                                  : "bg-red-100 text-red-700 hover:bg-red-100"
-                              }
-                            >
-                              {tx.transactionType}
-                            </Badge>
-                          </TableCell>
-                          <TableCell
-                            className={`text-right font-semibold text-sm ${tx.transactionType === TransactionType.Income ? "text-emerald-600" : "text-red-600"}`}
-                          >
-                            {tx.transactionType === TransactionType.Income
-                              ? "+"
-                              : "-"}
-                            {fmt(tx.amount, country)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-1 justify-center">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                data-ocid={`budgeting.edit_button.${i + 1}`}
-                                onClick={() => openEdit(tx)}
-                              >
-                                <Pencil className="w-3.5 h-3.5" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-red-500"
-                                data-ocid={`budgeting.delete_button.${i + 1}`}
-                                onClick={() => del(tx.id)}
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    };
-                    return (
-                      <>
-                        {incomeRows.length > 0 && (
-                          <>
-                            <TableRow>
-                              <TableCell
-                                colSpan={6}
-                                className="py-1.5 px-4 bg-green-50 text-green-700 text-xs font-bold uppercase tracking-wide border-b border-green-100"
-                              >
-                                Income
-                              </TableCell>
-                            </TableRow>
-                            {incomeRows.map((tx, i) => renderTx(tx, i))}
-                          </>
-                        )}
-                        {expenseRows.length > 0 && (
-                          <>
-                            <TableRow>
-                              <TableCell
-                                colSpan={6}
-                                className="py-1.5 px-4 bg-red-50 text-red-700 text-xs font-bold uppercase tracking-wide border-b border-red-100"
-                              >
-                                Expenses
-                              </TableCell>
-                            </TableRow>
-                            {expenseRows.map((tx, i) =>
-                              renderTx(tx, incomeRows.length + i),
-                            )}
-                          </>
-                        )}
-                      </>
-                    );
-                  })()}
-                </TableBody>
-              </Table>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -1018,6 +859,368 @@ export function MonthlyTrackerTab() {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* ── Budget Analytics Section ── */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
+          Budget Analytics
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* 1. Spending by Category Donut */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Spending by Category</CardTitle>
+            </CardHeader>
+            <CardContent data-ocid="budgeting.spending_category.chart">
+              {(() => {
+                const catMap: Record<
+                  string,
+                  { name: string; value: number; color: string }
+                > = {};
+                const COLORS = [
+                  "#6366f1",
+                  "#10b981",
+                  "#f59e0b",
+                  "#ef4444",
+                  "#3b82f6",
+                  "#8b5cf6",
+                  "#06b6d4",
+                  "#f97316",
+                ];
+                for (const t of transactions.filter(
+                  (tx) => tx.transactionType === TransactionType.Expense,
+                )) {
+                  const cat = categories.find((c) => c.id === t.categoryId);
+                  if (cat) {
+                    catMap[cat.id] = catMap[cat.id] ?? {
+                      name: cat.name,
+                      value: 0,
+                      color:
+                        cat.color ||
+                        COLORS[Object.keys(catMap).length % COLORS.length],
+                    };
+                    catMap[cat.id].value += t.amount;
+                  }
+                }
+                const data = Object.values(catMap)
+                  .filter((d) => d.value > 0)
+                  .sort((a, b) => b.value - a.value);
+                const total = data.reduce((s, d) => s + d.value, 0);
+                if (data.length === 0)
+                  return (
+                    <div className="h-44 flex items-center justify-center text-sm text-slate-400">
+                      No expense data yet
+                    </div>
+                  );
+                return (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <PieChart>
+                      <Pie
+                        data={data}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        dataKey="value"
+                        label={({ value }: { value: number }) =>
+                          total > 0
+                            ? `${((value / total) * 100).toFixed(0)}%`
+                            : ""
+                        }
+                        labelLine={false}
+                      >
+                        {data.map((entry, idx) => (
+                          <Cell
+                            key={entry.name}
+                            fill={entry.color || COLORS[idx % COLORS.length]}
+                            stroke="#fff"
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(v: number, n: string) => [
+                          formatCurrency(v),
+                          n,
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: "11px" }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* 2. Month-over-Month Trend */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Month-over-Month Trend</CardTitle>
+            </CardHeader>
+            <CardContent data-ocid="budgeting.mom_trend.chart">
+              {(() => {
+                const now = new Date();
+                const data = Array.from({ length: 6 }, (_, i) => {
+                  const d = new Date(
+                    now.getFullYear(),
+                    now.getMonth() - 5 + i,
+                    1,
+                  );
+                  const yr = d.getFullYear();
+                  const mo = d.getMonth();
+                  const label = d.toLocaleDateString("en-IN", {
+                    month: "short",
+                    year: "2-digit",
+                  });
+                  const income = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Income
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  const expense = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Expense
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  return { month: label, Income: income, Expenses: expense };
+                });
+                return (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart
+                      data={data}
+                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        opacity={0.15}
+                        vertical={false}
+                      />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                      <YAxis
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
+                        width={50}
+                      />
+                      <Tooltip
+                        formatter={(v: number, n: string) => [
+                          formatCurrency(v),
+                          n,
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: "11px" }} />
+                      <Bar
+                        dataKey="Income"
+                        fill="#10b981"
+                        radius={[4, 4, 0, 0]}
+                      />
+                      <Bar
+                        dataKey="Expenses"
+                        fill="#f43f5e"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* 3. Budget vs Actual Variance */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">
+                Budget vs Actual Variance
+              </CardTitle>
+            </CardHeader>
+            <CardContent data-ocid="budgeting.variance.chart">
+              {(() => {
+                const data = expenseCategories
+                  .map((cat) => {
+                    const actual = monthTxns
+                      .filter(
+                        (t) =>
+                          t.categoryId === cat.id &&
+                          t.transactionType === TransactionType.Expense,
+                      )
+                      .reduce((s, t) => s + t.amount, 0);
+                    const planned = getPlannedAmount(cat.id, cat.monthlyLimit);
+                    return {
+                      name: cat.name,
+                      Budgeted: planned,
+                      Actual: actual,
+                      over: actual > planned,
+                    };
+                  })
+                  .filter((d) => d.Budgeted > 0 || d.Actual > 0)
+                  .slice(0, 8);
+                if (data.length === 0)
+                  return (
+                    <div className="h-44 flex items-center justify-center text-sm text-slate-400">
+                      No budget categories yet
+                    </div>
+                  );
+                return (
+                  <ResponsiveContainer
+                    width="100%"
+                    height={Math.max(180, data.length * 38)}
+                  >
+                    <BarChart
+                      data={data}
+                      layout="vertical"
+                      margin={{ top: 5, right: 60, left: 10, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        opacity={0.15}
+                        horizontal={false}
+                      />
+                      <YAxis
+                        dataKey="name"
+                        type="category"
+                        tick={{ fontSize: 10 }}
+                        width={90}
+                      />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
+                      />
+                      <Tooltip
+                        formatter={(v: number, n: string) => [
+                          formatCurrency(v),
+                          n,
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: "11px" }} />
+                      <Bar
+                        dataKey="Budgeted"
+                        fill="#6366f1"
+                        radius={[0, 4, 4, 0]}
+                      />
+                      <Bar dataKey="Actual" radius={[0, 4, 4, 0]}>
+                        {data.map((entry) => (
+                          <Cell
+                            key={`cell-${entry.name}`}
+                            fill={entry.over ? "#ef4444" : "#10b981"}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* 4. Savings Rate Trend */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Savings Rate Trend (%)</CardTitle>
+            </CardHeader>
+            <CardContent data-ocid="budgeting.savings_rate.chart">
+              {(() => {
+                const now = new Date();
+                const data = Array.from({ length: 6 }, (_, i) => {
+                  const d = new Date(
+                    now.getFullYear(),
+                    now.getMonth() - 5 + i,
+                    1,
+                  );
+                  const yr = d.getFullYear();
+                  const mo = d.getMonth();
+                  const label = d.toLocaleDateString("en-IN", {
+                    month: "short",
+                    year: "2-digit",
+                  });
+                  const income = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Income
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  const expense = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Expense
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  const rate =
+                    income > 0
+                      ? Math.round(((income - expense) / income) * 100)
+                      : 0;
+                  return { month: label, "Savings Rate": rate };
+                });
+                return (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <LineChart
+                      data={data}
+                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        opacity={0.15}
+                        vertical={false}
+                      />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                      <YAxis
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(v) => `${v}%`}
+                        width={40}
+                        domain={["auto", "auto"]}
+                      />
+                      <Tooltip
+                        formatter={(v: number) => [`${v}%`, "Savings Rate"]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="Savings Rate"
+                        stroke="#6366f1"
+                        strokeWidth={2.5}
+                        dot={{ fill: "#6366f1", r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                );
+              })()}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

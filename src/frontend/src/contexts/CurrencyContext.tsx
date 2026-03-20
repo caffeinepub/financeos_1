@@ -58,7 +58,7 @@ interface CurrencyContextType {
 const CurrencyContext = createContext<CurrencyContextType>({
   country: COUNTRIES[0],
   setCountry: () => {},
-  formatCurrency: (n) => `₹${n.toFixed(2)}`,
+  formatCurrency: (n) => n.toFixed(2),
 });
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
@@ -78,15 +78,22 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     const absAmount = Math.abs(amount);
     const sign = amount < 0 ? "-" : "";
     const sym = country.symbol;
-    if (absAmount >= 10000000) {
-      return `${sign}${sym}${(absAmount / 10000000).toFixed(2)} Cr`;
+    const isINR = country.code === "INR";
+    if (isINR) {
+      if (absAmount >= 10000000)
+        return `${sign}${sym}${(absAmount / 10000000).toFixed(2)} Cr`;
+      if (absAmount >= 100000)
+        return `${sign}${sym}${(absAmount / 100000).toFixed(2)} L`;
+      if (absAmount >= 1000)
+        return `${sign}${sym}${(absAmount / 1000).toFixed(2)} K`;
+      return `${sign}${sym}${absAmount.toFixed(2)}`;
     }
-    if (absAmount >= 100000) {
-      return `${sign}${sym}${(absAmount / 100000).toFixed(2)} L`;
-    }
-    if (absAmount >= 1000) {
+    if (absAmount >= 1_000_000_000)
+      return `${sign}${sym}${(absAmount / 1_000_000_000).toFixed(2)} B`;
+    if (absAmount >= 1_000_000)
+      return `${sign}${sym}${(absAmount / 1_000_000).toFixed(2)} M`;
+    if (absAmount >= 1000)
       return `${sign}${sym}${(absAmount / 1000).toFixed(2)} K`;
-    }
     return `${sign}${sym}${absAmount.toFixed(2)}`;
   };
 
@@ -104,17 +111,25 @@ export function useCurrency() {
 export function formatCurrencyWithSymbol(
   amount: number,
   symbol: string,
+  currencyCode = "INR",
 ): string {
   const absAmount = Math.abs(amount);
   const sign = amount < 0 ? "-" : "";
-  if (absAmount >= 10000000) {
-    return `${sign}${symbol}${(absAmount / 10000000).toFixed(2)} Cr`;
+  const isINR = currencyCode === "INR";
+  if (isINR) {
+    if (absAmount >= 10000000)
+      return `${sign}${symbol}${(absAmount / 10000000).toFixed(2)} Cr`;
+    if (absAmount >= 100000)
+      return `${sign}${symbol}${(absAmount / 100000).toFixed(2)} L`;
+    if (absAmount >= 1000)
+      return `${sign}${symbol}${(absAmount / 1000).toFixed(2)} K`;
+    return `${sign}${symbol}${absAmount.toFixed(2)}`;
   }
-  if (absAmount >= 100000) {
-    return `${sign}${symbol}${(absAmount / 100000).toFixed(2)} L`;
-  }
-  if (absAmount >= 1000) {
+  if (absAmount >= 1_000_000_000)
+    return `${sign}${symbol}${(absAmount / 1_000_000_000).toFixed(2)} B`;
+  if (absAmount >= 1_000_000)
+    return `${sign}${symbol}${(absAmount / 1_000_000).toFixed(2)} M`;
+  if (absAmount >= 1000)
     return `${sign}${symbol}${(absAmount / 1000).toFixed(2)} K`;
-  }
   return `${sign}${symbol}${absAmount.toFixed(2)}`;
 }

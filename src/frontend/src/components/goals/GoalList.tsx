@@ -91,15 +91,6 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
       : 0;
   };
 
-  const getPriorityBadgeStyle = (
-    priority: bigint | number,
-  ): { bg: string; text: string; label: string } => {
-    const p = Number(priority);
-    if (p === 1) return { bg: "#fef2f2", text: "#dc2626", label: "P1" };
-    if (p === 2) return { bg: "#fffbeb", text: "#d97706", label: "P2" };
-    return { bg: "#f0fdf4", text: "#16a34a", label: `P${p}` };
-  };
-
   const getProgressGradient = (progress: number): string => {
     if (progress >= 80) return "linear-gradient(90deg, #16a34a, #4ade80)";
     if (progress >= 50) return "linear-gradient(90deg, #d97706, #fbbf24)";
@@ -130,7 +121,6 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
     const monthsLeft = calculateMonthsLeft(goal);
     const amountNeeded = Math.max(0, goal.targetAmount - currentAmount);
     const sipPerMonth = monthsLeft > 0 ? amountNeeded / monthsLeft : 0;
-    const priorityStyle = getPriorityBadgeStyle(goal.priority);
     const emoji = getGoalEmoji(goal.name);
 
     const linkedInvestmentNames = goal.linkedInvestments
@@ -151,13 +141,6 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
             )}
             {goal.name}
           </span>
-        </TableCell>
-        <TableCell className="text-xs py-2.5 text-slate-600">
-          {targetDate.toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          })}
         </TableCell>
         <TableCell className="text-right text-xs py-2.5 font-semibold text-slate-700">
           {formatCurrency(goal.targetAmount)}
@@ -201,10 +184,10 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                 <TooltipContent className="max-w-xs">
                   <div className="space-y-1">
                     <p className="font-semibold text-xs mb-1">
-                      Linked Investments:
+                      Linked Investments
                     </p>
                     {linkedInvestmentNames.map((name) => (
-                      <p key={`linked-${name}`} className="text-xs">
+                      <p key={name} className="text-xs">
                         • {name}
                       </p>
                     ))}
@@ -213,19 +196,16 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
               </Tooltip>
             </TooltipProvider>
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-slate-300 text-xs">—</span>
           )}
         </TableCell>
-        <TableCell className="py-2.5">
-          <span
-            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold"
-            style={{
-              background: priorityStyle.bg,
-              color: priorityStyle.text,
-            }}
-          >
-            {priorityStyle.label}
-          </span>
+        {/* Goal Date — just before Months */}
+        <TableCell className="text-xs py-2.5 text-slate-600">
+          {targetDate.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          })}
         </TableCell>
         <TableCell className="text-center py-2.5">
           <Badge
@@ -321,9 +301,6 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
         <TableHead className="text-white text-xs font-semibold w-[120px] min-w-[120px]">
           Goal Name
         </TableHead>
-        <TableHead className="text-white text-xs font-semibold w-[90px] min-w-[90px]">
-          Goal Date
-        </TableHead>
         <TableHead className="text-white text-xs font-semibold text-right w-[100px] min-w-[100px]">
           Target
         </TableHead>
@@ -333,8 +310,8 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
         <TableHead className="text-white text-xs font-semibold w-[200px] min-w-[200px]">
           Linked Inv.
         </TableHead>
-        <TableHead className="text-white text-xs font-semibold w-[80px] min-w-[80px]">
-          Priority
+        <TableHead className="text-white text-xs font-semibold w-[90px] min-w-[90px]">
+          Goal Date
         </TableHead>
         <TableHead className="text-white text-xs font-semibold text-center w-[90px] min-w-[90px]">
           Months
@@ -395,7 +372,7 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
             } as React.CSSProperties
           }
         >
-          <div style={{ transform: "rotateX(180deg)", minWidth: "1200px" }}>
+          <div style={{ transform: "rotateX(180deg)", minWidth: "1100px" }}>
             <Table>
               {tableHeader}
               <TableBody>

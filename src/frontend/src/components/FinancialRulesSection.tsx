@@ -37,7 +37,7 @@ import {
 import { useState } from "react";
 import { useCurrency } from "../contexts/CurrencyContext";
 
-interface FinancialRule {
+export interface FinancialRule {
   id: string;
   name: string;
   category: string;
@@ -49,7 +49,7 @@ interface FinancialRule {
   practicalTakeaway: string;
 }
 
-const financialRules: FinancialRule[] = [
+export const financialRules: FinancialRule[] = [
   {
     id: "80-20-savings",
     name: "80/20 Savings Rule",
@@ -1541,46 +1541,82 @@ const categories = [
     name: "Investment Rules",
     icon: TrendingUp,
     gradient: "from-blue-500 to-cyan-600",
+    emoji: "📈",
+    color: "#2563eb",
+    bg: "bg-blue-50",
+    border: "border-blue-200",
   },
   {
     name: "Budgeting Rules",
     icon: Wallet,
     gradient: "from-green-500 to-emerald-600",
+    emoji: "💰",
+    color: "#10b981",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
   },
   {
     name: "Emergency & Risk Rules",
     icon: Shield,
     gradient: "from-orange-500 to-red-600",
+    emoji: "🛡️",
+    color: "#ef4444",
+    bg: "bg-red-50",
+    border: "border-red-200",
   },
   {
     name: "Retirement Rules",
     icon: PiggyBank,
     gradient: "from-amber-500 to-yellow-600",
+    emoji: "🌅",
+    color: "#d97706",
+    bg: "bg-amber-50",
+    border: "border-amber-200",
   },
   {
     name: "Debt Management Rules",
     icon: Scale,
     gradient: "from-purple-500 to-fuchsia-600",
+    emoji: "💳",
+    color: "#7c3aed",
+    bg: "bg-violet-50",
+    border: "border-violet-200",
   },
   {
     name: "Valuation & Stock Selection Rules",
     icon: BarChart3,
     gradient: "from-indigo-500 to-blue-600",
+    emoji: "📊",
+    color: "#6366f1",
+    bg: "bg-indigo-50",
+    border: "border-indigo-200",
   },
   {
     name: "Risk Management Rules",
     icon: AlertTriangle,
     gradient: "from-red-500 to-pink-600",
+    emoji: "⚠️",
+    color: "#f59e0b",
+    bg: "bg-orange-50",
+    border: "border-orange-200",
   },
   {
     name: "Business/Corporate Finance Rules",
     icon: Building2,
     gradient: "from-teal-500 to-cyan-600",
+    emoji: "🏢",
+    color: "#0891b2",
+    bg: "bg-cyan-50",
+    border: "border-cyan-200",
   },
   {
     name: "Global Heuristics/Mental Models",
     icon: Brain,
     gradient: "from-pink-500 to-rose-600",
+    emoji: "🧠",
+    color: "#db2777",
+    bg: "bg-pink-50",
+    border: "border-pink-200",
   },
 ];
 
@@ -2101,6 +2137,12 @@ export function FinancialRulesSection({
 }: { levelFilter?: string } = {}) {
   const [selectedRule, setSelectedRule] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(
+    {},
+  );
+
+  const toggleCategory = (name: string) =>
+    setOpenCategories((prev) => ({ ...prev, [name]: !prev[name] }));
 
   const selectedRuleData = financialRules.find((r) => r.id === selectedRule);
 
@@ -2145,6 +2187,15 @@ export function FinancialRulesSection({
         rule.formula.toLowerCase().includes(query.toLowerCase()),
     );
     if (matches.length === 1) setSelectedRule(matches[0].id);
+    // Auto-expand categories that have matching rules when searching
+    if (query.trim()) {
+      const matchingCategories = new Set(matches.map((r) => r.category));
+      setOpenCategories((prev) => {
+        const next = { ...prev };
+        for (const cat of matchingCategories) next[cat] = true;
+        return next;
+      });
+    }
   };
 
   if (selectedRule && selectedRuleData) {
@@ -2251,73 +2302,93 @@ export function FinancialRulesSection({
               className="pl-10 bg-gradient-to-r from-muted/50 to-accent/10 border-border/50 focus:border-primary/50"
             />
           </div>
-          <div className="grid gap-4">
+          <div className="space-y-3">
             {filteredCategories.map((category) => {
-              const CategoryIcon = category.icon;
               const categoryRules = filteredRules.filter(
                 (r) => r.category === category.name,
               );
               if (categoryRules.length === 0) return null;
+              const isOpen = openCategories[category.name] ?? false;
               return (
-                <Card
+                <div
                   key={category.name}
-                  className="border-border/50 overflow-hidden hover:shadow-md transition-all"
+                  className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${category.border}`}
                 >
-                  <CardHeader
-                    className={`pb-3 pt-3 px-4 bg-gradient-to-r ${category.gradient}`}
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                    onClick={() => toggleCategory(category.name)}
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-md">
-                        <CategoryIcon className="h-4 w-4 text-white" />
-                      </div>
-                      <div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{category.emoji}</span>
+                      <div className="text-left">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <CardTitle className="text-sm font-semibold text-white">
+                          <p className="text-sm font-bold text-slate-800">
                             {category.name}
-                          </CardTitle>
+                          </p>
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${LEVEL_BADGE_COLORS[getCategoryLevel(category.name)] ?? "bg-blue-100 text-blue-700 border-blue-200"}`}
                           >
                             {getCategoryLevel(category.name)}
                           </span>
                         </div>
-                        <CardDescription className="text-xs text-white/80">
+                        <p className="text-xs text-slate-500">
                           {categoryRules.length} Rules
-                        </CardDescription>
+                        </p>
+                      </div>
+                      <span
+                        className="text-xs px-2 py-0.5 rounded-full font-bold text-white"
+                        style={{ background: category.color }}
+                      >
+                        {categoryRules.length}
+                      </span>
+                    </div>
+                    <span className="text-slate-400 text-sm ml-2">
+                      {isOpen ? "▲" : "▼"}
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div className={`px-4 pb-4 pt-3 ${category.bg}`}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {categoryRules.map((rule) => {
+                          const Icon = rule.icon;
+                          return (
+                            <button
+                              key={rule.id}
+                              type="button"
+                              className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex cursor-pointer hover:shadow-md transition-all w-full text-left"
+                              style={{
+                                borderLeftColor: category.color,
+                                borderLeftWidth: 3,
+                              }}
+                              onClick={() => setSelectedRule(rule.id)}
+                            >
+                              <div className="p-4 flex items-start gap-3 flex-1 min-w-0">
+                                <div
+                                  className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+                                  style={{ background: `${category.color}18` }}
+                                >
+                                  <Icon
+                                    className="h-4 w-4"
+                                    style={{ color: category.color }}
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-semibold text-slate-800 leading-snug">
+                                    {rule.name}
+                                  </p>
+                                  <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                                    {rule.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="px-4 pb-4 pt-3">
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {categoryRules.map((rule) => {
-                        const Icon = rule.icon;
-                        return (
-                          <Card
-                            key={rule.id}
-                            className="shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/50 hover:scale-105 bg-gradient-to-br from-card to-primary/5"
-                            onClick={() => setSelectedRule(rule.id)}
-                          >
-                            <CardHeader className="pb-2">
-                              <div className="flex items-center gap-2">
-                                <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20">
-                                  <Icon className="h-4 w-4 text-primary" />
-                                </div>
-                                <CardTitle className="text-xs leading-tight">
-                                  {rule.name}
-                                </CardTitle>
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                                {rule.description}
-                              </p>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
+                  )}
+                </div>
               );
             })}
           </div>

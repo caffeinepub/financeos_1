@@ -1,34 +1,32 @@
 # Growfinfire Global
 
 ## Current State
-- Budgeting has 3 tabs: Plan Budget, Track Income & Expense, Budget Insights
-- Track Income & Expense: transactions are saved to backend via `actor.createTransaction()` but pass `id: ""`, causing all transactions to overwrite each other at key "" in the backend map — data is lost on reload
-- Budget Insights top panel: simple summary cards; actual income/expense values not aggregated from transaction data
-- Dashboard: Asset Allocation uses a PieChart (no donut); 20-year Forecast table sits at the bottom of Dashboard
-- Portfolio: Overview tab shows allocation table and charts; no summary cards on any portfolio page; no forecast chart
+- Portfolio has a scrollable pill tab bar with colored gradient pills per asset type
+- Goals has pill filter chips (All, On Track, Needs Attention, Achieved) as sub-header
+- Financial Planner (CalculatorsTab) uses colored gradient CardHeader cards per category, with button grid inside
+- Goals analytics charts use PieChart (achievementQuality, goalDiversification)
+- Financial Model AssetAllocation uses PieChart for portfolio visualization
+- AI assistant (GrowfinfireChat.tsx) has training data but needs expansion
 
 ## Requested Changes (Diff)
 
 ### Add
-- Portfolio: 4 summary cards (Total Invested, Current Value, Gain/Loss, %Gain/Loss) displayed at top of ALL portfolio pages (Overview + all 8 asset-type pages); 2-column grid on mobile, 4-column on md+
-- Portfolio Overview: 20-year Forecast bar chart (grouped bar: each asset type per year) + forecast table moved from Dashboard, placed at the bottom of Portfolio Overview
-- Budget Insights top panel: two donut charts — "% of Income Budget Used" (actual/budgeted income) and "% of Expenses Budget Used" (actual/budgeted expenses) — plus metric cards for Actual Income, Actual Expenses, Net Savings (Actual Income minus Actual Expenses)
+- AI training data for: all Learn Finance Rules, all 50 Mistakes + mitigations, all 8 Basics, Financial Model modules (Asset Allocation, Model Portfolio MF/ETF/Both, Crypto, Insurance, Retirement), Financial Planner AI-led definition and step-by-step usage for all 35+ calculators
 
 ### Modify
-- ExpensesTab.tsx: Fix `save()` function — generate a unique ID via `crypto.randomUUID()` before calling `createTransaction()` so each transaction is stored separately
-- ExpensesTab.tsx: date field added per-transaction (already exists but ensure it's captured); allow multiple transactions per category
-- MonthlyTrackerTab.tsx (Budget Insights): actual income/expense values in top panel aggregate from backend transaction data (sum amounts by transactionType for selected month/year), not hardcoded or category-limit-based
-- MonthlyTrackerTab.tsx: reduce card sizes on mobile to be consistent with Plan Budget and Track Income & Expense tabs; use same compact card height/padding
-- DashboardPage.tsx: Asset Allocation chart — convert from PieChart to donut PieChart (innerRadius set, % labels shown on each slice or in tooltip)
-- DashboardPage.tsx: Remove 20-year Forecast table entirely from Dashboard
+- Portfolio sub-header tab bar: apply same pill visual style as Goals filter chips (rounded pills with distinct colors, consistent hover/active states)
+- Financial Planner CalculatorsTab: change category cards to match Learn Finance Rules category card theme (collapsible accordion cards with emoji, left-color-border, count badge, expand/collapse toggle; calculator items shown as rule-style cards inside)
+- Goals: convert PieChart (achievementQuality, goalDiversification) to Donut charts (add innerRadius, show % label inside)
+- Financial Model AssetAllocation: convert PieChart to Donut chart (add innerRadius)
+- Any other Pie charts across the app: convert to Donut charts
 
 ### Remove
-- Dashboard: 20-year Forecast table section removed from DashboardPage.tsx
+- Nothing removed
 
 ## Implementation Plan
-1. Fix `ExpensesTab.tsx` `save()`: replace `id: ""` with `id: crypto.randomUUID()` for new transactions
-2. Update `MonthlyTrackerTab.tsx` top panel: fetch all transactions, filter by selected month/year, sum Income and Expense amounts, display as donut charts + metric cards inspired by the attached reference image (two donuts side-by-side, metric cards to the right)
-3. Standardize card sizing across all 3 budgeting tabs for mobile (compact `p-3` cards, consistent height)
-4. `DashboardPage.tsx`: change Asset Allocation PieChart to donut (add `innerRadius={50}`) with % labels rendered via `renderCustomizedLabel` or `Cell` labels; remove the entire forecast table section
-5. `PortfolioPage.tsx`: extract `forecast20` computation (already exists in DashboardPage) and add it to PortfolioOverview component; add grouped BarChart of forecast at bottom of Overview; add forecast table below chart
-6. `PortfolioPage.tsx`: add 4-card summary row (Total Invested, Current Value, Gain/Loss, %Gain/Loss) computed from `holdings` at top of page — visible on ALL tabs (Overview + per-asset pages); grid-cols-2 on mobile, grid-cols-4 on md+
+1. In GoalsTab.tsx: change `<Pie>` for achievementQuality and goalDiversification to use innerRadius=40 outerRadius=75 (donut)
+2. In FinancialModelingTab.tsx: change AssetAllocation `<Pie>` to donut with innerRadius=50
+3. In PortfolioPage.tsx: update the asset-type tab bar pills to match Goals pill style
+4. In CalculatorsTab.tsx: replace gradient CardHeader category layout with collapsible accordion-style category cards matching Learn Finance Rules theme (emoji per category, colored left border, count badge, expand/collapse)
+5. In GrowfinfireChat.tsx: append extensive training blocks for Rules, Mistakes, Basics, Financial Model modules, and Financial Planner step-by-step guides
+6. Scan DashboardPage.tsx and other files for any remaining PieCharts and convert to Donut

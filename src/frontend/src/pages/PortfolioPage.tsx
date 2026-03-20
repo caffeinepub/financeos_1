@@ -88,14 +88,14 @@ const SLICE_COLORS = [
 ];
 
 const assetTypes: { value: AssetType; label: string; color: string }[] = [
-  { value: AssetType.Retirement, label: "Retiral", color: "#6366f1" },
-  { value: AssetType.MutualFund, label: "Mutual Fund", color: "#22c55e" },
+  { value: AssetType.Retirement, label: "Retiral", color: "#f43f5e" },
+  { value: AssetType.MutualFund, label: "Mutual Fund", color: "#3b82f6" },
   { value: AssetType.ETF, label: "Equity (ETF/Stocks)", color: "#10b981" },
-  { value: AssetType.Crypto, label: "Crypto", color: "#f97316" },
-  { value: AssetType.Commodity, label: "Commodity", color: "#eab308" },
-  { value: AssetType.RealEstate, label: "Real Estate", color: "#a855f7" },
-  { value: AssetType.FixedIncome, label: "Fixed Income", color: "#06b6d4" },
-  { value: AssetType.Other, label: "Other", color: "#64748b" },
+  { value: AssetType.Crypto, label: "Crypto", color: "#a855f7" },
+  { value: AssetType.Commodity, label: "Commodity", color: "#f59e0b" },
+  { value: AssetType.RealEstate, label: "Real Estate", color: "#f97316" },
+  { value: AssetType.FixedIncome, label: "Fixed Income", color: "#14b8a6" },
+  { value: AssetType.Other, label: "Other", color: "#78716c" },
 ];
 
 const categoryOptions: Record<string, string[]> = {
@@ -233,8 +233,6 @@ export default function PortfolioPage() {
   const currentType = (assetType as AssetType) || AssetType.Retirement;
   const rawFiltered = holdings.filter((h) => h.assetType === currentType);
   const totalValue = rawFiltered.reduce((s, h) => s + h.currentValue, 0);
-  const activeTabColor =
-    assetTypes.find((at) => at.value === currentType)?.color ?? "#6366f1";
 
   const toggleSort = (col: SortCol) => {
     if (sortCol === col) {
@@ -516,61 +514,6 @@ export default function PortfolioPage() {
         </Button>
       </div>
 
-      {/* ── Portfolio Summary Cards (all tabs) ── */}
-      {(() => {
-        const _totalInvested = holdings.reduce(
-          (s, h) => s + h.costBasis * h.quantity,
-          0,
-        );
-        const _currentValue = holdings.reduce((s, h) => s + h.currentValue, 0);
-        const _gainLoss = _currentValue - _totalInvested;
-        const _gainLossPct =
-          _totalInvested > 0 ? (_gainLoss / _totalInvested) * 100 : 0;
-        const sym = "₹";
-        return (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-1">
-            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
-              <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium mb-1">
-                Total Invested
-              </p>
-              <p className="text-sm font-bold text-slate-700 tabular-nums">
-                {shortNum(_totalInvested, sym)}
-              </p>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
-              <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium mb-1">
-                Current Value
-              </p>
-              <p className="text-sm font-bold text-slate-800 tabular-nums">
-                {shortNum(_currentValue, sym)}
-              </p>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
-              <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium mb-1">
-                Gain / Loss
-              </p>
-              <p
-                className={`text-sm font-bold tabular-nums ${_gainLoss >= 0 ? "text-emerald-600" : "text-red-500"}`}
-              >
-                {_gainLoss >= 0 ? "+" : ""}
-                {shortNum(_gainLoss, sym)}
-              </p>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
-              <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium mb-1">
-                % Gain/Loss
-              </p>
-              <p
-                className={`text-sm font-bold tabular-nums ${_gainLossPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
-              >
-                {_gainLossPct >= 0 ? "+" : ""}
-                {_gainLossPct.toFixed(2)}%
-              </p>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* Industry-standard pill tab bar */}
       <div className="overflow-x-auto pb-1">
         <div className="flex flex-row gap-2 min-w-max">
@@ -578,16 +521,7 @@ export default function PortfolioPage() {
             type="button"
             data-ocid="portfolio.overview.tab"
             onClick={() => navigate("/portfolio/overview")}
-            className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
-            style={
-              isOverview
-                ? {
-                    backgroundColor: "#1e293b",
-                    color: "#fff",
-                    boxShadow: "0 2px 8px rgba(30,41,59,0.3)",
-                  }
-                : { backgroundColor: "#f1f5f9", color: "#64748b" }
-            }
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${isOverview ? "bg-slate-800 text-white border-slate-800" : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"}`}
           >
             Overview
           </button>
@@ -599,15 +533,20 @@ export default function PortfolioPage() {
                 type="button"
                 data-ocid={`portfolio.${at.value.toLowerCase()}.tab`}
                 onClick={() => navigate(`/portfolio/${at.value}`)}
-                className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+                className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
                 style={
                   isActive
                     ? {
                         backgroundColor: at.color,
                         color: "#fff",
+                        borderColor: at.color,
                         boxShadow: `0 2px 8px ${at.color}55`,
                       }
-                    : { backgroundColor: "#f1f5f9", color: "#64748b" }
+                    : {
+                        backgroundColor: "#ffffff",
+                        color: at.color,
+                        borderColor: `${at.color}55`,
+                      }
                 }
               >
                 {at.label}
@@ -621,19 +560,6 @@ export default function PortfolioPage() {
         <PortfolioOverview holdings={holdings} fmt={fmt} />
       ) : (
         <>
-          {/* Summary row */}
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-medium">
-              {rawFiltered.length} holding{rawFiltered.length !== 1 ? "s" : ""}
-            </span>
-            <span
-              className="inline-flex items-center px-3 py-1 rounded-full text-white text-xs font-semibold tabular-nums"
-              style={{ backgroundColor: activeTabColor }}
-            >
-              Total: {fmt(totalValue)}
-            </span>
-          </div>
-
           {loading ? (
             <Skeleton className="h-48 rounded-2xl" />
           ) : rawFiltered.length === 0 ? (
@@ -651,6 +577,71 @@ export default function PortfolioPage() {
             </div>
           ) : (
             <>
+              {/* Tab Summary Cards */}
+              {(() => {
+                const tabInvested = rawFiltered.reduce(
+                  (s, h) => s + h.costBasis * h.quantity,
+                  0,
+                );
+                const tabCurrent = rawFiltered.reduce(
+                  (s, h) => s + h.currentValue,
+                  0,
+                );
+                const tabGL = tabCurrent - tabInvested;
+                const tabGLPct =
+                  tabInvested > 0 ? (tabGL / tabInvested) * 100 : 0;
+                return (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
+                      <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
+                        Invested
+                      </p>
+                      <p className="text-sm font-bold text-blue-800 tabular-nums">
+                        {fmt(tabInvested)}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-emerald-100 px-4 py-3">
+                      <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wide mb-1">
+                        Current Value
+                      </p>
+                      <p className="text-sm font-bold text-emerald-800 tabular-nums">
+                        {fmt(tabCurrent)}
+                      </p>
+                    </div>
+                    <div
+                      className={`rounded-xl border px-4 py-3 ${tabGL >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+                    >
+                      <p
+                        className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${tabGL >= 0 ? "text-green-700" : "text-red-700"}`}
+                      >
+                        P&amp;L
+                      </p>
+                      <p
+                        className={`text-sm font-bold tabular-nums ${tabGL >= 0 ? "text-green-800" : "text-red-700"}`}
+                      >
+                        {tabGL >= 0 ? "+" : ""}
+                        {fmt(tabGL)}
+                      </p>
+                    </div>
+                    <div
+                      className={`rounded-xl border px-4 py-3 ${tabGLPct >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+                    >
+                      <p
+                        className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${tabGLPct >= 0 ? "text-green-700" : "text-red-700"}`}
+                      >
+                        % P&amp;L
+                      </p>
+                      <p
+                        className={`text-sm font-bold tabular-nums ${tabGLPct >= 0 ? "text-green-800" : "text-red-700"}`}
+                      >
+                        {tabGLPct >= 0 ? "+" : ""}
+                        {tabGLPct.toFixed(2)}%
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Holdings Table */}
               <div className="rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
@@ -851,6 +842,7 @@ export default function PortfolioPage() {
                           data={pieData}
                           cx="50%"
                           cy="50%"
+                          innerRadius={30}
                           outerRadius={70}
                           dataKey="value"
                           strokeWidth={2}
@@ -1085,6 +1077,7 @@ function PortfolioOverview({
   holdings: PortfolioHolding[];
   fmt: (v: number) => string;
 }) {
+  const { country: ovCountry } = useCurrency();
   // Per-asset-type aggregation
   const assetSummaries = useMemo(() => {
     return assetTypes.map((at) => {
@@ -1224,6 +1217,63 @@ function PortfolioOverview({
 
   return (
     <div className="space-y-4">
+      {/* Overview Summary Cards */}
+      {(() => {
+        const gl = totalCurrent - totalInvested;
+        const glPct = totalInvested > 0 ? (gl / totalInvested) * 100 : 0;
+        const sym = ovCountry.symbol;
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
+              <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
+                Total Invested
+              </p>
+              <p className="text-sm font-bold text-blue-800 tabular-nums">
+                {shortNum(totalInvested, sym)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-emerald-100 px-4 py-3">
+              <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wide mb-1">
+                Current Value
+              </p>
+              <p className="text-sm font-bold text-emerald-800 tabular-nums">
+                {shortNum(totalCurrent, sym)}
+              </p>
+            </div>
+            <div
+              className={`rounded-xl border px-4 py-3 ${gl >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+            >
+              <p
+                className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${gl >= 0 ? "text-green-700" : "text-red-700"}`}
+              >
+                Gain / Loss
+              </p>
+              <p
+                className={`text-sm font-bold tabular-nums ${gl >= 0 ? "text-green-800" : "text-red-700"}`}
+              >
+                {gl >= 0 ? "+" : ""}
+                {shortNum(gl, sym)}
+              </p>
+            </div>
+            <div
+              className={`rounded-xl border px-4 py-3 ${glPct >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+            >
+              <p
+                className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${glPct >= 0 ? "text-green-700" : "text-red-700"}`}
+              >
+                % Gain/Loss
+              </p>
+              <p
+                className={`text-sm font-bold tabular-nums ${glPct >= 0 ? "text-green-800" : "text-red-700"}`}
+              >
+                {glPct >= 0 ? "+" : ""}
+                {glPct.toFixed(2)}%
+              </p>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Overview Table */}
       <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
         <CardContent className="px-0 pb-0">
@@ -1462,6 +1512,7 @@ function PortfolioOverview({
                     cy="50%"
                     labelLine={false}
                     label={renderPieLabel}
+                    innerRadius={40}
                     outerRadius={90}
                     dataKey="value"
                   >
@@ -1515,6 +1566,7 @@ function PortfolioOverview({
                     cy="50%"
                     labelLine={false}
                     label={renderPieLabel}
+                    innerRadius={40}
                     outerRadius={90}
                     dataKey="value"
                   >
@@ -1590,7 +1642,7 @@ function PortfolioOverview({
           }
           return row;
         });
-        const sym = "₹";
+        const sym = ovCountry.symbol;
         return (
           <>
             {/* Bar Chart */}

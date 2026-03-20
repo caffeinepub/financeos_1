@@ -134,6 +134,7 @@ export function HomeLoanCalculator() {
                   data={pieData}
                   cx="50%"
                   cy="50%"
+                  innerRadius={25}
                   outerRadius={55}
                   dataKey="value"
                   label={false}

@@ -156,6 +156,11 @@ export interface backendInterface {
     getTransaction(id: string): Promise<Transaction | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerBlocked(): Promise<{ blocked: boolean; reason: string }>;
+    bootstrapAdmin(): Promise<boolean>;
+    isCallerAdmin(): Promise<boolean>;
+    adminGetAllUsers(): Promise<Array<[string, { name: string; email: string }]>>;
+    adminSuspendUser(principalText: string): Promise<boolean>;
+    adminUnsuspendUser(principalText: string): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateBudgetCategory(id: string, category: BudgetCategory): Promise<BudgetCategory | null>;
     updateFinancialModel(id: string, model: FinancialModel): Promise<FinancialModel | null>;

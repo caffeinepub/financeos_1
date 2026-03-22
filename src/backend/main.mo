@@ -54,6 +54,8 @@ actor {
   // Legacy stable vars retained for upgrade compatibility (do not remove)
   var blockedUsers     = Map.empty<Principal, { blocked : Bool; reason : Text }>();
   var userModuleAccess = Map.empty<Principal, Map.Map<Text, Bool>>();
+  // Admin state - persists across upgrades
+  stable var adminPrincipalText : Text = "";
 
   var idCounter : Nat = 0;
   func generateId() : Text {
@@ -434,4 +436,62 @@ actor {
       totalExpenses;
     };
   };
+  // ─── Admin helpers ───────────────────────────────────────────
+
+  // Restore admin role into accessControlState after each upgrade
+  system func postupgrade() {
+    if (adminPrincipalText != "") {
+      let p = Principal.fromText(adminPrincipalText);
+      AccessControl.assignRole(accessControlState, p, p, #admin);
+    };
+  };
+
+  // Set first caller as permanent admin; re-syncs role on subsequent calls
+  public shared ({ caller }) func bootstrapAdmin() : async Bool {
+    if (adminPrincipalText == "") {
+      adminPrincipalText := caller.toText();
+      AccessControl.assignRole(accessControlState, caller, caller, #admin);
+      return true;
+    };
+    if (caller.toText() == adminPrincipalText) {
+      AccessControl.assignRole(accessControlState, caller, caller, #admin);
+      return true;
+    };
+    false;
+  };
+
+  public query ({ caller }) func isCallerBlocked() : async { blocked : Bool; reason : Text } {
+    switch (blockedUsers.get(caller)) {
+      case (?status) { { blocked = status.blocked; reason = status.reason } };
+      case null { { blocked = false; reason = "" } };
+    };
+  };
+
+  // Admin: list all registered users with suspension status
+  public query ({ caller }) func adminGetAllUsers() : async [(Text, UserProfile)] {
+    assert(adminPrincipalText != "" and caller.toText() == adminPrincipalText);
+    let allEntries = userProfiles.entries().toArray();
+    Array.tabulate<(Text, UserProfile)>(allEntries.size(), func(i) {
+      let (p, prof) = allEntries[i];
+      (p.toText(), prof)
+    });
+  };
+
+  // Admin: suspend a user
+  public shared ({ caller }) func adminSuspendUser(principalText : Text) : async Bool {
+    assert(adminPrincipalText != "" and caller.toText() == adminPrincipalText);
+    let p = Principal.fromText(principalText);
+    blockedUsers.add(p, { blocked = true; reason = "Suspended by admin" });
+    true;
+  };
+
+  // Admin: unsuspend a user
+  public shared ({ caller }) func adminUnsuspendUser(principalText : Text) : async Bool {
+    assert(adminPrincipalText != "" and caller.toText() == adminPrincipalText);
+    let p = Principal.fromText(principalText);
+    blockedUsers.remove(p);
+    true;
+  };
+
+
 };

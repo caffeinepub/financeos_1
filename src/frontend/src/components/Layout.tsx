@@ -118,6 +118,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     () => localStorage.getItem("gff_dob") || "",
   );
   const [saving, setSaving] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Blocked status
   const [blockedStatus, setBlockedStatus] = useState<{
@@ -139,9 +140,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     Promise.all([
       actor.getCallerUserProfile().catch(() => null),
       actor.isCallerBlocked().catch(() => ({ blocked: false, reason: "" })),
-    ]).then(([p, blocked]) => {
+      actor.bootstrapAdmin().catch(() => false),
+    ]).then(([p, blocked, adminResult]) => {
       if (p) setProfile(p);
       setBlockedStatus(blocked as { blocked: boolean; reason: string });
+      actor
+        .isCallerAdmin()
+        .catch(() => false)
+        .then((a) => setIsAdmin(!!(a || adminResult)));
     });
   }, [actor, isFetching]);
 
@@ -366,6 +372,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             {profile?.name?.charAt(0)?.toUpperCase() || "U"}
           </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate("/admin")}
+              data-ocid="header.admin.button"
+              className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white hover:opacity-90 transition-opacity flex-shrink-0"
+              title="Admin Panel"
+            >
+              <Shield className="w-4 h-4" />
+            </button>
+          )}
           <button
             type="button"
             onClick={() => navigate("/help")}

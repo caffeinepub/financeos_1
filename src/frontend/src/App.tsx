@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
+import AdminPage from "./pages/AdminPage";
 import BudgetingPage from "./pages/BudgetingPage";
 import DashboardPage from "./pages/DashboardPage";
 import FinancialModelPage from "./pages/FinancialModelPage";
@@ -72,6 +73,7 @@ export default function App() {
                     />
                     <Route path="/loans" element={<LoansPage />} />
                     <Route path="/help" element={<HelpPage />} />
+                    <Route path="/admin" element={<AdminPage />} />
                     <Route
                       path="*"
                       element={<Navigate to="/dashboard" replace />}

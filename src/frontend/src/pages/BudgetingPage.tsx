@@ -303,11 +303,11 @@ export default function BudgetingPage() {
         <h1 className="text-lg font-bold text-slate-800">Budgeting</h1>
       </div>
 
-      <Tabs defaultValue="categories">
+      <Tabs defaultValue="expenses">
         <div className="overflow-x-auto pb-1 mb-1">
           <TabsList
             data-ocid="budgeting.tab"
-            className="h-auto bg-transparent p-0 gap-2 flex"
+            className="h-auto bg-black p-2 gap-2 flex rounded-xl"
           >
             <TabsTrigger
               value="categories"

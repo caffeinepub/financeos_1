@@ -2336,16 +2336,18 @@ export function FinancialRulesSection({
                           {categoryRules.length} Rules
                         </p>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-auto">
                       <span
                         className="text-xs px-2 py-0.5 rounded-full font-bold text-white"
                         style={{ background: category.color }}
                       >
                         {categoryRules.length}
                       </span>
+                      <span className="text-slate-400 text-sm">
+                        {isOpen ? "▲" : "▼"}
+                      </span>
                     </div>
-                    <span className="text-slate-400 text-sm ml-2">
-                      {isOpen ? "▲" : "▼"}
-                    </span>
                   </button>
                   {isOpen && (
                     <div className={`px-4 pb-4 pt-3 ${category.bg}`}>

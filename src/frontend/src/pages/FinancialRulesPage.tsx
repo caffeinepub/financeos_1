@@ -61,7 +61,7 @@ const emptyForm = {
   isActive: true,
 };
 
-const LEVEL_STEPS = [
+const _LEVEL_STEPS = [
   {
     label: "All",
     color: "#64748b",
@@ -572,7 +572,6 @@ export default function FinancialRulesPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [showAIAnalysis, setShowAIAnalysis] = useState(false);
-  const [levelFilter, setLevelFilter] = useState("All");
   const [activeTab, setActiveTab] = useState("knowledge");
   const [activeBasic, setActiveBasic] = useState<string | null>(null);
   const [openCats, setOpenCats] = useState<Record<string, boolean>>({});
@@ -717,76 +716,55 @@ export default function FinancialRulesPage() {
 
         <TabsContent value="knowledge" className="mt-4 space-y-4">
           {/* Level Filter Pills */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
-              Filter by Level
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {LEVEL_STEPS.map((step) => (
-                <button
-                  key={step.label}
-                  type="button"
-                  data-ocid={`financialrules.level.${step.label.toLowerCase()}.toggle`}
-                  onClick={() => setLevelFilter(step.label)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                    levelFilter === step.label
-                      ? "text-white border-transparent shadow-sm"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
-                  }`}
-                  style={
-                    levelFilter === step.label ? { background: step.color } : {}
-                  }
-                >
-                  {step.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <FinancialRulesSection levelFilter={levelFilter} />
+          <FinancialRulesSection />
         </TabsContent>
 
         <TabsContent value="basics" className="mt-4">
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {BASICS_TOPICS.map((topic) => (
+          <div className="space-y-3">
+            {BASICS_TOPICS.map((topic) => (
+              <div
+                key={topic.id}
+                className="bg-white rounded-2xl border border-teal-100 shadow-sm overflow-hidden"
+                style={{ borderLeft: "4px solid #14b8a6" }}
+              >
                 <button
-                  key={topic.id}
                   type="button"
                   data-ocid={`basics.${topic.id}.card`}
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
                   onClick={() =>
                     setActiveBasic(activeBasic === topic.id ? null : topic.id)
                   }
-                  className={`text-left rounded-xl border p-3.5 transition-all shadow-sm hover:shadow-md ${
-                    activeBasic === topic.id
-                      ? "border-teal-400 bg-teal-50 shadow-teal-100"
-                      : "border-slate-100 bg-white hover:border-teal-200 hover:bg-teal-50/40"
-                  }`}
                 >
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 ${
-                      activeBasic === topic.id ? "bg-teal-500" : "bg-slate-100"
-                    }`}
-                  >
-                    <topic.Icon
-                      className={`w-4 h-4 ${activeBasic === topic.id ? "text-white" : "text-slate-500"}`}
-                    />
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        activeBasic === topic.id ? "bg-teal-500" : "bg-teal-50"
+                      }`}
+                    >
+                      <topic.Icon
+                        className={`w-4 h-4 ${activeBasic === topic.id ? "text-white" : "text-teal-600"}`}
+                      />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-bold text-slate-800">
+                        {topic.name}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {topic.desc}
+                      </p>
+                    </div>
                   </div>
-                  <p
-                    className={`text-xs font-semibold leading-snug ${activeBasic === topic.id ? "text-teal-700" : "text-slate-700"}`}
-                  >
-                    {topic.name}
-                  </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">
-                    {topic.desc}
-                  </p>
+                  <span className="text-slate-400 text-sm ml-2">
+                    {activeBasic === topic.id ? "▲" : "▼"}
+                  </span>
                 </button>
-              ))}
-            </div>
-            {activeBasic && (
-              <div className="rounded-2xl border border-teal-100 bg-white shadow-sm overflow-hidden">
-                <ModelFundamentalsTab showSection={activeBasic} />
+                {activeBasic === topic.id && (
+                  <div className="border-t border-teal-100 bg-teal-50/30">
+                    <ModelFundamentalsTab showSection={topic.id} />
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
         </TabsContent>
 
@@ -881,16 +859,18 @@ export default function FinancialRulesPage() {
                               {catMistakes.length} mistakes
                             </p>
                           </div>
+                        </div>
+                        <div className="flex items-center gap-2 ml-auto">
                           <span
                             className="text-xs px-2 py-0.5 rounded-full font-bold text-white"
                             style={{ background: cat.color }}
                           >
                             {catMistakes.length}
                           </span>
+                          <span className="text-slate-400 text-sm">
+                            {isOpen ? "▲" : "▼"}
+                          </span>
                         </div>
-                        <span className="text-slate-400 text-sm">
-                          {isOpen ? "▲" : "▼"}
-                        </span>
                       </button>
                       {isOpen && (
                         <div className={`px-4 pb-4 ${cat.bg}`}>

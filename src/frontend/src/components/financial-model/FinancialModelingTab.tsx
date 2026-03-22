@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -19,6 +20,7 @@ import {
   ChevronDown,
   PieChart,
   PiggyBank,
+  Search,
   Shield,
 } from "lucide-react";
 import { useState } from "react";
@@ -77,6 +79,7 @@ function FinancialModelingTab() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(),
   );
+  const [searchQuery, setSearchQuery] = useState("");
 
   const toggleSection = (id: string) => {
     setExpandedSections((prev) => {
@@ -87,10 +90,30 @@ function FinancialModelingTab() {
     });
   };
 
+  const filteredSections = searchQuery.trim()
+    ? SECTIONS.filter(
+        (s) =>
+          s.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          s.count.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : SECTIONS;
+
   return (
     <div className="space-y-3">
-      {SECTIONS.map((section) => {
-        const isExpanded = expandedSections.has(section.id);
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Search financial models..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+          data-ocid="financialmodel.search_input"
+        />
+      </div>
+      {filteredSections.map((section) => {
+        const isExpanded =
+          expandedSections.has(section.id) || searchQuery.trim() !== "";
         return (
           <div
             key={section.id}

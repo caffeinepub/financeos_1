@@ -629,9 +629,6 @@ export function CalculatorsTab() {
       <ScrollArea className="h-full">
         <div className="space-y-3 p-3">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold whitespace-nowrap">
-              Financial Planner
-            </h2>
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input

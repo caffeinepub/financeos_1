@@ -523,7 +523,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* Industry-standard pill tab bar */}
-      <div className="overflow-x-auto pb-1">
+      <div className="overflow-x-auto pb-2 bg-black rounded-xl p-2">
         <div className="flex flex-row gap-2 min-w-max">
           <button
             type="button"
@@ -602,17 +602,17 @@ export default function PortfolioPage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
                       <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
-                        Invested
+                        Total Invested
                       </p>
                       <p className="text-sm font-bold text-blue-800 tabular-nums">
                         {fmt(tabInvested)}
                       </p>
                     </div>
-                    <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-emerald-100 px-4 py-3">
-                      <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wide mb-1">
+                    <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
+                      <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
                         Current Value
                       </p>
-                      <p className="text-sm font-bold text-emerald-800 tabular-nums">
+                      <p className="text-sm font-bold text-blue-800 tabular-nums">
                         {fmt(tabCurrent)}
                       </p>
                     </div>
@@ -705,7 +705,7 @@ export default function PortfolioPage() {
                             if (e.key === "Enter") toggleSort("gl");
                           }}
                         >
-                          Gain/Loss{" "}
+                          Gain/Loss
                           <SortIcon
                             col="gl"
                             sortCol={sortCol}
@@ -719,7 +719,7 @@ export default function PortfolioPage() {
                             if (e.key === "Enter") toggleSort("glPct");
                           }}
                         >
-                          Gain/Loss %{" "}
+                          Gain/Loss%
                           <SortIcon
                             col="glPct"
                             sortCol={sortCol}
@@ -747,7 +747,7 @@ export default function PortfolioPage() {
                             if (e.key === "Enter") toggleSort("allocPct");
                           }}
                         >
-                          % Allocation{" "}
+                          Allocation%
                           <SortIcon
                             col="allocPct"
                             sortCol={sortCol}
@@ -774,17 +774,17 @@ export default function PortfolioPage() {
                             data-ocid={`portfolio.item.${i + 1}`}
                             className="hover:bg-slate-50/80 transition-colors"
                           >
-                            <td className="px-4 py-3 text-sm font-medium text-slate-800">
+                            <td className="px-4 py-3 text-xs font-medium text-slate-800">
                               {h.name}
                             </td>
-                            <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-700 font-medium">
+                            <td className="px-4 py-3 text-xs text-right tabular-nums text-slate-700 font-medium whitespace-nowrap">
                               {fmt(invested)}
                             </td>
-                            <td className="px-4 py-3 text-sm text-right tabular-nums font-medium text-slate-800">
+                            <td className="px-4 py-3 text-xs text-right tabular-nums font-medium text-slate-800 whitespace-nowrap">
                               {fmt(h.currentValue)}
                             </td>
                             <td
-                              className={`px-4 py-3 text-sm text-right tabular-nums font-semibold ${
+                              className={`px-4 py-3 text-xs text-right tabular-nums font-semibold whitespace-nowrap ${
                                 gl >= 0 ? "text-emerald-600" : "text-red-500"
                               }`}
                             >
@@ -792,14 +792,14 @@ export default function PortfolioPage() {
                               {fmt(gl)}
                             </td>
                             <td
-                              className={`px-4 py-3 text-sm text-right tabular-nums font-semibold ${
+                              className={`px-4 py-3 text-xs text-right tabular-nums font-semibold whitespace-nowrap ${
                                 glPct >= 0 ? "text-emerald-600" : "text-red-500"
                               }`}
                             >
                               {glPct >= 0 ? "+" : ""}
                               {glPct.toFixed(1)}%
                             </td>
-                            <td className="px-4 py-3 text-sm text-slate-500">
+                            <td className="px-4 py-3 text-xs text-slate-500">
                               {h.notes || "-"}
                             </td>
                             <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
@@ -852,8 +852,8 @@ export default function PortfolioPage() {
                             data={pieData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={30}
-                            outerRadius={70}
+                            innerRadius={50}
+                            outerRadius={100}
                             dataKey="value"
                             strokeWidth={2}
                             stroke="#fff"
@@ -910,26 +910,30 @@ export default function PortfolioPage() {
                           Current: h.currentValue,
                         }));
                         return (
-                          <ResponsiveContainer width="100%" height={260}>
+                          <ResponsiveContainer
+                            width="100%"
+                            height={Math.max(200, barData.length * 52)}
+                          >
                             <BarChart
                               data={barData}
-                              margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
+                              layout="vertical"
+                              margin={{ top: 4, right: 20, left: 0, bottom: 5 }}
                             >
                               <CartesianGrid
                                 strokeDasharray="3 3"
                                 stroke="#f1f5f9"
-                              />
-                              <XAxis
-                                dataKey="name"
-                                tick={{ fontSize: 10 }}
-                                angle={-30}
-                                textAnchor="end"
-                                interval={0}
+                                horizontal={false}
                               />
                               <YAxis
+                                dataKey="name"
+                                type="category"
+                                tick={{ fontSize: 10 }}
+                                width={70}
+                              />
+                              <XAxis
+                                type="number"
                                 tick={{ fontSize: 10 }}
                                 tickFormatter={(v) => fmt(v)}
-                                width={60}
                               />
                               <Tooltip
                                 formatter={(v: number, name: string) => [
@@ -950,12 +954,14 @@ export default function PortfolioPage() {
                               <Bar
                                 dataKey="Invested"
                                 fill="#60a5fa"
-                                radius={[2, 2, 0, 0]}
+                                radius={[0, 4, 4, 0]}
+                                barSize={16}
                               />
                               <Bar
                                 dataKey="Current"
                                 fill="#34d399"
-                                radius={[2, 2, 0, 0]}
+                                radius={[0, 4, 4, 0]}
+                                barSize={16}
                               />
                             </BarChart>
                           </ResponsiveContainer>
@@ -1376,7 +1382,7 @@ function PortfolioOverview({
                     className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
                     onClick={() => toggleSort("alloc")}
                   >
-                    % Allocation
+                    Allocation%
                     <SortArrow col="alloc" />
                   </TableHead>
                   <TableHead
@@ -1506,12 +1512,12 @@ function PortfolioOverview({
       </Card>
 
       {/* Allocation Donut + Bar Chart row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* % Allocation Donut */}
         <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
           <CardHeader className="pb-2 pt-4 px-5">
             <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-              % Allocation
+              Allocation%
             </CardTitle>
             <CardDescription className="text-xs text-slate-400">
               By asset type
@@ -1596,7 +1602,7 @@ function PortfolioOverview({
         </Card>
 
         {/* Horizontal Bar Chart: Invested vs Current */}
-        <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white lg:col-span-2">
+        <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
           <CardHeader className="pb-2 pt-4 px-5">
             <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
               Invested vs Current Value — All Asset Types

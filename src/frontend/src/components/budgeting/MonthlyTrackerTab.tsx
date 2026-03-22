@@ -97,6 +97,7 @@ export function MonthlyTrackerTab() {
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [showAllBudget, setShowAllBudget] = useState(false);
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<BudgetCategory[]>([]);
@@ -533,21 +534,19 @@ export function MonthlyTrackerTab() {
 
       {/* Category Breakdown */}
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-1 pt-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <CardTitle className="text-sm">Budget vs Spending</CardTitle>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-1.5 h-7 text-xs"
-                onClick={openEditPlanned}
-                data-ocid="budgeting.edit_planned.button"
-              >
-                <Pencil className="w-3 h-3" />
-                Edit Planned
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 h-7 text-xs"
+              onClick={openEditPlanned}
+              data-ocid="budgeting.edit_planned.button"
+            >
+              <Pencil className="w-3 h-3" />
+              Edit Planned
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -576,62 +575,98 @@ export function MonthlyTrackerTab() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  expenseCategories.map((cat) => {
-                    const actual = monthTxns
-                      .filter(
-                        (t) =>
-                          t.categoryId === cat.id &&
-                          t.transactionType === TransactionType.Expense,
-                      )
-                      .reduce((s, t) => s + t.amount, 0);
-                    const planned = getPlannedAmount(cat.id, cat.monthlyLimit);
-                    const variance = planned - actual;
+                  (() => {
+                    const rows = [...expenseCategories]
+                      .map((cat) => {
+                        const actual = monthTxns
+                          .filter(
+                            (t) =>
+                              t.categoryId === cat.id &&
+                              t.transactionType === TransactionType.Expense,
+                          )
+                          .reduce((s, t) => s + t.amount, 0);
+                        return { cat, actual };
+                      })
+                      .sort((a, b) => b.actual - a.actual);
+                    const visibleRows = showAllBudget ? rows : rows.slice(0, 5);
+                    const remaining = rows.length - 5;
                     return (
-                      <TableRow key={cat.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: cat.color }}
-                            />
-                            <span className="text-sm">{cat.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right text-sm">
-                          {planned > 0 ? (
-                            fmt(planned, country)
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right text-sm">
-                          {actual > 0 ? (
-                            fmt(actual, country)
-                          ) : (
-                            <span className="text-muted-foreground">
-                              {sym}0
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right text-sm">
-                          {planned > 0 ? (
-                            <span
-                              className={
-                                variance >= 0
-                                  ? "text-green-600 font-medium"
-                                  : "text-red-600 font-medium"
-                              }
-                            >
-                              {variance >= 0 ? "+" : ""}
-                              {fmt(variance, country)}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                      </TableRow>
+                      <>
+                        {visibleRows.map(({ cat, actual }) => {
+                          const planned = getPlannedAmount(
+                            cat.id,
+                            cat.monthlyLimit,
+                          );
+                          const variance = planned - actual;
+                          return (
+                            <TableRow key={cat.id}>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                                    style={{ backgroundColor: cat.color }}
+                                  />
+                                  <span className="text-sm">{cat.name}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right text-sm">
+                                {planned > 0 ? (
+                                  fmt(planned, country)
+                                ) : (
+                                  <span className="text-muted-foreground">
+                                    —
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right text-sm">
+                                {actual > 0 ? (
+                                  fmt(actual, country)
+                                ) : (
+                                  <span className="text-muted-foreground">
+                                    {sym}0
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right text-sm">
+                                {planned > 0 ? (
+                                  <span
+                                    className={
+                                      variance >= 0
+                                        ? "text-green-600 font-medium"
+                                        : "text-red-600 font-medium"
+                                    }
+                                  >
+                                    {variance >= 0 ? "+" : ""}
+                                    {fmt(variance, country)}
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground">
+                                    —
+                                  </span>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                        {rows.length > 5 && (
+                          <TableRow>
+                            <TableCell colSpan={4} className="text-center py-2">
+                              <button
+                                type="button"
+                                className="text-xs text-blue-600 hover:text-blue-800 font-medium underline-offset-2 hover:underline"
+                                onClick={() => setShowAllBudget((v) => !v)}
+                                data-ocid="budgeting.showmore.button"
+                              >
+                                {showAllBudget
+                                  ? "Show less"
+                                  : `Show ${remaining} more entries`}
+                              </button>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
                     );
-                  })
+                  })()
                 )}
               </TableBody>
             </Table>

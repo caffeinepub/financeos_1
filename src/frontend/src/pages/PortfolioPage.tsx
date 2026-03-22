@@ -835,59 +835,135 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              {/* Holdings Distribution Pie Chart */}
+              {/* Holdings Distribution + Invested vs Current row */}
               {rawFiltered.length > 0 && (
-                <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-                  <CardHeader className="pb-2 pt-4 px-5">
-                    <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                      {currentType} Holdings Distribution
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="px-5 pb-5">
-                    <ResponsiveContainer width="100%" height={260}>
-                      <PieChart>
-                        <Pie
-                          data={pieData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={30}
-                          outerRadius={70}
-                          dataKey="value"
-                          strokeWidth={2}
-                          stroke="#fff"
-                          labelLine={false}
-                          label={renderPieLabel}
-                        >
-                          {pieData.map((entry) => (
-                            <Cell key={entry.name} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          formatter={(
-                            v: number,
-                            _name: string,
-                            props: { payload?: { name: string; pct: string } },
-                          ) => [
-                            `${fmt(v)} (${props.payload?.pct ?? "0"}%)`,
-                            props.payload?.name ?? "",
-                          ]}
-                          contentStyle={{
-                            fontSize: "11px",
-                            borderRadius: "10px",
-                            border: "1px solid #e2e8f0",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                          }}
-                        />
-                        <Legend
-                          wrapperStyle={{ fontSize: "11px" }}
-                          formatter={(value: string) => (
-                            <span className="text-slate-600">{value}</span>
-                          )}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Holdings Distribution Pie */}
+                  <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+                    <CardHeader className="pb-2 pt-4 px-5">
+                      <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+                        {currentType} Holdings Distribution
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-5 pb-5">
+                      <ResponsiveContainer width="100%" height={260}>
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={30}
+                            outerRadius={70}
+                            dataKey="value"
+                            strokeWidth={2}
+                            stroke="#fff"
+                            labelLine={false}
+                            label={renderPieLabel}
+                          >
+                            {pieData.map((entry) => (
+                              <Cell key={entry.name} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(
+                              v: number,
+                              _name: string,
+                              props: {
+                                payload?: { name: string; pct: string };
+                              },
+                            ) => [
+                              `${fmt(v)} (${props.payload?.pct ?? "0"}%)`,
+                              props.payload?.name ?? "",
+                            ]}
+                            contentStyle={{
+                              fontSize: "11px",
+                              borderRadius: "10px",
+                              border: "1px solid #e2e8f0",
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                            }}
+                          />
+                          <Legend
+                            wrapperStyle={{ fontSize: "11px" }}
+                            formatter={(value: string) => (
+                              <span className="text-slate-600">{value}</span>
+                            )}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                  {/* Invested vs Current Value Bar Chart */}
+                  <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+                    <CardHeader className="pb-2 pt-4 px-5">
+                      <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+                        Invested vs Current Value
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-2 pb-4">
+                      {(() => {
+                        const barData = rawFiltered.map((h) => ({
+                          name:
+                            h.name.length > 10
+                              ? `${h.name.slice(0, 10)}…`
+                              : h.name,
+                          Invested: h.costBasis * h.quantity,
+                          Current: h.currentValue,
+                        }));
+                        return (
+                          <ResponsiveContainer width="100%" height={260}>
+                            <BarChart
+                              data={barData}
+                              margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
+                            >
+                              <CartesianGrid
+                                strokeDasharray="3 3"
+                                stroke="#f1f5f9"
+                              />
+                              <XAxis
+                                dataKey="name"
+                                tick={{ fontSize: 10 }}
+                                angle={-30}
+                                textAnchor="end"
+                                interval={0}
+                              />
+                              <YAxis
+                                tick={{ fontSize: 10 }}
+                                tickFormatter={(v) => fmt(v)}
+                                width={60}
+                              />
+                              <Tooltip
+                                formatter={(v: number, name: string) => [
+                                  fmt(v),
+                                  name,
+                                ]}
+                                contentStyle={{
+                                  fontSize: "11px",
+                                  borderRadius: "8px",
+                                }}
+                              />
+                              <Legend
+                                wrapperStyle={{
+                                  fontSize: "10px",
+                                  paddingTop: "8px",
+                                }}
+                              />
+                              <Bar
+                                dataKey="Invested"
+                                fill="#60a5fa"
+                                radius={[2, 2, 0, 0]}
+                              />
+                              <Bar
+                                dataKey="Current"
+                                fill="#34d399"
+                                radius={[2, 2, 0, 0]}
+                              />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        );
+                      })()}
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </>
           )}
@@ -1284,7 +1360,7 @@ function PortfolioOverview({
 
       {/* Overview Table */}
       <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-        <CardContent className="px-0 pb-0">
+        <CardContent className="px-0 pb-0 overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>

@@ -304,11 +304,31 @@ export default function BudgetingPage() {
       </div>
 
       <Tabs defaultValue="categories">
-        <TabsList data-ocid="budgeting.tab">
-          <TabsTrigger value="categories">Plan Budget</TabsTrigger>
-          <TabsTrigger value="expenses">Track Income Vs Expense</TabsTrigger>
-          <TabsTrigger value="tracker">Budget Insights</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto pb-1 mb-1">
+          <TabsList
+            data-ocid="budgeting.tab"
+            className="h-auto bg-transparent p-0 gap-2 flex"
+          >
+            <TabsTrigger
+              value="categories"
+              className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap bg-white text-slate-600 border-slate-200 hover:border-emerald-400 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:border-emerald-600 data-[state=active]:shadow-sm"
+            >
+              Plan Budget
+            </TabsTrigger>
+            <TabsTrigger
+              value="expenses"
+              className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap bg-white text-slate-600 border-slate-200 hover:border-blue-400 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-600 data-[state=active]:shadow-sm"
+            >
+              Track Income Vs Expense
+            </TabsTrigger>
+            <TabsTrigger
+              value="tracker"
+              className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap bg-white text-slate-600 border-slate-200 hover:border-purple-400 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=active]:shadow-sm"
+            >
+              Budget Insights
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="categories" className="space-y-4 mt-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">

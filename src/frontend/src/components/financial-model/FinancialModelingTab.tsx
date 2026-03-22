@@ -7,6 +7,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Bitcoin,
   Briefcase,
   ChevronDown,
@@ -68,7 +75,7 @@ const SECTIONS = [
 
 function FinancialModelingTab() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(["modelinsurance"]),
+    new Set(),
   );
 
   const toggleSection = (id: string) => {
@@ -233,55 +240,32 @@ function AssetAllocationTab() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Risk Profile Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {(Object.keys(riskProfiles) as Array<keyof typeof riskProfiles>).map(
-          (key) => {
-            const rp = riskProfiles[key];
-            const isSelected = selectedProfile === key;
-            return (
-              <Card
-                key={key}
-                data-ocid={`financialmodel.assetallocation.${key}.card`}
-                className={`cursor-pointer transition-all duration-300 border-t-4 ${
-                  rp.topBorder
-                } hover:shadow-md ${
-                  isSelected
-                    ? `ring-2 ring-offset-2 ring-offset-background shadow-lg bg-gradient-to-br ${rp.bgGradient} ${rp.borderColor}`
-                    : "hover:shadow-md"
-                }`}
-                onClick={() => setSelectedProfile(key)}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xl">{rp.icon}</span>
-                    <div className="flex gap-1.5">
-                      <Badge className={`text-xs ${rp.riskBadge}`}>
-                        {rp.riskLabel}
-                      </Badge>
-                      {isSelected && (
-                        <Badge className="text-xs bg-foreground text-background">
-                          Active
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <CardTitle
-                    className={`text-base bg-gradient-to-r ${rp.color} bg-clip-text text-transparent font-bold`}
-                  >
-                    {rp.name}
-                  </CardTitle>
-                  <CardDescription className="text-xs leading-relaxed">
-                    {rp.description}
-                  </CardDescription>
-                  <div className="text-xs font-semibold mt-2 opacity-80">
-                    Expected Return: {rp.returnRange}
-                  </div>
-                </CardHeader>
-              </Card>
-            );
-          },
-        )}
+      {/* Risk Profile Dropdown */}
+      <div className="flex items-center gap-3 max-w-xs">
+        <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">
+          Risk Profile
+        </span>
+        <Select
+          value={selectedProfile}
+          onValueChange={(v) =>
+            setSelectedProfile(v as keyof typeof riskProfiles)
+          }
+        >
+          <SelectTrigger
+            data-ocid="financialmodel.assetallocation.select"
+            className="w-[200px]"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="conservative">🛡️ Conservative</SelectItem>
+            <SelectItem value="moderate">⚖️ Moderate</SelectItem>
+            <SelectItem value="aggressive">🚀 Aggressive</SelectItem>
+          </SelectContent>
+        </Select>
+        <Badge className={`text-xs ${riskProfiles[selectedProfile].riskBadge}`}>
+          {riskProfiles[selectedProfile].riskLabel}
+        </Badge>
       </div>
 
       {/* Allocation Charts */}

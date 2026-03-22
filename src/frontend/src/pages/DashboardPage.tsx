@@ -596,7 +596,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="hidden sm:block w-px h-10 bg-slate-700" />
-              <div className="flex flex-wrap gap-1.5 flex-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 flex-1">
                 {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => (
                   <div
                     key={t}

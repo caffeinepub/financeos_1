@@ -169,18 +169,7 @@ export function ModelRetirementTab() {
               </Select>
             </div>
 
-            <Alert>
-              <AlertDescription className="text-sm">
-                <strong>{model.name}</strong>
-                <p className="mt-1">{model.description}</p>
-                <p className="mt-2 text-xs">
-                  Expected Annual Return:{" "}
-                  <strong>{model.expectedReturn}%</strong>
-                </p>
-              </AlertDescription>
-            </Alert>
-
-            <div className="grid gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Initial Capital ({country.symbol})</Label>
                 <Input

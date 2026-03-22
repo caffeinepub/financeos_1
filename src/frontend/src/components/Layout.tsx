@@ -140,15 +140,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     Promise.all([
       actor.getCallerUserProfile().catch(() => null),
       actor.isCallerBlocked().catch(() => ({ blocked: false, reason: "" })),
-      actor.bootstrapAdmin().catch(() => false),
-    ]).then(([p, blocked, adminResult]) => {
+    ]).then(([p, blocked]) => {
       if (p) setProfile(p);
       setBlockedStatus(blocked as { blocked: boolean; reason: string });
-      actor
-        .isCallerAdmin()
-        .catch(() => false)
-        .then((a) => setIsAdmin(!!(a || adminResult)));
     });
+    // Bootstrap admin then check - sequential to ensure admin is seeded first
+    actor
+      .bootstrapAdmin()
+      .catch(() => false)
+      .then(() => actor.isCallerAdmin().catch(() => false))
+      .then((a) => setIsAdmin(!!a));
   }, [actor, isFetching]);
 
   const navigate = useNavigate();

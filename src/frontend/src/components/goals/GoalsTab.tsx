@@ -261,66 +261,58 @@ export function GoalsTab({
             </div>
           ) : (
             <>
-              {/* Summary Cards — 4 cards, 2 per row on mobile, 4 on desktop */}
+              {/* Summary Cards — Budget Insights style, 2 per row on mobile, 4 on desktop */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
                 {/* Total Target */}
-                <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-green-100 px-4 py-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center flex-shrink-0">
-                    <TrendingUp className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wide">
+                <div className="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-[10px] text-emerald-600 font-medium uppercase tracking-wide">
                       Total Target
-                    </p>
-                    <p className="text-lg font-extrabold text-emerald-600 tabular-nums truncate">
-                      {formatCurrency(totalTargetAmount)}
-                    </p>
+                    </span>
                   </div>
+                  <p className="text-base font-bold text-emerald-700 tabular-nums truncate">
+                    {formatCurrency(totalTargetAmount)}
+                  </p>
                 </div>
 
                 {/* Current Savings */}
-                <div className="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-pink-100 px-4 py-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
-                    <PieChart className="w-4 h-4 text-purple-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-purple-700 uppercase tracking-wide">
+                <div className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50 p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <PieChart className="w-3.5 h-3.5 text-purple-500" />
+                    <span className="text-[10px] text-purple-600 font-medium uppercase tracking-wide">
                       Current Savings
-                    </p>
-                    <p className="text-lg font-extrabold text-purple-600 tabular-nums truncate">
-                      {formatCurrency(currentSavings)}
-                    </p>
+                    </span>
                   </div>
+                  <p className="text-base font-bold text-purple-700 tabular-nums truncate">
+                    {formatCurrency(currentSavings)}
+                  </p>
                 </div>
 
                 {/* Amount Required */}
-                <div className="rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-100 px-4 py-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center flex-shrink-0">
-                    <MinusCircle className="w-4 h-4 text-amber-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-amber-700 uppercase tracking-wide">
+                <div className="rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <MinusCircle className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="text-[10px] text-amber-600 font-medium uppercase tracking-wide">
                       Amount Required
-                    </p>
-                    <p className="text-lg font-extrabold text-amber-600 tabular-nums truncate">
-                      {formatCurrency(amountRequired)}
-                    </p>
+                    </span>
                   </div>
+                  <p className="text-base font-bold text-amber-700 tabular-nums truncate">
+                    {formatCurrency(amountRequired)}
+                  </p>
                 </div>
 
                 {/* Overall Progress */}
-                <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-100 px-4 py-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0">
-                    <BarChart3 className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wide">
+                <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <BarChart3 className="w-3.5 h-3.5 text-blue-500" />
+                    <span className="text-[10px] text-blue-600 font-medium uppercase tracking-wide">
                       Overall Progress
-                    </p>
-                    <p className="text-lg font-extrabold text-blue-600">
-                      {overallProgress.toFixed(1)}%
-                    </p>
+                    </span>
                   </div>
+                  <p className="text-base font-bold text-blue-700">
+                    {overallProgress.toFixed(1)}%
+                  </p>
                 </div>
               </div>
 

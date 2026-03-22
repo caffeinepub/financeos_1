@@ -226,8 +226,16 @@ export default function PortfolioPage() {
   const [currentMode, setCurrentMode] = useState<
     "marketPrice" | "currentValue" | null
   >(null);
-  const [sortCol, setSortCol] = useState<SortCol>(null);
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortCol, setSortCol] = useState<SortCol>("invested");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  // Load user DOB from localStorage for age calculation
+  const _userAge = (() => {
+    const dob = localStorage.getItem("gff_dob");
+    if (!dob) return 30;
+    return Math.floor(
+      (Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000),
+    );
+  })();
 
   const isOverview = assetType === "overview";
   const currentType = (assetType as AssetType) || AssetType.Retirement;
@@ -663,41 +671,13 @@ export default function PortfolioPage() {
                           />
                         </th>
                         <th
-                          className={thClass}
-                          onClick={() => toggleSort("category")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("category");
-                          }}
-                        >
-                          Category{" "}
-                          <SortIcon
-                            col="category"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th
-                          className={thClassRight}
-                          onClick={() => toggleSort("allocPct")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("allocPct");
-                          }}
-                        >
-                          % Allocation{" "}
-                          <SortIcon
-                            col="allocPct"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th
                           className={thClassRight}
                           onClick={() => toggleSort("invested")}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") toggleSort("invested");
                           }}
                         >
-                          Invested Value{" "}
+                          Invested{" "}
                           <SortIcon
                             col="invested"
                             sortCol={sortCol}
@@ -711,7 +691,7 @@ export default function PortfolioPage() {
                             if (e.key === "Enter") toggleSort("currentValue");
                           }}
                         >
-                          Current Value{" "}
+                          Current{" "}
                           <SortIcon
                             col="currentValue"
                             sortCol={sortCol}
@@ -746,6 +726,34 @@ export default function PortfolioPage() {
                             sortDir={sortDir}
                           />
                         </th>
+                        <th
+                          className={thClass}
+                          onClick={() => toggleSort("category")}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") toggleSort("category");
+                          }}
+                        >
+                          Category{" "}
+                          <SortIcon
+                            col="category"
+                            sortCol={sortCol}
+                            sortDir={sortDir}
+                          />
+                        </th>
+                        <th
+                          className={thClassRight}
+                          onClick={() => toggleSort("allocPct")}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") toggleSort("allocPct");
+                          }}
+                        >
+                          % Allocation{" "}
+                          <SortIcon
+                            col="allocPct"
+                            sortCol={sortCol}
+                            sortDir={sortDir}
+                          />
+                        </th>
                         <th className="px-4 py-3 text-center text-[11px] font-semibold text-white uppercase tracking-wide">
                           Actions
                         </th>
@@ -769,12 +777,6 @@ export default function PortfolioPage() {
                             <td className="px-4 py-3 text-sm font-medium text-slate-800">
                               {h.name}
                             </td>
-                            <td className="px-4 py-3 text-sm text-slate-500">
-                              {h.notes || "-"}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
-                              {allocPct.toFixed(1)}%
-                            </td>
                             <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-700 font-medium">
                               {fmt(invested)}
                             </td>
@@ -796,6 +798,12 @@ export default function PortfolioPage() {
                             >
                               {glPct >= 0 ? "+" : ""}
                               {glPct.toFixed(1)}%
+                            </td>
+                            <td className="px-4 py-3 text-sm text-slate-500">
+                              {h.notes || "-"}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
+                              {allocPct.toFixed(1)}%
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex gap-1 justify-center">
@@ -1421,78 +1429,169 @@ function PortfolioOverview({
         </CardContent>
       </Card>
 
-      {/* Horizontal Bar Chart: Invested vs Current */}
-      <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-        <CardHeader className="pb-2 pt-4 px-5">
-          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-            Invested vs Current Value — All Asset Types
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-400">
-            Horizontal comparison across modules
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-4 pb-4">
-          {barData.length === 0 ? (
-            <div className="h-48 flex items-center justify-center text-slate-300 text-sm">
-              No holdings yet
-            </div>
-          ) : (
-            <ResponsiveContainer
-              width="100%"
-              height={Math.max(200, barData.length * 52)}
-            >
-              <BarChart
-                data={barData}
-                layout="vertical"
-                margin={{ top: 5, right: 40, left: 10, bottom: 5 }}
+      {/* Allocation Donut + Bar Chart row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* % Allocation Donut */}
+        <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              % Allocation
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-400">
+              By asset type
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            {(() => {
+              const totCur = assetSummaries.reduce((s, a) => s + a.current, 0);
+              const donutData = assetSummaries
+                .filter((a) => a.current > 0)
+                .map((a) => ({
+                  name: a.label.replace(" (ETF/Stocks)", ""),
+                  value:
+                    totCur > 0
+                      ? Number.parseFloat(
+                          ((a.current / totCur) * 100).toFixed(1),
+                        )
+                      : 0,
+                  color: a.color,
+                }));
+              if (donutData.length === 0)
+                return (
+                  <div className="h-48 flex items-center justify-center text-slate-300 text-sm">
+                    No data
+                  </div>
+                );
+              return (
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie
+                      data={donutData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      dataKey="value"
+                      strokeWidth={2}
+                      stroke="#fff"
+                      labelLine={false}
+                      label={({
+                        cx: lx,
+                        cy: ly,
+                        midAngle,
+                        innerRadius: ir,
+                        outerRadius: or,
+                        value,
+                      }) => {
+                        if (value < 5) return null;
+                        const R = Math.PI / 180;
+                        const radius = ir + (or - ir) * 0.5;
+                        const x = lx + radius * Math.cos(-midAngle * R);
+                        const y = ly + radius * Math.sin(-midAngle * R);
+                        return (
+                          <text
+                            x={x}
+                            y={y}
+                            fill="white"
+                            textAnchor="middle"
+                            dominantBaseline="central"
+                            fontSize={9}
+                            fontWeight={600}
+                          >
+                            {value}%
+                          </text>
+                        );
+                      }}
+                    >
+                      {donutData.map((entry) => (
+                        <Cell key={entry.name} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(v: number, n: string) => [`${v}%`, n]}
+                      contentStyle={{ fontSize: "11px", borderRadius: "8px" }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: "10px" }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              );
+            })()}
+          </CardContent>
+        </Card>
+
+        {/* Horizontal Bar Chart: Invested vs Current */}
+        <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white lg:col-span-2">
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              Invested vs Current Value — All Asset Types
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-400">
+              Horizontal comparison across modules
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            {barData.length === 0 ? (
+              <div className="h-48 flex items-center justify-center text-slate-300 text-sm">
+                No holdings yet
+              </div>
+            ) : (
+              <ResponsiveContainer
+                width="100%"
+                height={Math.max(200, barData.length * 52)}
               >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#f1f5f9"
-                  horizontal={false}
-                />
-                <XAxis
-                  type="number"
-                  tick={{ fontSize: 10, fill: "#94a3b8" }}
-                  tickFormatter={(v) => fmt(v)}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  tick={{ fontSize: 11, fill: "#475569" }}
-                  width={80}
-                />
-                <Tooltip
-                  formatter={(value: number, name: string) => [
-                    fmt(value),
-                    name,
-                  ]}
-                  contentStyle={{
-                    fontSize: "11px",
-                    borderRadius: "10px",
-                    border: "1px solid #e2e8f0",
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: "11px" }} />
-                <Bar
-                  dataKey="Invested"
-                  name="Invested"
-                  fill="#3b82f6"
-                  radius={[0, 4, 4, 0]}
-                  barSize={16}
-                />
-                <Bar
-                  dataKey="Current"
-                  name="Current Value"
-                  fill="#10b981"
-                  radius={[0, 4, 4, 0]}
-                  barSize={16}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
+                <BarChart
+                  data={barData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 40, left: 10, bottom: 5 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#f1f5f9"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 10, fill: "#94a3b8" }}
+                    tickFormatter={(v) => fmt(v)}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: "#475569" }}
+                    width={80}
+                  />
+                  <Tooltip
+                    formatter={(value: number, name: string) => [
+                      fmt(value),
+                      name,
+                    ]}
+                    contentStyle={{
+                      fontSize: "11px",
+                      borderRadius: "10px",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                  <Bar
+                    dataKey="Invested"
+                    name="Invested"
+                    fill="#3b82f6"
+                    radius={[0, 4, 4, 0]}
+                    barSize={16}
+                  />
+                  <Bar
+                    dataKey="Current"
+                    name="Current Value"
+                    fill="#10b981"
+                    radius={[0, 4, 4, 0]}
+                    barSize={16}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Cap Distribution Pie Charts */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1723,6 +1822,9 @@ function PortfolioOverview({
                           <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
                             Year
                           </TableHead>
+                          <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
+                            Age
+                          </TableHead>
                           {activeTypes.map((t) => (
                             <TableHead
                               key={t}
@@ -1749,6 +1851,18 @@ function PortfolioOverview({
                             >
                               <TableCell className="text-xs font-semibold text-slate-700 tabular-nums">
                                 {String(row.year)}
+                              </TableCell>
+                              <TableCell className="text-xs font-semibold text-blue-600 tabular-nums">
+                                {(() => {
+                                  const dob = localStorage.getItem("gff_dob");
+                                  const base = dob
+                                    ? Math.floor(
+                                        (Date.now() - new Date(dob).getTime()) /
+                                          (365.25 * 24 * 3600 * 1000),
+                                      )
+                                    : 30;
+                                  return base + idx;
+                                })()}
                               </TableCell>
                               {activeTypes.map((t) => (
                                 <TableCell

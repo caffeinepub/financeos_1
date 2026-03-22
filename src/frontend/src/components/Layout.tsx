@@ -113,6 +113,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
+  const [editDob, setEditDob] = useState("");
+  const [_profileDob, setProfileDob] = useState(
+    () => localStorage.getItem("gff_dob") || "",
+  );
   const [saving, setSaving] = useState(false);
 
   // Blocked status
@@ -146,6 +150,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const openProfileDialog = () => {
     setEditName(profile?.name || "");
     setEditEmail(profile?.email || "");
+    setEditDob(localStorage.getItem("gff_dob") || "");
     setProfileDialogOpen(true);
   };
 
@@ -154,6 +159,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setSaving(true);
     try {
       await actor.saveCallerUserProfile({ name: editName, email: editEmail });
+      if (editDob) {
+        localStorage.setItem("gff_dob", editDob);
+        setProfileDob(editDob);
+      } else {
+        localStorage.removeItem("gff_dob");
+        setProfileDob("");
+      }
       setProfile({ name: editName, email: editEmail });
       setProfileDialogOpen(false);
     } catch {
@@ -467,6 +479,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 onChange={(e) => setEditEmail(e.target.value)}
                 data-ocid="profile.email.input"
               />
+            </div>
+            <div>
+              <Label htmlFor="profile-dob">Date of Birth</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="profile-dob"
+                  type="date"
+                  value={editDob}
+                  onChange={(e) => setEditDob(e.target.value)}
+                  data-ocid="profile.dob.input"
+                  className="flex-1"
+                />
+                {editDob && (
+                  <span className="text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-1 rounded-full whitespace-nowrap">
+                    Age:{" "}
+                    {Math.floor(
+                      (Date.now() - new Date(editDob).getTime()) /
+                        (365.25 * 24 * 3600 * 1000),
+                    )}{" "}
+                    yrs
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <DialogFooter>

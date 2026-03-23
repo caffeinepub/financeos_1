@@ -1,11 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -14,15 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Bitcoin,
-  Briefcase,
-  ChevronDown,
-  PieChart,
-  PiggyBank,
-  Search,
-  Shield,
-} from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { useState } from "react";
 import {
   Cell,
@@ -32,7 +18,10 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { ModelBudgetingTab } from "./ModelBudgetingTab";
 import { ModelCryptoPortfolioTab } from "./ModelCryptoPortfolioTab";
+import { ModelDebtTab } from "./ModelDebtTab";
+import { ModelGoalPlanningTab } from "./ModelGoalPlanningTab";
 import { ModelInsuranceTab } from "./ModelInsuranceTab";
 import { ModelPortfolioTab } from "./ModelPortfolioTab";
 import { ModelRetirementTab } from "./ModelRetirementTab";
@@ -72,6 +61,27 @@ const SECTIONS = [
     emoji: "₿",
     borderColor: "#f97316",
     count: "Conservative · Balanced · Growth",
+  },
+  {
+    id: "budgetingmodel",
+    label: "Budgeting & Expense Tracking",
+    emoji: "💰",
+    borderColor: "#3b82f6",
+    count: "50/30/20 Rule · Leakage Detection · Budget Plan",
+  },
+  {
+    id: "debtmodel",
+    label: "Debt Management & Repayment",
+    emoji: "📉",
+    borderColor: "#ef4444",
+    count: "Avalanche · Snowball · Debt Freedom Date",
+  },
+  {
+    id: "goalmodel",
+    label: "Goal-Based Saving & Planning",
+    emoji: "🎯",
+    borderColor: "#8b5cf6",
+    count: "SIP Calculator · Inflation-Adjusted · Goal Stack",
   },
 ];
 
@@ -147,6 +157,9 @@ function FinancialModelingTab() {
                 {section.id === "modelportfolio" && <ModelPortfolioTab />}
                 {section.id === "modelretirement" && <ModelRetirementTab />}
                 {section.id === "modelcrypto" && <ModelCryptoPortfolioTab />}
+                {section.id === "budgetingmodel" && <ModelBudgetingTab />}
+                {section.id === "debtmodel" && <ModelDebtTab />}
+                {section.id === "goalmodel" && <ModelGoalPlanningTab />}
               </div>
             )}
           </div>

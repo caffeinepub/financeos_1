@@ -307,7 +307,7 @@ export default function BudgetingPage() {
         <div className="overflow-x-auto pb-1 mb-1">
           <TabsList
             data-ocid="budgeting.tab"
-            className="h-auto bg-black p-2 gap-2 flex rounded-xl"
+            className="h-auto bg-slate-100 p-2 gap-2 flex rounded-xl"
           >
             <TabsTrigger
               value="categories"

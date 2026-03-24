@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import {
   AlertCircle,
   ArrowRight,
+  ChevronLeft,
   Plus,
   Sparkles,
   Star,
@@ -334,6 +335,7 @@ export function ModelGoalPlanningTab() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeScenario, setActiveScenario] = useState("single");
+  const [view, setView] = useState<"menu" | "detail">("menu");
 
   const loadScenario = (s: (typeof SCENARIOS)[0]) => {
     setGoals(s.goals.map((g) => ({ ...g, id: nextId++ })));
@@ -387,8 +389,61 @@ export function ModelGoalPlanningTab() {
 
   const res = result;
 
+  if (view === "menu") {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-100 rounded-xl">
+          <Target className="w-6 h-6 text-violet-600 shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-sm font-bold text-violet-800">
+              Goal-Based Saving &amp; Planning Model
+            </h3>
+            <p className="text-xs text-violet-600 mt-0.5">
+              Select a scenario below to get started. Each scenario pre-fills
+              realistic goal numbers you can customize.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {SCENARIOS.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => {
+                loadScenario(s);
+                setView("detail");
+              }}
+              className="text-left p-4 rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-purple-50 hover:from-violet-100 hover:to-purple-100 hover:border-violet-300 transition-all shadow-sm group"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-violet-800">
+                  {s.title}
+                </span>
+                <span className="text-violet-500 text-sm group-hover:translate-x-1 transition-transform">
+                  →
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">{s.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 animate-fade-in">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="flex items-center gap-1 text-slate-600 hover:text-slate-900 mb-1"
+        onClick={() => {
+          setResult(null);
+          setView("menu");
+        }}
+      >
+        <ChevronLeft className="w-4 h-4" /> Back to Menu
+      </Button>
       {/* Header */}
       <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-100 rounded-xl">
         <Target className="w-6 h-6 text-violet-600 shrink-0 mt-0.5" />

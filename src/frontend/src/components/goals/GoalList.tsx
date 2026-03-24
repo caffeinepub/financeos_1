@@ -58,7 +58,7 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
   const [deletingGoal, setDeletingGoal] = useState<Goal | null>(null);
   const [linkingGoal, setLinkingGoal] = useState<Goal | null>(null);
   const [statusFilter, setStatusFilter] = useState<
-    "All" | "On Track" | "Needs Attention" | "Achieved"
+    "All" | "On Track" | "Need Attention" | "Achieved"
   >("All");
 
   const investmentMap = useMemo(() => {
@@ -108,7 +108,7 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
       const p = calculateProgress(g);
       if (statusFilter === "All") return true;
       if (statusFilter === "On Track") return p >= 50 && p < 100;
-      if (statusFilter === "Needs Attention") return p < 50;
+      if (statusFilter === "Need Attention") return p < 50;
       if (statusFilter === "Achieved") return p >= 100;
       return true;
     });
@@ -334,7 +334,7 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
       <div className="w-full relative">
         {/* Filter chips */}
         <div className="flex gap-2 mb-3 flex-wrap">
-          {(["All", "On Track", "Needs Attention", "Achieved"] as const).map(
+          {(["All", "On Track", "Need Attention", "Achieved"] as const).map(
             (f) => (
               <button
                 key={f}
@@ -347,7 +347,7 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                       ? "bg-emerald-600 text-white border-emerald-600"
                       : f === "On Track"
                         ? "bg-blue-600 text-white border-blue-600"
-                        : f === "Needs Attention"
+                        : f === "Need Attention"
                           ? "bg-amber-500 text-white border-amber-500"
                           : "bg-slate-800 text-white border-slate-800"
                     : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"

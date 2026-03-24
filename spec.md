@@ -1,59 +1,32 @@
-# Growfinfire Global — Focused UI Changes
+# Growfinfire Global
 
 ## Current State
-Production-grade finance app with Dashboard, Portfolio, Budgeting, Financial Model, Financial Planner, Learn Finance modules. Version 104 is live.
+App is at Version 108 (stable). Changes needed are focused and isolated to specific components.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Financial Model: Search textbox (like other modules)
-- Budget vs Spending table: expand/collapse for rows beyond 5
+- ExpensesTab: collapse/expand logic for income rows (show 1, expand rest; no "Show more" link if only 1)
 
 ### Modify
-
-**Dashboard**
-- NAV card (mobile only): Reduce font size of NAV value; use left empty space to show investment label fitting in mobile. No change on desktop.
-- If currency is non-INR: show investment values in M or B
-- Swap positions: "Projected Net Worth Trend" ↔ "Investment Categories" chart
-- Budgeting (6 Months) chart: show values on top of each bar
-- Move Financial Health Overview 4 charts ABOVE Advanced Analytics charts
-
-**Portfolio**
-- Submenu header background: Black (keep font colour as-is)
-- Overview table: rounded corners (already done in prior versions but confirm stays consistent)
-- Overview page: % Allocation donut and Invested vs Current Value bar chart — same size
-- All modules: rename card "Invested" → "Total Invested"
-- All modules: "Current Value" card background = same as "Invested" card background
-- All tables: reduce value text font size by 1 step; ensure it fits
-- All tables: rename "Gain/Loss %" → "Gain/Loss%"
-- All tables: rename "Allocation %" → "Allocation%"
-- Holdings Distribution donut: increase circle size to match Dashboard donuts
-- Invested vs Current Value chart: horizontal bars
-- Submenu header: same font colour + background theme as Goals submenu (pill style)
-
-**Budgeting**
-- Default active tab: "Track Income vs Expense"
-- Budget Insights: Monthly Overview Income vs Expenses chart → horizontal bars
-- Budget vs Spending table: show top 5 rows sorted by Actual Spent (highest); collapse remaining; allow expand toggle
-- Reduce spacing between "Budget vs Spending" heading row and table header
-- Submenu header: same font colour + background theme as Goals (pill style)
-
-**Financial Planner**
-- Remove "Financial Planner" text label that appears before the Search textbox row
-
-**Learn Finance**
-- Basics tab: cards follow the same theme as Rules tab cards
-- Rules tab: remove "Filter by Level" card/options; move count number to the right-most side of each card
-- Learn from Mistakes tab: move count number to the right-most side of each card
+- DashboardPage: `shortNum` — remove space between digits and Cr/L/K (e.g. `12.50Cr` not `12.50 Cr`)
+- DashboardPage NAV card mobile layout: on mobile, NAV value appears in top-left row 1 (full width), then investments grid below. No change on web view.
+- GoalList: rename "Needs Attention" → "Need Attention" (type, filter logic, pill buttons, data-ocid)
+- GoalsTab: rename "Needs Attention" → "Need Attention" in analytics data
+- DashboardPage statusBadge: rename "Needs Attention" → "Need Attention"
+- PortfolioPage submenu: remove `bg-black` from outer wrapper div, replace with transparent/light background matching Goals pill theme
+- BudgetingPage TabsList: remove `bg-black`, replace with transparent/light background matching Goals pill theme
+- ExpensesTab summary cards: change `grid-cols-1 sm:grid-cols-3` to `grid-cols-2 sm:grid-cols-3`; remove Net Balance card; keep only Actual Income and Actual Expense
+- ModelBudgetingTab, ModelDebtTab, ModelGoalPlanningTab: add view state ("menu" | "detail"); menu = scenario cards; detail = full form+results with "Back to Menu" button
 
 ### Remove
-- Financial Planner: "Financial Planner" heading text before Search box
-- Rules: Filter by Level UI element
+- ExpensesTab: Net Balance card
 
 ## Implementation Plan
-1. DashboardPage.tsx — NAV card mobile font fix, M/B formatting, chart swap, bar labels, section reorder
-2. PortfolioPage.tsx — submenu bg black, card rename, Current Value card bg, table font size, column renames, donut size, horizontal bar chart, same-size charts
-3. BudgetingPage.tsx — default tab, horizontal bars in insights, Budget vs Spending collapse/expand, spacing fix, submenu theme
-4. FinancialModelPage.tsx — add search input
-5. FinancialPlannerPage.tsx — remove "Financial Planner" heading text
-6. FinancialRulesSection.tsx — Basics card theme, Rules remove level filter + move count right, Mistakes move count right
+1. Fix shortNum in DashboardPage (remove spaces before Cr/L/K)
+2. Fix NAV card mobile layout in DashboardPage (flex-col on mobile, flex-row on sm+)
+3. Rename "Needs Attention" → "Need Attention" in GoalList, GoalsTab, DashboardPage
+4. Remove bg-black from PortfolioPage submenu wrapper
+5. Remove bg-black from BudgetingPage TabsList
+6. Update ExpensesTab: 2-col mobile cards, remove Net Balance, add income collapse/expand
+7. Update 3 Financial Model tabs: scenario cards → full page view → Back to Menu

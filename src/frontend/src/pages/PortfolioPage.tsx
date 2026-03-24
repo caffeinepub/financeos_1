@@ -523,7 +523,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* Industry-standard pill tab bar */}
-      <div className="overflow-x-auto pb-2 bg-black rounded-xl p-2">
+      <div className="overflow-x-auto pb-2 bg-slate-100 rounded-xl p-2">
         <div className="flex flex-row gap-2 min-w-max">
           <button
             type="button"

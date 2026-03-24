@@ -14,5 +14,8 @@
   },
   "devDependencies": {
     "sharp": "^0.34.4"
+  },
+  "dependencies": {
+    "react-router-dom": "7.13.2"
   }
 }

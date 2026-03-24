@@ -143,8 +143,9 @@ function getKey(val: unknown): string {
 }
 
 function shortNum(n: number, sym: string): string {
-  if (n >= 10_000_000) return `${sym}${(n / 10_000_000).toFixed(2)} Cr`;
+  if (n >= 10_000_000) return `${sym}${(n / 10_000_000).toFixed(2)}Cr`;
   if (n >= 100_000) return `${sym}${(n / 100_000).toFixed(2)}L`;
+  if (n >= 1_000) return `${sym}${(n / 1_000).toFixed(2)}K`;
   return `${sym}${Math.round(n).toLocaleString("en-IN")}`;
 }
 
@@ -164,7 +165,7 @@ function statusBadge(pct: number) {
   if (pct < 50)
     return (
       <Badge className="bg-red-50 text-red-600 border border-red-200 text-[10px] font-medium px-2 py-0.5 rounded-full">
-        Needs Attention
+        Need Attention
       </Badge>
     );
   return (
@@ -583,8 +584,8 @@ export default function DashboardPage() {
       <section data-ocid="dashboard.nav.section">
         <Card className="border-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-lg rounded-2xl overflow-hidden">
           <CardContent className="px-5 py-4">
-            <div className="flex items-center gap-6 flex-wrap">
-              <div className="min-w-[160px]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6">
+              <div className="w-full sm:min-w-[160px] sm:w-auto">
                 <p className="text-slate-400 text-[10px] uppercase tracking-widest font-medium mb-0.5">
                   Portfolio NAV
                 </p>
@@ -596,7 +597,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="hidden sm:block w-px h-10 bg-slate-700" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 flex-1">
+              <div className="w-full sm:flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
                 {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => (
                   <div
                     key={t}

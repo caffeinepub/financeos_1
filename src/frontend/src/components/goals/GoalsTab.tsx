@@ -165,7 +165,7 @@ export function GoalsTab({
           color: "#f59e0b",
         },
         {
-          name: "Needs Attention",
+          name: "Need Attention",
           value: goals.filter((g) => getProgress(g) < 50).length,
           color: "#ef4444",
         },

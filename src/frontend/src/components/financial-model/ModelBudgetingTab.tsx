@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import {
   AlertCircle,
   CheckCircle2,
+  ChevronLeft,
   Lightbulb,
   RotateCcw,
   Send,
@@ -433,6 +434,7 @@ export function ModelBudgetingTab() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeScenario, setActiveScenario] = useState("standard");
+  const [view, setView] = useState<"menu" | "detail">("menu");
 
   const set = (field: keyof BudgetInputs) => (val: number | boolean) =>
     setInputs((prev) => ({ ...prev, [field]: val }));
@@ -457,8 +459,61 @@ export function ModelBudgetingTab() {
 
   const res = result;
 
+  if (view === "menu") {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
+          <Wallet className="w-6 h-6 text-blue-600 shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-sm font-bold text-blue-800">
+              Budgeting &amp; Expense Tracking Model
+            </h3>
+            <p className="text-xs text-blue-600 mt-0.5">
+              Select a scenario below to get started. Each scenario pre-fills
+              realistic numbers you can customize.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {SCENARIOS.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => {
+                loadScenario(s);
+                setView("detail");
+              }}
+              className="text-left p-4 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300 transition-all shadow-sm group"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-blue-800">
+                  {s.title}
+                </span>
+                <span className="text-blue-500 text-sm group-hover:translate-x-1 transition-transform">
+                  →
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">{s.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 animate-fade-in">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="flex items-center gap-1 text-slate-600 hover:text-slate-900 mb-1"
+        onClick={() => {
+          setResult(null);
+          setView("menu");
+        }}
+      >
+        <ChevronLeft className="w-4 h-4" /> Back to Menu
+      </Button>
       {/* Header */}
       <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
         <Wallet className="w-6 h-6 text-blue-600 shrink-0 mt-0.5" />

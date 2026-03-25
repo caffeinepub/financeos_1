@@ -85,7 +85,7 @@ const ASSET_CONFIG: Record<
   },
   MutualFund: {
     label: "Mutual Funds",
-    shortLabel: "Mutual Funds",
+    shortLabel: "MFs",
     color: "#10b981",
     cagr: 0.12,
   },
@@ -109,7 +109,7 @@ const ASSET_CONFIG: Record<
   },
   RealEstate: {
     label: "Real Estate",
-    shortLabel: "Real Estate",
+    shortLabel: "Realty",
     color: "#06b6d4",
     cagr: 0.1,
   },
@@ -153,7 +153,7 @@ function statusBadge(pct: number) {
   if (pct >= 100)
     return (
       <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium px-2 py-0.5 rounded-full">
-        Completed
+        Achieved
       </Badge>
     );
   if (pct >= 75)
@@ -583,7 +583,7 @@ export default function DashboardPage() {
       {/* ── Section 1: Compact NAV Card ── */}
       <section data-ocid="dashboard.nav.section">
         <Card className="border-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-lg rounded-2xl overflow-hidden">
-          <CardContent className="px-5 py-4">
+          <CardContent className="px-5 py-2 sm:py-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6">
               <div className="w-full sm:min-w-[160px] sm:w-auto">
                 <p className="text-slate-400 text-[10px] uppercase tracking-widest font-medium mb-0.5">
@@ -615,7 +615,7 @@ export default function DashboardPage() {
                     <span style={{ color: ASSET_CONFIG[t].color }}>
                       {ASSET_CONFIG[t].shortLabel}
                     </span>
-                    <span className="text-slate-200 font-bold text-[9px] sm:text-xs">
+                    <span className="text-slate-200 font-bold text-[11px] sm:text-xs">
                       {shortNum(byType[t] ?? 0, sym)}
                     </span>
                     <span className="text-slate-500">
@@ -804,9 +804,16 @@ export default function DashboardPage() {
                   dataKey="Net Worth"
                   stroke="#6366f1"
                   strokeWidth={2.5}
-                  dot={{ fill: "#6366f1", r: 4 }}
+                  dot={{ fill: "#6366f1", r: 3 }}
                   activeDot={{ r: 6 }}
-                />
+                >
+                  <LabelList
+                    dataKey="Net Worth"
+                    position="top"
+                    style={{ fontSize: "9px", fill: "#6366f1" }}
+                    formatter={(v: number) => shortNum(v, sym)}
+                  />
+                </Line>
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -1053,8 +1060,22 @@ export default function DashboardPage() {
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: "12px" }} />
-                  <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="Expense" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]}>
+                    <LabelList
+                      dataKey="Income"
+                      position="top"
+                      style={{ fontSize: "9px", fill: "#10b981" }}
+                      formatter={(v: number) => shortNum(v, sym)}
+                    />
+                  </Bar>
+                  <Bar dataKey="Expense" fill="#f43f5e" radius={[4, 4, 0, 0]}>
+                    <LabelList
+                      dataKey="Expense"
+                      position="top"
+                      style={{ fontSize: "9px", fill: "#f43f5e" }}
+                      formatter={(v: number) => shortNum(v, sym)}
+                    />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>

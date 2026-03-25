@@ -350,125 +350,117 @@ export function ExpensesTab() {
           </Button>
         </div>
       </div>
-      (search || typeFilter !== "All") && (
-      <div className="flex gap-4 text-sm text-muted-foreground px-1">
-        <span>
-          Income:{" "}
-          <strong className="text-green-600">{fmt(filteredIncome)}</strong>
-        </span>
-        <span>
-          Expenses:{" "}
-          <strong className="text-red-500">{fmt(filteredExpense)}</strong>
-        </span>
-      </div>
-      )filtered.length === 0 ? (
-      <div
-        data-ocid="expenses.empty_state"
-        className="text-center py-16 text-muted-foreground"
-      >
-        <Wallet className="h-10 w-10 mx-auto mb-3 opacity-30" />
-        <p className="text-sm">No transactions found</p>
-      </div>
+      {filtered.length === 0 ? (
+        <div
+          data-ocid="expenses.empty_state"
+          className="text-center py-16 text-muted-foreground"
+        >
+          <Wallet className="h-10 w-10 mx-auto mb-3 opacity-30" />
+          <p className="text-sm">No transactions found</p>
+        </div>
       ) : (
-      <div className="rounded-xl border border-border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-slate-700 border-b border-border">
-                <th className="text-left p-3 font-semibold text-xs text-white">
-                  Date
-                </th>
-                <th className="text-left p-3 font-semibold text-xs text-white">
-                  Category
-                </th>
-                <th className="text-left p-3 font-semibold text-xs text-white hidden sm:table-cell">
-                  Description
-                </th>
-                <th className="text-left p-3 font-semibold text-xs text-white hidden sm:table-cell">
-                  Account
-                </th>
-                <th className="text-left p-3 font-semibold text-xs text-white hidden md:table-cell">
-                  Type
-                </th>
-                <th className="text-right p-3 font-semibold text-xs text-white">
-                  Amount
-                </th>
-                <th className="text-right p-3 font-semibold text-xs text-white">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {typeFilter === "All" ? (
-                <>
-                  {incomeRows.length > 0 && (
-                    <>
-                      <tr>
-                        <td
-                          colSpan={7}
-                          className="px-3 py-1.5 bg-green-50 border-b border-green-100 text-xs font-bold text-green-700 uppercase tracking-wide"
-                        >
-                          Income
-                        </td>
-                      </tr>
-                      {renderRow(incomeRows[0], 1)}
-                      {incomeRows.length > 1 && !incomeExpanded && (
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-700 border-b border-border">
+                  <th className="text-left p-3 font-semibold text-xs text-white">
+                    Date
+                  </th>
+                  <th className="text-left p-3 font-semibold text-xs text-white">
+                    Category
+                  </th>
+                  <th className="text-left p-3 font-semibold text-xs text-white hidden sm:table-cell">
+                    Description
+                  </th>
+                  <th className="text-left p-3 font-semibold text-xs text-white hidden sm:table-cell">
+                    Account
+                  </th>
+                  <th className="text-left p-3 font-semibold text-xs text-white hidden md:table-cell">
+                    Type
+                  </th>
+                  <th className="text-right p-3 font-semibold text-xs text-white">
+                    Amount
+                  </th>
+                  <th className="text-right p-3 font-semibold text-xs text-white">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {typeFilter === "All" ? (
+                  <>
+                    {incomeRows.length > 0 && (
+                      <>
                         <tr>
-                          <td colSpan={7} className="px-3 py-1.5 text-center">
-                            <button
-                              type="button"
-                              className="text-xs text-blue-600 hover:underline font-medium"
-                              onClick={() => setIncomeExpanded(true)}
-                            >
-                              Show more entries ({incomeRows.length - 1} more)
-                            </button>
+                          <td
+                            colSpan={7}
+                            className="px-3 py-1.5 bg-green-50 border-b border-green-100 text-xs font-bold text-green-700 uppercase tracking-wide"
+                          >
+                            Income
                           </td>
                         </tr>
-                      )}
-                      {incomeRows.length > 1 && incomeExpanded && (
-                        <>
-                          {incomeRows
-                            .slice(1)
-                            .map((t, i) => renderRow(t, i + 2))}
+                        {renderRow(incomeRows[0], 1)}
+                        {incomeRows.length > 1 && !incomeExpanded && (
                           <tr>
                             <td colSpan={7} className="px-3 py-1.5 text-center">
                               <button
                                 type="button"
                                 className="text-xs text-blue-600 hover:underline font-medium"
-                                onClick={() => setIncomeExpanded(false)}
+                                onClick={() => setIncomeExpanded(true)}
                               >
-                                Show less
+                                Show more entries ({incomeRows.length - 1} more)
                               </button>
                             </td>
                           </tr>
-                        </>
-                      )}
-                    </>
-                  )}
-                  {expenseRows.length > 0 && (
-                    <>
-                      <tr>
-                        <td
-                          colSpan={7}
-                          className="px-3 py-1.5 bg-red-50 border-b border-red-100 text-xs font-bold text-red-700 uppercase tracking-wide"
-                        >
-                          Expenses
-                        </td>
-                      </tr>
-                      {expenseRows.map((t, i) =>
-                        renderRow(t, incomeRows.length + i + 1),
-                      )}
-                    </>
-                  )}
-                </>
-              ) : (
-                filtered.map((t, i) => renderRow(t, i + 1))
-              )}
-            </tbody>
-          </table>
+                        )}
+                        {incomeRows.length > 1 && incomeExpanded && (
+                          <>
+                            {incomeRows
+                              .slice(1)
+                              .map((t, i) => renderRow(t, i + 2))}
+                            <tr>
+                              <td
+                                colSpan={7}
+                                className="px-3 py-1.5 text-center"
+                              >
+                                <button
+                                  type="button"
+                                  className="text-xs text-blue-600 hover:underline font-medium"
+                                  onClick={() => setIncomeExpanded(false)}
+                                >
+                                  Show less
+                                </button>
+                              </td>
+                            </tr>
+                          </>
+                        )}
+                      </>
+                    )}
+                    {expenseRows.length > 0 && (
+                      <>
+                        <tr>
+                          <td
+                            colSpan={7}
+                            className="px-3 py-1.5 bg-red-50 border-b border-red-100 text-xs font-bold text-red-700 uppercase tracking-wide"
+                          >
+                            Expenses
+                          </td>
+                        </tr>
+                        {expenseRows.map((t, i) =>
+                          renderRow(t, incomeRows.length + i + 1),
+                        )}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  filtered.map((t, i) => renderRow(t, i + 1))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-      )
+      )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent data-ocid="expenses.dialog">
           <DialogHeader>

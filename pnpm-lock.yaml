@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      react-router-dom:
-        specifier: 7.13.2
-        version: 7.13.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
     devDependencies:
       sharp:
         specifier: ^0.34.4
@@ -177,6 +173,9 @@ importers:
       react-resizable-panels:
         specifier: ^2.1.7
         version: 2.1.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react-router-dom:
+        specifier: ^7.13.2
+        version: 7.13.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react-use:
         specifier: ~17.6.0
         version: 17.6.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)

@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   CheckCircle,
   ChevronLeft,
+  ChevronRight,
   Plus,
   Send,
   Sparkles,
@@ -303,22 +304,31 @@ export function ModelDebtTab() {
   const res = result;
 
   if (view === "menu") {
+    const SCENARIO_COLORS_DEBT = [
+      "#10b981",
+      "#3b82f6",
+      "#f59e0b",
+      "#a855f7",
+      "#f43f5e",
+    ];
     return (
-      <div className="space-y-4 animate-fade-in">
-        <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-red-50 to-orange-50 border border-red-100 rounded-xl">
-          <TrendingDown className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+      <div className="space-y-3 animate-fade-in">
+        <div className="flex items-center gap-3 px-1 mb-4">
+          <TrendingDown className="w-5 h-5 text-rose-400 shrink-0" />
           <div>
-            <h3 className="text-sm font-bold text-red-800">
+            <h3 className="text-sm font-bold text-slate-100">
               Debt Management &amp; Repayment Model
             </h3>
-            <p className="text-xs text-red-600 mt-0.5">
-              Select a scenario below to get started. Each scenario pre-fills
-              realistic debt numbers you can customize.
+            <p className="text-xs text-slate-400 mt-0.5">
+              Select a scenario to explore. Pre-filled with realistic debt
+              numbers you can edit.
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {SCENARIOS.map((s) => (
+        {SCENARIOS.map((s, idx) => {
+          const accentColor =
+            SCENARIO_COLORS_DEBT[idx % SCENARIO_COLORS_DEBT.length];
+          return (
             <button
               key={s.id}
               type="button"
@@ -326,20 +336,29 @@ export function ModelDebtTab() {
                 loadScenario(s);
                 setView("detail");
               }}
-              className="text-left p-4 rounded-2xl border border-red-100 bg-gradient-to-br from-red-50 to-orange-50 hover:from-red-100 hover:to-orange-100 hover:border-red-300 transition-all shadow-sm group"
+              className="w-full text-left bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 rounded-xl overflow-hidden transition-all duration-200 group"
+              style={{ borderLeftColor: accentColor, borderLeftWidth: 4 }}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold text-red-800">
-                  {s.title}
-                </span>
-                <span className="text-red-500 text-sm group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                    style={{ backgroundColor: accentColor }}
+                  >
+                    {idx + 1}
+                  </span>
+                  <span className="text-sm font-semibold text-slate-100 truncate">
+                    {s.title}
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-200 group-hover:translate-x-0.5 transition-transform shrink-0 ml-2" />
               </div>
-              <p className="text-xs text-slate-500">{s.desc}</p>
+              <div className="px-4 pb-3">
+                <p className="text-xs text-slate-400">{s.desc}</p>
+              </div>
             </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
     );
   }

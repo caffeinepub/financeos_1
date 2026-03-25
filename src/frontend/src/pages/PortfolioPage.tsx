@@ -545,15 +545,14 @@ export default function PortfolioPage() {
                 style={
                   isActive
                     ? {
-                        backgroundColor: at.color,
+                        backgroundColor: "#0f172a",
                         color: "#fff",
-                        borderColor: at.color,
-                        boxShadow: `0 2px 8px ${at.color}55`,
+                        borderColor: "#0f172a",
                       }
                     : {
                         backgroundColor: "#ffffff",
-                        color: at.color,
-                        borderColor: `${at.color}55`,
+                        color: "#475569",
+                        borderColor: "#e2e8f0",
                       }
                 }
               >

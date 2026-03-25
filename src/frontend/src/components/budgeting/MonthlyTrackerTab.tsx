@@ -857,44 +857,6 @@ export function MonthlyTrackerTab() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* Bar Chart */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">
-            Monthly Overview — Income vs Expenses
-          </CardTitle>
-        </CardHeader>
-        <CardContent data-ocid="budgeting.overview.chart">
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart
-              data={chartData}
-              margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis
-                tick={{ fontSize: 11 }}
-                tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
-                width={50}
-              />
-              <Tooltip formatter={(v: number) => fmt(v, country)} />
-              <Legend iconType="circle" iconSize={10} />
-              <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
-              <Bar
-                dataKey="Planned Expenses"
-                fill="#6366f1"
-                radius={[4, 4, 0, 0]}
-              />
-              <Bar
-                dataKey="Actual Expenses"
-                fill="#ef4444"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
       {/* ── Budget Analytics Section ── */}
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
@@ -1078,7 +1040,138 @@ export function MonthlyTrackerTab() {
             </CardContent>
           </Card>
 
-          {/* 3. Budget vs Actual Variance */}
+          {/* 3. Savings Rate Trend */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Savings Rate Trend (%)</CardTitle>
+            </CardHeader>
+            <CardContent data-ocid="budgeting.savings_rate.chart">
+              {(() => {
+                const now = new Date();
+                const data = Array.from({ length: 6 }, (_, i) => {
+                  const d = new Date(
+                    now.getFullYear(),
+                    now.getMonth() - 5 + i,
+                    1,
+                  );
+                  const yr = d.getFullYear();
+                  const mo = d.getMonth();
+                  const label = d.toLocaleDateString("en-IN", {
+                    month: "short",
+                    year: "2-digit",
+                  });
+                  const income = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Income
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  const expense = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Expense
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  const rate =
+                    income > 0
+                      ? Math.round(((income - expense) / income) * 100)
+                      : 0;
+                  return { month: label, "Savings Rate": rate };
+                });
+                return (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <LineChart
+                      data={data}
+                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        opacity={0.15}
+                        vertical={false}
+                      />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                      <YAxis
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(v) => `${v}%`}
+                        width={40}
+                        domain={["auto", "auto"]}
+                      />
+                      <Tooltip
+                        formatter={(v: number) => [`${v}%`, "Savings Rate"]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="Savings Rate"
+                        stroke="#6366f1"
+                        strokeWidth={2.5}
+                        dot={{ fill: "#6366f1", r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* 4. Monthly Overview — Income vs Expenses (Horizontal) */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">
+                Monthly Overview — Income vs Expenses
+              </CardTitle>
+            </CardHeader>
+            <CardContent data-ocid="budgeting.overview.chart">
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart
+                  data={chartData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 20, left: 60, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 11 }}
+                    width={60}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
+                    width={50}
+                  />
+                  <Tooltip formatter={(v: number) => fmt(v, country)} />
+                  <Legend iconType="circle" iconSize={10} />
+                  <Bar dataKey="Income" fill="#10b981" radius={[0, 4, 4, 0]} />
+                  <Bar
+                    dataKey="Planned Expenses"
+                    fill="#6366f1"
+                    radius={[0, 4, 4, 0]}
+                  />
+                  <Bar
+                    dataKey="Actual Expenses"
+                    fill="#ef4444"
+                    radius={[0, 4, 4, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* 5. Budget vs Actual Variance */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">
@@ -1163,92 +1256,6 @@ export function MonthlyTrackerTab() {
                         ))}
                       </Bar>
                     </BarChart>
-                  </ResponsiveContainer>
-                );
-              })()}
-            </CardContent>
-          </Card>
-
-          {/* 4. Savings Rate Trend */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Savings Rate Trend (%)</CardTitle>
-            </CardHeader>
-            <CardContent data-ocid="budgeting.savings_rate.chart">
-              {(() => {
-                const now = new Date();
-                const data = Array.from({ length: 6 }, (_, i) => {
-                  const d = new Date(
-                    now.getFullYear(),
-                    now.getMonth() - 5 + i,
-                    1,
-                  );
-                  const yr = d.getFullYear();
-                  const mo = d.getMonth();
-                  const label = d.toLocaleDateString("en-IN", {
-                    month: "short",
-                    year: "2-digit",
-                  });
-                  const income = transactions
-                    .filter((t) => {
-                      const td = new Date(t.date);
-                      return (
-                        td.getFullYear() === yr &&
-                        td.getMonth() === mo &&
-                        t.transactionType === TransactionType.Income
-                      );
-                    })
-                    .reduce((s, t) => s + t.amount, 0);
-                  const expense = transactions
-                    .filter((t) => {
-                      const td = new Date(t.date);
-                      return (
-                        td.getFullYear() === yr &&
-                        td.getMonth() === mo &&
-                        t.transactionType === TransactionType.Expense
-                      );
-                    })
-                    .reduce((s, t) => s + t.amount, 0);
-                  const rate =
-                    income > 0
-                      ? Math.round(((income - expense) / income) * 100)
-                      : 0;
-                  return { month: label, "Savings Rate": rate };
-                });
-                return (
-                  <ResponsiveContainer width="100%" height={220}>
-                    <LineChart
-                      data={data}
-                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        opacity={0.15}
-                        vertical={false}
-                      />
-                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                      <YAxis
-                        tick={{ fontSize: 10 }}
-                        tickFormatter={(v) => `${v}%`}
-                        width={40}
-                        domain={["auto", "auto"]}
-                      />
-                      <Tooltip
-                        formatter={(v: number) => [`${v}%`, "Savings Rate"]}
-                        contentStyle={{
-                          fontSize: "11px",
-                          borderRadius: "10px",
-                        }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="Savings Rate"
-                        stroke="#6366f1"
-                        strokeWidth={2.5}
-                        dot={{ fill: "#6366f1", r: 4 }}
-                        activeDot={{ r: 6 }}
-                      />
-                    </LineChart>
                   </ResponsiveContainer>
                 );
               })()}

@@ -1,6 +1,7 @@
 import { BookOpen, Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type BudgetCategory, TransactionType } from "../backend.d";
+import { AnalyseTab } from "../components/budgeting/AnalyseTab";
 import { ExpensesTab } from "../components/budgeting/ExpensesTab";
 import { MonthlyTrackerTab } from "../components/budgeting/MonthlyTrackerTab";
 import { Badge } from "../components/ui/badge";
@@ -327,6 +328,12 @@ export default function BudgetingPage() {
             >
               Budget Insights
             </TabsTrigger>
+            <TabsTrigger
+              value="analyse"
+              className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap bg-white text-slate-600 border-slate-200 hover:border-violet-400 data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:border-violet-600 data-[state=active]:shadow-sm"
+            >
+              Analyse
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -548,6 +555,9 @@ export default function BudgetingPage() {
 
         <TabsContent value="tracker" className="mt-4">
           <MonthlyTrackerTab />
+        </TabsContent>
+        <TabsContent value="analyse" className="mt-4">
+          <AnalyseTab />
         </TabsContent>
       </Tabs>
 

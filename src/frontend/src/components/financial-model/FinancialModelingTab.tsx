@@ -85,20 +85,125 @@ const SECTIONS = [
   },
 ];
 
+const MODEL_SCENARIOS: Record<
+  string,
+  Array<{ id: string; title: string; description: string }>
+> = {
+  budgetingmodel: [
+    {
+      id: "budget_setup",
+      title: "Initial Budget Setup",
+      description:
+        "Build a structured monthly budget from your income and known expenses using the 50/30/20 rule.",
+    },
+    {
+      id: "leakage",
+      title: "Leakage Detection",
+      description:
+        "Running out of money before month-end? Identify hidden spending leaks by category.",
+    },
+    {
+      id: "tighten",
+      title: "Budget Tightening",
+      description:
+        "Need to cut expenses by a target amount without sacrificing key lifestyle items.",
+    },
+    {
+      id: "irregular",
+      title: "Irregular Income",
+      description:
+        "Freelancer or variable income? Build a flexible budget that works across high and low months.",
+    },
+  ],
+  debtmodel: [
+    {
+      id: "inventory",
+      title: "Debt Inventory & Strategy",
+      description:
+        "List all debts, compare Avalanche vs Snowball strategies, and find your debt-free date.",
+    },
+    {
+      id: "overwhelm",
+      title: "Prioritize Multiple Debts",
+      description:
+        "Have extra money each month but unsure which debt to tackle first? Get a clear roadmap.",
+    },
+    {
+      id: "cc_trap",
+      title: "Credit Card Minimum Payment Trap",
+      description:
+        "Paying only minimums? See the true cost and get an escape plan.",
+    },
+    {
+      id: "consolidation",
+      title: "Debt Consolidation Analysis",
+      description:
+        "Should you take a personal loan to close credit card debt? Get a data-driven answer.",
+    },
+    {
+      id: "sip_vs_debt",
+      title: "SIP vs Debt Repayment Dilemma",
+      description:
+        "Should you pause investments to pay off loans faster? Find the optimal balance.",
+    },
+  ],
+  goalmodel: [
+    {
+      id: "single_goal",
+      title: "Single Goal Planning",
+      description:
+        "Buy a car, fund a vacation, or save for a course — get the exact monthly saving required.",
+    },
+    {
+      id: "multi_goal",
+      title: "Multiple Goals Prioritization",
+      description:
+        "Education, home down payment, and retirement — allocate your savings optimally across all goals.",
+    },
+    {
+      id: "retirement",
+      title: "Retirement Corpus Calculator",
+      description:
+        "Inflation-adjusted retirement planning: how much do you need and how to get there.",
+    },
+    {
+      id: "cost_of_delay",
+      title: "Cost of Delay Analysis",
+      description:
+        "See in rupees what 1-2 years of delay has already cost you in compounding returns.",
+    },
+    {
+      id: "windfall",
+      title: "Windfall Allocation",
+      description:
+        "Got a salary hike or bonus? Prioritize between emergency fund, retirement, and goal SIPs.",
+    },
+  ],
+};
+
+function getModelScenarios(modelId: string) {
+  return MODEL_SCENARIOS[modelId] ?? [];
+}
+
 function FinancialModelingTab() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(),
   );
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [activeModelSection, setActiveModelSection] = useState<string | null>(
+    null,
+  );
+
   const toggleSection = (id: string) => {
-    setExpandedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setExpandedSections((prev) => (prev.has(id) ? new Set() : new Set([id])));
+    // Reset active model section when collapsing
+    if (expandedSections.has(id)) {
+      setActiveModelSection(null);
+    }
   };
+
+  const MODEL_IDS = new Set(["budgetingmodel", "debtmodel", "goalmodel"]);
 
   const filteredSections = searchQuery.trim()
     ? SECTIONS.filter(
@@ -151,15 +256,61 @@ function FinancialModelingTab() {
             </button>
 
             {isExpanded && (
-              <div className="border-t border-slate-100 px-4 py-4 animate-fade-in">
-                {section.id === "modelinsurance" && <ModelInsuranceTab />}
-                {section.id === "assetallocation" && <AssetAllocationTab />}
-                {section.id === "modelportfolio" && <ModelPortfolioTab />}
-                {section.id === "modelretirement" && <ModelRetirementTab />}
-                {section.id === "modelcrypto" && <ModelCryptoPortfolioTab />}
-                {section.id === "budgetingmodel" && <ModelBudgetingTab />}
-                {section.id === "debtmodel" && <ModelDebtTab />}
-                {section.id === "goalmodel" && <ModelGoalPlanningTab />}
+              <div className="border-t border-slate-100 animate-fade-in">
+                {!MODEL_IDS.has(section.id) && (
+                  <div className="px-4 py-4">
+                    {section.id === "modelinsurance" && <ModelInsuranceTab />}
+                    {section.id === "assetallocation" && <AssetAllocationTab />}
+                    {section.id === "modelportfolio" && <ModelPortfolioTab />}
+                    {section.id === "modelretirement" && <ModelRetirementTab />}
+                    {section.id === "modelcrypto" && (
+                      <ModelCryptoPortfolioTab />
+                    )}
+                  </div>
+                )}
+                {MODEL_IDS.has(section.id) &&
+                  activeModelSection !== section.id && (
+                    <div className="px-4 py-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {getModelScenarios(section.id).map((scenario) => (
+                          <button
+                            key={scenario.id}
+                            type="button"
+                            onClick={() => setActiveModelSection(section.id)}
+                            className="text-left p-4 rounded-xl border border-slate-200 bg-white hover:border-violet-400 hover:bg-violet-50/50 transition-all shadow-sm group"
+                            style={{
+                              borderLeft: `4px solid ${section.borderColor}`,
+                            }}
+                          >
+                            <p className="text-sm font-bold text-slate-800 group-hover:text-violet-800">
+                              {scenario.title}
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                              {scenario.description}
+                            </p>
+                            <p className="text-[10px] text-violet-600 font-medium mt-2">
+                              Click to explore →
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                {MODEL_IDS.has(section.id) &&
+                  activeModelSection === section.id && (
+                    <div className="px-4 py-4">
+                      <button
+                        type="button"
+                        onClick={() => setActiveModelSection(null)}
+                        className="flex items-center gap-2 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-3 py-1.5 rounded-lg mb-4 transition-colors"
+                      >
+                        ← Back to Scenarios
+                      </button>
+                      {section.id === "budgetingmodel" && <ModelBudgetingTab />}
+                      {section.id === "debtmodel" && <ModelDebtTab />}
+                      {section.id === "goalmodel" && <ModelGoalPlanningTab />}
+                    </div>
+                  )}
               </div>
             )}
           </div>

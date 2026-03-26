@@ -257,11 +257,12 @@ export default function LoansPage() {
     setSaving(true);
     try {
       const payload = {
+        id: editing ? editing.id : crypto.randomUUID(),
         name: form.name,
         loanType: form.loanType,
         principal: Number(form.principal),
         interestRate: Number(form.interestRate),
-        termMonths: Number(form.termMonths),
+        termMonths: BigInt(Math.round(Number(form.termMonths))),
         startDate: form.startDate,
         currentBalance: Number(form.currentBalance),
         monthlyPayment: Number(form.monthlyPayment),
@@ -494,26 +495,28 @@ export default function LoansPage() {
       </div>
 
       <Tabs defaultValue="dashboard" className="space-y-4">
-        <TabsList className="flex overflow-x-auto gap-1 bg-slate-800/60 rounded-xl p-1 h-auto flex-nowrap">
-          {[
-            { value: "dashboard", label: "🏠 Dashboard" },
-            { value: "tracker", label: "📋 Tracker" },
-            { value: "prepayment", label: "⚡ Prepayment" },
-            { value: "loanandinvest", label: "🤔 Loan vs Invest" },
-            { value: "affordability", label: "✅ Affordability" },
-            { value: "timeline", label: "📅 Debt-Free" },
-            { value: "debtmodel", label: "💳 Debt Model" },
-          ].map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              data-ocid={`loans.${tab.value}.tab`}
-              className="text-xs whitespace-nowrap px-3 py-1.5 rounded-lg text-slate-400 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="overflow-x-auto scrollbar-hide w-full">
+          <TabsList className="flex overflow-x-auto scrollbar-hide gap-1 bg-slate-800/60 rounded-xl p-1 h-auto flex-nowrap min-w-0 w-full">
+            {[
+              { value: "dashboard", label: "🏠 Dashboard" },
+              { value: "tracker", label: "📋 Tracker" },
+              { value: "prepayment", label: "⚡ Prepayment" },
+              { value: "loanandinvest", label: "🤔 Loan vs Invest" },
+              { value: "affordability", label: "✅ Affordability" },
+              { value: "timeline", label: "📅 Debt-Free" },
+              { value: "debtmodel", label: "💳 Debt Model" },
+            ].map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                data-ocid={`loans.${tab.value}.tab`}
+                className="text-xs whitespace-nowrap px-3 py-1.5 rounded-lg text-slate-400 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         {/* ─── TAB 1: Dashboard ─── */}
         <TabsContent value="dashboard" className="space-y-4">

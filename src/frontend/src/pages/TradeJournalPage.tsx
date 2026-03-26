@@ -98,7 +98,7 @@ interface ChecklistItem {
   text: string;
   isChecked: boolean;
   isCustom: boolean;
-  sortOrder: number;
+  sortOrder: bigint;
 }
 
 const EMPTY_TRADE: Omit<TradeEntry, "id"> = {
@@ -125,31 +125,31 @@ const DEFAULT_CHECKLIST: Omit<ChecklistItem, "id">[] = [
     text: "Market trend confirmed?",
     isChecked: false,
     isCustom: false,
-    sortOrder: 0,
+    sortOrder: BigInt(0),
   },
   {
     text: "Risk/Reward ≥ 2:1?",
     isChecked: false,
     isCustom: false,
-    sortOrder: 1,
+    sortOrder: BigInt(1),
   },
   {
     text: "Stop loss defined?",
     isChecked: false,
     isCustom: false,
-    sortOrder: 2,
+    sortOrder: BigInt(2),
   },
   {
     text: "Position size calculated?",
     isChecked: false,
     isCustom: false,
-    sortOrder: 3,
+    sortOrder: BigInt(3),
   },
   {
     text: "No major news events?",
     isChecked: false,
     isCustom: false,
-    sortOrder: 4,
+    sortOrder: BigInt(4),
   },
 ];
 
@@ -281,8 +281,8 @@ export default function TradeJournalPage() {
       try {
         setLoading(true);
         const [tradeData, checkData] = await Promise.all([
-          (actor as any).getAllTradeEntries(),
-          (actor as any).getAllChecklistItems(),
+          actor.getAllTradeEntries(),
+          actor.getAllChecklistItems(),
         ]);
         const tradeArr: TradeEntry[] = Array.isArray(tradeData)
           ? tradeData
@@ -295,7 +295,7 @@ export default function TradeJournalPage() {
           // Bootstrap defaults
           const created = await Promise.all(
             DEFAULT_CHECKLIST.map((item) =>
-              (actor as any).createChecklistItem({
+              actor.createChecklistItem({
                 ...item,
                 id: crypto.randomUUID(),
               }),
@@ -304,8 +304,12 @@ export default function TradeJournalPage() {
           setChecklist(created);
         } else {
           setChecklist(
-            checkArr.sort(
-              (a: ChecklistItem, b: ChecklistItem) => a.sortOrder - b.sortOrder,
+            checkArr.sort((a: ChecklistItem, b: ChecklistItem) =>
+              a.sortOrder < b.sortOrder
+                ? -1
+                : a.sortOrder > b.sortOrder
+                  ? 1
+                  : 0,
             ),
           );
         }
@@ -592,7 +596,7 @@ export default function TradeJournalPage() {
     if (!actor) return;
     try {
       if (editingTrade) {
-        await (actor as any).updateTradeEntry(editingTrade.id, {
+        await actor.updateTradeEntry(editingTrade.id, {
           ...form,
           id: editingTrade.id,
         });
@@ -604,7 +608,7 @@ export default function TradeJournalPage() {
         toast.success("Trade updated");
       } else {
         const id = crypto.randomUUID();
-        await (actor as any).createTradeEntry({ ...form, id });
+        await actor.createTradeEntry({ ...form, id });
         setTrades((prev) => [...prev, { ...form, id }]);
         toast.success("Trade logged");
       }
@@ -618,7 +622,7 @@ export default function TradeJournalPage() {
     async (id: string) => {
       if (!actor) return;
       try {
-        await (actor as any).deleteTradeEntry(id);
+        await actor.deleteTradeEntry(id);
         setTrades((prev) => prev.filter((t) => t.id !== id));
         toast.success("Trade deleted");
       } catch {
@@ -633,7 +637,7 @@ export default function TradeJournalPage() {
       if (!actor) return;
       const updated = { ...t, isOpen: false };
       try {
-        await (actor as any).updateTradeEntry(t.id, updated);
+        await actor.updateTradeEntry(t.id, updated);
         setTrades((prev) => prev.map((x) => (x.id === t.id ? updated : x)));
         toast.success("Trade closed");
       } catch {
@@ -648,7 +652,7 @@ export default function TradeJournalPage() {
       if (!actor) return;
       const updated = { ...item, isChecked: !item.isChecked };
       try {
-        await (actor as any).updateChecklistItem(item.id, updated);
+        await actor.updateChecklistItem(item.id, updated);
         setChecklist((prev) =>
           prev.map((c) => (c.id === item.id ? updated : c)),
         );
@@ -663,7 +667,7 @@ export default function TradeJournalPage() {
     async (id: string) => {
       if (!actor) return;
       try {
-        await (actor as any).deleteChecklistItem(id);
+        await actor.deleteChecklistItem(id);
         setChecklist((prev) => prev.filter((c) => c.id !== id));
       } catch {
         toast.error("Failed to delete item");
@@ -679,10 +683,10 @@ export default function TradeJournalPage() {
       text: newCheckItem.trim(),
       isChecked: false,
       isCustom: true,
-      sortOrder: checklist.length,
+      sortOrder: BigInt(checklist.length),
     };
     try {
-      await (actor as any).createChecklistItem(item);
+      await actor.createChecklistItem(item);
       setChecklist((prev) => [...prev, item]);
       setNewCheckItem("");
     } catch {
@@ -745,7 +749,7 @@ export default function TradeJournalPage() {
 
       {/* Pill Tabs */}
       <div className="px-4 md:px-6 pb-4">
-        <div className="flex gap-1 bg-slate-800 rounded-2xl p-1 w-full overflow-x-auto max-w-full">
+        <div className="flex gap-1 bg-slate-800 rounded-2xl p-1 w-full overflow-x-auto scrollbar-hide max-w-full flex-nowrap">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               type="button"

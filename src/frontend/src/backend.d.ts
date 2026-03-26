@@ -116,6 +116,32 @@ export enum UserRole {
     user = "user",
     guest = "guest"
 }
+export interface TradeEntry {
+    id: string;
+    ticker: string;
+    entryDate: string;
+    entryTime: string;
+    positionType: string;
+    entryPrice: number;
+    exitPrice: number;
+    quantity: number;
+    stopLoss: number;
+    takeProfit: number;
+    strategy: string;
+    marketConditions: string;
+    emotions: string;
+    notes: string;
+    tags: string;
+    commission: number;
+    isOpen: boolean;
+}
+export interface ChecklistItem {
+    id: string;
+    text: string;
+    isChecked: boolean;
+    isCustom: boolean;
+    sortOrder: bigint;
+}
 export interface backendInterface {
     adminGetAllUsers(): Promise<Array<[string, UserProfile]>>;
     adminSuspendUser(principalText: string): Promise<boolean>;
@@ -173,4 +199,13 @@ export interface backendInterface {
     updatePlannerEvent(id: string, event: PlannerEvent): Promise<PlannerEvent | null>;
     updatePortfolioHolding(id: string, holding: PortfolioHolding): Promise<PortfolioHolding | null>;
     updateTransaction(id: string, transaction: Transaction): Promise<Transaction | null>;
+    createTradeEntry(entry: TradeEntry): Promise<TradeEntry>;
+    getTradeEntry(id: string): Promise<TradeEntry | null>;
+    getAllTradeEntries(): Promise<Array<TradeEntry>>;
+    updateTradeEntry(id: string, entry: TradeEntry): Promise<TradeEntry | null>;
+    deleteTradeEntry(id: string): Promise<boolean>;
+    createChecklistItem(item: ChecklistItem): Promise<ChecklistItem>;
+    getAllChecklistItems(): Promise<Array<ChecklistItem>>;
+    updateChecklistItem(id: string, item: ChecklistItem): Promise<ChecklistItem | null>;
+    deleteChecklistItem(id: string): Promise<boolean>;
 }

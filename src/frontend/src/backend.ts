@@ -198,6 +198,32 @@ export enum UserRole {
     user = "user",
     guest = "guest"
 }
+export interface TradeEntry {
+    id: string;
+    ticker: string;
+    entryDate: string;
+    entryTime: string;
+    positionType: string;
+    entryPrice: number;
+    exitPrice: number;
+    quantity: number;
+    stopLoss: number;
+    takeProfit: number;
+    strategy: string;
+    marketConditions: string;
+    emotions: string;
+    notes: string;
+    tags: string;
+    commission: number;
+    isOpen: boolean;
+}
+export interface ChecklistItem {
+    id: string;
+    text: string;
+    isChecked: boolean;
+    isCustom: boolean;
+    sortOrder: bigint;
+}
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     adminGetAllUsers(): Promise<Array<[string, UserProfile]>>;
@@ -256,6 +282,15 @@ export interface backendInterface {
     updatePlannerEvent(id: string, event: PlannerEvent): Promise<PlannerEvent | null>;
     updatePortfolioHolding(id: string, holding: PortfolioHolding): Promise<PortfolioHolding | null>;
     updateTransaction(id: string, transaction: Transaction): Promise<Transaction | null>;
+    createTradeEntry(entry: any): Promise<any>;
+    getTradeEntry(id: string): Promise<any>;
+    getAllTradeEntries(): Promise<Array<any>>;
+    updateTradeEntry(id: string, entry: any): Promise<any>;
+    deleteTradeEntry(id: string): Promise<boolean>;
+    createChecklistItem(item: any): Promise<any>;
+    getAllChecklistItems(): Promise<Array<any>>;
+    updateChecklistItem(id: string, item: any): Promise<any>;
+    deleteChecklistItem(id: string): Promise<boolean>;
 }
 import type { AssetType as _AssetType, BudgetCategory as _BudgetCategory, FinancialModel as _FinancialModel, FinancialRule as _FinancialRule, Goal as _Goal, Loan as _Loan, PlannerEvent as _PlannerEvent, PortfolioHolding as _PortfolioHolding, Transaction as _Transaction, TransactionType as _TransactionType, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -1017,6 +1052,132 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.updateTransaction(arg0, to_candid_Transaction_n19(this._uploadFile, this._downloadFile, arg1));
             return from_candid_opt_n36(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async createTradeEntry(arg0: any): Promise<any> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).createTradeEntry(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).createTradeEntry(arg0);
+            return result;
+        }
+    }
+    async getTradeEntry(arg0: string): Promise<any> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).getTradeEntry(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).getTradeEntry(arg0);
+            return result;
+        }
+    }
+    async getAllTradeEntries(): Promise<any[]> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).getAllTradeEntries();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).getAllTradeEntries();
+            return result;
+        }
+    }
+    async updateTradeEntry(arg0: string, arg1: any): Promise<any> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).updateTradeEntry(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).updateTradeEntry(arg0, arg1);
+            return result;
+        }
+    }
+    async deleteTradeEntry(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).deleteTradeEntry(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).deleteTradeEntry(arg0);
+            return result;
+        }
+    }
+    async createChecklistItem(arg0: any): Promise<any> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).createChecklistItem(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).createChecklistItem(arg0);
+            return result;
+        }
+    }
+    async getAllChecklistItems(): Promise<any[]> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).getAllChecklistItems();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).getAllChecklistItems();
+            return result;
+        }
+    }
+    async updateChecklistItem(arg0: string, arg1: any): Promise<any> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).updateChecklistItem(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).updateChecklistItem(arg0, arg1);
+            return result;
+        }
+    }
+    async deleteChecklistItem(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await (this.actor as any).deleteChecklistItem(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await (this.actor as any).deleteChecklistItem(arg0);
+            return result;
         }
     }
 }

@@ -240,16 +240,22 @@ function analyzeDebts(
 
 let nextId = 1;
 
-export function ModelDebtTab() {
+export function ModelDebtTab({
+  initialScenario,
+}: { initialScenario?: string } = {}) {
+  const initScenario =
+    SCENARIOS.find((s) => s.id === initialScenario) ?? SCENARIOS[0];
   const [debts, setDebts] = useState<DebtEntry[]>(
-    SCENARIOS[0].debts.map((d) => ({ ...d, id: nextId++ })),
+    initScenario.debts.map((d) => ({ ...d, id: nextId++ })),
   );
-  const [extra, setExtra] = useState(SCENARIOS[0].extra);
+  const [extra, setExtra] = useState(initScenario.extra);
   const [result, setResult] = useState<DebtAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [_activeScenario, setActiveScenario] = useState("multi");
-  const [view, setView] = useState<"menu" | "detail">("menu");
+  const [_activeScenario, setActiveScenario] = useState(initScenario.id);
+  const [view, setView] = useState<"menu" | "detail">(
+    initialScenario ? "detail" : "menu",
+  );
 
   const loadScenario = (s: (typeof SCENARIOS)[0]) => {
     setDebts(s.debts.map((d) => ({ ...d, id: nextId++ })));

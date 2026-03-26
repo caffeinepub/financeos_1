@@ -142,7 +142,13 @@ function getKey(val: unknown): string {
   return "";
 }
 
-function shortNum(n: number, sym: string): string {
+function shortNum(n: number, sym: string, code = "INR"): string {
+  if (code !== "INR") {
+    if (n >= 1_000_000_000) return `${sym}${(n / 1_000_000_000).toFixed(2)}B`;
+    if (n >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(2)}M`;
+    if (n >= 1_000) return `${sym}${(n / 1_000).toFixed(2)}K`;
+    return `${sym}${Math.round(n).toLocaleString()}`;
+  }
   if (n >= 10_000_000) return `${sym}${(n / 10_000_000).toFixed(2)}Cr`;
   if (n >= 100_000) return `${sym}${(n / 100_000).toFixed(2)}L`;
   if (n >= 1_000) return `${sym}${(n / 1_000).toFixed(2)}K`;
@@ -616,7 +622,7 @@ export default function DashboardPage() {
                       {ASSET_CONFIG[t].shortLabel}
                     </span>
                     <span className="text-slate-200 font-bold text-[11px] sm:text-xs">
-                      {shortNum(byType[t] ?? 0, sym)}
+                      {shortNum(byType[t] ?? 0, sym, country.code)}
                     </span>
                     <span className="text-slate-500">
                       {totalNAV > 0
@@ -785,7 +791,7 @@ export default function DashboardPage() {
                 <XAxis dataKey="year" tick={{ fontSize: 10 }} />
                 <YAxis
                   tick={{ fontSize: 10 }}
-                  tickFormatter={(v: number) => shortNum(v, sym)}
+                  tickFormatter={(v: number) => shortNum(v, sym, country.code)}
                   width={52}
                 />
                 <Tooltip
@@ -811,7 +817,7 @@ export default function DashboardPage() {
                     dataKey="Net Worth"
                     position="top"
                     style={{ fontSize: "9px", fill: "#6366f1" }}
-                    formatter={(v: number) => shortNum(v, sym)}
+                    formatter={(v: number) => shortNum(v, sym, country.code)}
                   />
                 </Line>
               </LineChart>
@@ -881,7 +887,7 @@ export default function DashboardPage() {
                 <XAxis dataKey="month" tick={{ fontSize: 10 }} />
                 <YAxis
                   tick={{ fontSize: 10 }}
-                  tickFormatter={(v: number) => shortNum(v, sym)}
+                  tickFormatter={(v: number) => shortNum(v, sym, country.code)}
                   width={52}
                 />
                 <Tooltip
@@ -901,7 +907,7 @@ export default function DashboardPage() {
                   <LabelList
                     dataKey="Planned"
                     position="top"
-                    formatter={(v: number) => shortNum(v, sym)}
+                    formatter={(v: number) => shortNum(v, sym, country.code)}
                     style={{ fontSize: "9px", fill: "#374151" }}
                   />
                 </Bar>
@@ -909,7 +915,7 @@ export default function DashboardPage() {
                   <LabelList
                     dataKey="Actual"
                     position="top"
-                    formatter={(v: number) => shortNum(v, sym)}
+                    formatter={(v: number) => shortNum(v, sym, country.code)}
                     style={{ fontSize: "9px", fill: "#374151" }}
                   />
                 </Bar>
@@ -963,7 +969,9 @@ export default function DashboardPage() {
                     />
                     <YAxis
                       tick={{ fontSize: 10 }}
-                      tickFormatter={(v: number) => shortNum(v, sym)}
+                      tickFormatter={(v: number) =>
+                        shortNum(v, sym, country.code)
+                      }
                     />
                     <Tooltip
                       formatter={(v: number) => [formatCurrency(v), "Value"]}
@@ -1045,7 +1053,9 @@ export default function DashboardPage() {
                   <XAxis dataKey="month" tick={{ fontSize: 10 }} />
                   <YAxis
                     tick={{ fontSize: 10 }}
-                    tickFormatter={(v: number) => shortNum(v, sym)}
+                    tickFormatter={(v: number) =>
+                      shortNum(v, sym, country.code)
+                    }
                     width={52}
                   />
                   <Tooltip
@@ -1065,7 +1075,7 @@ export default function DashboardPage() {
                       dataKey="Income"
                       position="top"
                       style={{ fontSize: "9px", fill: "#10b981" }}
-                      formatter={(v: number) => shortNum(v, sym)}
+                      formatter={(v: number) => shortNum(v, sym, country.code)}
                     />
                   </Bar>
                   <Bar dataKey="Expense" fill="#f43f5e" radius={[4, 4, 0, 0]}>
@@ -1073,7 +1083,7 @@ export default function DashboardPage() {
                       dataKey="Expense"
                       position="top"
                       style={{ fontSize: "9px", fill: "#f43f5e" }}
-                      formatter={(v: number) => shortNum(v, sym)}
+                      formatter={(v: number) => shortNum(v, sym, country.code)}
                     />
                   </Bar>
                 </BarChart>
@@ -1359,7 +1369,9 @@ export default function DashboardPage() {
                     />
                     <YAxis
                       tick={{ fontSize: 9 }}
-                      tickFormatter={(v: number) => shortNum(v, sym)}
+                      tickFormatter={(v: number) =>
+                        shortNum(v, sym, country.code)
+                      }
                     />
                     <Tooltip
                       formatter={(v: number, name: string) => [

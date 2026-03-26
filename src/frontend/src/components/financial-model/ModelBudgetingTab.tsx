@@ -429,13 +429,19 @@ function numField(
   );
 }
 
-export function ModelBudgetingTab() {
-  const [inputs, setInputs] = useState<BudgetInputs>(SCENARIOS[0].inputs);
+export function ModelBudgetingTab({
+  initialScenario,
+}: { initialScenario?: string } = {}) {
+  const initScenario =
+    SCENARIOS.find((s) => s.id === initialScenario) ?? SCENARIOS[0];
+  const [inputs, setInputs] = useState<BudgetInputs>(initScenario.inputs);
   const [result, setResult] = useState<BudgetResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [_activeScenario, setActiveScenario] = useState("standard");
-  const [view, setView] = useState<"menu" | "detail">("menu");
+  const [_activeScenario, setActiveScenario] = useState(initScenario.id);
+  const [view, setView] = useState<"menu" | "detail">(
+    initialScenario ? "detail" : "menu",
+  );
 
   const set = (field: keyof BudgetInputs) => (val: number | boolean) =>
     setInputs((prev) => ({ ...prev, [field]: val }));

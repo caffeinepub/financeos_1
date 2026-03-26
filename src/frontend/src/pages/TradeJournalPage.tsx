@@ -228,7 +228,7 @@ function MetricCard({
   color?: string;
 }) {
   return (
-    <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
+    <div className="bg-card rounded-2xl border border-border p-4">
       <div className="flex items-center justify-between mb-2">
         <span className="text-slate-400 text-xs font-medium">{label}</span>
         <Icon className="h-4 w-4 text-slate-500" />
@@ -711,10 +711,10 @@ export default function TradeJournalPage() {
   // ─── Render ───────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 p-6">
+      <div className="space-y-4 p-4">
         <div className="animate-pulse space-y-4">
           {["s1", "s2", "s3", "s4", "s5", "s6"].map((k) => (
-            <div key={k} className="h-16 bg-slate-800 rounded-2xl" />
+            <div key={k} className="h-16 bg-card rounded-2xl" />
           ))}
         </div>
       </div>
@@ -729,12 +729,12 @@ export default function TradeJournalPage() {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <div className="space-y-4">
       {/* Header */}
       <div className="px-4 md:px-6 pt-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white">Trade Journal</h1>
-          <p className="text-slate-400 text-sm mt-0.5">
+          <h1 className="text-2xl font-bold text-foreground">Trade Journal</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">
             Log, track & analyze your trades
           </p>
         </div>
@@ -748,18 +748,18 @@ export default function TradeJournalPage() {
       </div>
 
       {/* Pill Tabs */}
-      <div className="px-4 md:px-6 pb-4">
-        <div className="flex gap-1 bg-slate-800 rounded-2xl p-1 w-full overflow-x-auto scrollbar-hide max-w-full flex-nowrap">
+      <div className="overflow-x-auto scrollbar-hide w-full pb-1">
+        <div className="flex gap-1 bg-transparent border-b border-border p-1 w-full overflow-x-auto scrollbar-hide max-w-full flex-nowrap">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               type="button"
               key={id}
               data-ocid={`trade.${id}.tab`}
               onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap border flex-shrink-0 ${
                 activeTab === id
-                  ? "bg-slate-900 text-white shadow"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-foreground text-background border-foreground shadow"
+                  : "bg-card text-muted-foreground border-border hover:border-emerald-400"
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -769,12 +769,12 @@ export default function TradeJournalPage() {
         </div>
       </div>
 
-      <div className="px-4 md:px-6 pb-10">
+      <div className="pb-6">
         {/* ═══ TAB 1: Dashboard ═══════════════════════════════════════════════ */}
         {activeTab === "dashboard" && (
           <div className="space-y-6">
             {/* Time Filter */}
-            <div className="flex gap-1 bg-slate-800 rounded-xl p-1 w-fit">
+            <div className="flex gap-1 bg-card border border-border rounded-xl p-1 w-fit">
               {(["daily", "weekly", "monthly"] as const).map((f) => (
                 <button
                   type="button"
@@ -783,7 +783,7 @@ export default function TradeJournalPage() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
                     timeFilter === f
                       ? "bg-emerald-600 text-white"
-                      : "text-slate-400 hover:text-white"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {f}
@@ -867,8 +867,8 @@ export default function TradeJournalPage() {
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Equity Curve */}
-              <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
-                <h3 className="text-sm font-semibold text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-border p-4">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-4">
                   Equity Curve
                 </h3>
                 {equityCurve.length === 0 ? (
@@ -906,8 +906,8 @@ export default function TradeJournalPage() {
               </div>
 
               {/* Win/Loss Distribution */}
-              <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
-                <h3 className="text-sm font-semibold text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-border p-4">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-4">
                   Win / Loss Distribution
                 </h3>
                 <ResponsiveContainer width="100%" height={200}>
@@ -945,8 +945,8 @@ export default function TradeJournalPage() {
               </div>
 
               {/* P&L by Strategy */}
-              <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
-                <h3 className="text-sm font-semibold text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-border p-4">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-4">
                   P&L by Strategy
                 </h3>
                 {pnlByStrategy.length === 0 ? (
@@ -989,8 +989,8 @@ export default function TradeJournalPage() {
               </div>
 
               {/* P&L by Instrument */}
-              <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
-                <h3 className="text-sm font-semibold text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-border p-4">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-4">
                   P&L by Instrument
                 </h3>
                 {pnlByTicker.length === 0 ? (
@@ -1036,8 +1036,8 @@ export default function TradeJournalPage() {
             {/* Scatter + Heatmap */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Risk/Reward Scatter */}
-              <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
-                <h3 className="text-sm font-semibold text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-border p-4">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-4">
                   Risk / Reward Scatter
                 </h3>
                 {scatterData.length === 0 ? (
@@ -1087,8 +1087,8 @@ export default function TradeJournalPage() {
               </div>
 
               {/* Monthly Heatmap */}
-              <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
-                <h3 className="text-sm font-semibold text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-border p-4">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-4">
                   Monthly Performance Heatmap
                 </h3>
                 <MonthlyHeatmap trades={filteredByTime} />
@@ -1101,7 +1101,7 @@ export default function TradeJournalPage() {
         {activeTab === "log" && (
           <div className="space-y-4">
             {/* Filters */}
-            <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4 space-y-3">
+            <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
               <div className="flex flex-wrap gap-3 items-end">
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs text-slate-400">From</Label>
@@ -1139,7 +1139,7 @@ export default function TradeJournalPage() {
                     <SelectTrigger className="bg-slate-700 border-slate-600 text-white h-8 text-xs w-32">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectContent className="bg-card border-border">
                       <SelectItem value="all">All</SelectItem>
                       {allStrategies.map((s) => (
                         <SelectItem key={s} value={s}>
@@ -1158,7 +1158,7 @@ export default function TradeJournalPage() {
                     <SelectTrigger className="bg-slate-700 border-slate-600 text-white h-8 text-xs w-28">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectContent className="bg-card border-border">
                       <SelectItem value="all">All</SelectItem>
                       <SelectItem value="win">Win</SelectItem>
                       <SelectItem value="loss">Loss</SelectItem>
@@ -1197,7 +1197,7 @@ export default function TradeJournalPage() {
             {logFiltered.length === 0 ? (
               <div
                 data-ocid="trade.log.empty_state"
-                className="bg-slate-800 rounded-2xl border border-slate-700 p-12 flex flex-col items-center gap-3 text-center"
+                className="bg-card rounded-2xl border border-border p-12 flex flex-col items-center gap-3 text-center"
               >
                 <BookOpen className="h-12 w-12 text-slate-600" />
                 <p className="text-slate-400 font-medium">
@@ -1209,13 +1209,13 @@ export default function TradeJournalPage() {
               </div>
             ) : (
               <div
-                className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden"
+                className="bg-card rounded-2xl border border-border overflow-hidden"
                 data-ocid="trade.log.table"
               >
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-slate-700 hover:bg-transparent">
+                      <TableRow className="border-border hover:bg-transparent">
                         {[
                           "Date",
                           "Ticker",
@@ -1248,12 +1248,12 @@ export default function TradeJournalPage() {
                           <TableRow
                             key={t.id}
                             data-ocid={`trade.log.item.${idx + 1}`}
-                            className="border-slate-700 hover:bg-slate-700/50"
+                            className="border-border hover:bg-slate-700/50"
                           >
-                            <TableCell className="text-xs text-slate-300 whitespace-nowrap">
+                            <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                               {t.entryDate}
                             </TableCell>
-                            <TableCell className="text-xs font-semibold text-white">
+                            <TableCell className="text-xs font-semibold text-foreground">
                               {t.ticker}
                             </TableCell>
                             <TableCell>
@@ -1301,7 +1301,7 @@ export default function TradeJournalPage() {
                             <TableCell className="text-xs text-slate-400">
                               {rr > 0 ? `${fmtNum(rr, 1)}:1` : "-"}
                             </TableCell>
-                            <TableCell className="text-xs text-slate-400 max-w-24 truncate">
+                            <TableCell className="text-xs text-muted-foreground max-w-24 truncate">
                               {t.strategy || "-"}
                             </TableCell>
                             <TableCell>
@@ -1315,7 +1315,7 @@ export default function TradeJournalPage() {
                                       type="button"
                                       key={tag}
                                       onClick={() => setTagFilter(tag.trim())}
-                                      className="text-xs px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300 hover:bg-slate-600"
+                                      className="text-xs px-1.5 py-0.5 rounded-full bg-slate-700 text-muted-foreground hover:bg-slate-600"
                                     >
                                       {tag.trim()}
                                     </button>
@@ -1333,7 +1333,7 @@ export default function TradeJournalPage() {
                                     <MoreVertical className="h-3.5 w-3.5" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="bg-slate-800 border-slate-700">
+                                <DropdownMenuContent className="bg-card border-border">
                                   <DropdownMenuItem
                                     data-ocid={`trade.log.edit_button.${idx + 1}`}
                                     onClick={() => openEdit(t)}
@@ -1377,7 +1377,7 @@ export default function TradeJournalPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Pre-Trade Checklist */}
-              <div className="bg-slate-800 rounded-2xl border border-slate-700 p-5">
+              <div className="bg-card rounded-2xl border border-border p-5">
                 <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                   <CheckSquare className="h-4 w-4 text-emerald-400" /> Pre-Trade
                   Checklist
@@ -1395,7 +1395,7 @@ export default function TradeJournalPage() {
                         className="border-slate-500"
                       />
                       <span
-                        className={`flex-1 text-sm ${item.isChecked ? "line-through text-slate-500" : "text-slate-300"}`}
+                        className={`flex-1 text-sm ${item.isChecked ? "line-through text-slate-500" : "text-muted-foreground"}`}
                       >
                         {item.text}
                       </span>
@@ -1430,7 +1430,7 @@ export default function TradeJournalPage() {
               </div>
 
               {/* Post-Trade Reviews */}
-              <div className="bg-slate-800 rounded-2xl border border-slate-700 p-5">
+              <div className="bg-card rounded-2xl border border-border p-5">
                 <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-blue-400" /> Post-Trade
                   Reviews
@@ -1501,7 +1501,7 @@ export default function TradeJournalPage() {
                                   </div>
                                 )}
                                 {t.notes && (
-                                  <div className="text-xs text-slate-300 bg-slate-800 rounded-lg p-2">
+                                  <div className="text-xs text-muted-foreground bg-card rounded-lg p-2">
                                     {t.notes}
                                   </div>
                                 )}
@@ -1538,7 +1538,7 @@ export default function TradeJournalPage() {
 
             {/* Tag Cloud */}
             {allTags.length > 0 && (
-              <div className="bg-slate-800 rounded-2xl border border-slate-700 p-5">
+              <div className="bg-card rounded-2xl border border-border p-5">
                 <h3 className="text-sm font-semibold text-white mb-3">
                   Tag Cloud
                 </h3>
@@ -1554,7 +1554,7 @@ export default function TradeJournalPage() {
                       className={`px-3 py-1 rounded-full text-xs transition-all ${
                         tagFilter === tag
                           ? "bg-emerald-600 text-white"
-                          : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                          : "bg-slate-700 text-muted-foreground hover:bg-slate-600"
                       }`}
                     >
                       {tag}
@@ -1571,12 +1571,12 @@ export default function TradeJournalPage() {
           <div className="space-y-6">
             {/* Pattern Recognition */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-300 mb-3">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
                 Pattern Recognition
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Most Profitable Setup */}
-                <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
+                <div className="bg-card rounded-2xl border border-border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Award className="h-4 w-4 text-emerald-400" />
                     <span className="text-xs font-semibold text-slate-300">
@@ -1585,7 +1585,7 @@ export default function TradeJournalPage() {
                   </div>
                   {pnlByStrategy.length > 0 ? (
                     <>
-                      <div className="text-lg font-bold text-white">
+                      <div className="text-lg font-bold text-foreground">
                         {pnlByStrategy[0].name}
                       </div>
                       <div className="text-sm text-emerald-400">
@@ -1598,7 +1598,7 @@ export default function TradeJournalPage() {
                 </div>
 
                 {/* Most Profitable Instrument */}
-                <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
+                <div className="bg-card rounded-2xl border border-border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="h-4 w-4 text-blue-400" />
                     <span className="text-xs font-semibold text-slate-300">
@@ -1607,7 +1607,7 @@ export default function TradeJournalPage() {
                   </div>
                   {pnlByTicker.length > 0 ? (
                     <>
-                      <div className="text-lg font-bold text-white">
+                      <div className="text-lg font-bold text-foreground">
                         {pnlByTicker[0].name}
                       </div>
                       <div className="text-sm text-emerald-400">
@@ -1620,7 +1620,7 @@ export default function TradeJournalPage() {
                 </div>
 
                 {/* Best Day of Week */}
-                <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
+                <div className="bg-card rounded-2xl border border-border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="h-4 w-4 text-amber-400" />
                     <span className="text-xs font-semibold text-slate-300">
@@ -1633,7 +1633,7 @@ export default function TradeJournalPage() {
                       .sort((a, b) => b.winRate - a.winRate)[0];
                     return best ? (
                       <>
-                        <div className="text-lg font-bold text-white">
+                        <div className="text-lg font-bold text-foreground">
                           {best.day}
                         </div>
                         <div className="text-sm text-emerald-400">
@@ -1647,7 +1647,7 @@ export default function TradeJournalPage() {
                 </div>
 
                 {/* Common Losing Patterns */}
-                <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4">
+                <div className="bg-card rounded-2xl border border-border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-red-400" />
                     <span className="text-xs font-semibold text-slate-300">
@@ -1683,7 +1683,7 @@ export default function TradeJournalPage() {
                 </div>
 
                 {/* Best Time Period */}
-                <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4 md:col-span-2">
+                <div className="bg-card rounded-2xl border border-border p-4 md:col-span-2">
                   <div className="flex items-center gap-2 mb-3">
                     <Activity className="h-4 w-4 text-purple-400" />
                     <span className="text-xs font-semibold text-slate-300">
@@ -1693,7 +1693,7 @@ export default function TradeJournalPage() {
                   <div className="space-y-2">
                     {sessionStats.map((s) => (
                       <div key={s.session} className="flex items-center gap-3">
-                        <span className="text-xs text-slate-400 w-24">
+                        <span className="text-xs text-muted-foreground w-24">
                           {s.session}
                         </span>
                         <div className="flex-1 bg-slate-700 rounded-full h-2">
@@ -1718,16 +1718,16 @@ export default function TradeJournalPage() {
             </div>
 
             {/* Day of Week Table */}
-            <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-              <div className="p-4 border-b border-slate-700">
-                <h3 className="text-sm font-semibold text-white">
+            <div className="bg-card rounded-2xl border border-border overflow-hidden">
+              <div className="p-4 border-b border-border">
+                <h3 className="text-sm font-semibold text-foreground">
                   Day of Week Performance
                 </h3>
               </div>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-slate-700 hover:bg-transparent">
+                    <TableRow className="border-border hover:bg-transparent">
                       {[
                         "Day",
                         "Trades",
@@ -1745,7 +1745,7 @@ export default function TradeJournalPage() {
                     {dayStats.map((d) => (
                       <TableRow
                         key={d.day}
-                        className={`border-slate-700 ${
+                        className={`border-border ${
                           d.trades === 0
                             ? "opacity-40"
                             : d.avgPnL >= 0
@@ -1793,7 +1793,7 @@ export default function TradeJournalPage() {
       {/* ═══ Add/Edit Trade Dialog ════════════════════════════════════════════ */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent
-          className="bg-slate-900 border-slate-700 text-white max-w-3xl max-h-[90vh] overflow-y-auto"
+          className="bg-card border-border text-foreground max-w-3xl max-h-[90vh] overflow-y-auto"
           data-ocid="trade.dialog"
         >
           <DialogHeader>
@@ -1819,7 +1819,7 @@ export default function TradeJournalPage() {
                       ticker: e.target.value.toUpperCase(),
                     }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
               <div>
@@ -1837,7 +1837,7 @@ export default function TradeJournalPage() {
                           ? pt === "Long"
                             ? "bg-emerald-600 text-white"
                             : "bg-red-600 text-white"
-                          : "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                          : "bg-slate-700 text-muted-foreground hover:bg-slate-600"
                       }`}
                     >
                       {pt}
@@ -1853,7 +1853,7 @@ export default function TradeJournalPage() {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, entryDate: e.target.value }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
               <div>
@@ -1864,14 +1864,14 @@ export default function TradeJournalPage() {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, entryTime: e.target.value }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
             </div>
 
             {/* TradingView Widget */}
             {form.ticker.length >= 3 && (
-              <div className="rounded-xl overflow-hidden border border-slate-700">
+              <div className="rounded-xl overflow-hidden border border-border">
                 <iframe
                   src={`https://www.tradingview.com/widgetembed/?symbol=${encodeURIComponent(form.ticker)}&interval=D&theme=dark&style=1&locale=en`}
                   width="100%"
@@ -1897,7 +1897,7 @@ export default function TradeJournalPage() {
                       entryPrice: Number.parseFloat(e.target.value) || 0,
                     }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
               <div>
@@ -1912,7 +1912,7 @@ export default function TradeJournalPage() {
                       exitPrice: Number.parseFloat(e.target.value) || 0,
                     }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1 disabled:opacity-50"
+                  className="bg-card border-slate-600 text-white mt-1 disabled:opacity-50"
                 />
               </div>
               <div>
@@ -1926,7 +1926,7 @@ export default function TradeJournalPage() {
                       quantity: Number.parseFloat(e.target.value) || 0,
                     }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
               <div>
@@ -1942,7 +1942,7 @@ export default function TradeJournalPage() {
                       commission: Number.parseFloat(e.target.value) || 0,
                     }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
             </div>
@@ -1960,7 +1960,7 @@ export default function TradeJournalPage() {
                       stopLoss: Number.parseFloat(e.target.value) || 0,
                     }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
               <div>
@@ -1974,7 +1974,7 @@ export default function TradeJournalPage() {
                       takeProfit: Number.parseFloat(e.target.value) || 0,
                     }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
               <div>
@@ -1987,7 +1987,7 @@ export default function TradeJournalPage() {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, strategy: e.target.value }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
               <div>
@@ -2000,7 +2000,7 @@ export default function TradeJournalPage() {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, marketConditions: e.target.value }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
             </div>
@@ -2013,10 +2013,10 @@ export default function TradeJournalPage() {
                   value={form.emotions}
                   onValueChange={(v) => setForm((p) => ({ ...p, emotions: v }))}
                 >
-                  <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
+                  <SelectTrigger className="bg-card border-slate-600 text-white mt-1">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectContent className="bg-card border-border">
                     {EMOTION_OPTIONS.map((e) => (
                       <SelectItem key={e} value={e}>
                         {e}
@@ -2035,7 +2035,7 @@ export default function TradeJournalPage() {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, tags: e.target.value }))
                   }
-                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                  className="bg-card border-slate-600 text-white mt-1"
                 />
               </div>
             </div>
@@ -2051,7 +2051,7 @@ export default function TradeJournalPage() {
                 onChange={(e) =>
                   setForm((p) => ({ ...p, notes: e.target.value }))
                 }
-                className="bg-slate-800 border-slate-600 text-white mt-1 min-h-24"
+                className="bg-card border-slate-600 text-white mt-1 min-h-24"
                 data-ocid="trade.dialog.textarea"
               />
             </div>
@@ -2067,7 +2067,7 @@ export default function TradeJournalPage() {
               />
               <Label
                 htmlFor="is-open"
-                className="text-sm text-slate-300 cursor-pointer"
+                className="text-sm text-muted-foreground cursor-pointer"
               >
                 This is an open/active trade
               </Label>
@@ -2075,7 +2075,7 @@ export default function TradeJournalPage() {
 
             {/* Auto-Calculations */}
             {formPnL && (
-              <div className="bg-slate-800 rounded-xl p-3 border border-slate-700">
+              <div className="bg-card rounded-xl p-3 border border-border">
                 <p className="text-xs text-slate-500 mb-2">Auto-calculated</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
@@ -2096,13 +2096,13 @@ export default function TradeJournalPage() {
                   </div>
                   <div>
                     <p className="text-xs text-slate-500">Risk/Reward</p>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-foreground">
                       {formPnL.rr > 0 ? `${fmtNum(formPnL.rr, 1)}:1` : "-"}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500">Position Size</p>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-foreground">
                       {fmtCurrency(formPnL.size)}
                     </p>
                   </div>
@@ -2115,7 +2115,7 @@ export default function TradeJournalPage() {
               <Button
                 variant="outline"
                 onClick={() => setShowAddDialog(false)}
-                className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                className="border-slate-600 text-muted-foreground hover:bg-card"
                 data-ocid="trade.dialog.cancel_button"
               >
                 Cancel

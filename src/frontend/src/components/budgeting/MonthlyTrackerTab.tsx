@@ -1171,96 +1171,304 @@ export function MonthlyTrackerTab() {
             </CardContent>
           </Card>
 
-          {/* 5. Budget vs Actual Variance */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">
-                Budget vs Actual Variance
-              </CardTitle>
-            </CardHeader>
-            <CardContent data-ocid="budgeting.variance.chart">
-              {(() => {
-                const data = expenseCategories
-                  .map((cat) => {
-                    const actual = monthTxns
-                      .filter(
-                        (t) =>
-                          t.categoryId === cat.id &&
-                          t.transactionType === TransactionType.Expense,
-                      )
-                      .reduce((s, t) => s + t.amount, 0);
-                    const planned = getPlannedAmount(cat.id, cat.monthlyLimit);
-                    return {
-                      name: cat.name,
-                      Budgeted: planned,
-                      Actual: actual,
-                      over: actual > planned,
-                    };
-                  })
-                  .filter((d) => d.Budgeted > 0 || d.Actual > 0)
-                  .slice(0, 8);
-                if (data.length === 0)
-                  return (
-                    <div className="h-44 flex items-center justify-center text-sm text-slate-400">
-                      No budget categories yet
-                    </div>
-                  );
-                return (
-                  <ResponsiveContainer
-                    width="100%"
-                    height={Math.max(180, data.length * 38)}
-                  >
-                    <BarChart
-                      data={data}
-                      layout="vertical"
-                      margin={{ top: 5, right: 60, left: 10, bottom: 5 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        opacity={0.15}
-                        horizontal={false}
-                      />
-                      <YAxis
-                        dataKey="name"
-                        type="category"
-                        tick={{ fontSize: 10 }}
-                        width={90}
-                      />
-                      <XAxis
-                        type="number"
-                        tick={{ fontSize: 10 }}
-                        tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
-                      />
-                      <Tooltip
-                        formatter={(v: number, n: string) => [
-                          formatCurrency(v),
-                          n,
-                        ]}
-                        contentStyle={{
-                          fontSize: "11px",
-                          borderRadius: "10px",
-                        }}
-                      />
-                      <Legend wrapperStyle={{ fontSize: "11px" }} />
-                      <Bar
-                        dataKey="Budgeted"
-                        fill="#6366f1"
-                        radius={[0, 4, 4, 0]}
-                      />
-                      <Bar dataKey="Actual" radius={[0, 4, 4, 0]}>
-                        {data.map((entry) => (
-                          <Cell
-                            key={`cell-${entry.name}`}
-                            fill={entry.over ? "#ef4444" : "#10b981"}
+          {/* 50/30/20 Budget Rule Analysis */}
+          {(() => {
+            const filtered = transactions.filter((t) => {
+              const d = new Date(t.date);
+              return (
+                d.getMonth() + 1 === selectedMonth &&
+                d.getFullYear() === selectedYear
+              );
+            });
+            const incomeAmt = filtered
+              .filter((t) => t.transactionType === TransactionType.Income)
+              .reduce((s, t) => s + t.amount, 0);
+            const expensesAmt = filtered
+              .filter((t) => t.transactionType === TransactionType.Expense)
+              .reduce((s, t) => s + t.amount, 0);
+            const savingsAmt = Math.max(0, incomeAmt - expensesAmt);
+            const savingsRate =
+              incomeAmt > 0 ? (savingsAmt / incomeAmt) * 100 : 0;
+            const needs50 = incomeAmt * 0.5;
+            const wants30 = incomeAmt * 0.3;
+            const savings20 = incomeAmt * 0.2;
+            const catMap: Record<string, number> = {};
+            for (const t of filtered.filter(
+              (tx) => tx.transactionType === TransactionType.Expense,
+            )) {
+              const cat = expenseCategories.find((c) => c.id === t.categoryId);
+              const name = cat?.name ?? "Uncategorized";
+              catMap[name] = (catMap[name] ?? 0) + t.amount;
+            }
+            const top3 = Object.entries(catMap)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 3);
+            if (incomeAmt === 0) return null;
+            return (
+              <>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      📐 50/30/20 Budget Rule Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-5 pb-5 space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-700">
+                          🏠 Needs (50%)
+                        </span>
+                        <Badge
+                          className={`text-[9px] ${expensesAmt > needs50 ? "bg-red-50 text-red-600 border border-red-200" : "bg-green-50 text-green-600 border border-green-200"}`}
+                        >
+                          {expensesAmt > needs50 ? "Over budget" : "On track"}
+                        </Badge>
+                      </div>
+                      <div className="mt-1">
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.min(incomeAmt > 0 ? (Math.min(expensesAmt, needs50) / needs50) * 100 : 0, 100)}%`,
+                              background:
+                                expensesAmt > needs50 ? "#ef4444" : "#6366f1",
+                            }}
                           />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                );
-              })()}
-            </CardContent>
-          </Card>
+                        </div>
+                        <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                          <span>
+                            Actual:{" "}
+                            {formatCurrency(Math.min(expensesAmt, needs50))}
+                          </span>
+                          <span>Target: {formatCurrency(needs50)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-700">
+                          🎭 Wants (30%)
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          Target: {formatCurrency(wants30)}
+                        </span>
+                      </div>
+                      <div className="mt-1">
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.min(incomeAmt > 0 ? (Math.max(0, expensesAmt - needs50) / wants30) * 100 : 0, 100)}%`,
+                              background: "#f59e0b",
+                            }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                          <span>
+                            Actual:{" "}
+                            {formatCurrency(Math.max(0, expensesAmt - needs50))}
+                          </span>
+                          <span>Target: {formatCurrency(wants30)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-700">
+                          💰 Savings (20%)
+                        </span>
+                        <Badge
+                          className={`text-[9px] ${savingsAmt >= savings20 ? "bg-green-50 text-green-600 border border-green-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}
+                        >
+                          {savingsAmt >= savings20
+                            ? "✓ Achieved"
+                            : "Below target"}
+                        </Badge>
+                      </div>
+                      <div className="mt-1">
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.min(savings20 > 0 ? (savingsAmt / savings20) * 100 : 0, 100)}%`,
+                              background: "#10b981",
+                            }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                          <span>Actual: {formatCurrency(savingsAmt)}</span>
+                          <span>Target: {formatCurrency(savings20)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
+                      Savings Rate:{" "}
+                      <strong
+                        className={
+                          savingsRate >= 20
+                            ? "text-green-700"
+                            : savingsRate >= 10
+                              ? "text-amber-700"
+                              : "text-red-700"
+                        }
+                      >
+                        {savingsRate.toFixed(1)}%
+                      </strong>{" "}
+                      (target: 20%)
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Monthly Budget Snapshot */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-semibold text-slate-700">
+                      📋 Monthly Budget Snapshot
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-5 pb-5">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-slate-700">
+                            <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-white uppercase">
+                              Category
+                            </th>
+                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-white uppercase">
+                              Amount
+                            </th>
+                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-white uppercase">
+                              % of Income
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          <tr className="bg-emerald-50/60">
+                            <td className="px-4 py-2.5 text-xs font-bold text-emerald-700">
+                              ✅ Total Income
+                            </td>
+                            <td className="px-4 py-2.5 text-xs text-right font-bold text-emerald-700 tabular-nums">
+                              {formatCurrency(incomeAmt)}
+                            </td>
+                            <td className="px-4 py-2.5 text-xs text-right font-bold text-emerald-700">
+                              100%
+                            </td>
+                          </tr>
+                          <tr className="bg-slate-50/60">
+                            <td className="px-4 py-2.5 text-xs font-semibold text-slate-600">
+                              Fixed Costs (Needs)
+                            </td>
+                            <td className="px-4 py-2.5 text-xs text-right tabular-nums text-slate-700">
+                              {formatCurrency(needs50)}
+                            </td>
+                            <td className="px-4 py-2.5 text-xs text-right text-slate-500">
+                              50%
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="px-4 py-2.5 text-xs font-semibold text-slate-600">
+                              Variable Costs (Wants)
+                            </td>
+                            <td className="px-4 py-2.5 text-xs text-right tabular-nums text-slate-700">
+                              {formatCurrency(wants30)}
+                            </td>
+                            <td className="px-4 py-2.5 text-xs text-right text-slate-500">
+                              30%
+                            </td>
+                          </tr>
+                          <tr className="bg-blue-50/60">
+                            <td className="px-4 py-2.5 text-xs font-bold text-blue-700">
+                              💰 Savings Target
+                            </td>
+                            <td className="px-4 py-2.5 text-xs text-right font-bold text-blue-700 tabular-nums">
+                              {formatCurrency(savings20)}
+                            </td>
+                            <td className="px-4 py-2.5 text-xs text-right font-bold text-blue-700">
+                              20%
+                            </td>
+                          </tr>
+                          <tr
+                            className={
+                              savingsAmt >= savings20
+                                ? "bg-green-50/80"
+                                : "bg-amber-50/80"
+                            }
+                          >
+                            <td className="px-4 py-2.5 text-xs font-bold text-slate-700">
+                              Actual Savings
+                            </td>
+                            <td
+                              className={`px-4 py-2.5 text-xs text-right font-bold tabular-nums ${savingsAmt >= savings20 ? "text-green-700" : "text-amber-700"}`}
+                            >
+                              {formatCurrency(savingsAmt)}
+                            </td>
+                            <td
+                              className={`px-4 py-2.5 text-xs text-right font-bold ${savingsAmt >= savings20 ? "text-green-700" : "text-amber-700"}`}
+                            >
+                              {savingsRate.toFixed(1)}%
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Top Spending Categories */}
+                {top3.length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold text-slate-700">
+                        🔍 Top Spending Categories
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-5 pb-5 space-y-3">
+                      {top3.map(([name, amount], i) => (
+                        <div key={name} className="flex items-center gap-3">
+                          <span className="w-6 h-6 rounded-full bg-red-100 text-red-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                            {i + 1}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-medium text-slate-700 truncate">
+                                {name}
+                              </span>
+                              <span className="text-xs font-bold text-slate-800 tabular-nums ml-2">
+                                {formatCurrency(amount)}
+                              </span>
+                            </div>
+                            <div className="h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+                              <div
+                                className="h-full rounded-full"
+                                style={{
+                                  width:
+                                    incomeAmt > 0
+                                      ? `${Math.min((amount / incomeAmt) * 100, 100)}%`
+                                      : "0%",
+                                  background:
+                                    i === 0
+                                      ? "#ef4444"
+                                      : i === 1
+                                        ? "#f97316"
+                                        : "#f59e0b",
+                                }}
+                              />
+                            </div>
+                            <p className="text-[9px] text-slate-400 mt-0.5">
+                              {incomeAmt > 0
+                                ? ((amount / incomeAmt) * 100).toFixed(1)
+                                : "0"}
+                              % of income
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

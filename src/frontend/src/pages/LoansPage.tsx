@@ -30,6 +30,7 @@ import {
   YAxis,
 } from "recharts";
 import type { Loan } from "../backend.d";
+import { TransactionType } from "../backend.d";
 import { ModelDebtTab } from "../components/financial-model/ModelDebtTab";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -200,8 +201,9 @@ export default function LoansPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  // Dashboard
+  // Dashboard - income from Budgeting module current month
   const [monthlyIncome, setMonthlyIncome] = useState(100000);
+  const [incomeLoaded, setIncomeLoaded] = useState(false);
 
   // Prepayment simulator
   const [selectedLoanId, setSelectedLoanId] = useState<string>("");
@@ -229,6 +231,31 @@ export default function LoansPage() {
   };
   // biome-ignore lint/correctness/useExhaustiveDependencies: load is stable
   useEffect(load, [actor]);
+
+  // Load income from budgeting module
+  useEffect(() => {
+    if (!actor || incomeLoaded) return;
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    actor
+      .getAllTransactions()
+      .then((txns) => {
+        const monthIncome = txns
+          .filter((t) => {
+            const d = new Date(t.date);
+            return (
+              d.getMonth() === month &&
+              d.getFullYear() === year &&
+              t.transactionType === TransactionType.Income
+            );
+          })
+          .reduce((s, t) => s + t.amount, 0);
+        if (monthIncome > 0) setMonthlyIncome(monthIncome);
+        setIncomeLoaded(true);
+      })
+      .catch(() => setIncomeLoaded(true));
+  }, [actor, incomeLoaded]);
 
   const openAdd = () => {
     setEditing(null);
@@ -496,7 +523,7 @@ export default function LoansPage() {
 
       <Tabs defaultValue="dashboard" className="space-y-4">
         <div className="overflow-x-auto scrollbar-hide w-full">
-          <TabsList className="flex overflow-x-auto scrollbar-hide gap-1 bg-slate-800/60 rounded-xl p-1 h-auto flex-nowrap min-w-0 w-full">
+          <TabsList className="flex overflow-x-auto scrollbar-hide gap-1 bg-transparent rounded-xl p-1 h-auto flex-nowrap min-w-0 w-full border-b border-border">
             {[
               { value: "dashboard", label: "🏠 Dashboard" },
               { value: "tracker", label: "📋 Tracker" },
@@ -510,7 +537,7 @@ export default function LoansPage() {
                 key={tab.value}
                 value={tab.value}
                 data-ocid={`loans.${tab.value}.tab`}
-                className="text-xs whitespace-nowrap px-3 py-1.5 rounded-lg text-slate-400 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                className="text-xs whitespace-nowrap px-3 py-1.5 rounded-full border transition-all duration-200 flex-shrink-0 bg-card text-muted-foreground border-border hover:border-blue-400 data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:border-foreground data-[state=active]:shadow-sm"
               >
                 {tab.label}
               </TabsTrigger>
@@ -522,7 +549,7 @@ export default function LoansPage() {
         <TabsContent value="dashboard" className="space-y-4">
           <div className="flex items-center gap-2 p-3 bg-slate-800/50 rounded-xl border border-slate-700">
             <Shield className="w-4 h-4 text-blue-400 shrink-0" />
-            <Label className="text-xs text-slate-300">
+            <Label className="text-xs text-muted-foreground">
               Your Monthly Income
             </Label>
             <Input
@@ -536,7 +563,7 @@ export default function LoansPage() {
 
           {/* Summary Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Card className="bg-slate-800 border-slate-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-3">
                 <p className="text-xs text-slate-400">Total Outstanding</p>
                 <p className="text-lg font-bold text-slate-100 mt-1">
@@ -544,7 +571,7 @@ export default function LoansPage() {
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-slate-800 border-slate-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-3">
                 <p className="text-xs text-slate-400">Total EMI / Month</p>
                 <p className="text-lg font-bold text-blue-300 mt-1">
@@ -552,7 +579,7 @@ export default function LoansPage() {
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-slate-800 border-slate-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-3">
                 <p className="text-xs text-slate-400">Debt Burden</p>
                 <p className={`text-lg font-bold mt-1 ${burden.color}`}>
@@ -566,7 +593,7 @@ export default function LoansPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-slate-800 border-slate-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-3">
                 <p className="text-xs text-slate-400">Health Score</p>
                 <p className={`text-lg font-bold mt-1 ${health.text}`}>
@@ -607,7 +634,7 @@ export default function LoansPage() {
                   <Card
                     key={loan.id}
                     data-ocid={`loans.item.${idx + 1}`}
-                    className="bg-slate-800 border-slate-700 overflow-hidden"
+                    className="bg-card border-border overflow-hidden"
                   >
                     <div
                       className="h-1"
@@ -740,7 +767,7 @@ export default function LoansPage() {
                   <Card
                     key={loan.id}
                     data-ocid={`loans.tracker.item.${idx + 1}`}
-                    className="bg-slate-800 border-slate-700"
+                    className="bg-card border-border"
                   >
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
@@ -853,7 +880,7 @@ export default function LoansPage() {
 
         {/* ─── TAB 3: Prepayment Simulator ─── */}
         <TabsContent value="prepayment" className="space-y-4">
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2 text-slate-100">
                 <Zap className="w-4 h-4 text-yellow-400" /> Prepayment Impact
@@ -997,7 +1024,7 @@ export default function LoansPage() {
 
         {/* ─── TAB 4: Loan vs Invest ─── */}
         <TabsContent value="loanandinvest" className="space-y-4">
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2 text-slate-100">
                 <TrendingUp className="w-4 h-4 text-emerald-400" /> Loan vs
@@ -1099,7 +1126,9 @@ export default function LoansPage() {
                         key={row.year}
                         className="border-b border-slate-800 hover:bg-slate-700/30"
                       >
-                        <td className="py-2 text-slate-300">{row.year}</td>
+                        <td className="py-2 text-muted-foreground">
+                          {row.year}
+                        </td>
                         <td className="py-2 text-right font-semibold text-emerald-300">
                           {fmt(row.invested)}
                         </td>
@@ -1117,7 +1146,7 @@ export default function LoansPage() {
 
         {/* ─── TAB 5: Affordability Check ─── */}
         <TabsContent value="affordability" className="space-y-4">
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2 text-slate-100">
                 <CheckCircle2 className="w-4 h-4 text-teal-400" /> Loan
@@ -1223,7 +1252,7 @@ export default function LoansPage() {
 
         {/* ─── TAB 6: Debt-Free Timeline ─── */}
         <TabsContent value="timeline" className="space-y-4">
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <CardTitle className="text-sm flex items-center gap-2 text-slate-100">
@@ -1231,7 +1260,7 @@ export default function LoansPage() {
                   Timeline
                 </CardTitle>
                 <div className="flex items-center gap-2">
-                  <Label className="text-xs text-slate-300">
+                  <Label className="text-xs text-muted-foreground">
                     Extra/month ({sym})
                   </Label>
                   <Input

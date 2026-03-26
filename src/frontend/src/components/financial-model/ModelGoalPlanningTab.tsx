@@ -321,22 +321,28 @@ function analyzeGoals(
 
 let nextId = 1;
 
-export function ModelGoalPlanningTab() {
+export function ModelGoalPlanningTab({
+  initialScenario,
+}: { initialScenario?: string } = {}) {
+  const initScenario =
+    SCENARIOS.find((s) => s.id === initialScenario) ?? SCENARIOS[0];
   const [goals, setGoals] = useState<GoalEntry[]>(
-    SCENARIOS[0].goals.map((g) => ({ ...g, id: nextId++ })),
+    initScenario.goals.map((g) => ({ ...g, id: nextId++ })),
   );
   const [monthlyAvailable, setMonthlyAvailable] = useState(
-    SCENARIOS[0].monthlyAvailable,
+    initScenario.monthlyAvailable,
   );
-  const [currentAge, setCurrentAge] = useState(SCENARIOS[0].currentAge);
+  const [currentAge, setCurrentAge] = useState(initScenario.currentAge);
   const [retirementAge, setRetirementAge] = useState(
-    SCENARIOS[0].retirementAge,
+    initScenario.retirementAge,
   );
   const [result, setResult] = useState<GoalAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [_activeScenario, setActiveScenario] = useState("single");
-  const [view, setView] = useState<"menu" | "detail">("menu");
+  const [_activeScenario, setActiveScenario] = useState(initScenario.id);
+  const [view, setView] = useState<"menu" | "detail">(
+    initialScenario ? "detail" : "menu",
+  );
 
   const loadScenario = (s: (typeof SCENARIOS)[0]) => {
     setGoals(s.goals.map((g) => ({ ...g, id: nextId++ })));

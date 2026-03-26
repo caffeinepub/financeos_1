@@ -191,15 +191,17 @@ function FinancialModelingTab() {
   );
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [activeModelSection, setActiveModelSection] = useState<string | null>(
+  const [_activeModelSection, setActiveModelSection] = useState<string | null>(
     null,
   );
+  const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
 
   const toggleSection = (id: string) => {
     setExpandedSections((prev) => (prev.has(id) ? new Set() : new Set([id])));
-    // Reset active model section when collapsing
+    // Reset active model section and scenario when toggling
     if (expandedSections.has(id)) {
       setActiveModelSection(null);
+      setActiveScenarioId(null);
     }
   };
 
@@ -268,47 +270,73 @@ function FinancialModelingTab() {
                     )}
                   </div>
                 )}
-                {MODEL_IDS.has(section.id) &&
-                  activeModelSection !== section.id && (
-                    <div className="px-4 py-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {getModelScenarios(section.id).map((scenario) => (
-                          <button
-                            key={scenario.id}
-                            type="button"
-                            onClick={() => setActiveModelSection(section.id)}
-                            className="text-left p-4 rounded-xl border border-slate-200 bg-white hover:border-violet-400 hover:bg-violet-50/50 transition-all shadow-sm group"
-                            style={{
-                              borderLeft: `4px solid ${section.borderColor}`,
-                            }}
-                          >
-                            <p className="text-sm font-bold text-slate-800 group-hover:text-violet-800">
+                {MODEL_IDS.has(section.id) && !activeScenarioId && (
+                  <div className="px-4 py-4">
+                    <div className="space-y-1">
+                      {getModelScenarios(section.id).map((scenario, idx) => (
+                        <button
+                          key={scenario.id}
+                          type="button"
+                          onClick={() => {
+                            setActiveModelSection(section.id);
+                            setActiveScenarioId(
+                              `${section.id}::${scenario.id}`,
+                            );
+                          }}
+                          className="w-full text-left px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-violet-50 hover:border-violet-300 transition-all group flex items-center gap-3"
+                          style={{
+                            borderLeft: `3px solid ${section.borderColor}`,
+                          }}
+                          data-ocid={`financialmodel.${section.id}.scenario.${idx + 1}`}
+                        >
+                          <span className="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-500 group-hover:border-violet-400 group-hover:text-violet-700 flex-shrink-0">
+                            {idx + 1}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-slate-800 group-hover:text-violet-800">
                               {scenario.title}
                             </p>
-                            <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
                               {scenario.description}
                             </p>
-                            <p className="text-[10px] text-violet-600 font-medium mt-2">
-                              Click to explore →
-                            </p>
-                          </button>
-                        ))}
-                      </div>
+                          </div>
+                          <span className="text-xs text-violet-500 group-hover:text-violet-700 flex-shrink-0">
+                            →
+                          </span>
+                        </button>
+                      ))}
                     </div>
-                  )}
+                  </div>
+                )}
                 {MODEL_IDS.has(section.id) &&
-                  activeModelSection === section.id && (
+                  activeScenarioId?.startsWith(`${section.id}::`) && (
                     <div className="px-4 py-4">
                       <button
                         type="button"
-                        onClick={() => setActiveModelSection(null)}
+                        onClick={() => {
+                          setActiveModelSection(null);
+                          setActiveScenarioId(null);
+                        }}
                         className="flex items-center gap-2 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-3 py-1.5 rounded-lg mb-4 transition-colors"
+                        data-ocid={`financialmodel.${section.id}.back_button`}
                       >
-                        ← Back to Scenarios
+                        ← Back to Menu
                       </button>
-                      {section.id === "budgetingmodel" && <ModelBudgetingTab />}
-                      {section.id === "debtmodel" && <ModelDebtTab />}
-                      {section.id === "goalmodel" && <ModelGoalPlanningTab />}
+                      {section.id === "budgetingmodel" && (
+                        <ModelBudgetingTab
+                          initialScenario={activeScenarioId.split("::")[1]}
+                        />
+                      )}
+                      {section.id === "debtmodel" && (
+                        <ModelDebtTab
+                          initialScenario={activeScenarioId.split("::")[1]}
+                        />
+                      )}
+                      {section.id === "goalmodel" && (
+                        <ModelGoalPlanningTab
+                          initialScenario={activeScenarioId.split("::")[1]}
+                        />
+                      )}
                     </div>
                   )}
               </div>

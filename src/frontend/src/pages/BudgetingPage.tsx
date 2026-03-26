@@ -4,6 +4,7 @@ import { type BudgetCategory, TransactionType } from "../backend.d";
 import { AnalyseTab } from "../components/budgeting/AnalyseTab";
 import { ExpensesTab } from "../components/budgeting/ExpensesTab";
 import { MonthlyTrackerTab } from "../components/budgeting/MonthlyTrackerTab";
+import { ModelBudgetingTab } from "../components/financial-model/ModelBudgetingTab";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
@@ -31,11 +32,83 @@ import {
 } from "../components/ui/tabs";
 import { useActor } from "../hooks/useActor";
 
+const _NEEDS_KEYWORDS = [
+  "rent",
+  "housing",
+  "mortgage",
+  "groceries",
+  "food",
+  "utilities",
+  "water",
+  "electricity",
+  "gas",
+  "insurance",
+  "healthcare",
+  "medical",
+  "transport",
+  "commute",
+  "emi",
+  "loan",
+  "education",
+  "childcare",
+  "phone",
+  "internet",
+];
+const WANTS_KEYWORDS = [
+  "dining",
+  "eating out",
+  "restaurant",
+  "entertainment",
+  "streaming",
+  "netflix",
+  "subscription",
+  "shopping",
+  "clothing",
+  "travel",
+  "vacation",
+  "gym",
+  "fitness",
+  "hobbies",
+  "personal care",
+  "beauty",
+  "salon",
+  "electronics",
+  "games",
+  "leisure",
+];
+const SAVINGS_KEYWORDS = [
+  "savings",
+  "investment",
+  "sip",
+  "ppf",
+  "nps",
+  "fd",
+  "emergency",
+  "mutual fund",
+  "retirement",
+  "stocks",
+  "retiral",
+];
+
+function inferBudgetType(name: string): string {
+  const lc = name.toLowerCase();
+  if (SAVINGS_KEYWORDS.some((k) => lc.includes(k))) return "Savings";
+  if (WANTS_KEYWORDS.some((k) => lc.includes(k))) return "Wants";
+  return "Needs";
+}
+
+const TYPE_BADGE_COLORS: Record<string, string> = {
+  Needs: "bg-blue-100 text-blue-700 border border-blue-200",
+  Wants: "bg-amber-100 text-amber-700 border border-amber-200",
+  Savings: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+};
+
 const emptyForm = {
   name: "",
   categoryType: TransactionType.Expense,
   monthlyLimit: 0,
   color: "#6366f1",
+  budgetType: "Needs",
 };
 
 function fmt(n: number) {
@@ -238,6 +311,7 @@ export default function BudgetingPage() {
       categoryType: c.categoryType,
       monthlyLimit: c.monthlyLimit,
       color: c.color,
+      budgetType: inferBudgetType(c.name),
     });
     setOpen(true);
   };
@@ -247,12 +321,17 @@ export default function BudgetingPage() {
     setSaving(true);
     try {
       if (editing) {
-        await actor.updateBudgetCategory(editing.id, { ...editing, ...form });
+        const updated = { ...editing, ...form };
+        await actor.updateBudgetCategory(editing.id, updated);
+        setCategories((prev) =>
+          prev.map((c) => (c.id === editing.id ? updated : c)),
+        );
       } else {
-        await actor.createBudgetCategory({ id: crypto.randomUUID(), ...form });
+        const newCat = { id: crypto.randomUUID(), ...form };
+        await actor.createBudgetCategory(newCat);
+        setCategories((prev) => [...prev, newCat]);
       }
       setOpen(false);
-      load();
     } finally {
       setSaving(false);
     }
@@ -261,7 +340,7 @@ export default function BudgetingPage() {
   const del = async (id: string) => {
     if (!actor) return;
     await actor.deleteBudgetCategory(id);
-    load();
+    setCategories((prev) => prev.filter((c) => c.id !== id));
   };
 
   const seedStandardCategories = async () => {
@@ -329,10 +408,10 @@ export default function BudgetingPage() {
               Budget Insights
             </TabsTrigger>
             <TabsTrigger
-              value="analyse"
+              value="improve"
               className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap bg-white text-slate-600 border-slate-200 hover:border-violet-400 data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:border-violet-600 data-[state=active]:shadow-sm"
             >
-              Analyse
+              Improve Budget
             </TabsTrigger>
           </TabsList>
         </div>
@@ -475,6 +554,13 @@ export default function BudgetingPage() {
                             />
                           </div>
                         </td>
+                        <td className="px-4 py-2.5 text-center">
+                          <span
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${TYPE_BADGE_COLORS[inferBudgetType(c.name)] ?? TYPE_BADGE_COLORS.Needs}`}
+                          >
+                            {inferBudgetType(c.name)}
+                          </span>
+                        </td>
                         <td className="px-4 py-2.5">
                           <div className="flex gap-1 justify-center">
                             <Button
@@ -507,6 +593,7 @@ export default function BudgetingPage() {
                         <th className="px-4 py-3 text-left">Name</th>
                         <th className="px-4 py-3 text-right">Monthly Limit</th>
                         <th className="px-4 py-3 text-center">Color</th>
+                        <th className="px-4 py-3 text-center">Type</th>
                         <th className="px-4 py-3 text-center">Actions</th>
                       </tr>
                     </thead>
@@ -515,7 +602,7 @@ export default function BudgetingPage() {
                         <>
                           <tr>
                             <td
-                              colSpan={4}
+                              colSpan={5}
                               className="px-4 py-2 bg-emerald-50 border-b border-emerald-100"
                             >
                               <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
@@ -530,7 +617,7 @@ export default function BudgetingPage() {
                         <>
                           <tr>
                             <td
-                              colSpan={4}
+                              colSpan={5}
                               className="px-4 py-2 bg-red-50 border-b border-red-100"
                             >
                               <span className="text-xs font-bold text-red-700 uppercase tracking-wider">
@@ -556,8 +643,8 @@ export default function BudgetingPage() {
         <TabsContent value="tracker" className="mt-4">
           <MonthlyTrackerTab />
         </TabsContent>
-        <TabsContent value="analyse" className="mt-4">
-          <AnalyseTab />
+        <TabsContent value="improve" className="mt-4">
+          <ModelBudgetingTab />
         </TabsContent>
       </Tabs>
 

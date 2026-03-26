@@ -21,6 +21,7 @@ import LoansModule "modules/Loans";
 import FinancialRulesModule "modules/FinancialRules";
 import FinancialPlannerModule "modules/FinancialPlanner";
 import FinancialModelModule "modules/FinancialModel";
+import TradeJournalModule "modules/TradeJournal";
 
 actor {
   let accessControlState = AccessControl.initState();
@@ -38,6 +39,8 @@ actor {
   public type PlannerEvent = Types.PlannerEvent;
   public type FinancialModel = Types.FinancialModel;
   public type DashboardSummary = Types.DashboardSummary;
+  public type TradeEntry = Types.TradeEntry;
+  public type ChecklistItem = Types.ChecklistItem;
 
   let store = Storage.init();
 
@@ -54,6 +57,9 @@ actor {
   // Legacy stable vars retained for upgrade compatibility (do not remove)
   var blockedUsers     = Map.empty<Principal, { blocked : Bool; reason : Text }>();
   var userModuleAccess = Map.empty<Principal, Map.Map<Text, Bool>>();
+  // Trade Journal stable storage (separate from store to preserve upgrade compatibility)
+  var userTradeEntries = Map.empty<Principal, Map.Map<Text, Types.TradeEntry>>();
+  var userChecklists   = Map.empty<Principal, Map.Map<Text, Types.ChecklistItem>>();
   // Admin state - persists across upgrades
   stable var adminPrincipalText : Text = "";
 
@@ -264,6 +270,72 @@ actor {
     };
     LoansModule.delete(userLoans, caller, id);
   };
+
+  // TradeJournal CRUD
+  public shared ({ caller }) func createTradeEntry(entry : TradeEntry) : async TradeEntry {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create trade entries");
+    };
+    TradeJournalModule.createEntry(userTradeEntries, caller, entry);
+  };
+
+  public query ({ caller }) func getTradeEntry(id : Text) : async ?TradeEntry {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view trade entries");
+    };
+    TradeJournalModule.getEntry(userTradeEntries, caller, id);
+  };
+
+  public query ({ caller }) func getAllTradeEntries() : async [TradeEntry] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view trade entries");
+    };
+    TradeJournalModule.getAllEntries(userTradeEntries, caller);
+  };
+
+  public shared ({ caller }) func updateTradeEntry(id : Text, entry : TradeEntry) : async ?TradeEntry {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update trade entries");
+    };
+    TradeJournalModule.updateEntry(userTradeEntries, caller, id, entry);
+  };
+
+  public shared ({ caller }) func deleteTradeEntry(id : Text) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete trade entries");
+    };
+    TradeJournalModule.deleteEntry(userTradeEntries, caller, id);
+  };
+
+  // ChecklistItem CRUD
+  public shared ({ caller }) func createChecklistItem(item : ChecklistItem) : async ChecklistItem {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create checklist items");
+    };
+    TradeJournalModule.createChecklist(userChecklists, caller, item);
+  };
+
+  public query ({ caller }) func getAllChecklistItems() : async [ChecklistItem] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view checklist items");
+    };
+    TradeJournalModule.getAllChecklists(userChecklists, caller);
+  };
+
+  public shared ({ caller }) func updateChecklistItem(id : Text, item : ChecklistItem) : async ?ChecklistItem {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update checklist items");
+    };
+    TradeJournalModule.updateChecklist(userChecklists, caller, id, item);
+  };
+
+  public shared ({ caller }) func deleteChecklistItem(id : Text) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete checklist items");
+    };
+    TradeJournalModule.deleteChecklist(userChecklists, caller, id);
+  };
+
 
   // FinancialRule CRUD
   public shared ({ caller }) func createFinancialRule(rule : FinancialRule) : async FinancialRule {

@@ -434,7 +434,7 @@ export function ModelBudgetingTab() {
   const [result, setResult] = useState<BudgetResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeScenario, setActiveScenario] = useState("standard");
+  const [_activeScenario, setActiveScenario] = useState("standard");
   const [view, setView] = useState<"menu" | "detail">("menu");
 
   const set = (field: keyof BudgetInputs) => (val: number | boolean) =>
@@ -545,31 +545,6 @@ export function ModelBudgetingTab() {
             pre-fill sample numbers, then update any value to match your
             situation and click Analyze.
           </p>
-        </div>
-      </div>
-
-      {/* Scenario Buttons */}
-      <div>
-        <p className="text-xs font-semibold text-slate-500 mb-2">
-          Select a scenario (numbers will pre-fill — update any field before
-          analyzing):
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {SCENARIOS.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => loadScenario(s)}
-              className={`text-left p-2.5 rounded-lg border text-xs transition-all ${
-                activeScenario === s.id
-                  ? "bg-blue-50 border-blue-400 text-blue-800 font-semibold"
-                  : "bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-600"
-              }`}
-            >
-              <span className="font-bold block">{s.title}</span>
-              <span className="text-slate-500">{s.desc}</span>
-            </button>
-          ))}
         </div>
       </div>
 

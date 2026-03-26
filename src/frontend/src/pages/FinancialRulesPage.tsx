@@ -720,52 +720,126 @@ export default function FinancialRulesPage() {
         </TabsContent>
 
         <TabsContent value="basics" className="mt-4">
-          <div className="space-y-3">
-            {BASICS_TOPICS.map((topic) => (
-              <div
-                key={topic.id}
-                className="bg-white rounded-2xl border border-teal-100 shadow-sm overflow-hidden"
-                style={{ borderLeft: "4px solid #14b8a6" }}
-              >
-                <button
-                  type="button"
-                  data-ocid={`basics.${topic.id}.card`}
-                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
-                  onClick={() =>
-                    setActiveBasic(activeBasic === topic.id ? null : topic.id)
-                  }
-                >
-                  <div className="flex items-center gap-3">
+          {(() => {
+            const BASICS_COLORS = [
+              {
+                color: "#10b981",
+                iconBg: "bg-emerald-50",
+                iconText: "text-emerald-600",
+                iconBgActive: "bg-emerald-500",
+                expandedBg: "bg-emerald-50/30",
+                borderColor: "border-emerald-100",
+              },
+              {
+                color: "#3b82f6",
+                iconBg: "bg-blue-50",
+                iconText: "text-blue-600",
+                iconBgActive: "bg-blue-500",
+                expandedBg: "bg-blue-50/30",
+                borderColor: "border-blue-100",
+              },
+              {
+                color: "#8b5cf6",
+                iconBg: "bg-violet-50",
+                iconText: "text-violet-600",
+                iconBgActive: "bg-violet-500",
+                expandedBg: "bg-violet-50/30",
+                borderColor: "border-violet-100",
+              },
+              {
+                color: "#f97316",
+                iconBg: "bg-orange-50",
+                iconText: "text-orange-600",
+                iconBgActive: "bg-orange-500",
+                expandedBg: "bg-orange-50/30",
+                borderColor: "border-orange-100",
+              },
+              {
+                color: "#6366f1",
+                iconBg: "bg-indigo-50",
+                iconText: "text-indigo-600",
+                iconBgActive: "bg-indigo-500",
+                expandedBg: "bg-indigo-50/30",
+                borderColor: "border-indigo-100",
+              },
+              {
+                color: "#06b6d4",
+                iconBg: "bg-cyan-50",
+                iconText: "text-cyan-600",
+                iconBgActive: "bg-cyan-500",
+                expandedBg: "bg-cyan-50/30",
+                borderColor: "border-cyan-100",
+              },
+              {
+                color: "#f59e0b",
+                iconBg: "bg-amber-50",
+                iconText: "text-amber-600",
+                iconBgActive: "bg-amber-500",
+                expandedBg: "bg-amber-50/30",
+                borderColor: "border-amber-100",
+              },
+              {
+                color: "#f43f5e",
+                iconBg: "bg-rose-50",
+                iconText: "text-rose-600",
+                iconBgActive: "bg-rose-500",
+                expandedBg: "bg-rose-50/30",
+                borderColor: "border-rose-100",
+              },
+            ];
+            return (
+              <div className="space-y-3">
+                {BASICS_TOPICS.map((topic, idx) => {
+                  const c = BASICS_COLORS[idx % BASICS_COLORS.length];
+                  const isActive = activeBasic === topic.id;
+                  return (
                     <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        activeBasic === topic.id ? "bg-teal-500" : "bg-teal-50"
-                      }`}
+                      key={topic.id}
+                      className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+                      style={{ borderLeft: `4px solid ${c.color}` }}
                     >
-                      <topic.Icon
-                        className={`w-4 h-4 ${activeBasic === topic.id ? "text-white" : "text-teal-600"}`}
-                      />
+                      <button
+                        type="button"
+                        data-ocid={`basics.${topic.id}.card`}
+                        className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                        onClick={() =>
+                          setActiveBasic(isActive ? null : topic.id)
+                        }
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${isActive ? c.iconBgActive : c.iconBg}`}
+                          >
+                            <topic.Icon
+                              className={`w-4 h-4 ${isActive ? "text-white" : c.iconText}`}
+                            />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-sm font-bold text-slate-800">
+                              {topic.name}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {topic.desc}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-slate-400 text-sm ml-2">
+                          {isActive ? "▲" : "▼"}
+                        </span>
+                      </button>
+                      {isActive && (
+                        <div
+                          className={`border-t ${c.borderColor} ${c.expandedBg}`}
+                        >
+                          <ModelFundamentalsTab showSection={topic.id} />
+                        </div>
+                      )}
                     </div>
-                    <div className="text-left">
-                      <p className="text-sm font-bold text-slate-800">
-                        {topic.name}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {topic.desc}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-slate-400 text-sm ml-2">
-                    {activeBasic === topic.id ? "▲" : "▼"}
-                  </span>
-                </button>
-                {activeBasic === topic.id && (
-                  <div className="border-t border-teal-100 bg-teal-50/30">
-                    <ModelFundamentalsTab showSection={topic.id} />
-                  </div>
-                )}
+                  );
+                })}
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </TabsContent>
 
         <TabsContent value="mistakes" className="mt-4">

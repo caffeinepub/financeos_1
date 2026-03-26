@@ -8,25 +8,14 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const AdminModuleAccess = IDL.Record({
-  'principal' : IDL.Principal,
-  'modules' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
+export const UserProfile = IDL.Record({
+  'name' : IDL.Text,
+  'email' : IDL.Text,
 });
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
-});
-export const UserProfile = IDL.Record({
-  'name' : IDL.Text,
-  'email' : IDL.Text,
-});
-export const AdminUserInfo = IDL.Record({
-  'principal' : IDL.Principal,
-  'isBlocked' : IDL.Bool,
-  'role' : UserRole,
-  'blockedReason' : IDL.Text,
-  'profile' : IDL.Opt(UserProfile),
 });
 export const TransactionType = IDL.Variant({
   'Income' : IDL.Null,
@@ -128,26 +117,44 @@ export const DashboardSummary = IDL.Record({
   'ruleCount' : IDL.Nat,
   'transactionCount' : IDL.Nat,
 });
-export const BlockedStatus = IDL.Record({
-  'blocked' : IDL.Bool,
-  'reason' : IDL.Text,
+export const TradeEntry = IDL.Record({
+  'id': IDL.Text,
+  'ticker': IDL.Text,
+  'entryDate': IDL.Text,
+  'entryTime': IDL.Text,
+  'positionType': IDL.Text,
+  'entryPrice': IDL.Float64,
+  'exitPrice': IDL.Float64,
+  'quantity': IDL.Float64,
+  'stopLoss': IDL.Float64,
+  'takeProfit': IDL.Float64,
+  'strategy': IDL.Text,
+  'marketConditions': IDL.Text,
+  'emotions': IDL.Text,
+  'notes': IDL.Text,
+  'tags': IDL.Text,
+  'commission': IDL.Float64,
+  'isOpen': IDL.Bool,
+});
+export const ChecklistItem = IDL.Record({
+  'id': IDL.Text,
+  'text': IDL.Text,
+  'isChecked': IDL.Bool,
+  'isCustom': IDL.Bool,
+  'sortOrder': IDL.Int,
 });
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-  'adminBlockUser' : IDL.Func([IDL.Principal, IDL.Bool, IDL.Text], [], []),
-  'adminGetAllUserModuleAccess' : IDL.Func(
+  'adminGetAllUsers' : IDL.Func(
       [],
-      [IDL.Vec(AdminModuleAccess)],
+      [IDL.Vec(IDL.Tuple(IDL.Text, UserProfile))],
       ['query'],
     ),
-  'adminGetAllUsers' : IDL.Func([], [IDL.Vec(AdminUserInfo)], ['query']),
-  'adminSetModuleAccess' : IDL.Func(
-      [IDL.Principal, IDL.Text, IDL.Bool],
-      [],
-      [],
-    ),
+  'adminSuspendUser' : IDL.Func([IDL.Text], [IDL.Bool], []),
+  'adminUnsuspendUser' : IDL.Func([IDL.Text], [IDL.Bool], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'bootstrapAdmin' : IDL.Func([], [IDL.Bool], []),
   'createBudgetCategory' : IDL.Func([BudgetCategory], [BudgetCategory], []),
   'createFinancialModel' : IDL.Func([FinancialModel], [FinancialModel], []),
   'createFinancialRule' : IDL.Func([FinancialRule], [FinancialRule], []),
@@ -208,18 +215,17 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getTransaction' : IDL.Func([IDL.Text], [IDL.Opt(Transaction)], ['query']),
-  'getUserModuleAccess' : IDL.Func(
-      [],
-      [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool))],
-      ['query'],
-    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-  'isCallerBlocked' : IDL.Func([], [BlockedStatus], ['query']),
+  'isCallerBlocked' : IDL.Func(
+      [],
+      [IDL.Record({ 'blocked' : IDL.Bool, 'reason' : IDL.Text })],
+      ['query'],
+    ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'updateBudgetCategory' : IDL.Func(
       [IDL.Text, BudgetCategory],
@@ -253,27 +259,25 @@ export const idlService = IDL.Service({
       [IDL.Opt(Transaction)],
       [],
     ),
+  'createTradeEntry': IDL.Func([TradeEntry], [TradeEntry], []),
+  'getTradeEntry': IDL.Func([IDL.Text], [IDL.Opt(TradeEntry)], ['query']),
+  'getAllTradeEntries': IDL.Func([], [IDL.Vec(TradeEntry)], ['query']),
+  'updateTradeEntry': IDL.Func([IDL.Text, TradeEntry], [IDL.Opt(TradeEntry)], []),
+  'deleteTradeEntry': IDL.Func([IDL.Text], [IDL.Bool], []),
+  'createChecklistItem': IDL.Func([ChecklistItem], [ChecklistItem], []),
+  'getAllChecklistItems': IDL.Func([], [IDL.Vec(ChecklistItem)], ['query']),
+  'updateChecklistItem': IDL.Func([IDL.Text, ChecklistItem], [IDL.Opt(ChecklistItem)], []),
+  'deleteChecklistItem': IDL.Func([IDL.Text], [IDL.Bool], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const AdminModuleAccess = IDL.Record({
-    'principal' : IDL.Principal,
-    'modules' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
-  });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text, 'email' : IDL.Text });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
-  });
-  const UserProfile = IDL.Record({ 'name' : IDL.Text, 'email' : IDL.Text });
-  const AdminUserInfo = IDL.Record({
-    'principal' : IDL.Principal,
-    'isBlocked' : IDL.Bool,
-    'role' : UserRole,
-    'blockedReason' : IDL.Text,
-    'profile' : IDL.Opt(UserProfile),
   });
   const TransactionType = IDL.Variant({
     'Income' : IDL.Null,
@@ -375,26 +379,44 @@ export const idlFactory = ({ IDL }) => {
     'ruleCount' : IDL.Nat,
     'transactionCount' : IDL.Nat,
   });
-  const BlockedStatus = IDL.Record({
-    'blocked' : IDL.Bool,
-    'reason' : IDL.Text,
+  const TradeEntry = IDL.Record({
+    'id': IDL.Text,
+    'ticker': IDL.Text,
+    'entryDate': IDL.Text,
+    'entryTime': IDL.Text,
+    'positionType': IDL.Text,
+    'entryPrice': IDL.Float64,
+    'exitPrice': IDL.Float64,
+    'quantity': IDL.Float64,
+    'stopLoss': IDL.Float64,
+    'takeProfit': IDL.Float64,
+    'strategy': IDL.Text,
+    'marketConditions': IDL.Text,
+    'emotions': IDL.Text,
+    'notes': IDL.Text,
+    'tags': IDL.Text,
+    'commission': IDL.Float64,
+    'isOpen': IDL.Bool,
   });
-  
+  const ChecklistItem = IDL.Record({
+    'id': IDL.Text,
+    'text': IDL.Text,
+    'isChecked': IDL.Bool,
+    'isCustom': IDL.Bool,
+    'sortOrder': IDL.Int,
+  });
+
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-    'adminBlockUser' : IDL.Func([IDL.Principal, IDL.Bool, IDL.Text], [], []),
-    'adminGetAllUserModuleAccess' : IDL.Func(
+    'adminGetAllUsers' : IDL.Func(
         [],
-        [IDL.Vec(AdminModuleAccess)],
+        [IDL.Vec(IDL.Tuple(IDL.Text, UserProfile))],
         ['query'],
       ),
-    'adminGetAllUsers' : IDL.Func([], [IDL.Vec(AdminUserInfo)], ['query']),
-    'adminSetModuleAccess' : IDL.Func(
-        [IDL.Principal, IDL.Text, IDL.Bool],
-        [],
-        [],
-      ),
+    'adminSuspendUser' : IDL.Func([IDL.Text], [IDL.Bool], []),
+    'adminUnsuspendUser' : IDL.Func([IDL.Text], [IDL.Bool], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'bootstrapAdmin' : IDL.Func([], [IDL.Bool], []),
     'createBudgetCategory' : IDL.Func([BudgetCategory], [BudgetCategory], []),
     'createFinancialModel' : IDL.Func([FinancialModel], [FinancialModel], []),
     'createFinancialRule' : IDL.Func([FinancialRule], [FinancialRule], []),
@@ -467,18 +489,17 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getTransaction' : IDL.Func([IDL.Text], [IDL.Opt(Transaction)], ['query']),
-    'getUserModuleAccess' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool))],
-        ['query'],
-      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-    'isCallerBlocked' : IDL.Func([], [BlockedStatus], ['query']),
+    'isCallerBlocked' : IDL.Func(
+        [],
+        [IDL.Record({ 'blocked' : IDL.Bool, 'reason' : IDL.Text })],
+        ['query'],
+      ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'updateBudgetCategory' : IDL.Func(
         [IDL.Text, BudgetCategory],
@@ -512,6 +533,15 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(Transaction)],
         [],
       ),
+    'createTradeEntry': IDL.Func([TradeEntry], [TradeEntry], []),
+    'getTradeEntry': IDL.Func([IDL.Text], [IDL.Opt(TradeEntry)], ['query']),
+    'getAllTradeEntries': IDL.Func([], [IDL.Vec(TradeEntry)], ['query']),
+    'updateTradeEntry': IDL.Func([IDL.Text, TradeEntry], [IDL.Opt(TradeEntry)], []),
+    'deleteTradeEntry': IDL.Func([IDL.Text], [IDL.Bool], []),
+    'createChecklistItem': IDL.Func([ChecklistItem], [ChecklistItem], []),
+    'getAllChecklistItems': IDL.Func([], [IDL.Vec(ChecklistItem)], ['query']),
+    'updateChecklistItem': IDL.Func([IDL.Text, ChecklistItem], [IDL.Opt(ChecklistItem)], []),
+    'deleteChecklistItem': IDL.Func([IDL.Text], [IDL.Bool], []),
   });
 };
 

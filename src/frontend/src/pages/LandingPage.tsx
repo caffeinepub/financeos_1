@@ -6,9 +6,11 @@ import {
   ChevronDown,
   CreditCard,
   LayoutDashboard,
+  Moon,
   PiggyBank,
   Shield,
   Sparkles,
+  Sun,
   Target,
   TrendingUp,
   Zap,
@@ -17,6 +19,7 @@ import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SUPPORTED_CURRENCIES, useCurrency } from "../contexts/CurrencyContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 
 const MODULE_CONFIGS = [
@@ -164,6 +167,7 @@ function CurrencyDropdown({
 export default function LandingPage() {
   const { login, loginStatus, identity } = useInternetIdentity();
   const { country, setCountry } = useCurrency();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const isLoggingIn = loginStatus === "logging-in";
 
@@ -244,6 +248,23 @@ export default function LandingPage() {
 
           {/* Actions */}
           <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              data-ocid="landing.theme.toggle"
+              className="p-2 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-colors"
+              title={
+                theme === "dark"
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
+            >
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </button>
             <CurrencyDropdown selected={country} onSelect={setCountry} />
             <Button
               onClick={handleLogin}

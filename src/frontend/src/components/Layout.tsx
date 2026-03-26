@@ -1,22 +1,26 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   BarChart3,
+  BookOpen,
   CalendarDays,
   CreditCard,
   HelpCircle,
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
   PieChart,
   PiggyBank,
   Shield,
   ShieldCheck,
+  Sun,
   Target,
   TrendingUp,
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
 import { useActor } from "../hooks/useActor";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { GrowfinfireChat } from "./GrowfinfireChat";
@@ -93,11 +97,18 @@ const navItems = [
     icon: CreditCard,
     color: "#9333ea",
   },
+  {
+    label: "Trade Journal",
+    path: "/trade-journal",
+    icon: BookOpen,
+    color: "#e11d48",
+  },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { clear } = useInternetIdentity();
+  const { theme, toggleTheme } = useTheme();
   const isMobile = useIsMobile();
   const { actor, isFetching } = useActor();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -214,7 +225,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Icon className="w-4 h-4 flex-shrink-0" />
                     {item.label}
                   </span>
-                  <span className="text-xs">{portfolioOpen ? "▲" : "▼"}</span>
+                  <span className="text-xs">
+                    {portfolioOpen ? "\u25b2" : "\u25bc"}
+                  </span>
                 </button>
                 {portfolioOpen && (
                   <div className="ml-7 mt-1 space-y-0.5">
@@ -357,8 +370,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Right: status + user + help + sign out */}
+        {/* Right: theme toggle + status + user + help + sign out */}
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            data-ocid="header.theme.toggle"
+            className="p-1.5 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors flex-shrink-0"
+            title={
+              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+            }
+          >
+            {theme === "dark" ? (
+              <Sun className="w-3.5 h-3.5" />
+            ) : (
+              <Moon className="w-3.5 h-3.5" />
+            )}
+          </button>
           <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
           <span className="text-xs text-slate-300 hidden sm:block truncate max-w-[120px]">
             {profile?.name || "User"}

@@ -248,7 +248,7 @@ export function ModelDebtTab() {
   const [result, setResult] = useState<DebtAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeScenario, setActiveScenario] = useState("multi");
+  const [_activeScenario, setActiveScenario] = useState("multi");
   const [view, setView] = useState<"menu" | "detail">("menu");
 
   const loadScenario = (s: (typeof SCENARIOS)[0]) => {
@@ -388,31 +388,6 @@ export function ModelDebtTab() {
             numbers, then update the values to match your real situation. All
             amounts are in full numbers (e.g., 350000 means ₹3,50,000).
           </p>
-        </div>
-      </div>
-
-      {/* Scenario Buttons */}
-      <div>
-        <p className="text-xs font-semibold text-slate-500 mb-2">
-          Select a scenario (numbers will pre-fill — update any field before
-          analyzing):
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {SCENARIOS.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => loadScenario(s)}
-              className={`text-left p-2.5 rounded-lg border text-xs transition-all ${
-                activeScenario === s.id
-                  ? "bg-red-50 border-red-400 text-red-800 font-semibold"
-                  : "bg-white border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-600"
-              }`}
-            >
-              <span className="font-bold block">{s.title}</span>
-              <span className="text-slate-500">{s.desc}</span>
-            </button>
-          ))}
         </div>
       </div>
 

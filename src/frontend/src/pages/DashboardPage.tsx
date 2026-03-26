@@ -980,7 +980,7 @@ export default function DashboardPage() {
                       ))}
                       <LabelList
                         dataKey="value"
-                        position="insideTop"
+                        position="top"
                         content={({
                           x,
                           y,
@@ -1000,10 +1000,10 @@ export default function DashboardPage() {
                           return (
                             <text
                               x={numX + numW / 2}
-                              y={numY + 14}
-                              fill="#fff"
+                              y={numY - 4}
+                              fill="#64748b"
                               textAnchor="middle"
-                              fontSize={10}
+                              fontSize={9}
                               fontWeight={600}
                             >
                               {formatCurrency(numVal)}
@@ -1574,8 +1574,8 @@ export default function DashboardPage() {
                           <g>
                             <text
                               x={cx}
-                              y={numY + 14}
-                              fill="#fff"
+                              y={numY - 14}
+                              fill="#475569"
                               textAnchor="middle"
                               fontSize={10}
                               fontWeight={700}
@@ -1584,8 +1584,8 @@ export default function DashboardPage() {
                             </text>
                             <text
                               x={cx}
-                              y={numY + 26}
-                              fill="#fff"
+                              y={numY - 4}
+                              fill="#64748b"
                               textAnchor="middle"
                               fontSize={9}
                               fontWeight={500}

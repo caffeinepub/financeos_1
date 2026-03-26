@@ -116,4 +116,32 @@ module {
     totalIncome : Float;
     totalExpenses : Float;
   };
+
+  public type TradeEntry = {
+    id : Text;
+    ticker : Text;
+    entryDate : Text;
+    entryTime : Text;
+    positionType : Text;
+    entryPrice : Float;
+    exitPrice : Float;
+    quantity : Float;
+    stopLoss : Float;
+    takeProfit : Float;
+    strategy : Text;
+    marketConditions : Text;
+    emotions : Text;
+    notes : Text;
+    tags : Text;
+    commission : Float;
+    isOpen : Bool;
+  };
+
+  public type ChecklistItem = {
+    id : Text;
+    text : Text;
+    isChecked : Bool;
+    isCustom : Bool;
+    sortOrder : Int;
+  };
 };

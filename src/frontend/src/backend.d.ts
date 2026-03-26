@@ -7,6 +7,15 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface Goal {
+    id: string;
+    name: string;
+    deadline: string;
+    targetAmount: number;
+    notes: string;
+    category: string;
+    currentAmount: number;
+}
 export interface FinancialRule {
     id: string;
     ruleType: string;
@@ -16,12 +25,34 @@ export interface FinancialRule {
     isActive: boolean;
     condition: string;
 }
+export interface DashboardSummary {
+    modelCount: bigint;
+    totalIncome: number;
+    loanCount: bigint;
+    goalCount: bigint;
+    budgetCategoryCount: bigint;
+    totalExpenses: number;
+    portfolioCount: bigint;
+    eventCount: bigint;
+    ruleCount: bigint;
+    transactionCount: bigint;
+}
 export interface BudgetCategory {
     id: string;
     categoryType: TransactionType;
     monthlyLimit: number;
     name: string;
     color: string;
+}
+export interface PortfolioHolding {
+    id: string;
+    ticker: string;
+    name: string;
+    currentValue: number;
+    notes: string;
+    quantity: number;
+    costBasis: number;
+    assetType: AssetType;
 }
 export interface Loan {
     id: string;
@@ -44,18 +75,6 @@ export interface FinancialModel {
     years: bigint;
     monthlyContribution: number;
 }
-export interface DashboardSummary {
-    modelCount: bigint;
-    totalIncome: number;
-    loanCount: bigint;
-    goalCount: bigint;
-    budgetCategoryCount: bigint;
-    totalExpenses: number;
-    portfolioCount: bigint;
-    eventCount: bigint;
-    ruleCount: bigint;
-    transactionCount: bigint;
-}
 export interface PlannerEvent {
     id: string;
     title: string;
@@ -65,6 +84,10 @@ export interface PlannerEvent {
     amount: number;
     eventType: string;
 }
+export interface UserProfile {
+    name: string;
+    email: string;
+}
 export interface Transaction {
     id: string;
     categoryId: string;
@@ -73,29 +96,6 @@ export interface Transaction {
     description: string;
     account: string;
     amount: number;
-}
-export interface PortfolioHolding {
-    id: string;
-    ticker: string;
-    name: string;
-    currentValue: number;
-    notes: string;
-    quantity: number;
-    costBasis: number;
-    assetType: AssetType;
-}
-export interface UserProfile {
-    name: string;
-    email: string;
-}
-export interface Goal {
-    id: string;
-    name: string;
-    deadline: string;
-    targetAmount: number;
-    notes: string;
-    category: string;
-    currentAmount: number;
 }
 export enum AssetType {
     ETF = "ETF",
@@ -117,7 +117,11 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
+    adminGetAllUsers(): Promise<Array<[string, UserProfile]>>;
+    adminSuspendUser(principalText: string): Promise<boolean>;
+    adminUnsuspendUser(principalText: string): Promise<boolean>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    bootstrapAdmin(): Promise<boolean>;
     createBudgetCategory(category: BudgetCategory): Promise<BudgetCategory>;
     createFinancialModel(model: FinancialModel): Promise<FinancialModel>;
     createFinancialRule(rule: FinancialRule): Promise<FinancialRule>;
@@ -155,12 +159,11 @@ export interface backendInterface {
     getPortfolioHolding(id: string): Promise<PortfolioHolding | null>;
     getTransaction(id: string): Promise<Transaction | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
-    isCallerBlocked(): Promise<{ blocked: boolean; reason: string }>;
-    bootstrapAdmin(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
-    adminGetAllUsers(): Promise<Array<[string, { name: string; email: string }]>>;
-    adminSuspendUser(principalText: string): Promise<boolean>;
-    adminUnsuspendUser(principalText: string): Promise<boolean>;
+    isCallerBlocked(): Promise<{
+        blocked: boolean;
+        reason: string;
+    }>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateBudgetCategory(id: string, category: BudgetCategory): Promise<BudgetCategory | null>;
     updateFinancialModel(id: string, model: FinancialModel): Promise<FinancialModel | null>;

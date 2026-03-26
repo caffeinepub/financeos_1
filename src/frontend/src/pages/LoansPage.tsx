@@ -30,6 +30,7 @@ import {
   YAxis,
 } from "recharts";
 import type { Loan } from "../backend.d";
+import { ModelDebtTab } from "../components/financial-model/ModelDebtTab";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
@@ -193,7 +194,7 @@ export default function LoansPage() {
   const { formatCurrency: fmt, country } = useCurrency();
   const sym = country?.symbol ?? "₹";
   const [loans, setLoans] = useState<Loan[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Loan | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -501,6 +502,7 @@ export default function LoansPage() {
             { value: "loanandinvest", label: "🤔 Loan vs Invest" },
             { value: "affordability", label: "✅ Affordability" },
             { value: "timeline", label: "📅 Debt-Free" },
+            { value: "debtmodel", label: "💳 Debt Model" },
           ].map((tab) => (
             <TabsTrigger
               key={tab.value}
@@ -1359,6 +1361,11 @@ export default function LoansPage() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="debtmodel" className="mt-2">
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 min-h-[400px]">
+            <ModelDebtTab />
+          </div>
         </TabsContent>
       </Tabs>
 

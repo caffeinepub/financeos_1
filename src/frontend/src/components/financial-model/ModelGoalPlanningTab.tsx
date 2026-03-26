@@ -335,7 +335,7 @@ export function ModelGoalPlanningTab() {
   const [result, setResult] = useState<GoalAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeScenario, setActiveScenario] = useState("single");
+  const [_activeScenario, setActiveScenario] = useState("single");
   const [view, setView] = useState<"menu" | "detail">("menu");
 
   const loadScenario = (s: (typeof SCENARIOS)[0]) => {
@@ -476,31 +476,6 @@ export function ModelGoalPlanningTab() {
             amounts are in full numbers (e.g., 800000 means \u20b98,00,000).
             Inflation is applied at 6% per year automatically.
           </p>
-        </div>
-      </div>
-
-      {/* Scenario Buttons */}
-      <div>
-        <p className="text-xs font-semibold text-slate-500 mb-2">
-          Select a scenario (numbers will pre-fill — update any field before
-          analyzing):
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {SCENARIOS.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => loadScenario(s)}
-              className={`text-left p-2.5 rounded-lg border text-xs transition-all ${
-                activeScenario === s.id
-                  ? "bg-violet-50 border-violet-400 text-violet-800 font-semibold"
-                  : "bg-white border-slate-200 hover:border-violet-300 hover:bg-violet-50 text-slate-600"
-              }`}
-            >
-              <span className="font-bold block">{s.title}</span>
-              <span className="text-slate-500">{s.desc}</span>
-            </button>
-          ))}
         </div>
       </div>
 

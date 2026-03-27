@@ -505,8 +505,8 @@ export default function LoansPage() {
             <CreditCard className="w-5 h-5 text-blue-400" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-slate-100">Loan Manager</h1>
-            <p className="text-xs text-slate-400">
+            <h1 className="text-lg font-bold text-foreground">Loan Manager</h1>
+            <p className="text-xs text-muted-foreground">
               Track, simulate &amp; optimise your debt
             </p>
           </div>
@@ -547,7 +547,7 @@ export default function LoansPage() {
 
         {/* ─── TAB 1: Dashboard ─── */}
         <TabsContent value="dashboard" className="space-y-4">
-          <div className="flex items-center gap-2 p-3 bg-slate-800/50 rounded-xl border border-slate-700">
+          <div className="flex items-center gap-2 p-3 bg-card rounded-xl border border-border">
             <Shield className="w-4 h-4 text-blue-400 shrink-0" />
             <Label className="text-xs text-muted-foreground">
               Your Monthly Income
@@ -556,7 +556,7 @@ export default function LoansPage() {
               type="number"
               value={monthlyIncome}
               onChange={(e) => setMonthlyIncome(Number(e.target.value))}
-              className="ml-auto w-36 h-8 text-xs bg-slate-700 border-slate-600 text-slate-100"
+              className="ml-auto w-36 h-8 text-xs bg-card border-border text-foreground"
               data-ocid="loans.income.input"
             />
           </div>
@@ -565,15 +565,19 @@ export default function LoansPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Card className="bg-card border-border">
               <CardContent className="p-3">
-                <p className="text-xs text-slate-400">Total Outstanding</p>
-                <p className="text-lg font-bold text-slate-100 mt-1">
+                <p className="text-xs text-muted-foreground">
+                  Total Outstanding
+                </p>
+                <p className="text-lg font-bold text-foreground mt-1">
                   {fmt(totalOutstanding)}
                 </p>
               </CardContent>
             </Card>
             <Card className="bg-card border-border">
               <CardContent className="p-3">
-                <p className="text-xs text-slate-400">Total EMI / Month</p>
+                <p className="text-xs text-muted-foreground">
+                  Total EMI / Month
+                </p>
                 <p className="text-lg font-bold text-blue-300 mt-1">
                   {fmt(totalEMI)}
                 </p>
@@ -581,7 +585,7 @@ export default function LoansPage() {
             </Card>
             <Card className="bg-card border-border">
               <CardContent className="p-3">
-                <p className="text-xs text-slate-400">Debt Burden</p>
+                <p className="text-xs text-muted-foreground">Debt Burden</p>
                 <p className={`text-lg font-bold mt-1 ${burden.color}`}>
                   {debtBurden.toFixed(1)}%
                 </p>
@@ -595,7 +599,7 @@ export default function LoansPage() {
             </Card>
             <Card className="bg-card border-border">
               <CardContent className="p-3">
-                <p className="text-xs text-slate-400">Health Score</p>
+                <p className="text-xs text-muted-foreground">Health Score</p>
                 <p className={`text-lg font-bold mt-1 ${health.text}`}>
                   {loans.length > 0 ? avgHealthScore : "—"}
                 </p>
@@ -609,7 +613,7 @@ export default function LoansPage() {
           {loans.length === 0 ? (
             <div
               data-ocid="loans.empty_state"
-              className="text-center py-16 text-slate-400"
+              className="text-center py-16 text-muted-foreground"
             >
               <CreditCard className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="text-sm font-medium">No active loans</p>
@@ -653,7 +657,7 @@ export default function LoansPage() {
                             />
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-slate-100">
+                            <p className="text-sm font-semibold text-foreground">
                               {loan.name}
                             </p>
                             <Badge
@@ -678,35 +682,36 @@ export default function LoansPage() {
                       </div>
                       <div className="grid grid-cols-3 gap-3 text-center mb-3">
                         <div>
-                          <p className="text-[10px] text-slate-400">
+                          <p className="text-[10px] text-muted-foreground">
                             Outstanding
                           </p>
-                          <p className="text-sm font-bold text-slate-200">
+                          <p className="text-sm font-bold text-foreground">
                             {fmt(loan.currentBalance)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-[10px] text-slate-400">EMI / mo</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            EMI / mo
+                          </p>
                           <p className="text-sm font-bold text-blue-300">
                             {fmt(loan.monthlyPayment)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-[10px] text-slate-400">Rate</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            Rate
+                          </p>
                           <p className="text-sm font-bold text-amber-300">
                             {loan.interestRate}%
                           </p>
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] text-slate-400">
+                        <div className="flex justify-between text-[10px] text-muted-foreground">
                           <span>Repaid</span>
                           <span>{progress.toFixed(0)}%</span>
                         </div>
-                        <Progress
-                          value={progress}
-                          className="h-1.5 bg-slate-700"
-                        />
+                        <Progress value={progress} className="h-1.5 bg-muted" />
                       </div>
                     </CardContent>
                   </Card>
@@ -721,7 +726,7 @@ export default function LoansPage() {
           {loans.length === 0 ? (
             <div
               data-ocid="loans.tracker.empty_state"
-              className="text-center py-16 text-slate-400"
+              className="text-center py-16 text-muted-foreground"
             >
               <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="text-sm font-medium">No loans tracked yet</p>
@@ -776,7 +781,7 @@ export default function LoansPage() {
                             className="w-4 h-4"
                             style={{ color: typeInfo.color }}
                           />
-                          <CardTitle className="text-sm text-slate-100">
+                          <CardTitle className="text-sm text-foreground">
                             {loan.name}
                           </CardTitle>
                           <Badge
@@ -793,11 +798,11 @@ export default function LoansPage() {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-7 w-7 hover:bg-slate-700"
+                            className="h-7 w-7 hover:bg-muted"
                             onClick={() => openEdit(loan)}
                             data-ocid={`loans.tracker.edit_button.${idx + 1}`}
                           >
-                            <Pencil className="w-3 h-3 text-slate-400" />
+                            <Pencil className="w-3 h-3 text-muted-foreground" />
                           </Button>
                           <Button
                             size="icon"
@@ -813,40 +818,42 @@ export default function LoansPage() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                        <div className="bg-slate-700/50 rounded-lg p-2">
-                          <p className="text-[10px] text-slate-400">
+                        <div className="bg-muted/50 rounded-lg p-2">
+                          <p className="text-[10px] text-muted-foreground">
                             Outstanding
                           </p>
-                          <p className="text-sm font-bold text-slate-100">
+                          <p className="text-sm font-bold text-foreground">
                             {fmt(loan.currentBalance)}
                           </p>
                         </div>
-                        <div className="bg-slate-700/50 rounded-lg p-2">
-                          <p className="text-[10px] text-slate-400">
+                        <div className="bg-muted/50 rounded-lg p-2">
+                          <p className="text-[10px] text-muted-foreground">
                             EMI/Month
                           </p>
                           <p className="text-sm font-bold text-blue-300">
                             {fmt(emi)}
                           </p>
                         </div>
-                        <div className="bg-slate-700/50 rounded-lg p-2">
-                          <p className="text-[10px] text-slate-400">
+                        <div className="bg-muted/50 rounded-lg p-2">
+                          <p className="text-[10px] text-muted-foreground">
                             Interest Rate
                           </p>
                           <p className="text-sm font-bold text-amber-300">
                             {loan.interestRate}% p.a.
                           </p>
                         </div>
-                        <div className="bg-slate-700/50 rounded-lg p-2">
-                          <p className="text-[10px] text-slate-400">Tenure</p>
-                          <p className="text-sm font-bold text-slate-100">
+                        <div className="bg-muted/50 rounded-lg p-2">
+                          <p className="text-[10px] text-muted-foreground">
+                            Tenure
+                          </p>
+                          <p className="text-sm font-bold text-foreground">
                             {loan.termMonths} mo
                           </p>
                         </div>
                       </div>
                       {/* Principal vs Interest split */}
                       <div>
-                        <p className="text-xs text-slate-400 mb-2">
+                        <p className="text-xs text-muted-foreground mb-2">
                           Principal Paid vs Interest Paid
                         </p>
                         <div className="flex h-4 rounded-full overflow-hidden">
@@ -859,7 +866,7 @@ export default function LoansPage() {
                             style={{ width: `${totalInterest}%` }}
                           />
                         </div>
-                        <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                        <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
                           <span>
                             🟢 Principal {pPct.toFixed(0)}% (
                             {fmt(principalPaid)})
@@ -882,25 +889,25 @@ export default function LoansPage() {
         <TabsContent value="prepayment" className="space-y-4">
           <Card className="bg-card border-border">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2 text-slate-100">
+              <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                 <Zap className="w-4 h-4 text-yellow-400" /> Prepayment Impact
                 Simulator
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {loans.length === 0 ? (
-                <p className="text-sm text-slate-400 py-4 text-center">
+                <p className="text-sm text-muted-foreground py-4 text-center">
                   Add a loan first to simulate prepayment impact.
                 </p>
               ) : (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-xs text-slate-300 mb-1 block">
+                      <Label className="text-xs text-foreground/80 mb-1 block">
                         Select Loan
                       </Label>
                       <select
-                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none"
+                        className="w-full bg-muted/30 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none"
                         value={selectedLoanId || (loans[0]?.id ?? "")}
                         onChange={(e) => setSelectedLoanId(e.target.value)}
                         data-ocid="loans.prepayment.select"
@@ -913,7 +920,7 @@ export default function LoansPage() {
                       </select>
                     </div>
                     <div>
-                      <Label className="text-xs text-slate-300 mb-1 block">
+                      <Label className="text-xs text-foreground/80 mb-1 block">
                         Extra Monthly Payment ({sym})
                       </Label>
                       <Input
@@ -922,7 +929,7 @@ export default function LoansPage() {
                         onChange={(e) =>
                           setExtraPayment(Number(e.target.value))
                         }
-                        className="bg-slate-700 border-slate-600 text-slate-100"
+                        className="bg-card border-border text-foreground"
                         data-ocid="loans.prepayment.input"
                       />
                     </div>
@@ -930,20 +937,22 @@ export default function LoansPage() {
 
                   {prepaySim && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Card className="bg-slate-700/50 border-slate-600">
+                      <Card className="bg-muted/50 border-border">
                         <CardContent className="p-4 space-y-3">
-                          <p className="text-xs font-bold text-slate-300 uppercase tracking-wide">
+                          <p className="text-xs font-bold text-foreground/80 uppercase tracking-wide">
                             Without Prepayment
                           </p>
                           <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                              <span className="text-slate-400">Tenure</span>
-                              <span className="text-slate-100 font-semibold">
+                              <span className="text-muted-foreground">
+                                Tenure
+                              </span>
+                              <span className="text-foreground font-semibold">
                                 {prepaySim.origMonths} months
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-slate-400">
+                              <span className="text-muted-foreground">
                                 Total Interest
                               </span>
                               <span className="text-red-300 font-semibold">
@@ -951,10 +960,10 @@ export default function LoansPage() {
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-slate-400">
+                              <span className="text-muted-foreground">
                                 Debt-Free Date
                               </span>
-                              <span className="text-slate-100 font-semibold">
+                              <span className="text-foreground font-semibold">
                                 {prepaySim.origDate}
                               </span>
                             </div>
@@ -968,13 +977,15 @@ export default function LoansPage() {
                           </p>
                           <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                              <span className="text-slate-400">Tenure</span>
+                              <span className="text-muted-foreground">
+                                Tenure
+                              </span>
                               <span className="text-emerald-200 font-semibold">
                                 {prepaySim.newMonths} months
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-slate-400">
+                              <span className="text-muted-foreground">
                                 Total Interest
                               </span>
                               <span className="text-emerald-300 font-semibold">
@@ -982,7 +993,7 @@ export default function LoansPage() {
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-slate-400">
+                              <span className="text-muted-foreground">
                                 Debt-Free Date
                               </span>
                               <span className="text-emerald-200 font-semibold">
@@ -996,7 +1007,7 @@ export default function LoansPage() {
                         <CardContent className="p-4">
                           <div className="flex flex-wrap gap-6 justify-center text-center">
                             <div>
-                              <p className="text-xs text-slate-400">
+                              <p className="text-xs text-muted-foreground">
                                 Months Saved
                               </p>
                               <p className="text-2xl font-bold text-blue-300">
@@ -1004,7 +1015,7 @@ export default function LoansPage() {
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-400">
+                              <p className="text-xs text-muted-foreground">
                                 Interest Saved
                               </p>
                               <p className="text-2xl font-bold text-emerald-300">
@@ -1026,7 +1037,7 @@ export default function LoansPage() {
         <TabsContent value="loanandinvest" className="space-y-4">
           <Card className="bg-card border-border">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2 text-slate-100">
+              <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                 <TrendingUp className="w-4 h-4 text-emerald-400" /> Loan vs
                 Invest Dilemma
               </CardTitle>
@@ -1034,38 +1045,38 @@ export default function LoansPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <Label className="text-xs text-slate-300 mb-1 block">
+                  <Label className="text-xs text-foreground/80 mb-1 block">
                     Monthly Surplus ({sym})
                   </Label>
                   <Input
                     type="number"
                     value={lviSurplus}
                     onChange={(e) => setLviSurplus(Number(e.target.value))}
-                    className="bg-slate-700 border-slate-600 text-slate-100"
+                    className="bg-card border-border text-foreground"
                     data-ocid="loans.lvi.surplus.input"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-300 mb-1 block">
+                  <Label className="text-xs text-foreground/80 mb-1 block">
                     Loan Interest Rate (%)
                   </Label>
                   <Input
                     type="number"
                     value={lviLoanRate}
                     onChange={(e) => setLviLoanRate(Number(e.target.value))}
-                    className="bg-slate-700 border-slate-600 text-slate-100"
+                    className="bg-card border-border text-foreground"
                     data-ocid="loans.lvi.loanrate.input"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-300 mb-1 block">
+                  <Label className="text-xs text-foreground/80 mb-1 block">
                     Expected Investment Return (%)
                   </Label>
                   <Input
                     type="number"
                     value={lviInvestRate}
                     onChange={(e) => setLviInvestRate(Number(e.target.value))}
-                    className="bg-slate-700 border-slate-600 text-slate-100"
+                    className="bg-card border-border text-foreground"
                     data-ocid="loans.lvi.investrate.input"
                   />
                 </div>
@@ -1093,12 +1104,12 @@ export default function LoansPage() {
                         ? `✅ Prepay Your Loan — You save ${(lviLoanRate - lviInvestRate).toFixed(1)}% more than investing`
                         : `📈 Invest the Surplus — Expected gain ${lviInvestRate}% vs loan cost ${lviLoanRate}%`}
                     </p>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {recommend
                         ? `Your loan rate (${lviLoanRate}%) exceeds your expected investment return (${lviInvestRate}%). Prepaying gives a guaranteed return equal to the loan rate.`
                         : `Your expected investment return (${lviInvestRate}%) exceeds your loan rate (${lviLoanRate}%). Over 5 years, investing ${fmt(lviSurplus)}/month can build significant wealth.`}
                     </p>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Break-even point: If investment return = {lviLoanRate}%
                       both options are equivalent.
                     </p>
@@ -1110,8 +1121,10 @@ export default function LoansPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="border-b border-slate-700">
-                      <th className="py-2 text-left text-slate-400">Year</th>
+                    <tr className="border-b border-border">
+                      <th className="py-2 text-left text-muted-foreground">
+                        Year
+                      </th>
                       <th className="py-2 text-right text-emerald-400">
                         Invest Corpus
                       </th>
@@ -1124,7 +1137,7 @@ export default function LoansPage() {
                     {lviTable.map((row) => (
                       <tr
                         key={row.year}
-                        className="border-b border-slate-800 hover:bg-slate-700/30"
+                        className="border-b border-slate-800 hover:bg-muted/30"
                       >
                         <td className="py-2 text-muted-foreground">
                           {row.year}
@@ -1148,7 +1161,7 @@ export default function LoansPage() {
         <TabsContent value="affordability" className="space-y-4">
           <Card className="bg-card border-border">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2 text-slate-100">
+              <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                 <CheckCircle2 className="w-4 h-4 text-teal-400" /> Loan
                 Affordability Check
               </CardTitle>
@@ -1156,26 +1169,26 @@ export default function LoansPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-xs text-slate-300 mb-1 block">
+                  <Label className="text-xs text-foreground/80 mb-1 block">
                     Monthly Gross Income ({sym})
                   </Label>
                   <Input
                     type="number"
                     value={affIncome}
                     onChange={(e) => setAffIncome(Number(e.target.value))}
-                    className="bg-slate-700 border-slate-600 text-slate-100"
+                    className="bg-card border-border text-foreground"
                     data-ocid="loans.aff.income.input"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-300 mb-1 block">
+                  <Label className="text-xs text-foreground/80 mb-1 block">
                     Existing Monthly EMIs ({sym})
                   </Label>
                   <Input
                     type="number"
                     value={affExistingEmi}
                     onChange={(e) => setAffExistingEmi(Number(e.target.value))}
-                    className="bg-slate-700 border-slate-600 text-slate-100"
+                    className="bg-card border-border text-foreground"
                     data-ocid="loans.aff.emi.input"
                   />
                 </div>
@@ -1191,22 +1204,28 @@ export default function LoansPage() {
                 }`}
               >
                 <div>
-                  <p className="text-[10px] text-slate-400">Max Safe EMI</p>
-                  <p className="text-sm font-bold text-slate-100">
+                  <p className="text-[10px] text-muted-foreground">
+                    Max Safe EMI
+                  </p>
+                  <p className="text-sm font-bold text-foreground">
                     {fmt(maxEMI)}
                   </p>
-                  <p className="text-[10px] text-slate-400">50% of income</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    50% of income
+                  </p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400">Existing EMIs</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Existing EMIs
+                  </p>
                   <p
-                    className={`text-sm font-bold ${affStatus === "danger" ? "text-red-300" : "text-slate-100"}`}
+                    className={`text-sm font-bold ${affStatus === "danger" ? "text-red-300" : "text-foreground"}`}
                   >
                     {fmt(affExistingEmi)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[10px] text-muted-foreground">
                     Available Headroom
                   </p>
                   <p
@@ -1219,7 +1238,7 @@ export default function LoansPage() {
 
               {available > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-slate-300 mb-2">
+                  <p className="text-xs font-semibold text-foreground/80 mb-2">
                     Approximate loan amount at {affRate}% p.a. with your
                     available EMI headroom:
                   </p>
@@ -1232,9 +1251,9 @@ export default function LoansPage() {
                       return (
                         <div
                           key={months}
-                          className="bg-slate-700/50 rounded-xl p-3 text-center"
+                          className="bg-muted/50 rounded-xl p-3 text-center"
                         >
-                          <p className="text-[10px] text-slate-400">
+                          <p className="text-[10px] text-muted-foreground">
                             {months / 12} years
                           </p>
                           <p className="text-sm font-bold text-blue-300">
@@ -1255,7 +1274,7 @@ export default function LoansPage() {
           <Card className="bg-card border-border">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <CardTitle className="text-sm flex items-center gap-2 text-slate-100">
+                <CardTitle className="text-sm flex items-center gap-2 text-foreground">
                   <CalendarDays className="w-4 h-4 text-purple-400" /> Debt-Free
                   Timeline
                 </CardTitle>
@@ -1267,7 +1286,7 @@ export default function LoansPage() {
                     type="number"
                     value={dfExtra}
                     onChange={(e) => setDfExtra(Number(e.target.value))}
-                    className="w-28 h-8 text-xs bg-slate-700 border-slate-600 text-slate-100"
+                    className="w-28 h-8 text-xs bg-card border-border text-foreground"
                     data-ocid="loans.timeline.extra.input"
                   />
                 </div>
@@ -1275,23 +1294,23 @@ export default function LoansPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {loans.length === 0 ? (
-                <p className="text-sm text-slate-400 py-4 text-center">
+                <p className="text-sm text-muted-foreground py-4 text-center">
                   Add loans to see your debt-free projection.
                 </p>
               ) : (
                 <>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-slate-700/50 rounded-xl p-3 text-center">
-                      <p className="text-xs text-slate-400">
+                    <div className="bg-muted/50 rounded-xl p-3 text-center">
+                      <p className="text-xs text-muted-foreground">
                         Debt-Free Date (Current)
                       </p>
-                      <p className="text-sm font-bold text-slate-100 mt-1">
+                      <p className="text-sm font-bold text-foreground mt-1">
                         {debtTimeline.debtFreeDate}
                       </p>
                     </div>
                     {dfExtra > 0 && (
                       <div className="bg-emerald-900/30 border border-emerald-700 rounded-xl p-3 text-center">
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-muted-foreground">
                           With Extra {fmt(dfExtra)}/mo
                         </p>
                         <p className="text-sm font-bold text-emerald-300 mt-1">
@@ -1395,7 +1414,7 @@ export default function LoansPage() {
           </Card>
         </TabsContent>
         <TabsContent value="debtmodel" className="mt-2">
-          <div className="bg-white rounded-2xl border border-slate-200 p-4 min-h-[400px]">
+          <div className="bg-card rounded-2xl border border-border p-4 min-h-[400px]">
             <ModelDebtTab />
           </div>
         </TabsContent>

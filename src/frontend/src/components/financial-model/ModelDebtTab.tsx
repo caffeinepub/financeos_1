@@ -55,7 +55,7 @@ const SCENARIOS: {
 }[] = [
   {
     id: "multi",
-    title: "Scenario 1 — Multiple Debts, Full Plan",
+    title: "Multiple Debts, Full Plan",
     desc: "Personal loan + credit card + car loan. EMIs total \u20b922,000. \u20b95,000 extra available.",
     debts: [
       { name: "Personal Loan", balance: 350000, rate: 14, months: 30, emi: 0 },
@@ -66,7 +66,7 @@ const SCENARIOS: {
   },
   {
     id: "fourloans",
-    title: "Scenario 2 — 4 Loans, \u20b915,000 Extra",
+    title: "4 Loans, \u20b915,000 Extra",
     desc: "4 different loans, \u20b915,000 free each month. Which one to pay first?",
     debts: [
       { name: "Credit Card A", balance: 60000, rate: 36, months: 8, emi: 0 },
@@ -78,7 +78,7 @@ const SCENARIOS: {
   },
   {
     id: "minpay",
-    title: "Scenario 3 — Credit Card Minimum Payment Trap",
+    title: "Credit Card Minimum Payment Trap",
     desc: "Paying only minimum due for 8 months. Balance keeps growing.",
     debts: [
       { name: "Credit Card", balance: 120000, rate: 42, months: 12, emi: 0 },
@@ -87,7 +87,7 @@ const SCENARIOS: {
   },
   {
     id: "consolidation",
-    title: "Scenario 4 — Credit Card Consolidation Decision",
+    title: "Credit Card Consolidation Decision",
     desc: "Consider taking a personal loan at 14% to close \u20b92,40,000 in credit card debt at 36%.",
     debts: [
       {
@@ -102,7 +102,7 @@ const SCENARIOS: {
   },
   {
     id: "sipvsdebt",
-    title: "Scenario 5 — SIP vs Debt Payoff",
+    title: "SIP vs Debt Payoff",
     desc: "Should you stop your SIP to repay a personal loan faster?",
     debts: [
       { name: "Personal Loan", balance: 250000, rate: 13, months: 24, emi: 0 },
@@ -371,17 +371,6 @@ export function ModelDebtTab({
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="flex items-center gap-1 text-slate-600 hover:text-slate-900 mb-1"
-        onClick={() => {
-          setResult(null);
-          setView("menu");
-        }}
-      >
-        <ChevronLeft className="w-4 h-4" /> Back to Menu
-      </Button>
       {/* Header */}
       <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-red-50 to-orange-50 border border-red-100 rounded-xl">
         <TrendingDown className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />

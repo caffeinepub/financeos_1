@@ -121,7 +121,7 @@ const SCENARIOS: {
 }[] = [
   {
     id: "single",
-    title: "Scenario 1 — Single Goal: Buy a Car",
+    title: "Single Goal: Buy a Car",
     desc: "Car worth \u20b98,00,000 in 3 years. No loan. How much to save monthly?",
     goals: [{ name: "Buy a Car", targetToday: 800000, years: 3 }],
     monthlyAvailable: 20000,
@@ -130,7 +130,7 @@ const SCENARIOS: {
   },
   {
     id: "multi",
-    title: "Scenario 2 — 3 Goals, \u20b920,000/month",
+    title: "3 Goals, \u20b920,000/month",
     desc: "Child education in 12 yrs (\u20b930L today), home down payment in 5 yrs (\u20b915L), retirement. Split \u20b920,000/month.",
     goals: [
       { name: "Child Education", targetToday: 3000000, years: 12 },
@@ -143,7 +143,7 @@ const SCENARIOS: {
   },
   {
     id: "retire",
-    title: "Scenario 3 — Retirement at 55",
+    title: "Retirement at 55",
     desc: "Age 32. Retire at 55 with \u20b980,000/month in today\u2019s value. Monthly SIP required?",
     goals: [{ name: "Retirement Corpus", targetToday: 24000000, years: 23 }],
     monthlyAvailable: 30000,
@@ -152,7 +152,7 @@ const SCENARIOS: {
   },
   {
     id: "delay",
-    title: "Scenario 4 — Cost of 2-Year Delay",
+    title: "Cost of 2-Year Delay",
     desc: "Age 30, want to retire at 60. Started investing 2 years late. What did waiting cost?",
     goals: [{ name: "Retirement Corpus", targetToday: 30000000, years: 30 }],
     monthlyAvailable: 15000,
@@ -161,7 +161,7 @@ const SCENARIOS: {
   },
   {
     id: "raise",
-    title: "Scenario 5 — Income Increase, Reprioritize",
+    title: "Income Increase, Reprioritize",
     desc: "Income up by \u20b915,000/month. Existing child education SIP running. How to allocate the extra?",
     goals: [
       { name: "Child Education (Existing)", targetToday: 2500000, years: 10 },
@@ -458,17 +458,6 @@ export function ModelGoalPlanningTab({
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="flex items-center gap-1 text-slate-600 hover:text-slate-900 mb-1"
-        onClick={() => {
-          setResult(null);
-          setView("menu");
-        }}
-      >
-        <ChevronLeft className="w-4 h-4" /> Back to Menu
-      </Button>
       {/* Header */}
       <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-100 rounded-xl">
         <Target className="w-6 h-6 text-violet-600 shrink-0 mt-0.5" />

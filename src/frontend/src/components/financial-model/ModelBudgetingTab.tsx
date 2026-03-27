@@ -42,7 +42,7 @@ const SCENARIOS: {
 }[] = [
   {
     id: "standard",
-    title: "Scenario 1 — Salaried: Budget Setup",
+    title: "Salaried: Budget Setup",
     desc: "Take-home ₹65,000. Knows main expenses but unsure where the rest goes.",
     inputs: {
       income: 65000,
@@ -61,7 +61,7 @@ const SCENARIOS: {
   },
   {
     id: "leakage",
-    title: "Scenario 2 — Leakage Detection",
+    title: "Leakage Detection",
     desc: "Earns ₹80,000 but runs out of money by the 25th every month.",
     inputs: {
       income: 80000,
@@ -80,7 +80,7 @@ const SCENARIOS: {
   },
   {
     id: "tightening",
-    title: "Scenario 3 — Budget Tightening",
+    title: "Budget Tightening",
     desc: "Need to reduce monthly spend by ₹10,000 without giving up gym, Netflix, or outings.",
     inputs: {
       income: 75000,
@@ -99,7 +99,7 @@ const SCENARIOS: {
   },
   {
     id: "freelancer",
-    title: "Scenario 4 — Freelancer Variable Income",
+    title: "Freelancer Variable Income",
     desc: "Monthly income swings between ₹40,000 and ₹1,20,000. Needs a stable budget.",
     inputs: {
       income: 70000,
@@ -528,17 +528,6 @@ export function ModelBudgetingTab({
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="flex items-center gap-1 text-slate-600 hover:text-slate-900 mb-1"
-        onClick={() => {
-          setResult(null);
-          setView("menu");
-        }}
-      >
-        <ChevronLeft className="w-4 h-4" /> Back to Menu
-      </Button>
       {/* Header */}
       <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
         <Wallet className="w-6 h-6 text-blue-600 shrink-0 mt-0.5" />

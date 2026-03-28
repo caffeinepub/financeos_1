@@ -1,4 +1,11 @@
-import { Pencil, Plus, Trash2, TrendingDown, TrendingUp } from "lucide-react";
+import {
+  Pencil,
+  PiggyBank,
+  Plus,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
@@ -542,6 +549,47 @@ export function MonthlyTrackerTab() {
               </div>
               <p className="text-base font-bold text-red-600">
                 {fmt(totalActual, country)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card
+            data-ocid="budgeting.savings.card"
+            className="border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50"
+          >
+            <CardContent className="p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <PiggyBank className="w-3.5 h-3.5 text-blue-500" />
+                <span className="text-[10px] text-blue-600 font-medium uppercase tracking-wide">
+                  Total Savings
+                </span>
+              </div>
+              <p
+                className={`text-base font-bold ${(totalIncome - totalActual) >= 0 ? "text-blue-700" : "text-red-600"}`}
+              >
+                {fmt(totalIncome - totalActual, country)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card
+            data-ocid="budgeting.savings_rate.card"
+            className="border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50"
+          >
+            <CardContent className="p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <TrendingUp className="w-3.5 h-3.5 text-violet-500" />
+                <span className="text-[10px] text-violet-600 font-medium uppercase tracking-wide">
+                  Savings Rate
+                </span>
+              </div>
+              <p
+                className={`text-base font-bold ${totalIncome > 0 ? (((totalIncome - totalActual) / totalIncome) * 100 >= 20 ? "text-violet-700" : ((totalIncome - totalActual) / totalIncome) * 100 >= 10 ? "text-amber-700" : "text-red-600") : "text-slate-500"}`}
+              >
+                {totalIncome > 0
+                  ? (((totalIncome - totalActual) / totalIncome) * 100).toFixed(
+                      1,
+                    )
+                  : "0.0"}
+                %
               </p>
             </CardContent>
           </Card>

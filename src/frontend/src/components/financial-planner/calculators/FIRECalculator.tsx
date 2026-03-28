@@ -184,6 +184,20 @@ export function FIRECalculator() {
     });
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: calculateFIRE is a local function, not a dependency
+  useEffect(() => {
+    calculateFIRE();
+  }, [
+    strategy,
+    currentAge,
+    targetAge,
+    currentSavings,
+    monthlyExpenses,
+    monthlySavings,
+    expectedReturn,
+    inflationRate,
+  ]);
+
   const getStrategyInfo = (strat: FIREStrategy) => {
     switch (strat) {
       case "fat":
@@ -353,10 +367,6 @@ export function FIRECalculator() {
               />
             </div>
           </div>
-
-          <Button onClick={calculateFIRE} className="w-full rounded-xl">
-            Calculate FIRE Plan
-          </Button>
 
           {results && (
             <div className="space-y-3 pt-4 border-t">

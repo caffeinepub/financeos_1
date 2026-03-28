@@ -477,15 +477,11 @@ export function ModelBudgetingTab({
     return (
       <div className="space-y-3 animate-fade-in">
         <div className="flex items-center gap-3 px-1 mb-4">
-          <Wallet className="w-5 h-5 text-emerald-400 shrink-0" />
+          <Wallet className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <div>
-            <h3 className="text-sm font-bold text-slate-100">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
               Budgeting &amp; Expense Tracking Model
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Select a scenario to explore. Pre-filled with realistic numbers
-              you can edit.
-            </p>
           </div>
         </div>
         {SCENARIOS.map((s, idx) => {
@@ -499,7 +495,7 @@ export function ModelBudgetingTab({
                 loadScenario(s);
                 setView("detail");
               }}
-              className="w-full text-left bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 rounded-xl overflow-hidden transition-all duration-200 group"
+              className="w-full text-left bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl overflow-hidden transition-all duration-200 group shadow-sm hover:shadow-md"
               style={{ borderLeftColor: accentColor, borderLeftWidth: 4 }}
             >
               <div className="flex items-center justify-between px-4 py-3">
@@ -510,14 +506,16 @@ export function ModelBudgetingTab({
                   >
                     {idx + 1}
                   </span>
-                  <span className="text-sm font-semibold text-slate-100 truncate">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-slate-100 truncate">
                     {s.title}
                   </span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-200 group-hover:translate-x-0.5 transition-transform shrink-0 ml-2" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 group-hover:translate-x-0.5 transition-transform shrink-0 ml-2" />
               </div>
               <div className="px-4 pb-3">
-                <p className="text-xs text-slate-400">{s.desc}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">
+                  {s.desc}
+                </p>
               </div>
             </button>
           );
@@ -528,20 +526,15 @@ export function ModelBudgetingTab({
 
   return (
     <div className="space-y-4 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
-        <Wallet className="w-6 h-6 text-blue-600 shrink-0 mt-0.5" />
-        <div>
-          <h3 className="text-sm font-bold text-blue-800">
-            Budgeting & Expense Tracking Model
-          </h3>
-          <p className="text-xs text-blue-600 mt-0.5">
-            Enter your monthly income and expenses below. Select a scenario to
-            pre-fill sample numbers, then update any value to match your
-            situation and click Analyze.
-          </p>
-        </div>
-      </div>
+      {/* Back to Menu */}
+      <button
+        type="button"
+        onClick={() => setView("menu")}
+        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2 font-medium"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Back to Menu
+      </button>
 
       {/* Input Fields */}
       <div className="bg-white border border-slate-100 rounded-xl p-4 space-y-3">

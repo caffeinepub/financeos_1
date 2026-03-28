@@ -1386,7 +1386,7 @@ export default function TradeJournalPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Pre-Trade Checklist */}
               <div className="bg-card rounded-2xl border border-border p-5">
-                <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
                   <CheckSquare className="h-4 w-4 text-emerald-400" /> Pre-Trade
                   Checklist
                 </h3>
@@ -1439,7 +1439,7 @@ export default function TradeJournalPage() {
 
               {/* Post-Trade Reviews */}
               <div className="bg-card rounded-2xl border border-border p-5">
-                <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-blue-400" /> Post-Trade
                   Reviews
                 </h3>
@@ -1477,7 +1477,7 @@ export default function TradeJournalPage() {
                               }
                             >
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold text-white text-sm">
+                                <span className="font-semibold text-foreground text-sm">
                                   {t.ticker}
                                 </span>
                                 <span className="text-muted-foreground text-xs">
@@ -1544,7 +1544,7 @@ export default function TradeJournalPage() {
             {/* Tag Cloud */}
             {allTags.length > 0 && (
               <div className="bg-card rounded-2xl border border-border p-5">
-                <h3 className="text-sm font-semibold text-white mb-3">
+                <h3 className="text-sm font-semibold text-foreground mb-3">
                   Tag Cloud
                 </h3>
                 <div className="flex flex-wrap gap-2">

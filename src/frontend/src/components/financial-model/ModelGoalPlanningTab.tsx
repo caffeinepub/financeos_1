@@ -407,15 +407,11 @@ export function ModelGoalPlanningTab({
     return (
       <div className="space-y-3 animate-fade-in">
         <div className="flex items-center gap-3 px-1 mb-4">
-          <Target className="w-5 h-5 text-violet-400 shrink-0" />
+          <Target className="w-5 h-5 text-violet-600 dark:text-violet-400 shrink-0" />
           <div>
-            <h3 className="text-sm font-bold text-slate-100">
-              Goal-Based Saving &amp; Planning Model
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+              Goal Planning Model
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Select a scenario to explore. Pre-filled with realistic goal
-              numbers you can edit.
-            </p>
           </div>
         </div>
         {SCENARIOS.map((s, idx) => {
@@ -429,7 +425,7 @@ export function ModelGoalPlanningTab({
                 loadScenario(s);
                 setView("detail");
               }}
-              className="w-full text-left bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 rounded-xl overflow-hidden transition-all duration-200 group"
+              className="w-full text-left bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl overflow-hidden transition-all duration-200 group shadow-sm hover:shadow-md"
               style={{ borderLeftColor: accentColor, borderLeftWidth: 4 }}
             >
               <div className="flex items-center justify-between px-4 py-3">
@@ -440,14 +436,16 @@ export function ModelGoalPlanningTab({
                   >
                     {idx + 1}
                   </span>
-                  <span className="text-sm font-semibold text-slate-100 truncate">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-slate-100 truncate">
                     {s.title}
                   </span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-200 group-hover:translate-x-0.5 transition-transform shrink-0 ml-2" />
+                <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 group-hover:translate-x-0.5 transition-transform shrink-0 ml-2" />
               </div>
               <div className="px-4 pb-3">
-                <p className="text-xs text-slate-400">{s.desc}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">
+                  {s.desc}
+                </p>
               </div>
             </button>
           );
@@ -458,21 +456,15 @@ export function ModelGoalPlanningTab({
 
   return (
     <div className="space-y-4 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-100 rounded-xl">
-        <Target className="w-6 h-6 text-violet-600 shrink-0 mt-0.5" />
-        <div>
-          <h3 className="text-sm font-bold text-violet-800">
-            Goal-Based Saving & Planning Model
-          </h3>
-          <p className="text-xs text-violet-600 mt-0.5">
-            Enter your financial goals below. Select a scenario to pre-fill
-            sample numbers, then update the values to match your real goals. All
-            amounts are in full numbers (e.g., 800000 means \u20b98,00,000).
-            Inflation is applied at 6% per year automatically.
-          </p>
-        </div>
-      </div>
+      {/* Back to Menu */}
+      <button
+        type="button"
+        onClick={() => setView("menu")}
+        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2 font-medium"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Back to Menu
+      </button>
 
       {/* Inputs */}
       <div className="bg-white border border-slate-100 rounded-xl p-4 space-y-3">

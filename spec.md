@@ -1,36 +1,46 @@
 # Growfinfire Global
 
 ## Current State
-- Loans module: TabsList does not scroll on mobile (spills right); `createLoan` payload missing `id` field; `termMonths` sent as `Number` but backend expects `bigint`; UI color/theme needs upgrade to match app standard
-- Trade Journal: `backend.d.ts` and `backend.ts` are missing `TradeEntry` and `ChecklistItem` types + all 9 CRUD functions; frontend uses `(actor as any)` casts to work around this; `sortOrder` (bigint) sent as plain `number`; submenu tabs spill on mobile
+Production-grade finance app with Dashboard, Goals, Portfolio, Budgeting, Financial Model, Financial Planner, Learn Finance, Loans, Trade Journal modules. Version 120 deployed.
 
 ## Requested Changes (Diff)
 
 ### Add
-- `TradeEntry` and `ChecklistItem` types to `backend.d.ts`
-- 9 TradeJournal CRUD function signatures to `backend.d.ts`
-- 9 TradeJournal CRUD function implementations to `backend.ts` (same pattern as existing Loan functions)
+- Budgeting Plan Budget: 2 new cards — Expected Savings (Income - Expense) and Savings Rate (%)
+- Budgeting Track Income vs Expense: 2 new cards — Net Balance and Balance (%)
+- Financial Planner Retirement & Goals section: Add "Buy a House - Eligibility" card (move BuyHousePlanner component from GoalsPage Plan Goals)
 
 ### Modify
-- `backend.d.ts`: add TradeEntry, ChecklistItem interfaces and CRUD signatures
-- `backend.ts`: add createTradeEntry, getTradeEntry, getAllTradeEntries, updateTradeEntry, deleteTradeEntry, createChecklistItem, getAllChecklistItems, updateChecklistItem, deleteChecklistItem implementations
-- `LoansPage.tsx`:
-  - Add `id: crypto.randomUUID()` to the `createLoan` payload
-  - Change `termMonths: Number(form.termMonths)` → `termMonths: BigInt(form.termMonths)` in payload
-  - Same fix in `openEdit` and `simLoan` usages
-  - Fix TabsList: add `overflow-x-auto scrollbar-hide flex-nowrap min-w-0` for mobile draggable scroll
-  - Upgrade UI theme to match application standards: use Goals/Portfolio pill nav style; consistent dark card colors; proper color coding per loan type; industry-standard health score coloring (green/amber/red)
-- `TradeJournalPage.tsx`:
-  - Remove all `(actor as any)` casts — use typed `actor` with proper imports
-  - Fix `sortOrder: BigInt(item.sortOrder)` in createChecklistItem payload
-  - Fix TabsList: add `overflow-x-auto scrollbar-hide flex-nowrap min-w-0` for mobile draggable scroll
+- **Admin (Layout.tsx):** `bootstrapAdmin()` call should use the actor directly and ensure `isCallerAdmin` response correctly sets `isAdmin` state. Debug and fix so admin icon appears on login.
+- **Dashboard Budgeting 6-Month chart:** `planned` value per month should reflect per-month planned budget edits from backend (budgetCats monthlyLimit per month if available), not a single static sum.
+- **Dashboard Goals Progress chart:** GoalDate text → `text-slate-600` (dark grey); currentAmount → red if progress < 50%, amber if 50-80%, green if >= 80% (based on currentAmount/targetAmount ratio).
+- **Dashboard Assets vs Liabilities:** Replace PieChart donut with RadialBarChart showing % values inside each circular bar (RadialBarChart already imported).
+- **Goals Plan Goals — ModelGoalPlanningTab:** Header "Goal-Based Saving & Planning Model" font color → black (`text-gray-900 dark:text-white`). Remove guidance text "Select a scenario to explore. Pre-filled with realistic goal numbers you can edit." Add "Back to Menu" button in detail view (view==="detail"). Card theme updated to match Financial Planner card style (white background, proper border, consistent font). Remove BuyHousePlanner from here (moved to Financial Planner).
+- **Goals Plan Goals:** Card backgrounds white, card title text black, scenario description grey.
+- **Portfolio Overview table:** Rename "Investment Module" header → "Investment". Move "Allocation%" column to last position. Gain/Loss card already uses shortNum — verify it shows Cr/L/K or M/B/K.
+- **Portfolio all tables:** Swap "Gain/Loss%" and "Gain/Loss" columns so Gain/Loss% appears before Gain/Loss.
+- **Budget Insights chart order:** Reorder to: 1. Monthly Overview Income vs Expenses, 2. 50/30/20 Budget Rule Analysis, 3. Month-over-Month Trend, 4. Monthly Budget Snapshot, 5. Spending by Category, 6. Top Spending Categories, 7. Savings Rate Trend (%)
+- **Budgeting Improve Budget — ModelBudgetingTab:** Header "Budgeting & Expense Tracking Model" → black text. Remove guidance text. Add Back to Menu in detail view. Card theme matches Financial Planner.
+- **Loans Debt Model — ModelDebtTab:** Header "Debt Management & Repayment Model" → black text. Remove guidance text. Add Back to Menu in detail view. Card theme matches Financial Planner.
+- **Loans submenu header:** Fix mobile - all menu items visible, draggable/scrollable from leftmost item.
+- **Loans & Trade Journal:** Full UI theme alignment — card backgrounds, font colors, table styles to match app standard (Portfolio/Budgeting theme, dark/light toggle).
+- **FIRE Calculator (FIRECalculator.tsx):** Remove "Calculate FIRE Plan" button. Trigger calculation automatically using useEffect whenever any input changes (instant calculation like other planners).
 
 ### Remove
-- Nothing
+- "Buy a House Planner" card from Goals Plan Goals (moved to Financial Planner)
+- Guidance texts in ModelGoalPlanningTab, ModelBudgetingTab, ModelDebtTab detail views
+- "Calculate FIRE Plan" button from FIRECalculator
 
 ## Implementation Plan
-1. Update `backend.d.ts` to add TradeEntry, ChecklistItem types and all 9 CRUD function signatures
-2. Update `backend.ts` to add all 9 CRUD function implementations (copy Loans pattern)
-3. Fix `LoansPage.tsx`: add id to payload, BigInt for termMonths, fix mobile tab overflow, upgrade UI theme
-4. Fix `TradeJournalPage.tsx`: replace (actor as any) with typed calls, fix sortOrder bigint, fix mobile tab overflow
-5. Validate build
+1. Fix admin icon — ensure bootstrapAdmin + isCallerAdmin sequence works reliably in Layout.tsx
+2. Dashboard: fix Budgeting 6M planned per-month, Goals Progress text colors, Assets vs Liabilities RadialBarChart
+3. ModelGoalPlanningTab: black header, remove guidance, Back to Menu button, Financial Planner card theme, remove BuyHousePlanner
+4. FinancialPlannerPage/CalculatorsTab: add Buy a House - Eligibility entry in Retirement & Goals
+5. Portfolio: rename column, reorder Allocation%, swap Gain/Loss columns in all tables
+6. BudgetingPage Plan Budget: add Expected Savings + Savings Rate cards
+7. MonthlyTrackerTab: add Net Balance + Balance (%) cards in Track tab; reorder Budget Insights charts
+8. ModelBudgetingTab: black header, remove guidance, Back to Menu, Financial Planner card theme
+9. ModelDebtTab: black header, remove guidance, Back to Menu, Financial Planner card theme
+10. LoansPage: fix mobile submenu draggable, align UI theme
+11. TradeJournalPage: align UI theme with app standard
+12. FIRECalculator: remove button, add useEffect for instant calculation

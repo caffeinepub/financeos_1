@@ -699,20 +699,6 @@ export default function PortfolioPage() {
                         </th>
                         <th
                           className={thClassRight}
-                          onClick={() => toggleSort("gl")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("gl");
-                          }}
-                        >
-                          Gain/Loss
-                          <SortIcon
-                            col="gl"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th
-                          className={thClassRight}
                           onClick={() => toggleSort("glPct")}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") toggleSort("glPct");
@@ -721,6 +707,20 @@ export default function PortfolioPage() {
                           Gain/Loss%
                           <SortIcon
                             col="glPct"
+                            sortCol={sortCol}
+                            sortDir={sortDir}
+                          />
+                        </th>
+                        <th
+                          className={thClassRight}
+                          onClick={() => toggleSort("gl")}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") toggleSort("gl");
+                          }}
+                        >
+                          Gain/Loss
+                          <SortIcon
+                            col="gl"
                             sortCol={sortCol}
                             sortDir={sortDir}
                           />
@@ -784,19 +784,19 @@ export default function PortfolioPage() {
                             </td>
                             <td
                               className={`px-4 py-3 text-xs text-right tabular-nums font-semibold whitespace-nowrap ${
-                                gl >= 0 ? "text-emerald-600" : "text-red-500"
-                              }`}
-                            >
-                              {gl >= 0 ? "+" : ""}
-                              {fmt(gl)}
-                            </td>
-                            <td
-                              className={`px-4 py-3 text-xs text-right tabular-nums font-semibold whitespace-nowrap ${
                                 glPct >= 0 ? "text-emerald-600" : "text-red-500"
                               }`}
                             >
                               {glPct >= 0 ? "+" : ""}
                               {glPct.toFixed(1)}%
+                            </td>
+                            <td
+                              className={`px-4 py-3 text-xs text-right tabular-nums font-semibold whitespace-nowrap ${
+                                gl >= 0 ? "text-emerald-600" : "text-red-500"
+                              }`}
+                            >
+                              {gl >= 0 ? "+" : ""}
+                              {fmt(gl)}
                             </td>
                             <td className="px-4 py-3 text-xs text-slate-500">
                               {h.notes || "-"}
@@ -1374,15 +1374,8 @@ function PortfolioOverview({
                     className="text-white text-xs font-semibold uppercase cursor-pointer select-none"
                     onClick={() => toggleSort("label")}
                   >
-                    Investment Module
+                    Investment
                     <SortArrow col="label" />
-                  </TableHead>
-                  <TableHead
-                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
-                    onClick={() => toggleSort("alloc")}
-                  >
-                    Allocation%
-                    <SortArrow col="alloc" />
                   </TableHead>
                   <TableHead
                     className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
@@ -1412,6 +1405,13 @@ function PortfolioOverview({
                     % Gain/Loss
                     <SortArrow col="glPct" />
                   </TableHead>
+                  <TableHead
+                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                    onClick={() => toggleSort("alloc")}
+                  >
+                    Allocation%
+                    <SortArrow col="alloc" />
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1440,9 +1440,6 @@ function PortfolioOverview({
                         </div>
                       </TableCell>
                       <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
-                        {alloc.toFixed(1)}%
-                      </TableCell>
-                      <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
                         {fmt(s.invested)}
                       </TableCell>
                       <TableCell className="text-right text-xs tabular-nums font-semibold text-slate-800 py-2.5">
@@ -1462,6 +1459,9 @@ function PortfolioOverview({
                           {s.glPct.toFixed(1)}%
                         </span>
                       </TableCell>
+                      <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
+                        {alloc.toFixed(1)}%
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -1469,9 +1469,6 @@ function PortfolioOverview({
                 <TableRow className="bg-slate-50 border-t-2 border-slate-200">
                   <TableCell className="py-2.5 text-xs font-bold text-slate-700">
                     Total
-                  </TableCell>
-                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
-                    100%
                   </TableCell>
                   <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
                     {fmt(totalInvested)}
@@ -1502,6 +1499,9 @@ function PortfolioOverview({
                         %
                       </span>
                     )}
+                  </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
+                    100%
                   </TableCell>
                 </TableRow>
               </TableBody>

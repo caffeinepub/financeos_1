@@ -287,6 +287,7 @@ export default function BudgetingPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [showAllPlanIncome, setShowAllPlanIncome] = useState(false);
 
   const load = () => {
     if (!actor) return;
@@ -610,7 +611,29 @@ export default function BudgetingPage() {
                               </span>
                             </td>
                           </tr>
-                          {renderRows(incomes)}
+                          {renderRows(
+                            showAllPlanIncome ? incomes : incomes.slice(0, 1),
+                          )}
+                          {incomes.length > 1 && (
+                            <tr>
+                              <td
+                                colSpan={5}
+                                className="px-4 py-1.5 text-center"
+                              >
+                                <button
+                                  type="button"
+                                  className="text-xs text-emerald-600 hover:text-emerald-800 font-medium underline underline-offset-2"
+                                  onClick={() =>
+                                    setShowAllPlanIncome((v) => !v)
+                                  }
+                                >
+                                  {showAllPlanIncome
+                                    ? "Show less"
+                                    : `Show more entries (${incomes.length - 1} more)`}
+                                </button>
+                              </td>
+                            </tr>
+                          )}
                         </>
                       )}
                       {expenses.length > 0 && (

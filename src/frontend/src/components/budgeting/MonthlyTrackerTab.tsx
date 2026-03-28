@@ -1,12 +1,4 @@
-import {
-  Pencil,
-  PiggyBank,
-  Plus,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  Wallet,
-} from "lucide-react";
+import { Pencil, Plus, Trash2, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
@@ -214,8 +206,6 @@ export function MonthlyTrackerTab() {
       .filter((c) => c.categoryType === TransactionType.Expense)
       .reduce((s, c) => s + (c.id in ov ? ov[c.id] : c.monthlyLimit), 0);
   }, [categories, selectedMonth, selectedYear]);
-  const netSavings = totalIncome - totalActual;
-  const savingsRate = totalIncome > 0 ? (netSavings / totalIncome) * 100 : 0;
 
   const budgetedIncome = useMemo(
     () =>
@@ -246,6 +236,73 @@ export function MonthlyTrackerTab() {
   const expenseCategories = useMemo(
     () => categories.filter((c) => c.categoryType === TransactionType.Expense),
     [categories],
+  );
+  // Pre-computed values for Budget Insights charts
+  const analyticsFiltered = useMemo(() => {
+    return transactions.filter((t) => {
+      const d = new Date(t.date);
+      return (
+        d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear
+      );
+    });
+  }, [transactions, selectedMonth, selectedYear]);
+
+  const analyticsIncome = useMemo(
+    () =>
+      analyticsFiltered
+        .filter((t) => t.transactionType === TransactionType.Income)
+        .reduce((s, t) => s + t.amount, 0),
+    [analyticsFiltered],
+  );
+
+  const analyticsExpenses = useMemo(
+    () =>
+      analyticsFiltered
+        .filter((t) => t.transactionType === TransactionType.Expense)
+        .reduce((s, t) => s + t.amount, 0),
+    [analyticsFiltered],
+  );
+
+  const analyticsSavings = useMemo(
+    () => Math.max(0, analyticsIncome - analyticsExpenses),
+    [analyticsIncome, analyticsExpenses],
+  );
+  const analyticsSavingsRate = useMemo(
+    () =>
+      analyticsIncome > 0 ? (analyticsSavings / analyticsIncome) * 100 : 0,
+    [analyticsSavings, analyticsIncome],
+  );
+  const analyticsNeeds50 = useMemo(
+    () => analyticsIncome * 0.5,
+    [analyticsIncome],
+  );
+  const analyticsWants30 = useMemo(
+    () => analyticsIncome * 0.3,
+    [analyticsIncome],
+  );
+  const analyticsSavings20 = useMemo(
+    () => analyticsIncome * 0.2,
+    [analyticsIncome],
+  );
+
+  const analyticsCatMap = useMemo(() => {
+    const catMap: Record<string, number> = {};
+    for (const t of analyticsFiltered.filter(
+      (tx) => tx.transactionType === TransactionType.Expense,
+    )) {
+      const cat = expenseCategories.find((c) => c.id === t.categoryId);
+      const name = cat?.name ?? "Uncategorized";
+      catMap[name] = (catMap[name] ?? 0) + t.amount;
+    }
+    return catMap;
+  }, [analyticsFiltered, expenseCategories]);
+
+  const analyticsTop3 = useMemo(
+    () =>
+      Object.entries(analyticsCatMap)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3),
+    [analyticsCatMap],
   );
 
   const _openAdd = () => {
@@ -485,47 +542,6 @@ export function MonthlyTrackerTab() {
               </div>
               <p className="text-base font-bold text-red-600">
                 {fmt(totalActual, country)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card
-            data-ocid="budgeting.savings.card"
-            className={
-              netSavings >= 0
-                ? "border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50"
-                : "border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50"
-            }
-          >
-            <CardContent className="p-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <PiggyBank
-                  className={`w-3.5 h-3.5 ${netSavings >= 0 ? "text-blue-500" : "text-orange-500"}`}
-                />
-                <span
-                  className={`text-[10px] font-medium uppercase tracking-wide ${netSavings >= 0 ? "text-blue-600" : "text-orange-600"}`}
-                >
-                  Net Savings
-                </span>
-              </div>
-              <p
-                className={`text-base font-bold ${netSavings >= 0 ? "text-blue-700" : "text-orange-600"}`}
-              >
-                {fmt(netSavings, country)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50">
-            <CardContent className="p-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <Wallet className="w-3.5 h-3.5 text-purple-500" />
-                <span className="text-[10px] text-purple-600 font-medium uppercase tracking-wide">
-                  Savings Rate
-                </span>
-              </div>
-              <p
-                className={`text-base font-bold ${savingsRate >= 20 ? "text-purple-700" : "text-orange-600"}`}
-              >
-                {savingsRate.toFixed(1)}%
               </p>
             </CardContent>
           </Card>
@@ -863,6 +879,366 @@ export function MonthlyTrackerTab() {
           Budget Analytics
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* 1. Monthly Overview — Income vs Expenses */}
+          {/* 4. Monthly Overview — Income vs Expenses (Horizontal) */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">
+                Monthly Overview — Income vs Expenses
+              </CardTitle>
+            </CardHeader>
+            <CardContent data-ocid="budgeting.overview.chart">
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart
+                  data={chartData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 20, left: 60, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 11 }}
+                    width={60}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
+                    width={50}
+                  />
+                  <Tooltip formatter={(v: number) => fmt(v, country)} />
+                  <Legend iconType="circle" iconSize={10} />
+                  <Bar dataKey="Income" fill="#10b981" radius={[0, 4, 4, 0]} />
+                  <Bar
+                    dataKey="Planned Expenses"
+                    fill="#6366f1"
+                    radius={[0, 4, 4, 0]}
+                  />
+                  <Bar
+                    dataKey="Actual Expenses"
+                    fill="#ef4444"
+                    radius={[0, 4, 4, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {analyticsIncome > 0 && (
+            <>
+              {/* 2. 50/30/20 Budget Rule Analysis */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    📐 50/30/20 Budget Rule Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-5 pb-5 space-y-4">
+                  <div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-700">
+                        🏠 Needs (50%)
+                      </span>
+                      <Badge
+                        className={`text-[9px] ${analyticsExpenses > analyticsNeeds50 ? "bg-red-50 text-red-600 border border-red-200" : "bg-green-50 text-green-600 border border-green-200"}`}
+                      >
+                        {analyticsExpenses > analyticsNeeds50
+                          ? "Over budget"
+                          : "On track"}
+                      </Badge>
+                    </div>
+                    <div className="mt-1">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${Math.min(analyticsIncome > 0 ? (Math.min(analyticsExpenses, analyticsNeeds50) / analyticsNeeds50) * 100 : 0, 100)}%`,
+                            background:
+                              analyticsExpenses > analyticsNeeds50
+                                ? "#ef4444"
+                                : "#6366f1",
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                        <span>
+                          Actual:{" "}
+                          {formatCurrency(
+                            Math.min(analyticsExpenses, analyticsNeeds50),
+                          )}
+                        </span>
+                        <span>Target: {formatCurrency(analyticsNeeds50)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-700">
+                        🎭 Wants (30%)
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        Target: {formatCurrency(analyticsWants30)}
+                      </span>
+                    </div>
+                    <div className="mt-1">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${Math.min(analyticsIncome > 0 ? (Math.max(0, analyticsExpenses - analyticsNeeds50) / analyticsWants30) * 100 : 0, 100)}%`,
+                            background: "#f59e0b",
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                        <span>
+                          Actual:{" "}
+                          {formatCurrency(
+                            Math.max(0, analyticsExpenses - analyticsNeeds50),
+                          )}
+                        </span>
+                        <span>Target: {formatCurrency(analyticsWants30)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-700">
+                        💰 Savings (20%)
+                      </span>
+                      <Badge
+                        className={`text-[9px] ${analyticsSavings >= analyticsSavings20 ? "bg-green-50 text-green-600 border border-green-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}
+                      >
+                        {analyticsSavings >= analyticsSavings20
+                          ? "✓ Achieved"
+                          : "Below target"}
+                      </Badge>
+                    </div>
+                    <div className="mt-1">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${Math.min(analyticsSavings20 > 0 ? (analyticsSavings / analyticsSavings20) * 100 : 0, 100)}%`,
+                            background: "#10b981",
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                        <span>Actual: {formatCurrency(analyticsSavings)}</span>
+                        <span>
+                          Target: {formatCurrency(analyticsSavings20)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
+                    Savings Rate:{" "}
+                    <strong
+                      className={
+                        analyticsSavingsRate >= 20
+                          ? "text-green-700"
+                          : analyticsSavingsRate >= 10
+                            ? "text-amber-700"
+                            : "text-red-700"
+                      }
+                    >
+                      {analyticsSavingsRate.toFixed(1)}%
+                    </strong>{" "}
+                    (target: 20%)
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+          {/* 3. Month-over-Month Trend */}
+          {/* 2. Month-over-Month Trend */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Month-over-Month Trend</CardTitle>
+            </CardHeader>
+            <CardContent data-ocid="budgeting.mom_trend.chart">
+              {(() => {
+                const now = new Date();
+                const data = Array.from({ length: 6 }, (_, i) => {
+                  const d = new Date(
+                    now.getFullYear(),
+                    now.getMonth() - 5 + i,
+                    1,
+                  );
+                  const yr = d.getFullYear();
+                  const mo = d.getMonth();
+                  const label = d.toLocaleDateString("en-IN", {
+                    month: "short",
+                    year: "2-digit",
+                  });
+                  const income = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Income
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  const expense = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Expense
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  return { month: label, Income: income, Expenses: expense };
+                });
+                return (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart
+                      data={data}
+                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        opacity={0.15}
+                        vertical={false}
+                      />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                      <YAxis
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
+                        width={50}
+                      />
+                      <Tooltip
+                        formatter={(v: number, n: string) => [
+                          formatCurrency(v),
+                          n,
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: "11px" }} />
+                      <Bar
+                        dataKey="Income"
+                        fill="#10b981"
+                        radius={[4, 4, 0, 0]}
+                      />
+                      <Bar
+                        dataKey="Expenses"
+                        fill="#f43f5e"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {analyticsIncome > 0 && (
+            <>
+              {/* Monthly Budget Snapshot */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold text-slate-700">
+                    📋 Monthly Budget Snapshot
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-5 pb-5">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-slate-700">
+                          <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-white uppercase">
+                            Category
+                          </th>
+                          <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-white uppercase">
+                            Amount
+                          </th>
+                          <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-white uppercase">
+                            % of Income
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        <tr className="bg-emerald-50/60">
+                          <td className="px-4 py-2.5 text-xs font-bold text-emerald-700">
+                            ✅ Total Income
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-right font-bold text-emerald-700 tabular-nums">
+                            {formatCurrency(analyticsIncome)}
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-right font-bold text-emerald-700">
+                            100%
+                          </td>
+                        </tr>
+                        <tr className="bg-slate-50/60">
+                          <td className="px-4 py-2.5 text-xs font-semibold text-slate-600">
+                            Fixed Costs (Needs)
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-right tabular-nums text-slate-700">
+                            {formatCurrency(analyticsNeeds50)}
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-right text-slate-500">
+                            50%
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-2.5 text-xs font-semibold text-slate-600">
+                            Variable Costs (Wants)
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-right tabular-nums text-slate-700">
+                            {formatCurrency(analyticsWants30)}
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-right text-slate-500">
+                            30%
+                          </td>
+                        </tr>
+                        <tr className="bg-blue-50/60">
+                          <td className="px-4 py-2.5 text-xs font-bold text-blue-700">
+                            💰 Savings Target
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-right font-bold text-blue-700 tabular-nums">
+                            {formatCurrency(analyticsSavings20)}
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-right font-bold text-blue-700">
+                            20%
+                          </td>
+                        </tr>
+                        <tr
+                          className={
+                            analyticsSavings >= analyticsSavings20
+                              ? "bg-green-50/80"
+                              : "bg-amber-50/80"
+                          }
+                        >
+                          <td className="px-4 py-2.5 text-xs font-bold text-slate-700">
+                            Actual Savings
+                          </td>
+                          <td
+                            className={`px-4 py-2.5 text-xs text-right font-bold tabular-nums ${analyticsSavings >= analyticsSavings20 ? "text-green-700" : "text-amber-700"}`}
+                          >
+                            {formatCurrency(analyticsSavings)}
+                          </td>
+                          <td
+                            className={`px-4 py-2.5 text-xs text-right font-bold ${analyticsSavings >= analyticsSavings20 ? "text-green-700" : "text-amber-700"}`}
+                          >
+                            {analyticsSavingsRate.toFixed(1)}%
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+          {/* 5. Spending by Category */}
           {/* 1. Spending by Category Donut */}
           <Card>
             <CardHeader className="pb-2">
@@ -953,93 +1329,63 @@ export function MonthlyTrackerTab() {
             </CardContent>
           </Card>
 
-          {/* 2. Month-over-Month Trend */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Month-over-Month Trend</CardTitle>
-            </CardHeader>
-            <CardContent data-ocid="budgeting.mom_trend.chart">
-              {(() => {
-                const now = new Date();
-                const data = Array.from({ length: 6 }, (_, i) => {
-                  const d = new Date(
-                    now.getFullYear(),
-                    now.getMonth() - 5 + i,
-                    1,
-                  );
-                  const yr = d.getFullYear();
-                  const mo = d.getMonth();
-                  const label = d.toLocaleDateString("en-IN", {
-                    month: "short",
-                    year: "2-digit",
-                  });
-                  const income = transactions
-                    .filter((t) => {
-                      const td = new Date(t.date);
-                      return (
-                        td.getFullYear() === yr &&
-                        td.getMonth() === mo &&
-                        t.transactionType === TransactionType.Income
-                      );
-                    })
-                    .reduce((s, t) => s + t.amount, 0);
-                  const expense = transactions
-                    .filter((t) => {
-                      const td = new Date(t.date);
-                      return (
-                        td.getFullYear() === yr &&
-                        td.getMonth() === mo &&
-                        t.transactionType === TransactionType.Expense
-                      );
-                    })
-                    .reduce((s, t) => s + t.amount, 0);
-                  return { month: label, Income: income, Expenses: expense };
-                });
-                return (
-                  <ResponsiveContainer width="100%" height={220}>
-                    <BarChart
-                      data={data}
-                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        opacity={0.15}
-                        vertical={false}
-                      />
-                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                      <YAxis
-                        tick={{ fontSize: 10 }}
-                        tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
-                        width={50}
-                      />
-                      <Tooltip
-                        formatter={(v: number, n: string) => [
-                          formatCurrency(v),
-                          n,
-                        ]}
-                        contentStyle={{
-                          fontSize: "11px",
-                          borderRadius: "10px",
-                        }}
-                      />
-                      <Legend wrapperStyle={{ fontSize: "11px" }} />
-                      <Bar
-                        dataKey="Income"
-                        fill="#10b981"
-                        radius={[4, 4, 0, 0]}
-                      />
-                      <Bar
-                        dataKey="Expenses"
-                        fill="#f43f5e"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                );
-              })()}
-            </CardContent>
-          </Card>
-
+          {analyticsIncome > 0 && (
+            <>
+              {/* Top Spending Categories */}
+              {analyticsTop3.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-semibold text-slate-700">
+                      🔍 Top Spending Categories
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-5 pb-5 space-y-3">
+                    {analyticsTop3.map(([name, amount], i) => (
+                      <div key={name} className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-red-100 text-red-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                          {i + 1}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-medium text-slate-700 truncate">
+                              {name}
+                            </span>
+                            <span className="text-xs font-bold text-slate-800 tabular-nums ml-2">
+                              {formatCurrency(amount)}
+                            </span>
+                          </div>
+                          <div className="h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+                            <div
+                              className="h-full rounded-full"
+                              style={{
+                                width:
+                                  analyticsIncome > 0
+                                    ? `${Math.min((amount / analyticsIncome) * 100, 100)}%`
+                                    : "0%",
+                                background:
+                                  i === 0
+                                    ? "#ef4444"
+                                    : i === 1
+                                      ? "#f97316"
+                                      : "#f59e0b",
+                              }}
+                            />
+                          </div>
+                          <p className="text-[9px] text-slate-400 mt-0.5">
+                            {analyticsIncome > 0
+                              ? ((amount / analyticsIncome) * 100).toFixed(1)
+                              : "0"}
+                            % of income
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </>
+          )}
+          {/* 7. Savings Rate Trend */}
           {/* 3. Savings Rate Trend */}
           <Card>
             <CardHeader className="pb-2">
@@ -1125,350 +1471,6 @@ export function MonthlyTrackerTab() {
               })()}
             </CardContent>
           </Card>
-
-          {/* 4. Monthly Overview — Income vs Expenses (Horizontal) */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">
-                Monthly Overview — Income vs Expenses
-              </CardTitle>
-            </CardHeader>
-            <CardContent data-ocid="budgeting.overview.chart">
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart
-                  data={chartData}
-                  layout="vertical"
-                  margin={{ top: 5, right: 20, left: 60, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={{ fontSize: 11 }}
-                    width={60}
-                  />
-                  <XAxis
-                    type="number"
-                    tick={{ fontSize: 11 }}
-                    tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
-                    width={50}
-                  />
-                  <Tooltip formatter={(v: number) => fmt(v, country)} />
-                  <Legend iconType="circle" iconSize={10} />
-                  <Bar dataKey="Income" fill="#10b981" radius={[0, 4, 4, 0]} />
-                  <Bar
-                    dataKey="Planned Expenses"
-                    fill="#6366f1"
-                    radius={[0, 4, 4, 0]}
-                  />
-                  <Bar
-                    dataKey="Actual Expenses"
-                    fill="#ef4444"
-                    radius={[0, 4, 4, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* 50/30/20 Budget Rule Analysis */}
-          {(() => {
-            const filtered = transactions.filter((t) => {
-              const d = new Date(t.date);
-              return (
-                d.getMonth() + 1 === selectedMonth &&
-                d.getFullYear() === selectedYear
-              );
-            });
-            const incomeAmt = filtered
-              .filter((t) => t.transactionType === TransactionType.Income)
-              .reduce((s, t) => s + t.amount, 0);
-            const expensesAmt = filtered
-              .filter((t) => t.transactionType === TransactionType.Expense)
-              .reduce((s, t) => s + t.amount, 0);
-            const savingsAmt = Math.max(0, incomeAmt - expensesAmt);
-            const savingsRate =
-              incomeAmt > 0 ? (savingsAmt / incomeAmt) * 100 : 0;
-            const needs50 = incomeAmt * 0.5;
-            const wants30 = incomeAmt * 0.3;
-            const savings20 = incomeAmt * 0.2;
-            const catMap: Record<string, number> = {};
-            for (const t of filtered.filter(
-              (tx) => tx.transactionType === TransactionType.Expense,
-            )) {
-              const cat = expenseCategories.find((c) => c.id === t.categoryId);
-              const name = cat?.name ?? "Uncategorized";
-              catMap[name] = (catMap[name] ?? 0) + t.amount;
-            }
-            const top3 = Object.entries(catMap)
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 3);
-            if (incomeAmt === 0) return null;
-            return (
-              <>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                      📐 50/30/20 Budget Rule Analysis
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="px-5 pb-5 space-y-4">
-                    <div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-700">
-                          🏠 Needs (50%)
-                        </span>
-                        <Badge
-                          className={`text-[9px] ${expensesAmt > needs50 ? "bg-red-50 text-red-600 border border-red-200" : "bg-green-50 text-green-600 border border-green-200"}`}
-                        >
-                          {expensesAmt > needs50 ? "Over budget" : "On track"}
-                        </Badge>
-                      </div>
-                      <div className="mt-1">
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${Math.min(incomeAmt > 0 ? (Math.min(expensesAmt, needs50) / needs50) * 100 : 0, 100)}%`,
-                              background:
-                                expensesAmt > needs50 ? "#ef4444" : "#6366f1",
-                            }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
-                          <span>
-                            Actual:{" "}
-                            {formatCurrency(Math.min(expensesAmt, needs50))}
-                          </span>
-                          <span>Target: {formatCurrency(needs50)}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-700">
-                          🎭 Wants (30%)
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          Target: {formatCurrency(wants30)}
-                        </span>
-                      </div>
-                      <div className="mt-1">
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${Math.min(incomeAmt > 0 ? (Math.max(0, expensesAmt - needs50) / wants30) * 100 : 0, 100)}%`,
-                              background: "#f59e0b",
-                            }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
-                          <span>
-                            Actual:{" "}
-                            {formatCurrency(Math.max(0, expensesAmt - needs50))}
-                          </span>
-                          <span>Target: {formatCurrency(wants30)}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-700">
-                          💰 Savings (20%)
-                        </span>
-                        <Badge
-                          className={`text-[9px] ${savingsAmt >= savings20 ? "bg-green-50 text-green-600 border border-green-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}
-                        >
-                          {savingsAmt >= savings20
-                            ? "✓ Achieved"
-                            : "Below target"}
-                        </Badge>
-                      </div>
-                      <div className="mt-1">
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${Math.min(savings20 > 0 ? (savingsAmt / savings20) * 100 : 0, 100)}%`,
-                              background: "#10b981",
-                            }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
-                          <span>Actual: {formatCurrency(savingsAmt)}</span>
-                          <span>Target: {formatCurrency(savings20)}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
-                      Savings Rate:{" "}
-                      <strong
-                        className={
-                          savingsRate >= 20
-                            ? "text-green-700"
-                            : savingsRate >= 10
-                              ? "text-amber-700"
-                              : "text-red-700"
-                        }
-                      >
-                        {savingsRate.toFixed(1)}%
-                      </strong>{" "}
-                      (target: 20%)
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Monthly Budget Snapshot */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-slate-700">
-                      📋 Monthly Budget Snapshot
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="px-5 pb-5">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="bg-slate-700">
-                            <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-white uppercase">
-                              Category
-                            </th>
-                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-white uppercase">
-                              Amount
-                            </th>
-                            <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-white uppercase">
-                              % of Income
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          <tr className="bg-emerald-50/60">
-                            <td className="px-4 py-2.5 text-xs font-bold text-emerald-700">
-                              ✅ Total Income
-                            </td>
-                            <td className="px-4 py-2.5 text-xs text-right font-bold text-emerald-700 tabular-nums">
-                              {formatCurrency(incomeAmt)}
-                            </td>
-                            <td className="px-4 py-2.5 text-xs text-right font-bold text-emerald-700">
-                              100%
-                            </td>
-                          </tr>
-                          <tr className="bg-slate-50/60">
-                            <td className="px-4 py-2.5 text-xs font-semibold text-slate-600">
-                              Fixed Costs (Needs)
-                            </td>
-                            <td className="px-4 py-2.5 text-xs text-right tabular-nums text-slate-700">
-                              {formatCurrency(needs50)}
-                            </td>
-                            <td className="px-4 py-2.5 text-xs text-right text-slate-500">
-                              50%
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="px-4 py-2.5 text-xs font-semibold text-slate-600">
-                              Variable Costs (Wants)
-                            </td>
-                            <td className="px-4 py-2.5 text-xs text-right tabular-nums text-slate-700">
-                              {formatCurrency(wants30)}
-                            </td>
-                            <td className="px-4 py-2.5 text-xs text-right text-slate-500">
-                              30%
-                            </td>
-                          </tr>
-                          <tr className="bg-blue-50/60">
-                            <td className="px-4 py-2.5 text-xs font-bold text-blue-700">
-                              💰 Savings Target
-                            </td>
-                            <td className="px-4 py-2.5 text-xs text-right font-bold text-blue-700 tabular-nums">
-                              {formatCurrency(savings20)}
-                            </td>
-                            <td className="px-4 py-2.5 text-xs text-right font-bold text-blue-700">
-                              20%
-                            </td>
-                          </tr>
-                          <tr
-                            className={
-                              savingsAmt >= savings20
-                                ? "bg-green-50/80"
-                                : "bg-amber-50/80"
-                            }
-                          >
-                            <td className="px-4 py-2.5 text-xs font-bold text-slate-700">
-                              Actual Savings
-                            </td>
-                            <td
-                              className={`px-4 py-2.5 text-xs text-right font-bold tabular-nums ${savingsAmt >= savings20 ? "text-green-700" : "text-amber-700"}`}
-                            >
-                              {formatCurrency(savingsAmt)}
-                            </td>
-                            <td
-                              className={`px-4 py-2.5 text-xs text-right font-bold ${savingsAmt >= savings20 ? "text-green-700" : "text-amber-700"}`}
-                            >
-                              {savingsRate.toFixed(1)}%
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Top Spending Categories */}
-                {top3.length > 0 && (
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-semibold text-slate-700">
-                        🔍 Top Spending Categories
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-5 pb-5 space-y-3">
-                      {top3.map(([name, amount], i) => (
-                        <div key={name} className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded-full bg-red-100 text-red-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                            {i + 1}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs font-medium text-slate-700 truncate">
-                                {name}
-                              </span>
-                              <span className="text-xs font-bold text-slate-800 tabular-nums ml-2">
-                                {formatCurrency(amount)}
-                              </span>
-                            </div>
-                            <div className="h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
-                              <div
-                                className="h-full rounded-full"
-                                style={{
-                                  width:
-                                    incomeAmt > 0
-                                      ? `${Math.min((amount / incomeAmt) * 100, 100)}%`
-                                      : "0%",
-                                  background:
-                                    i === 0
-                                      ? "#ef4444"
-                                      : i === 1
-                                        ? "#f97316"
-                                        : "#f59e0b",
-                                }}
-                              />
-                            </div>
-                            <p className="text-[9px] text-slate-400 mt-0.5">
-                              {incomeAmt > 0
-                                ? ((amount / incomeAmt) * 100).toFixed(1)
-                                : "0"}
-                              % of income
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            );
-          })()}
         </div>
       </div>
     </div>

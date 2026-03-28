@@ -41,6 +41,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useState } from "react";
+import { BuyHousePlanner } from "./calculators/BuyHousePlanner";
 import { CAGRCalculator } from "./calculators/CAGRCalculator";
 import { CarLoanEMICalculator } from "./calculators/CarLoanEMICalculator";
 import { ChildEducationCalculator } from "./calculators/ChildEducationCalculator";
@@ -114,7 +115,8 @@ type CalculatorId =
   | "emergencysufficiency"
   | "retirementreadiness"
   | "inflationimpact"
-  | "hlv";
+  | "hlv"
+  | "buyhouse";
 
 interface CalculatorItem {
   id: CalculatorId;
@@ -242,6 +244,21 @@ export function CalculatorsTab() {
           color: "bg-orange-500",
           hoverColor: "hover:bg-orange-600",
           keywords: ["fire", "financial", "independence", "retire", "early"],
+        },
+        {
+          id: "buyhouse",
+          name: "Buy a House - Eligibility",
+          icon: Home,
+          color: "bg-blue-600",
+          hoverColor: "hover:bg-blue-700",
+          keywords: [
+            "buy",
+            "house",
+            "home",
+            "eligibility",
+            "mortgage",
+            "property",
+          ],
         },
         {
           id: "goal",
@@ -578,6 +595,8 @@ export function CalculatorsTab() {
         return <InflationImpactPlanner />;
       case "hlv":
         return <HLVCalculator />;
+      case "buyhouse":
+        return <BuyHousePlanner />;
       default:
         return null;
     }

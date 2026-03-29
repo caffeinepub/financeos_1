@@ -28,13 +28,6 @@ import { ModelRetirementTab } from "./ModelRetirementTab";
 
 const SECTIONS = [
   {
-    id: "modelinsurance",
-    label: "Insurance",
-    emoji: "🛡️",
-    borderColor: "#0ea5e9",
-    count: "Term · Health · HLV",
-  },
-  {
     id: "assetallocation",
     label: "Asset Allocation",
     emoji: "📊",
@@ -42,11 +35,32 @@ const SECTIONS = [
     count: "Conservative · Moderate · Aggressive",
   },
   {
+    id: "goalmodel",
+    label: "Goal Planning",
+    emoji: "🎯",
+    borderColor: "#8b5cf6",
+    count: "SIP Calculator · Inflation-Adjusted · Goal Stack",
+  },
+  {
+    id: "budgetingmodel",
+    label: "Budget & Expense Tracking",
+    emoji: "💰",
+    borderColor: "#3b82f6",
+    count: "50/30/20 Rule · Leakage Detection · Budget Plan",
+  },
+  {
     id: "modelportfolio",
-    label: "Model Portfolio",
+    label: "Model Portfolio & Investments",
     emoji: "💼",
     borderColor: "#10b981",
     count: "MF · ETF · Mixed",
+  },
+  {
+    id: "debtmodel",
+    label: "Loan Management & Repayment",
+    emoji: "📉",
+    borderColor: "#ef4444",
+    count: "Avalanche · Snowball · Debt Freedom Date",
   },
   {
     id: "modelretirement",
@@ -56,32 +70,18 @@ const SECTIONS = [
     count: "Early · Regular · Late",
   },
   {
+    id: "modelinsurance",
+    label: "Model Insurance",
+    emoji: "🛡️",
+    borderColor: "#0ea5e9",
+    count: "Term · Health · HLV",
+  },
+  {
     id: "modelcrypto",
     label: "Model Crypto",
     emoji: "₿",
     borderColor: "#f97316",
     count: "Conservative · Balanced · Growth",
-  },
-  {
-    id: "budgetingmodel",
-    label: "Budgeting & Expense Tracking",
-    emoji: "💰",
-    borderColor: "#3b82f6",
-    count: "50/30/20 Rule · Leakage Detection · Budget Plan",
-  },
-  {
-    id: "debtmodel",
-    label: "Debt Management & Repayment",
-    emoji: "📉",
-    borderColor: "#ef4444",
-    count: "Avalanche · Snowball · Debt Freedom Date",
-  },
-  {
-    id: "goalmodel",
-    label: "Goal-Based Saving & Planning",
-    emoji: "🎯",
-    borderColor: "#8b5cf6",
-    count: "SIP Calculator · Inflation-Adjusted · Goal Stack",
   },
 ];
 

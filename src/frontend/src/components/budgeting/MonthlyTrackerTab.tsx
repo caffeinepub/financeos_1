@@ -73,6 +73,53 @@ const MONTHS = [
   "December",
 ];
 
+const SAVINGS_KEYWORDS = [
+  "savings",
+  "investment",
+  "sip",
+  "ppf",
+  "nps",
+  "fd",
+  "emergency",
+  "mutual fund",
+  "retirement",
+  "stocks",
+  "retiral",
+];
+const WANTS_KEYWORDS = [
+  "dining",
+  "eating out",
+  "restaurant",
+  "entertainment",
+  "streaming",
+  "netflix",
+  "subscription",
+  "shopping",
+  "clothing",
+  "travel",
+  "vacation",
+  "gym",
+  "fitness",
+  "hobbies",
+  "personal care",
+  "beauty",
+  "salon",
+  "electronics",
+  "games",
+  "leisure",
+];
+function inferBudgetType(name: string): string {
+  const lc = name.toLowerCase();
+  if (SAVINGS_KEYWORDS.some((k) => lc.includes(k))) return "Savings";
+  if (WANTS_KEYWORDS.some((k) => lc.includes(k))) return "Wants";
+  return "Needs";
+}
+const TYPE_BADGE_COLORS: Record<string, string> = {
+  Needs: "bg-blue-100 text-blue-700 border border-blue-200",
+  Wants: "bg-amber-100 text-amber-700 border border-amber-200",
+  Savings: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+};
+
 const fmt = (n: number, cur?: { code: string }) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -94,8 +141,12 @@ export function MonthlyTrackerTab() {
   const sym = country.symbol;
   const { actor } = useActor();
   const now = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number | "all">(
+    now.getMonth() + 1,
+  );
+  const [selectedYear, setSelectedYear] = useState<number | "all">(
+    now.getFullYear(),
+  );
   const [showAllBudget, setShowAllBudget] = useState(false);
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -109,7 +160,10 @@ export function MonthlyTrackerTab() {
 
   // Per-month planned expense overrides (localStorage only, no backend)
   const LS_KEY = "budgeting_planned_overrides";
-  const monthKey = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}`;
+  const monthKey =
+    selectedMonth !== "all" && selectedYear !== "all"
+      ? `${selectedYear}-${String(selectedMonth).padStart(2, "0")}`
+      : "all";
 
   const getOverrides = (): Record<string, Record<string, number>> => {
     try {
@@ -178,9 +232,11 @@ export function MonthlyTrackerTab() {
   const monthTxns = useMemo(() => {
     return transactions.filter((t) => {
       const d = new Date(t.date);
-      return (
-        d.getFullYear() === selectedYear && d.getMonth() + 1 === selectedMonth
-      );
+      const matchMonth =
+        selectedMonth === "all" || d.getMonth() + 1 === selectedMonth;
+      const matchYear =
+        selectedYear === "all" || d.getFullYear() === selectedYear;
+      return matchMonth && matchYear;
     });
   }, [transactions, selectedMonth, selectedYear]);
 
@@ -207,7 +263,10 @@ export function MonthlyTrackerTab() {
         return {};
       }
     })() as Record<string, Record<string, number>>;
-    const mk = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}`;
+    const mk =
+      selectedMonth !== "all" && selectedYear !== "all"
+        ? `${selectedYear}-${String(selectedMonth).padStart(2, "0")}`
+        : "all";
     const ov = allOv[mk] ?? {};
     return categories
       .filter((c) => c.categoryType === TransactionType.Expense)
@@ -248,9 +307,11 @@ export function MonthlyTrackerTab() {
   const analyticsFiltered = useMemo(() => {
     return transactions.filter((t) => {
       const d = new Date(t.date);
-      return (
-        d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear
-      );
+      const matchMonth =
+        selectedMonth === "all" || d.getMonth() + 1 === selectedMonth;
+      const matchYear =
+        selectedYear === "all" || d.getFullYear() === selectedYear;
+      return matchMonth && matchYear;
     });
   }, [transactions, selectedMonth, selectedYear]);
 
@@ -373,13 +434,16 @@ export function MonthlyTrackerTab() {
         <div className="flex items-center gap-2">
           <Label className="text-sm font-medium">Month:</Label>
           <Select
-            value={String(selectedMonth)}
-            onValueChange={(v) => setSelectedMonth(Number(v))}
+            value={selectedMonth === "all" ? "all" : String(selectedMonth)}
+            onValueChange={(v) =>
+              setSelectedMonth(v === "all" ? "all" : Number(v))
+            }
           >
             <SelectTrigger className="w-36" data-ocid="budgeting.month.select">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">All Months</SelectItem>
               {MONTHS.map((m, i) => (
                 <SelectItem key={m} value={String(i + 1)}>
                   {m}
@@ -391,13 +455,16 @@ export function MonthlyTrackerTab() {
         <div className="flex items-center gap-2">
           <Label className="text-sm font-medium">Year:</Label>
           <Select
-            value={String(selectedYear)}
-            onValueChange={(v) => setSelectedYear(Number(v))}
+            value={selectedYear === "all" ? "all" : String(selectedYear)}
+            onValueChange={(v) =>
+              setSelectedYear(v === "all" ? "all" : Number(v))
+            }
           >
             <SelectTrigger className="w-28" data-ocid="budgeting.year.select">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">All Years</SelectItem>
               {yearRange.map((y) => (
                 <SelectItem key={y} value={String(y)}>
                   {y}
@@ -622,6 +689,7 @@ export function MonthlyTrackerTab() {
               <TableHeader>
                 <TableRow className="bg-slate-50">
                   <TableHead>Category</TableHead>
+                  <TableHead className="text-center">Type</TableHead>
                   <TableHead className="text-right">Planned Budget</TableHead>
                   <TableHead className="text-right">Actual Spent</TableHead>
                   <TableHead className="text-right">Variance</TableHead>
@@ -631,7 +699,7 @@ export function MonthlyTrackerTab() {
                 {expenseCategories.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={5}
                       className="text-center text-muted-foreground py-8"
                     >
                       No expense categories found. Add categories in the Budget
@@ -672,6 +740,13 @@ export function MonthlyTrackerTab() {
                                   />
                                   <span className="text-sm">{cat.name}</span>
                                 </div>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <span
+                                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${TYPE_BADGE_COLORS[inferBudgetType(cat.name)] ?? TYPE_BADGE_COLORS.Needs}`}
+                                >
+                                  {inferBudgetType(cat.name)}
+                                </span>
                               </TableCell>
                               <TableCell className="text-right text-sm">
                                 {planned > 0 ? (
@@ -714,7 +789,7 @@ export function MonthlyTrackerTab() {
                         })}
                         {rows.length > 5 && (
                           <TableRow>
-                            <TableCell colSpan={4} className="text-center py-2">
+                            <TableCell colSpan={5} className="text-center py-2">
                               <button
                                 type="button"
                                 className="text-xs text-blue-600 hover:text-blue-800 font-medium underline-offset-2 hover:underline"
@@ -744,7 +819,11 @@ export function MonthlyTrackerTab() {
         <DialogContent data-ocid="budgeting.edit_planned.dialog">
           <DialogHeader>
             <DialogTitle>
-              Edit Planned Expenses — {MONTHS[selectedMonth - 1]} {selectedYear}
+              Edit Planned Expenses —{" "}
+              {selectedMonth === "all"
+                ? "All Months"
+                : MONTHS[(selectedMonth as number) - 1]}{" "}
+              {selectedYear === "all" ? "All Years" : selectedYear}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">

@@ -233,32 +233,79 @@ export function ExpensesTab() {
 
   return (
     <div className="space-y-4">
-      {/* Summary */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-xl border border-border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4">
+      {/* Row 1: Summary Cards + Filter Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+        {/* Income Card */}
+        <div className="flex-1 rounded-xl border border-border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-3">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="h-4 w-4 text-green-600" />
             <span className="text-xs font-medium text-muted-foreground">
               Actual Income
             </span>
           </div>
-          <div className="text-xl font-bold text-green-600">
+          <div className="text-lg font-bold text-green-600">
             {fmt(filteredIncome)}
           </div>
         </div>
-        <div className="rounded-xl border border-border bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 p-4">
+        {/* Expense Card */}
+        <div className="flex-1 rounded-xl border border-border bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 p-3">
           <div className="flex items-center gap-2 mb-1">
             <TrendingDown className="h-4 w-4 text-red-500" />
             <span className="text-xs font-medium text-muted-foreground">
               Actual Expenses
             </span>
           </div>
-          <div className="text-xl font-bold text-red-500">
+          <div className="text-lg font-bold text-red-500">
             {fmt(filteredExpense)}
           </div>
         </div>
+        {/* Filter Buttons */}
+        <div className="flex gap-2 flex-shrink-0 items-center flex-wrap">
+          {(
+            ["All", TransactionType.Income, TransactionType.Expense] as const
+          ).map((f) => (
+            <Button
+              key={f}
+              size="sm"
+              variant={typeFilter === f ? "default" : "outline"}
+              onClick={() => setTypeFilter(f)}
+              data-ocid={`expenses.filter.${String(f).toLowerCase()}.toggle`}
+            >
+              {f === "All" ? (
+                <ArrowLeftRight className="h-3 w-3 mr-1" />
+              ) : f === TransactionType.Income ? (
+                <TrendingUp className="h-3 w-3 mr-1" />
+              ) : (
+                <TrendingDown className="h-3 w-3 mr-1" />
+              )}
+              {f === TransactionType.Income
+                ? "Income"
+                : f === TransactionType.Expense
+                  ? "Expense"
+                  : "All"}
+            </Button>
+          ))}
+          <Button
+            data-ocid="expenses.add.open_modal_button"
+            onClick={openAdd}
+            className="gap-1"
+          >
+            <Plus className="h-4 w-4" /> Add
+          </Button>
+        </div>
       </div>
+      {/* Row 2: Search + Month/Year dropdowns */}
       <div className="flex flex-wrap gap-2 items-center">
+        <div className="relative flex-1 min-w-[160px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            data-ocid="expenses.search_input"
+            className="pl-9"
+            placeholder="Search transactions…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <select
           data-ocid="expenses.month.select"
           className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
@@ -304,51 +351,6 @@ export function ExpensesTab() {
             </option>
           ))}
         </select>
-      </div>
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            data-ocid="expenses.search_input"
-            className="pl-9"
-            placeholder="Search transactions…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-2">
-          {(
-            ["All", TransactionType.Income, TransactionType.Expense] as const
-          ).map((f) => (
-            <Button
-              key={f}
-              size="sm"
-              variant={typeFilter === f ? "default" : "outline"}
-              onClick={() => setTypeFilter(f)}
-              data-ocid={`expenses.filter.${String(f).toLowerCase()}.toggle`}
-            >
-              {f === "All" ? (
-                <ArrowLeftRight className="h-3 w-3 mr-1" />
-              ) : f === TransactionType.Income ? (
-                <TrendingUp className="h-3 w-3 mr-1" />
-              ) : (
-                <TrendingDown className="h-3 w-3 mr-1" />
-              )}
-              {f === TransactionType.Income
-                ? "Income"
-                : f === TransactionType.Expense
-                  ? "Expense"
-                  : "All"}
-            </Button>
-          ))}
-          <Button
-            data-ocid="expenses.add.open_modal_button"
-            onClick={openAdd}
-            className="gap-1"
-          >
-            <Plus className="h-4 w-4" /> Add
-          </Button>
-        </div>
       </div>
       {filtered.length === 0 ? (
         <div

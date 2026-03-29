@@ -228,14 +228,14 @@ function MetricCard({
   color?: string;
 }) {
   return (
-    <div className="bg-card rounded-2xl border border-border p-4">
+    <div className="bg-card rounded-2xl border border-border p-4 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-muted-foreground text-xs font-medium">
+        <span className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
           {label}
         </span>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <Icon className="h-4 w-4 text-muted-foreground opacity-60" />
       </div>
-      <div className={`text-xl font-bold ${color}`}>{value}</div>
+      <div className={`text-xl font-bold font-mono ${color}`}>{value}</div>
       {sub && <div className="text-xs text-muted-foreground mt-1">{sub}</div>}
     </div>
   );
@@ -761,7 +761,7 @@ export default function TradeJournalPage() {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap border flex-shrink-0 ${
                 activeTab === id
                   ? "bg-foreground text-background border-foreground shadow"
-                  : "bg-card text-muted-foreground border-border hover:border-emerald-400"
+                  : "bg-card text-muted-foreground border-border hover:border-indigo-400 dark:hover:border-indigo-500"
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -784,7 +784,7 @@ export default function TradeJournalPage() {
                   onClick={() => setTimeFilter(f)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
                     timeFilter === f
-                      ? "bg-emerald-600 text-white"
+                      ? "bg-indigo-600 text-white"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -1223,7 +1223,7 @@ export default function TradeJournalPage() {
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-border hover:bg-transparent">
+                      <TableRow className="bg-slate-100 dark:bg-slate-800 border-border hover:bg-transparent">
                         {[
                           "Date",
                           "Ticker",
@@ -1240,7 +1240,7 @@ export default function TradeJournalPage() {
                         ].map((h) => (
                           <TableHead
                             key={h}
-                            className="text-muted-foreground text-xs whitespace-nowrap"
+                            className="text-slate-600 dark:text-slate-300 text-xs whitespace-nowrap font-semibold uppercase tracking-wide"
                           >
                             {h}
                           </TableHead>
@@ -1256,7 +1256,7 @@ export default function TradeJournalPage() {
                           <TableRow
                             key={t.id}
                             data-ocid={`trade.log.item.${idx + 1}`}
-                            className="border-border hover:bg-card/50"
+                            className="border-border hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                           >
                             <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                               {t.entryDate}
@@ -1268,17 +1268,17 @@ export default function TradeJournalPage() {
                               <span
                                 className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                                   t.positionType === "Long"
-                                    ? "bg-emerald-900/50 text-emerald-400"
-                                    : "bg-red-900/50 text-red-400"
+                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400"
+                                    : "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400"
                                 }`}
                               >
                                 {t.positionType === "Long" ? "L" : "S"}
                               </span>
                             </TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
+                            <TableCell className="text-xs text-muted-foreground font-mono">
                               {t.entryPrice}
                             </TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
+                            <TableCell className="text-xs text-muted-foreground font-mono">
                               {t.isOpen ? "-" : t.exitPrice}
                             </TableCell>
                             <TableCell className="text-xs text-muted-foreground">
@@ -1286,12 +1286,12 @@ export default function TradeJournalPage() {
                             </TableCell>
                             <TableCell>
                               {t.isOpen ? (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-900/50 text-amber-400 font-medium">
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 font-medium">
                                   OPEN
                                 </span>
                               ) : (
                                 <span
-                                  className={`text-xs font-semibold ${pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                                  className={`text-xs font-semibold font-mono ${pnl >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
                                 >
                                   {fmtCurrency(pnl)}
                                 </span>
@@ -1300,7 +1300,7 @@ export default function TradeJournalPage() {
                             <TableCell>
                               {!t.isOpen && (
                                 <span
-                                  className={`text-xs ${pct >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                                  className={`text-xs font-mono ${pct >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
                                 >
                                   {fmtNum(pct)}%
                                 </span>
@@ -1352,7 +1352,7 @@ export default function TradeJournalPage() {
                                   {t.isOpen && (
                                     <DropdownMenuItem
                                       onClick={() => closeTrade(t)}
-                                      className="text-amber-400 hover:text-amber-300 cursor-pointer"
+                                      className="text-amber-600 dark:text-amber-400 hover:text-amber-500 cursor-pointer"
                                     >
                                       <X className="h-3.5 w-3.5 mr-2" /> Close
                                       Trade
@@ -1463,7 +1463,10 @@ export default function TradeJournalPage() {
                           ? t.notes.split("Lesson:")[1]?.trim()
                           : null;
                         return (
-                          <div key={t.id} className="bg-card/50 rounded-xl p-3">
+                          <div
+                            key={t.id}
+                            className="bg-slate-50 dark:bg-card/50 rounded-xl p-3 border border-border"
+                          >
                             <button
                               type="button"
                               className="w-full flex items-center justify-between cursor-pointer bg-transparent border-0 p-0 text-left"
@@ -1484,7 +1487,7 @@ export default function TradeJournalPage() {
                                   {t.entryDate}
                                 </span>
                                 <span
-                                  className={`text-xs font-semibold ${pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                                  className={`text-xs font-semibold font-mono ${pnl >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
                                 >
                                   {fmtCurrency(pnl)}
                                 </span>

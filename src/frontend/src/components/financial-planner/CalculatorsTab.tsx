@@ -139,17 +139,10 @@ export function CalculatorsTab() {
     null,
   );
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(),
-  );
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
 
   const toggleCategory = (name: string) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev);
-      if (next.has(name)) next.delete(name);
-      else next.add(name);
-      return next;
-    });
+    setOpenCategory((prev) => (prev === name ? null : name));
   };
 
   const categories: CalculatorCategory[] = [
@@ -677,8 +670,7 @@ export function CalculatorsTab() {
                 borderColor: "#64748b",
               };
               const isExpanded =
-                searchQuery.trim() !== "" ||
-                expandedCategories.has(category.name);
+                searchQuery.trim() !== "" || openCategory === category.name;
               return (
                 <div
                   key={category.name}

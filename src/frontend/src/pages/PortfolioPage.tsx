@@ -621,7 +621,7 @@ export default function PortfolioPage() {
                       <p
                         className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${tabGL >= 0 ? "text-green-700" : "text-red-700"}`}
                       >
-                        P&amp;L
+                        Gain/Loss
                       </p>
                       <p
                         className={`text-sm font-bold tabular-nums ${tabGL >= 0 ? "text-green-800" : "text-red-700"}`}
@@ -636,7 +636,7 @@ export default function PortfolioPage() {
                       <p
                         className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${tabGLPct >= 0 ? "text-green-700" : "text-red-700"}`}
                       >
-                        % P&amp;L
+                        Gain/Loss%
                       </p>
                       <p
                         className={`text-sm font-bold tabular-nums ${tabGLPct >= 0 ? "text-green-800" : "text-red-700"}`}
@@ -1381,29 +1381,29 @@ function PortfolioOverview({
                     className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
                     onClick={() => toggleSort("invested")}
                   >
-                    Total Invested
+                    Invested
                     <SortArrow col="invested" />
                   </TableHead>
                   <TableHead
                     className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
                     onClick={() => toggleSort("current")}
                   >
-                    Current Value
+                    Current
                     <SortArrow col="current" />
-                  </TableHead>
-                  <TableHead
-                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
-                    onClick={() => toggleSort("gl")}
-                  >
-                    Gain / Loss
-                    <SortArrow col="gl" />
                   </TableHead>
                   <TableHead
                     className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
                     onClick={() => toggleSort("glPct")}
                   >
-                    % Gain/Loss
+                    Gain/Loss%
                     <SortArrow col="glPct" />
+                  </TableHead>
+                  <TableHead
+                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                    onClick={() => toggleSort("gl")}
+                  >
+                    Gain/Loss
+                    <SortArrow col="gl" />
                   </TableHead>
                   <TableHead
                     className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
@@ -1445,12 +1445,6 @@ function PortfolioOverview({
                       <TableCell className="text-right text-xs tabular-nums font-semibold text-slate-800 py-2.5">
                         {fmt(s.current)}
                       </TableCell>
-                      <TableCell
-                        className={`text-right text-xs tabular-nums font-semibold py-2.5 ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
-                      >
-                        {s.gl >= 0 ? "+" : ""}
-                        {fmt(s.gl)}
-                      </TableCell>
                       <TableCell className="text-right py-2.5">
                         <span
                           className={`text-xs font-semibold px-1.5 py-0.5 rounded ${s.glPct >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}
@@ -1458,6 +1452,12 @@ function PortfolioOverview({
                           {s.glPct >= 0 ? "+" : ""}
                           {s.glPct.toFixed(1)}%
                         </span>
+                      </TableCell>
+                      <TableCell
+                        className={`text-right text-xs tabular-nums font-semibold py-2.5 ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                      >
+                        {s.gl >= 0 ? "+" : ""}
+                        {fmt(s.gl)}
                       </TableCell>
                       <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
                         {alloc.toFixed(1)}%

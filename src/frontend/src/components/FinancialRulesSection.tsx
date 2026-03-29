@@ -2142,7 +2142,12 @@ export function FinancialRulesSection({
   );
 
   const toggleCategory = (name: string) =>
-    setOpenCategories((prev) => ({ ...prev, [name]: !prev[name] }));
+    setOpenCategories((prev) => {
+      const isOpen = prev[name] ?? false;
+      const next: Record<string, boolean> = {};
+      if (!isOpen) next[name] = true;
+      return next;
+    });
 
   const selectedRuleData = financialRules.find((r) => r.id === selectedRule);
 
@@ -2351,7 +2356,7 @@ export function FinancialRulesSection({
                   </button>
                   {isOpen && (
                     <div className={`px-4 pb-4 pt-3 ${category.bg}`}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {categoryRules.map((rule) => {
                           const Icon = rule.icon;
                           return (

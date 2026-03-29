@@ -868,7 +868,7 @@ export default function FinancialRulesPage() {
               },
             ];
             return (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {BASICS_TOPICS.map((topic, idx) => {
                   const c = BASICS_COLORS[idx % BASICS_COLORS.length];
                   const isActive = activeBasic === topic.id;
@@ -1011,7 +1011,13 @@ export default function FinancialRulesPage() {
               },
             ];
             const toggleCat = (name: string) =>
-              setOpenCats((prev) => ({ ...prev, [name]: !prev[name] }));
+              setOpenCats((prev) => {
+                const isOpen = prev[name] ?? false;
+                // Close all, then open only the clicked one (unless it was already open)
+                const next: Record<string, boolean> = {};
+                if (!isOpen) next[name] = true;
+                return next;
+              });
 
             return (
               <div className="space-y-4">
@@ -1056,7 +1062,7 @@ export default function FinancialRulesPage() {
                       </button>
                       {isOpen && (
                         <div className={`px-4 pb-4 ${cat.bg}`}>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {catMistakes.map((item) => {
                               const hasRule = item.ruleId !== null;
                               const globalIdx = MISTAKES.findIndex(
@@ -1231,7 +1237,7 @@ export default function FinancialRulesPage() {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {rules.map((r, i) => {
                   const levelColor =
                     LEVEL_BORDER_COLORS[r.ruleType] ?? "#64748b";

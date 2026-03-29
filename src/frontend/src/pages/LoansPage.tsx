@@ -164,30 +164,42 @@ function healthLabel(score: number) {
     return {
       label: "Healthy",
       color: "#10b981",
-      bg: "bg-emerald-900/30",
-      text: "text-emerald-300",
+      bg: "bg-emerald-50 dark:bg-emerald-900/30",
+      text: "text-emerald-700 dark:text-emerald-300",
     };
   if (score >= 40)
     return {
       label: "Moderate",
       color: "#f59e0b",
-      bg: "bg-amber-900/30",
-      text: "text-amber-300",
+      bg: "bg-amber-50 dark:bg-amber-900/30",
+      text: "text-amber-700 dark:text-amber-300",
     };
   return {
     label: "High Risk",
     color: "#ef4444",
-    bg: "bg-red-900/30",
-    text: "text-red-300",
+    bg: "bg-red-50 dark:bg-red-900/30",
+    text: "text-red-700 dark:text-red-300",
   };
 }
 
 function debtBurdenLabel(pct: number) {
   if (pct < 30)
-    return { label: "Safe", color: "text-emerald-400", icon: BadgeCheck };
+    return {
+      label: "Safe",
+      color: "text-emerald-600 dark:text-emerald-400",
+      icon: BadgeCheck,
+    };
   if (pct < 50)
-    return { label: "Caution", color: "text-amber-400", icon: AlertTriangle };
-  return { label: "Danger", color: "text-red-400", icon: AlertTriangle };
+    return {
+      label: "Caution",
+      color: "text-amber-600 dark:text-amber-400",
+      icon: AlertTriangle,
+    };
+  return {
+    label: "Danger",
+    color: "text-red-600 dark:text-red-400",
+    icon: AlertTriangle,
+  };
 }
 
 export default function LoansPage() {
@@ -693,7 +705,7 @@ export default function LoansPage() {
                           <p className="text-[10px] text-muted-foreground">
                             EMI / mo
                           </p>
-                          <p className="text-sm font-bold text-blue-300">
+                          <p className="text-sm font-bold text-blue-600 dark:text-blue-300">
                             {fmt(loan.monthlyPayment)}
                           </p>
                         </div>
@@ -701,7 +713,7 @@ export default function LoansPage() {
                           <p className="text-[10px] text-muted-foreground">
                             Rate
                           </p>
-                          <p className="text-sm font-bold text-amber-300">
+                          <p className="text-sm font-bold text-amber-600 dark:text-amber-300">
                             {loan.interestRate}%
                           </p>
                         </div>
@@ -830,7 +842,7 @@ export default function LoansPage() {
                           <p className="text-[10px] text-muted-foreground">
                             EMI/Month
                           </p>
-                          <p className="text-sm font-bold text-blue-300">
+                          <p className="text-sm font-bold text-blue-600 dark:text-blue-300">
                             {fmt(emi)}
                           </p>
                         </div>
@@ -838,7 +850,7 @@ export default function LoansPage() {
                           <p className="text-[10px] text-muted-foreground">
                             Interest Rate
                           </p>
-                          <p className="text-sm font-bold text-amber-300">
+                          <p className="text-sm font-bold text-amber-600 dark:text-amber-300">
                             {loan.interestRate}% p.a.
                           </p>
                         </div>
@@ -1256,7 +1268,7 @@ export default function LoansPage() {
                           <p className="text-[10px] text-muted-foreground">
                             {months / 12} years
                           </p>
-                          <p className="text-sm font-bold text-blue-300">
+                          <p className="text-sm font-bold text-blue-600 dark:text-blue-300">
                             {fmt(Math.round(loanAmt))}
                           </p>
                         </div>

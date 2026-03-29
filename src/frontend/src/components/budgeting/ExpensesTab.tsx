@@ -233,8 +233,56 @@ export function ExpensesTab() {
 
   return (
     <div className="space-y-4">
-      {/* Row 1: Summary Cards + Filter Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+      {/* Row 1: Month/Year + Summary Cards + Filter Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center flex-wrap">
+        {/* Month/Year dropdowns - leftmost */}
+        <div className="flex gap-2 items-center flex-shrink-0">
+          <select
+            data-ocid="expenses.month.select"
+            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+            value={filterMonth === "all" ? "all" : String(filterMonth)}
+            onChange={(e) =>
+              setFilterMonth(
+                e.target.value === "all" ? "all" : Number(e.target.value),
+              )
+            }
+          >
+            <option value="all">All Months</option>
+            <option value="0">January</option>
+            <option value="1">February</option>
+            <option value="2">March</option>
+            <option value="3">April</option>
+            <option value="4">May</option>
+            <option value="5">June</option>
+            <option value="6">July</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">October</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
+          </select>
+          <select
+            data-ocid="expenses.year.select"
+            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+            value={filterYear === "all" ? "all" : String(filterYear)}
+            onChange={(e) =>
+              setFilterYear(
+                e.target.value === "all" ? "all" : Number(e.target.value),
+              )
+            }
+          >
+            <option value="all">All Years</option>
+            {[
+              new Date().getFullYear(),
+              new Date().getFullYear() - 1,
+              new Date().getFullYear() - 2,
+            ].map((yr) => (
+              <option key={yr} value={yr}>
+                {yr}
+              </option>
+            ))}
+          </select>
+        </div>
         {/* Income Card */}
         <div className="flex-1 rounded-xl border border-border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-3">
           <div className="flex items-center gap-2 mb-1">
@@ -294,9 +342,9 @@ export function ExpensesTab() {
           </Button>
         </div>
       </div>
-      {/* Row 2: Search + Month/Year dropdowns */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <div className="relative flex-1 min-w-[160px]">
+      {/* Row 2: Search on right */}
+      <div className="flex flex-wrap gap-2 items-center justify-end">
+        <div className="relative min-w-[160px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             data-ocid="expenses.search_input"
@@ -306,51 +354,6 @@ export function ExpensesTab() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <select
-          data-ocid="expenses.month.select"
-          className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
-          value={filterMonth === "all" ? "all" : String(filterMonth)}
-          onChange={(e) =>
-            setFilterMonth(
-              e.target.value === "all" ? "all" : Number(e.target.value),
-            )
-          }
-        >
-          <option value="all">All Months</option>
-          <option value="0">January</option>
-          <option value="1">February</option>
-          <option value="2">March</option>
-          <option value="3">April</option>
-          <option value="4">May</option>
-          <option value="5">June</option>
-          <option value="6">July</option>
-          <option value="7">August</option>
-          <option value="8">September</option>
-          <option value="9">October</option>
-          <option value="10">November</option>
-          <option value="11">December</option>
-        </select>
-        <select
-          data-ocid="expenses.year.select"
-          className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
-          value={filterYear === "all" ? "all" : String(filterYear)}
-          onChange={(e) =>
-            setFilterYear(
-              e.target.value === "all" ? "all" : Number(e.target.value),
-            )
-          }
-        >
-          <option value="all">All Years</option>
-          {[
-            new Date().getFullYear(),
-            new Date().getFullYear() - 1,
-            new Date().getFullYear() - 2,
-          ].map((yr) => (
-            <option key={yr} value={yr}>
-              {yr}
-            </option>
-          ))}
-        </select>
       </div>
       {filtered.length === 0 ? (
         <div

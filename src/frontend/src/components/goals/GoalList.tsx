@@ -14,7 +14,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Link as LinkIcon, Pencil, Trash2 } from "lucide-react";
+import {
+  LayoutGrid,
+  LayoutList,
+  Link as LinkIcon,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../contexts/CurrencyContext";
 import type { Goal, Investment } from "../../hooks/useGoals";
@@ -60,6 +66,7 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
   const [statusFilter, setStatusFilter] = useState<
     "All" | "On Track" | "Need Attention" | "Achieved"
   >("All");
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
 
   const investmentMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -332,62 +339,324 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
   return (
     <>
       <div className="w-full relative">
-        {/* Filter chips */}
-        <div className="flex gap-2 mb-3 flex-wrap">
-          {(["All", "On Track", "Need Attention", "Achieved"] as const).map(
-            (f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setStatusFilter(f)}
-                data-ocid={`goals.filter.${f.toLowerCase().replace(" ", "_")}.toggle`}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                  statusFilter === f
-                    ? f === "Achieved"
-                      ? "bg-emerald-600 text-white border-emerald-600"
-                      : f === "On Track"
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : f === "Need Attention"
-                          ? "bg-amber-500 text-white border-amber-500"
-                          : "bg-slate-800 text-white border-slate-800"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
-                }`}
-              >
-                {f}
-              </button>
-            ),
-          )}
-        </div>
-
-        <div
-          style={
-            {
-              transform: "rotateX(180deg)",
-              overflowX: "auto",
-              overflowY: "visible",
-              paddingBottom: "12px",
-              WebkitOverflowScrolling: "touch",
-              scrollbarWidth: "thin",
-              scrollbarColor: "#94a3b8 #f1f5f9",
-            } as React.CSSProperties
-          }
-        >
-          <div style={{ transform: "rotateX(180deg)", minWidth: "1100px" }}>
-            <Table>
-              {tableHeader}
-              <TableBody>
-                {filteredGoals.map((goal, idx) =>
-                  renderGoalRow(goal, idx, calculateProgress(goal) >= 100),
-                )}
-              </TableBody>
-            </Table>
+        {/* Filter chips + view toggle */}
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div className="flex gap-2 flex-wrap">
+            {(["All", "On Track", "Need Attention", "Achieved"] as const).map(
+              (f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setStatusFilter(f)}
+                  data-ocid={`goals.filter.${f.toLowerCase().replace(" ", "_")}.toggle`}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                    statusFilter === f
+                      ? f === "Achieved"
+                        ? "bg-emerald-600 text-white border-emerald-600"
+                        : f === "On Track"
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : f === "Need Attention"
+                            ? "bg-amber-500 text-white border-amber-500"
+                            : "bg-slate-800 text-white border-slate-800"
+                      : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
+                  }`}
+                >
+                  {f}
+                </button>
+              ),
+            )}
+          </div>
+          <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+            <button
+              type="button"
+              title="Table View"
+              onClick={() => setViewMode("table")}
+              className={`p-1.5 transition-colors ${viewMode === "table" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              data-ocid="goals.table_view.toggle"
+            >
+              <LayoutList className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              title="Card View"
+              onClick={() => setViewMode("card")}
+              className={`p-1.5 transition-colors ${viewMode === "card" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              data-ocid="goals.card_view.toggle"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
 
-        {/* Mobile scroll hint */}
-        <p className="text-[10px] text-slate-400 text-center mt-1 sm:hidden">
-          ← Scroll table to see more →
-        </p>
+        {viewMode === "card" ? (
+          <div className="space-y-3" data-ocid="goals.card_list">
+            {filteredGoals.length === 0 ? (
+              <div
+                data-ocid="goals.empty_state"
+                className="text-center py-16 text-muted-foreground"
+              >
+                <p className="text-sm">No goals match the current filter</p>
+              </div>
+            ) : (
+              filteredGoals.map((goal, idx) => {
+                const targetDate = new Date(Number(goal.targetDate) / 1000000);
+                const progress = calculateProgress(goal);
+                const currentAmount = calculateCurrentAmount(goal);
+                const monthsLeft = calculateMonthsLeft(goal);
+                const amountNeeded = Math.max(
+                  0,
+                  goal.targetAmount - currentAmount,
+                );
+                const sipPerMonth =
+                  monthsLeft > 0 ? amountNeeded / monthsLeft : 0;
+                const emoji = getGoalEmoji(goal.name);
+                const isAchieved = progress >= 100;
+                const ringColor = isAchieved
+                  ? "#16a34a"
+                  : progress >= 80
+                    ? "#16a34a"
+                    : progress >= 50
+                      ? "#d97706"
+                      : "#dc2626";
+                const statusLabel = isAchieved
+                  ? "Achieved"
+                  : progress >= 50
+                    ? "On Track"
+                    : "Need Attention";
+                const statusClass = isAchieved
+                  ? "bg-green-100 text-green-700"
+                  : progress >= 50
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-amber-100 text-amber-700";
+                const linkedInvestmentNames = goal.linkedInvestments
+                  .map((id) => investmentMap.get(id))
+                  .filter(Boolean) as string[];
+                const r = 32;
+                const circ = 2 * Math.PI * r;
+                const dash = (Math.min(progress, 100) / 100) * circ;
+                return (
+                  <div
+                    key={goal.id}
+                    data-ocid={`goals.item.${idx + 1}`}
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Circular Progress Ring */}
+                      <div className="flex-shrink-0 flex flex-col items-center gap-1">
+                        <div className="relative w-[72px] h-[72px]">
+                          <svg
+                            width="72"
+                            height="72"
+                            viewBox="0 0 72 72"
+                            className="-rotate-90"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              cx="36"
+                              cy="36"
+                              r={r}
+                              fill="none"
+                              stroke="#f1f5f9"
+                              strokeWidth="6"
+                            />
+                            <circle
+                              cx="36"
+                              cy="36"
+                              r={r}
+                              fill="none"
+                              stroke={ringColor}
+                              strokeWidth="6"
+                              strokeDasharray={`${dash} ${circ - dash}`}
+                              strokeLinecap="round"
+                              className="transition-all duration-500"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center flex-col">
+                            {isAchieved ? (
+                              <span className="text-lg text-green-600">✓</span>
+                            ) : (
+                              <span
+                                className="text-sm font-bold"
+                                style={{ color: ringColor }}
+                              >
+                                {Math.round(progress)}%
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-lg">{emoji}</span>
+                      </div>
+                      {/* Main Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div>
+                            <p className="text-base font-bold text-slate-800 dark:text-slate-100">
+                              {goal.name}
+                            </p>
+                            <span
+                              className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mt-0.5 ${statusClass}`}
+                            >
+                              {statusLabel}
+                            </span>
+                          </div>
+                          <div className="flex gap-0.5 flex-shrink-0">
+                            <button
+                              type="button"
+                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                              onClick={() => setLinkingGoal(goal)}
+                              data-ocid={`goals.link.button.${idx + 1}`}
+                            >
+                              <LinkIcon className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded"
+                              onClick={() => setEditingGoal(goal)}
+                              data-ocid={`goals.edit_button.${idx + 1}`}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
+                              onClick={() => setDeletingGoal(goal)}
+                              data-ocid={`goals.delete_button.${idx + 1}`}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                        {/* 4-column metrics */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                              Target
+                            </p>
+                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
+                              {formatCurrency(goal.targetAmount)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                              Current
+                            </p>
+                            <p
+                              className={`text-xs font-semibold tabular-nums ${isAchieved ? "text-green-600" : currentAmount >= goal.targetAmount * 0.8 ? "text-blue-600" : "text-slate-700 dark:text-slate-300"}`}
+                            >
+                              {formatCurrency(currentAmount)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                              Goal Date
+                            </p>
+                            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                              {targetDate.toLocaleDateString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "2-digit",
+                              })}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                              Timeline
+                            </p>
+                            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                              {formatTimeLeft(monthsLeft)}
+                            </p>
+                          </div>
+                        </div>
+                        {/* Investment tags */}
+                        {linkedInvestmentNames.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {linkedInvestmentNames.slice(0, 3).map((name) => (
+                              <span
+                                key={name}
+                                className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full"
+                              >
+                                {name.length > 14
+                                  ? `${name.slice(0, 14)}…`
+                                  : name}
+                              </span>
+                            ))}
+                            {linkedInvestmentNames.length > 3 && (
+                              <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                +{linkedInvestmentNames.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {/* Right Panel */}
+                      <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0">
+                        {isAchieved ? (
+                          <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl px-3 py-2 text-center">
+                            <p className="text-xs font-bold text-green-600">
+                              Goal completed
+                            </p>
+                            <p className="text-[10px] text-green-500">
+                              {progress.toFixed(0)}% achieved
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl px-3 py-2 text-right">
+                            <p className="text-[10px] text-blue-400 uppercase tracking-wide mb-0.5">
+                              Need
+                            </p>
+                            <p className="text-sm font-bold text-blue-700 dark:text-blue-300 tabular-nums">
+                              {formatCurrency(amountNeeded)}
+                            </p>
+                            <p className="text-[10px] text-blue-400 uppercase tracking-wide mt-1 mb-0.5">
+                              SIP/mo
+                            </p>
+                            <p className="text-sm font-bold text-indigo-700 dark:text-indigo-300 tabular-nums">
+                              {monthsLeft > 0
+                                ? formatCurrency(sipPerMonth)
+                                : "N/A"}
+                            </p>
+                          </div>
+                        )}
+                        <p className="text-[10px] text-slate-400">
+                          Deadline in {formatTimeLeft(monthsLeft)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        ) : (
+          <div
+            style={
+              {
+                transform: "rotateX(180deg)",
+                overflowX: "auto",
+                overflowY: "visible",
+                paddingBottom: "12px",
+                WebkitOverflowScrolling: "touch",
+                scrollbarWidth: "thin",
+                scrollbarColor: "#94a3b8 #f1f5f9",
+              } as React.CSSProperties
+            }
+          >
+            <div style={{ transform: "rotateX(180deg)", minWidth: "1100px" }}>
+              <Table>
+                {tableHeader}
+                <TableBody>
+                  {filteredGoals.map((goal, idx) =>
+                    renderGoalRow(goal, idx, calculateProgress(goal) >= 100),
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            {/* Mobile scroll hint */}
+            <p className="text-[10px] text-slate-400 text-center mt-1 sm:hidden">
+              ← Scroll table to see more →
+            </p>
+          </div>
+        )}
       </div>
 
       {editingGoal && (

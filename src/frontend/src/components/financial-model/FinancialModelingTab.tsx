@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useState } from "react";
 import {
   Cell,
@@ -186,24 +186,11 @@ function getModelScenarios(modelId: string) {
 }
 
 function FinancialModelingTab() {
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(),
-  );
   const [searchQuery, setSearchQuery] = useState("");
-
-  const [_activeModelSection, setActiveModelSection] = useState<string | null>(
-    null,
-  );
+  // activeSectionId: which section is open full-page
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+  // activeScenarioId: for model tabs with sub-scenarios
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
-
-  const toggleSection = (id: string) => {
-    setExpandedSections((prev) => (prev.has(id) ? new Set() : new Set([id])));
-    // Reset active model section and scenario when toggling
-    if (expandedSections.has(id)) {
-      setActiveModelSection(null);
-      setActiveScenarioId(null);
-    }
-  };
 
   const MODEL_IDS = new Set(["budgetingmodel", "debtmodel", "goalmodel"]);
 
@@ -215,6 +202,115 @@ function FinancialModelingTab() {
       )
     : SECTIONS;
 
+  const backBtn = (onClick: () => void, label = "Back to Menu") => (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-2 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-3 py-1.5 rounded-lg mb-4 transition-colors"
+      data-ocid="financialmodel.back_button"
+    >
+      ← {label}
+    </button>
+  );
+
+  // Full-page scenario view for model tabs
+  if (
+    activeSectionId &&
+    MODEL_IDS.has(activeSectionId) &&
+    activeScenarioId?.startsWith(`${activeSectionId}::`)
+  ) {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        {backBtn(() => {
+          setActiveScenarioId(null);
+          setActiveSectionId(null);
+        })}
+        {activeSectionId === "budgetingmodel" && (
+          <ModelBudgetingTab
+            initialScenario={activeScenarioId.split("::")[1]}
+          />
+        )}
+        {activeSectionId === "debtmodel" && (
+          <ModelDebtTab initialScenario={activeScenarioId.split("::")[1]} />
+        )}
+        {activeSectionId === "goalmodel" && (
+          <ModelGoalPlanningTab
+            initialScenario={activeScenarioId.split("::")[1]}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Full-page model tab with scenario list (for model tabs) or direct content (for calculator tabs)
+  if (activeSectionId) {
+    const section = SECTIONS.find((s) => s.id === activeSectionId);
+    if (!section) return null;
+    return (
+      <div className="space-y-4 animate-fade-in">
+        {backBtn(() => {
+          setActiveSectionId(null);
+          setActiveScenarioId(null);
+        })}
+        <div
+          className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"
+          style={{ borderLeft: `4px solid ${section.borderColor}` }}
+        >
+          <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
+            <span className="text-xl">{section.emoji}</span>
+            <div>
+              <p className="text-sm font-bold text-slate-800">
+                {section.label}
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">{section.count}</p>
+            </div>
+          </div>
+          <div className="px-4 py-4">
+            {/* Direct calculators */}
+            {section.id === "modelinsurance" && <ModelInsuranceTab />}
+            {section.id === "assetallocation" && <AssetAllocationTab />}
+            {section.id === "modelportfolio" && <ModelPortfolioTab />}
+            {section.id === "modelretirement" && <ModelRetirementTab />}
+            {section.id === "modelcrypto" && <ModelCryptoPortfolioTab />}
+            {/* Model tabs: show scenario cards */}
+            {MODEL_IDS.has(section.id) && (
+              <div className="space-y-2">
+                {getModelScenarios(section.id).map((scenario, idx) => (
+                  <button
+                    key={scenario.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveScenarioId(`${section.id}::${scenario.id}`);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-violet-50 hover:border-violet-300 transition-all group flex items-center gap-3"
+                    style={{ borderLeft: `3px solid ${section.borderColor}` }}
+                    data-ocid={`financialmodel.${section.id}.scenario.${idx + 1}`}
+                  >
+                    <span className="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-500 group-hover:border-violet-400 group-hover:text-violet-700 flex-shrink-0">
+                      {idx + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 group-hover:text-violet-800">
+                        {scenario.title}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
+                        {scenario.description}
+                      </p>
+                    </div>
+                    <span className="text-xs text-violet-500 group-hover:text-violet-700 flex-shrink-0">
+                      →
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main menu: show all section cards
   return (
     <div className="space-y-3">
       <div className="relative">
@@ -228,122 +324,28 @@ function FinancialModelingTab() {
           data-ocid="financialmodel.search_input"
         />
       </div>
-      {filteredSections.map((section) => {
-        const isExpanded =
-          expandedSections.has(section.id) || searchQuery.trim() !== "";
-        return (
-          <div
-            key={section.id}
-            className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-all"
-            style={{ borderLeft: `4px solid ${section.borderColor}` }}
-          >
-            <button
-              type="button"
-              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
-              onClick={() => toggleSection(section.id)}
-              data-ocid={`financialmodel.${section.id}.toggle`}
-            >
-              <span className="text-xl flex-shrink-0">{section.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <span className="text-sm font-bold text-slate-800">
-                  {section.label}
-                </span>
-                <p className="text-xs text-slate-400 mt-0.5">{section.count}</p>
-              </div>
-              <ChevronDown
-                className={`h-4 w-4 text-slate-400 transition-transform duration-200 flex-shrink-0 ${
-                  isExpanded ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {isExpanded && (
-              <div className="border-t border-slate-100 animate-fade-in">
-                {!MODEL_IDS.has(section.id) && (
-                  <div className="px-4 py-4">
-                    {section.id === "modelinsurance" && <ModelInsuranceTab />}
-                    {section.id === "assetallocation" && <AssetAllocationTab />}
-                    {section.id === "modelportfolio" && <ModelPortfolioTab />}
-                    {section.id === "modelretirement" && <ModelRetirementTab />}
-                    {section.id === "modelcrypto" && (
-                      <ModelCryptoPortfolioTab />
-                    )}
-                  </div>
-                )}
-                {MODEL_IDS.has(section.id) && !activeScenarioId && (
-                  <div className="px-4 py-4">
-                    <div className="space-y-1">
-                      {getModelScenarios(section.id).map((scenario, idx) => (
-                        <button
-                          key={scenario.id}
-                          type="button"
-                          onClick={() => {
-                            setActiveModelSection(section.id);
-                            setActiveScenarioId(
-                              `${section.id}::${scenario.id}`,
-                            );
-                          }}
-                          className="w-full text-left px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-violet-50 hover:border-violet-300 transition-all group flex items-center gap-3"
-                          style={{
-                            borderLeft: `3px solid ${section.borderColor}`,
-                          }}
-                          data-ocid={`financialmodel.${section.id}.scenario.${idx + 1}`}
-                        >
-                          <span className="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-500 group-hover:border-violet-400 group-hover:text-violet-700 flex-shrink-0">
-                            {idx + 1}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-slate-800 group-hover:text-violet-800">
-                              {scenario.title}
-                            </p>
-                            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
-                              {scenario.description}
-                            </p>
-                          </div>
-                          <span className="text-xs text-violet-500 group-hover:text-violet-700 flex-shrink-0">
-                            →
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {MODEL_IDS.has(section.id) &&
-                  activeScenarioId?.startsWith(`${section.id}::`) && (
-                    <div className="px-4 py-4">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveModelSection(null);
-                          setActiveScenarioId(null);
-                        }}
-                        className="flex items-center gap-2 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-3 py-1.5 rounded-lg mb-4 transition-colors"
-                        data-ocid={`financialmodel.${section.id}.back_button`}
-                      >
-                        ← Back to Menu
-                      </button>
-                      {section.id === "budgetingmodel" && (
-                        <ModelBudgetingTab
-                          initialScenario={activeScenarioId.split("::")[1]}
-                        />
-                      )}
-                      {section.id === "debtmodel" && (
-                        <ModelDebtTab
-                          initialScenario={activeScenarioId.split("::")[1]}
-                        />
-                      )}
-                      {section.id === "goalmodel" && (
-                        <ModelGoalPlanningTab
-                          initialScenario={activeScenarioId.split("::")[1]}
-                        />
-                      )}
-                    </div>
-                  )}
-              </div>
-            )}
+      {filteredSections.map((section) => (
+        <button
+          key={section.id}
+          type="button"
+          className="w-full text-left bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md hover:bg-slate-50 transition-all flex items-center gap-3 px-4 py-3"
+          style={{ borderLeft: `4px solid ${section.borderColor}` }}
+          onClick={() => {
+            setActiveSectionId(section.id);
+            setActiveScenarioId(null);
+          }}
+          data-ocid={`financialmodel.${section.id}.toggle`}
+        >
+          <span className="text-xl flex-shrink-0">{section.emoji}</span>
+          <div className="flex-1 min-w-0">
+            <span className="text-sm font-bold text-slate-800">
+              {section.label}
+            </span>
+            <p className="text-xs text-slate-400 mt-0.5">{section.count}</p>
           </div>
-        );
-      })}
+          <span className="text-slate-400 text-sm flex-shrink-0">→</span>
+        </button>
+      ))}
     </div>
   );
 }

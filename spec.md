@@ -1,46 +1,27 @@
 # Growfinfire Global
 
 ## Current State
-Production-grade finance app with Dashboard, Goals, Portfolio, Budgeting, Financial Model, Financial Planner, Learn Finance, Loans, Trade Journal modules. Version 120 deployed.
+Full-stack fintech app with Dashboard, Goals, Portfolio, Budgeting, Financial Model, Financial Planner, Learn Finance, Loans, Trade Journal modules. Version 122 deployed in production.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Budgeting Plan Budget: 2 new cards — Expected Savings (Income - Expense) and Savings Rate (%)
-- Budgeting Track Income vs Expense: 2 new cards — Net Balance and Balance (%)
-- Financial Planner Retirement & Goals section: Add "Buy a House - Eligibility" card (move BuyHousePlanner component from GoalsPage Plan Goals)
+- **Portfolio**: Table/Card view toggle on all tabs (Overview + all 8 asset type tabs). Card view matches portfolio_modules reference image: name + category badge top-left, allocation% top-right, horizontal allocation bar (color-coded), Invested / Current / Gain/Loss% / Gain/Loss metrics row, edit/delete icon buttons.
+- **Goals (Track Goals tab)**: Table/Card view toggle. Card view matches goal_planning1 image: circular SVG progress ring (72px), goal name + status badge, Target / Current / Goal date / Timeline 4-column row, linked investment tags (EPS, NPS, etc. with +N more), right panel showing Need amount + SIP amount + deadline. Table view keeps horizontal progress bar. Mobile-friendly.
 
 ### Modify
-- **Admin (Layout.tsx):** `bootstrapAdmin()` call should use the actor directly and ensure `isCallerAdmin` response correctly sets `isAdmin` state. Debug and fix so admin icon appears on login.
-- **Dashboard Budgeting 6-Month chart:** `planned` value per month should reflect per-month planned budget edits from backend (budgetCats monthlyLimit per month if available), not a single static sum.
-- **Dashboard Goals Progress chart:** GoalDate text → `text-slate-600` (dark grey); currentAmount → red if progress < 50%, amber if 50-80%, green if >= 80% (based on currentAmount/targetAmount ratio).
-- **Dashboard Assets vs Liabilities:** Replace PieChart donut with RadialBarChart showing % values inside each circular bar (RadialBarChart already imported).
-- **Goals Plan Goals — ModelGoalPlanningTab:** Header "Goal-Based Saving & Planning Model" font color → black (`text-gray-900 dark:text-white`). Remove guidance text "Select a scenario to explore. Pre-filled with realistic goal numbers you can edit." Add "Back to Menu" button in detail view (view==="detail"). Card theme updated to match Financial Planner card style (white background, proper border, consistent font). Remove BuyHousePlanner from here (moved to Financial Planner).
-- **Goals Plan Goals:** Card backgrounds white, card title text black, scenario description grey.
-- **Portfolio Overview table:** Rename "Investment Module" header → "Investment". Move "Allocation%" column to last position. Gain/Loss card already uses shortNum — verify it shows Cr/L/K or M/B/K.
-- **Portfolio all tables:** Swap "Gain/Loss%" and "Gain/Loss" columns so Gain/Loss% appears before Gain/Loss.
-- **Budget Insights chart order:** Reorder to: 1. Monthly Overview Income vs Expenses, 2. 50/30/20 Budget Rule Analysis, 3. Month-over-Month Trend, 4. Monthly Budget Snapshot, 5. Spending by Category, 6. Top Spending Categories, 7. Savings Rate Trend (%)
-- **Budgeting Improve Budget — ModelBudgetingTab:** Header "Budgeting & Expense Tracking Model" → black text. Remove guidance text. Add Back to Menu in detail view. Card theme matches Financial Planner.
-- **Loans Debt Model — ModelDebtTab:** Header "Debt Management & Repayment Model" → black text. Remove guidance text. Add Back to Menu in detail view. Card theme matches Financial Planner.
-- **Loans submenu header:** Fix mobile - all menu items visible, draggable/scrollable from leftmost item.
-- **Loans & Trade Journal:** Full UI theme alignment — card backgrounds, font colors, table styles to match app standard (Portfolio/Budgeting theme, dark/light toggle).
-- **FIRE Calculator (FIRECalculator.tsx):** Remove "Calculate FIRE Plan" button. Trigger calculation automatically using useEffect whenever any input changes (instant calculation like other planners).
+- **Budgeting → Track Income vs Expenses**: Move Month and Year dropdowns to leftmost of the action row; move search bar to the right side.
+- **Budgeting → Budget Insights**: The 3 metric cards "% of Income Budget", "% of Expenses Budget", and "Balance" always show all-months aggregated values regardless of the month/year filter applied to charts.
+- **Learn Finance → Basics**: Card border/theme matches Rules tab exactly (same card header style, colors, borders). When any card is clicked/expanded, show full-page content replacing the main panel (sidebar and header remain), with a "Back to Basics" button that returns to the card grid — same pattern as Financial Planner scenario full-page view.
+- **Financial Model → Last 3 models (Goal Planning, Budgeting & Expense Tracking, Debt Management)**: When a scenario is clicked, show full-page view replacing main panel (sidebar and header remain), with "Back to Menu" returning to card grid — same pattern as Financial Planner. This enforces consistency with what user confirmed.
 
 ### Remove
-- "Buy a House Planner" card from Goals Plan Goals (moved to Financial Planner)
-- Guidance texts in ModelGoalPlanningTab, ModelBudgetingTab, ModelDebtTab detail views
-- "Calculate FIRE Plan" button from FIRECalculator
+- Nothing removed.
 
 ## Implementation Plan
-1. Fix admin icon — ensure bootstrapAdmin + isCallerAdmin sequence works reliably in Layout.tsx
-2. Dashboard: fix Budgeting 6M planned per-month, Goals Progress text colors, Assets vs Liabilities RadialBarChart
-3. ModelGoalPlanningTab: black header, remove guidance, Back to Menu button, Financial Planner card theme, remove BuyHousePlanner
-4. FinancialPlannerPage/CalculatorsTab: add Buy a House - Eligibility entry in Retirement & Goals
-5. Portfolio: rename column, reorder Allocation%, swap Gain/Loss columns in all tables
-6. BudgetingPage Plan Budget: add Expected Savings + Savings Rate cards
-7. MonthlyTrackerTab: add Net Balance + Balance (%) cards in Track tab; reorder Budget Insights charts
-8. ModelBudgetingTab: black header, remove guidance, Back to Menu, Financial Planner card theme
-9. ModelDebtTab: black header, remove guidance, Back to Menu, Financial Planner card theme
-10. LoansPage: fix mobile submenu draggable, align UI theme
-11. TradeJournalPage: align UI theme with app standard
-12. FIRECalculator: remove button, add useEffect for instant calculation
+1. **PortfolioPage.tsx**: Add `viewMode: 'table' | 'card'` state per tab. Add a toggle button (Table/Card icons) in the tab header area. Build a `PortfolioCardView` component that renders each holding as a card matching the reference image. Apply to Overview and all 8 asset tabs.
+2. **GoalsTab.tsx / GoalList.tsx**: Add `viewMode` state toggle in Track Goals tab. Build `GoalCardView` component matching goal_planning1 image with circular progress SVG, status badge, 4-column metrics, investment tags, right Need/SIP panel. Table view retains existing horizontal progress bar.
+3. **BudgetingPage.tsx / MonthlyTrackerTab.tsx (Track Income vs Expenses)**: Swap order — Month/Year dropdowns leftmost, search bar rightmost in the top action row.
+4. **BudgetingPage.tsx / AnalyseTab or BudgetingTab (Budget Insights)**: Make the 3 summary cards compute from all transactions regardless of the active month/year filter.
+5. **FinancialRulesPage.tsx (Basics tab)**: Update card styling to match Rules tab exactly. Add `expandedCard` state; when set, render full-page content replacing card grid (like Financial Planner). Add "Back to Basics" button.
+6. **FinancialModelPage.tsx / ModelGoalPlanningTab, ModelBudgetingTab, ModelDebtTab**: Ensure scenario click replaces main panel with full-page view (sidebar/header intact), "Back to Menu" returns to scenario card grid.

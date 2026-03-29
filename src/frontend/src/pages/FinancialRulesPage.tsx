@@ -867,11 +867,99 @@ export default function FinancialRulesPage() {
                 borderColor: "border-rose-100",
               },
             ];
+            if (activeBasic) {
+              const topic = BASICS_TOPICS.find((t) => t.id === activeBasic);
+              if (topic) {
+                const idx = BASICS_TOPICS.findIndex(
+                  (t) => t.id === activeBasic,
+                );
+                const c = BASICS_COLORS[idx % BASICS_COLORS.length];
+                return (
+                  <div className="space-y-4">
+                    <button
+                      type="button"
+                      onClick={() => setActiveBasic(null)}
+                      className="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                      data-ocid="basics.back_button"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 19l-7-7 7-7"
+                        />
+                      </svg>
+                      Back to Basics
+                    </button>
+                    <div
+                      className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+                      style={{ borderLeft: `4px solid ${c.color}` }}
+                    >
+                      <div className="p-5">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center ${c.iconBgActive}`}
+                          >
+                            <topic.Icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h2 className="text-base font-bold text-slate-800">
+                              {topic.name}
+                            </h2>
+                            <p className="text-xs text-slate-500">
+                              {topic.desc}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="prose prose-sm max-w-none">
+                          {"content" in topic && topic.content ? (
+                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                              {String(topic.content).replace(
+                                /\*\*(.+?)\*\*/g,
+                                "$1",
+                              )}
+                            </p>
+                          ) : (
+                            <div className="space-y-3">
+                              {"sections" in topic &&
+                                Array.isArray(topic.sections) &&
+                                (
+                                  topic.sections as {
+                                    title: string;
+                                    text: string;
+                                  }[]
+                                ).map((s, si) => (
+                                  <div key={s.title || si}>
+                                    <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">
+                                      {s.title}
+                                    </p>
+                                    <p className="text-sm text-slate-700 leading-relaxed">
+                                      {s.text}
+                                    </p>
+                                  </div>
+                                ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+            }
+
             return (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {BASICS_TOPICS.map((topic, idx) => {
                   const c = BASICS_COLORS[idx % BASICS_COLORS.length];
-                  const isActive = activeBasic === topic.id;
+                  const isActive = false; // No inline expansion - click opens full page
                   return (
                     <div
                       key={topic.id}
@@ -882,9 +970,7 @@ export default function FinancialRulesPage() {
                         type="button"
                         data-ocid={`basics.${topic.id}.card`}
                         className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
-                        onClick={() =>
-                          setActiveBasic(isActive ? null : topic.id)
-                        }
+                        onClick={() => setActiveBasic(topic.id)}
                       >
                         <div className="flex items-center gap-3">
                           <div

@@ -6,6 +6,8 @@ import {
   ChevronsUpDown,
   Gem,
   Landmark,
+  LayoutGrid,
+  LayoutList,
   Package,
   Pencil,
   PiggyBank,
@@ -228,6 +230,7 @@ export default function PortfolioPage() {
   >(null);
   const [sortCol, setSortCol] = useState<SortCol>("invested");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
   // Load user DOB from localStorage for age calculation
   const _userAge = (() => {
     const dob = localStorage.getItem("gff_dob");
@@ -520,6 +523,26 @@ export default function PortfolioPage() {
         >
           <Plus className="w-4 h-4" /> Add Holding
         </Button>
+        <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden ml-2">
+          <button
+            type="button"
+            title="Table View"
+            onClick={() => setViewMode("table")}
+            className={`p-2 transition-colors ${viewMode === "table" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+            data-ocid="portfolio.table_view.toggle"
+          >
+            <LayoutList className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            title="Card View"
+            onClick={() => setViewMode("card")}
+            className={`p-2 transition-colors ${viewMode === "card" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+            data-ocid="portfolio.card_view.toggle"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Industry-standard pill tab bar */}
@@ -564,7 +587,7 @@ export default function PortfolioPage() {
       </div>
 
       {isOverview ? (
-        <PortfolioOverview holdings={holdings} fmt={fmt} />
+        <PortfolioOverview holdings={holdings} fmt={fmt} viewMode={viewMode} />
       ) : (
         <>
           {loading ? (
@@ -649,190 +672,331 @@ export default function PortfolioPage() {
                 );
               })()}
 
-              {/* Holdings Table */}
-              <div className="rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm" data-ocid="portfolio.table">
-                    <thead>
-                      <tr className="bg-slate-700">
-                        <th
-                          className={thClass}
-                          onClick={() => toggleSort("name")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("name");
-                          }}
-                        >
-                          Name/Ticker{" "}
-                          <SortIcon
-                            col="name"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
+              {/* Holdings Table or Card View */}
+              {viewMode === "card" ? (
+                <div
+                  className="grid grid-cols-1 gap-3"
+                  data-ocid="portfolio.card_list"
+                >
+                  {filtered.map((h, i) => {
+                    const invested = h.costBasis * h.quantity;
+                    const gl = h.currentValue - invested;
+                    const glPct = invested > 0 ? (gl / invested) * 100 : 0;
+                    const allocPct =
+                      totalValue > 0 ? (h.currentValue / totalValue) * 100 : 0;
+                    const typeInfo = assetTypes.find(
+                      (a) => a.value === h.assetType,
+                    );
+                    const iconInfo = assetIcons[h.assetType];
+                    const IconComp = iconInfo?.Icon;
+                    return (
+                      <div
+                        key={h.id}
+                        data-ocid={`portfolio.item.${i + 1}`}
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-4 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            {IconComp && (
+                              <div
+                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                style={{
+                                  backgroundColor: `${iconInfo.color}18`,
+                                }}
+                              >
+                                <IconComp
+                                  className="w-4 h-4"
+                                  style={{ color: iconInfo.color }}
+                                />
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
+                                {h.name}
+                              </p>
+                              <span
+                                className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full text-white mt-0.5"
+                                style={{
+                                  backgroundColor: typeInfo?.color ?? "#64748b",
+                                }}
+                              >
+                                {h.notes || typeInfo?.label || h.assetType}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-xl font-bold text-slate-700 dark:text-slate-200 tabular-nums">
+                              {allocPct.toFixed(1)}%
+                            </p>
+                            <p className="text-[10px] text-slate-400">
+                              Allocation
+                            </p>
+                          </div>
+                        </div>
+                        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mb-3 overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.min(allocPct, 100)}%`,
+                              backgroundColor: typeInfo?.color ?? "#64748b",
+                            }}
                           />
-                        </th>
-                        <th
-                          className={thClassRight}
-                          onClick={() => toggleSort("invested")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("invested");
-                          }}
-                        >
-                          Invested{" "}
-                          <SortIcon
-                            col="invested"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th
-                          className={thClassRight}
-                          onClick={() => toggleSort("currentValue")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("currentValue");
-                          }}
-                        >
-                          Current{" "}
-                          <SortIcon
-                            col="currentValue"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th
-                          className={thClassRight}
-                          onClick={() => toggleSort("glPct")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("glPct");
-                          }}
-                        >
-                          Gain/Loss%
-                          <SortIcon
-                            col="glPct"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th
-                          className={thClassRight}
-                          onClick={() => toggleSort("gl")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("gl");
-                          }}
-                        >
-                          Gain/Loss
-                          <SortIcon
-                            col="gl"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th
-                          className={thClass}
-                          onClick={() => toggleSort("category")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("category");
-                          }}
-                        >
-                          Category{" "}
-                          <SortIcon
-                            col="category"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th
-                          className={thClassRight}
-                          onClick={() => toggleSort("allocPct")}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") toggleSort("allocPct");
-                          }}
-                        >
-                          Allocation%
-                          <SortIcon
-                            col="allocPct"
-                            sortCol={sortCol}
-                            sortDir={sortDir}
-                          />
-                        </th>
-                        <th className="px-4 py-3 text-center text-[11px] font-semibold text-white uppercase tracking-wide">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {filtered.map((h, i) => {
-                        const invested = h.costBasis * h.quantity;
-                        const gl = h.currentValue - invested;
-                        const glPct = invested > 0 ? (gl / invested) * 100 : 0;
-                        const allocPct =
-                          totalValue > 0
-                            ? (h.currentValue / totalValue) * 100
-                            : 0;
-                        return (
-                          <tr
-                            key={h.id}
-                            data-ocid={`portfolio.item.${i + 1}`}
-                            className="hover:bg-slate-50/80 transition-colors"
-                          >
-                            <td className="px-4 py-3 text-xs font-medium text-slate-800">
-                              {h.name}
-                            </td>
-                            <td className="px-4 py-3 text-xs text-right tabular-nums text-slate-700 font-medium whitespace-nowrap">
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                              Invested
+                            </p>
+                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
                               {fmt(invested)}
-                            </td>
-                            <td className="px-4 py-3 text-xs text-right tabular-nums font-medium text-slate-800 whitespace-nowrap">
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                              Current
+                            </p>
+                            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
                               {fmt(h.currentValue)}
-                            </td>
-                            <td
-                              className={`px-4 py-3 text-xs text-right tabular-nums font-semibold whitespace-nowrap ${
-                                glPct >= 0 ? "text-emerald-600" : "text-red-500"
-                              }`}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                              Gain/Loss%
+                            </p>
+                            <p
+                              className={`text-xs font-bold tabular-nums ${glPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
                             >
                               {glPct >= 0 ? "+" : ""}
                               {glPct.toFixed(1)}%
-                            </td>
-                            <td
-                              className={`px-4 py-3 text-xs text-right tabular-nums font-semibold whitespace-nowrap ${
-                                gl >= 0 ? "text-emerald-600" : "text-red-500"
-                              }`}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                              Gain/Loss
+                            </p>
+                            <p
+                              className={`text-xs font-bold tabular-nums ${gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
                             >
                               {gl >= 0 ? "+" : ""}
                               {fmt(gl)}
-                            </td>
-                            <td className="px-4 py-3 text-xs text-slate-500">
-                              {h.notes || "-"}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
-                              {allocPct.toFixed(1)}%
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="flex gap-1 justify-center">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7 text-slate-400 hover:text-slate-700"
-                                  data-ocid={`portfolio.edit_button.${i + 1}`}
-                                  onClick={() => openEdit(h)}
-                                >
-                                  <Pencil className="w-3.5 h-3.5" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7 text-slate-300 hover:text-red-500"
-                                  data-ocid={`portfolio.delete_button.${i + 1}`}
-                                  onClick={() => del(h.id)}
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-slate-400 hover:text-slate-700"
+                            data-ocid={`portfolio.edit_button.${i + 1}`}
+                            onClick={() => openEdit(h)}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-slate-300 hover:text-red-500"
+                            data-ocid={`portfolio.delete_button.${i + 1}`}
+                            onClick={() => del(h.id)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
+              ) : (
+                <div className="rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table
+                      className="w-full text-sm"
+                      data-ocid="portfolio.table"
+                    >
+                      <thead>
+                        <tr className="bg-slate-700">
+                          <th
+                            className={thClass}
+                            onClick={() => toggleSort("name")}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") toggleSort("name");
+                            }}
+                          >
+                            Name/Ticker{" "}
+                            <SortIcon
+                              col="name"
+                              sortCol={sortCol}
+                              sortDir={sortDir}
+                            />
+                          </th>
+                          <th
+                            className={thClassRight}
+                            onClick={() => toggleSort("invested")}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") toggleSort("invested");
+                            }}
+                          >
+                            Invested{" "}
+                            <SortIcon
+                              col="invested"
+                              sortCol={sortCol}
+                              sortDir={sortDir}
+                            />
+                          </th>
+                          <th
+                            className={thClassRight}
+                            onClick={() => toggleSort("currentValue")}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") toggleSort("currentValue");
+                            }}
+                          >
+                            Current{" "}
+                            <SortIcon
+                              col="currentValue"
+                              sortCol={sortCol}
+                              sortDir={sortDir}
+                            />
+                          </th>
+                          <th
+                            className={thClassRight}
+                            onClick={() => toggleSort("glPct")}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") toggleSort("glPct");
+                            }}
+                          >
+                            Gain/Loss%
+                            <SortIcon
+                              col="glPct"
+                              sortCol={sortCol}
+                              sortDir={sortDir}
+                            />
+                          </th>
+                          <th
+                            className={thClassRight}
+                            onClick={() => toggleSort("gl")}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") toggleSort("gl");
+                            }}
+                          >
+                            Gain/Loss
+                            <SortIcon
+                              col="gl"
+                              sortCol={sortCol}
+                              sortDir={sortDir}
+                            />
+                          </th>
+                          <th
+                            className={thClass}
+                            onClick={() => toggleSort("category")}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") toggleSort("category");
+                            }}
+                          >
+                            Category{" "}
+                            <SortIcon
+                              col="category"
+                              sortCol={sortCol}
+                              sortDir={sortDir}
+                            />
+                          </th>
+                          <th
+                            className={thClassRight}
+                            onClick={() => toggleSort("allocPct")}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") toggleSort("allocPct");
+                            }}
+                          >
+                            Allocation%
+                            <SortIcon
+                              col="allocPct"
+                              sortCol={sortCol}
+                              sortDir={sortDir}
+                            />
+                          </th>
+                          <th className="px-4 py-3 text-center text-[11px] font-semibold text-white uppercase tracking-wide">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {filtered.map((h, i) => {
+                          const invested = h.costBasis * h.quantity;
+                          const gl = h.currentValue - invested;
+                          const glPct =
+                            invested > 0 ? (gl / invested) * 100 : 0;
+                          const allocPct =
+                            totalValue > 0
+                              ? (h.currentValue / totalValue) * 100
+                              : 0;
+                          return (
+                            <tr
+                              key={h.id}
+                              data-ocid={`portfolio.item.${i + 1}`}
+                              className="hover:bg-slate-50/80 transition-colors"
+                            >
+                              <td className="px-4 py-3 text-xs font-medium text-slate-800">
+                                {h.name}
+                              </td>
+                              <td className="px-4 py-3 text-xs text-right tabular-nums text-slate-700 font-medium whitespace-nowrap">
+                                {fmt(invested)}
+                              </td>
+                              <td className="px-4 py-3 text-xs text-right tabular-nums font-medium text-slate-800 whitespace-nowrap">
+                                {fmt(h.currentValue)}
+                              </td>
+                              <td
+                                className={`px-4 py-3 text-xs text-right tabular-nums font-semibold whitespace-nowrap ${
+                                  glPct >= 0
+                                    ? "text-emerald-600"
+                                    : "text-red-500"
+                                }`}
+                              >
+                                {glPct >= 0 ? "+" : ""}
+                                {glPct.toFixed(1)}%
+                              </td>
+                              <td
+                                className={`px-4 py-3 text-xs text-right tabular-nums font-semibold whitespace-nowrap ${
+                                  gl >= 0 ? "text-emerald-600" : "text-red-500"
+                                }`}
+                              >
+                                {gl >= 0 ? "+" : ""}
+                                {fmt(gl)}
+                              </td>
+                              <td className="px-4 py-3 text-xs text-slate-500">
+                                {h.notes || "-"}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-right tabular-nums text-slate-600">
+                                {allocPct.toFixed(1)}%
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex gap-1 justify-center">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 text-slate-400 hover:text-slate-700"
+                                    data-ocid={`portfolio.edit_button.${i + 1}`}
+                                    onClick={() => openEdit(h)}
+                                  >
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 text-slate-300 hover:text-red-500"
+                                    data-ocid={`portfolio.delete_button.${i + 1}`}
+                                    onClick={() => del(h.id)}
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               {/* Holdings Distribution + Invested vs Current row */}
               {rawFiltered.length > 0 && (
@@ -1162,9 +1326,11 @@ const assetIcons: Record<string, { Icon: any; color: string }> = {
 function PortfolioOverview({
   holdings,
   fmt,
+  viewMode = "table",
 }: {
   holdings: PortfolioHolding[];
   fmt: (v: number) => string;
+  viewMode?: "table" | "card";
 }) {
   const { country: ovCountry } = useCurrency();
   // Per-asset-type aggregation
@@ -1363,152 +1529,254 @@ function PortfolioOverview({
         );
       })()}
 
-      {/* Overview Table */}
-      <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-        <CardContent className="px-0 pb-0 overflow-hidden">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-700 hover:bg-slate-700">
-                  <TableHead
-                    className="text-white text-xs font-semibold uppercase cursor-pointer select-none"
-                    onClick={() => toggleSort("label")}
-                  >
-                    Investment
-                    <SortArrow col="label" />
-                  </TableHead>
-                  <TableHead
-                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
-                    onClick={() => toggleSort("invested")}
-                  >
-                    Invested
-                    <SortArrow col="invested" />
-                  </TableHead>
-                  <TableHead
-                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
-                    onClick={() => toggleSort("current")}
-                  >
-                    Current
-                    <SortArrow col="current" />
-                  </TableHead>
-                  <TableHead
-                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
-                    onClick={() => toggleSort("glPct")}
-                  >
-                    Gain/Loss%
-                    <SortArrow col="glPct" />
-                  </TableHead>
-                  <TableHead
-                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
-                    onClick={() => toggleSort("gl")}
-                  >
-                    Gain/Loss
-                    <SortArrow col="gl" />
-                  </TableHead>
-                  <TableHead
-                    className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
-                    onClick={() => toggleSort("alloc")}
-                  >
-                    Allocation%
-                    <SortArrow col="alloc" />
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedSummaries.map((s) => {
-                  const iconInfo = assetIcons[s.value];
-                  const IconComp = iconInfo?.Icon;
-                  const alloc = s.alloc;
-                  return (
-                    <TableRow key={s.value} className="hover:bg-slate-50/60">
-                      <TableCell className="py-2.5">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: `${iconInfo?.color}18` }}
-                          >
-                            {IconComp && (
-                              <IconComp
-                                className="w-3.5 h-3.5"
-                                style={{ color: iconInfo?.color }}
-                              />
-                            )}
-                          </div>
-                          <span className="text-xs font-medium text-slate-700">
-                            {s.label.replace(" (ETF/Stocks)", " ETF/Stocks")}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
-                        {fmt(s.invested)}
-                      </TableCell>
-                      <TableCell className="text-right text-xs tabular-nums font-semibold text-slate-800 py-2.5">
-                        {fmt(s.current)}
-                      </TableCell>
-                      <TableCell className="text-right py-2.5">
-                        <span
-                          className={`text-xs font-semibold px-1.5 py-0.5 rounded ${s.glPct >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}
+      {/* Overview Table or Card View */}
+      {viewMode === "card" ? (
+        <div
+          className="grid grid-cols-1 gap-3"
+          data-ocid="portfolio.overview_card_list"
+        >
+          {sortedSummaries
+            .filter((s) => s.invested > 0 || s.current > 0)
+            .map((s, i) => {
+              const iconInfo = assetIcons[s.value];
+              const IconComp = iconInfo?.Icon;
+              return (
+                <div
+                  key={s.value}
+                  data-ocid={`portfolio.overview.item.${i + 1}`}
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      {IconComp && (
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: `${iconInfo.color}18` }}
                         >
-                          {s.glPct >= 0 ? "+" : ""}
-                          {s.glPct.toFixed(1)}%
-                        </span>
-                      </TableCell>
-                      <TableCell
-                        className={`text-right text-xs tabular-nums font-semibold py-2.5 ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                          <IconComp
+                            className="w-4 h-4"
+                            style={{ color: iconInfo.color }}
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                          {s.label.replace(" (ETF/Stocks)", " ETF/Stocks")}
+                        </p>
+                        <p className="text-[10px] text-slate-500">
+                          {s.count} holding{s.count !== 1 ? "s" : ""}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xl font-bold text-slate-700 dark:text-slate-200 tabular-nums">
+                        {s.alloc.toFixed(1)}%
+                      </p>
+                      <p className="text-[10px] text-slate-400">Allocation</p>
+                    </div>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mb-3 overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.min(s.alloc, 100)}%`,
+                        backgroundColor: s.color,
+                      }}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                        Invested
+                      </p>
+                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
+                        {fmt(s.invested)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                        Current
+                      </p>
+                      <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
+                        {fmt(s.current)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                        Gain/Loss%
+                      </p>
+                      <p
+                        className={`text-xs font-bold tabular-nums ${s.glPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                      >
+                        {s.glPct >= 0 ? "+" : ""}
+                        {s.glPct.toFixed(1)}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                        Gain/Loss
+                      </p>
+                      <p
+                        className={`text-xs font-bold tabular-nums ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
                       >
                         {s.gl >= 0 ? "+" : ""}
                         {fmt(s.gl)}
-                      </TableCell>
-                      <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
-                        {alloc.toFixed(1)}%
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {/* Totals row */}
-                <TableRow className="bg-slate-50 border-t-2 border-slate-200">
-                  <TableCell className="py-2.5 text-xs font-bold text-slate-700">
-                    Total
-                  </TableCell>
-                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
-                    {fmt(totalInvested)}
-                  </TableCell>
-                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-800 py-2.5">
-                    {fmt(totalCurrent)}
-                  </TableCell>
-                  <TableCell
-                    className={`text-right text-xs tabular-nums font-bold py-2.5 ${(totalCurrent - totalInvested) >= 0 ? "text-emerald-600" : "text-red-500"}`}
-                  >
-                    {totalCurrent - totalInvested >= 0 ? "+" : ""}
-                    {fmt(totalCurrent - totalInvested)}
-                  </TableCell>
-                  <TableCell className="text-right py-2.5">
-                    {totalInvested > 0 && (
-                      <span
-                        className={`text-xs font-bold px-1.5 py-0.5 rounded ${(((totalCurrent - totalInvested) / totalInvested) * 100) >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}
-                      >
-                        {((totalCurrent - totalInvested) / totalInvested) *
-                          100 >=
-                        0
-                          ? "+"
-                          : ""}
-                        {(
-                          ((totalCurrent - totalInvested) / totalInvested) *
-                          100
-                        ).toFixed(1)}
-                        %
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
-                    100%
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      ) : (
+        <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+          <CardContent className="px-0 pb-0 overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-700 hover:bg-slate-700">
+                    <TableHead
+                      className="text-white text-xs font-semibold uppercase cursor-pointer select-none"
+                      onClick={() => toggleSort("label")}
+                    >
+                      Investment
+                      <SortArrow col="label" />
+                    </TableHead>
+                    <TableHead
+                      className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                      onClick={() => toggleSort("invested")}
+                    >
+                      Invested
+                      <SortArrow col="invested" />
+                    </TableHead>
+                    <TableHead
+                      className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                      onClick={() => toggleSort("current")}
+                    >
+                      Current
+                      <SortArrow col="current" />
+                    </TableHead>
+                    <TableHead
+                      className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                      onClick={() => toggleSort("glPct")}
+                    >
+                      Gain/Loss%
+                      <SortArrow col="glPct" />
+                    </TableHead>
+                    <TableHead
+                      className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                      onClick={() => toggleSort("gl")}
+                    >
+                      Gain/Loss
+                      <SortArrow col="gl" />
+                    </TableHead>
+                    <TableHead
+                      className="text-white text-xs font-semibold uppercase text-right cursor-pointer select-none"
+                      onClick={() => toggleSort("alloc")}
+                    >
+                      Allocation%
+                      <SortArrow col="alloc" />
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedSummaries.map((s) => {
+                    const iconInfo = assetIcons[s.value];
+                    const IconComp = iconInfo?.Icon;
+                    const alloc = s.alloc;
+                    return (
+                      <TableRow key={s.value} className="hover:bg-slate-50/60">
+                        <TableCell className="py-2.5">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
+                              style={{
+                                backgroundColor: `${iconInfo?.color}18`,
+                              }}
+                            >
+                              {IconComp && (
+                                <IconComp
+                                  className="w-3.5 h-3.5"
+                                  style={{ color: iconInfo?.color }}
+                                />
+                              )}
+                            </div>
+                            <span className="text-xs font-medium text-slate-700">
+                              {s.label.replace(" (ETF/Stocks)", " ETF/Stocks")}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
+                          {fmt(s.invested)}
+                        </TableCell>
+                        <TableCell className="text-right text-xs tabular-nums font-semibold text-slate-800 py-2.5">
+                          {fmt(s.current)}
+                        </TableCell>
+                        <TableCell className="text-right py-2.5">
+                          <span
+                            className={`text-xs font-semibold px-1.5 py-0.5 rounded ${s.glPct >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}
+                          >
+                            {s.glPct >= 0 ? "+" : ""}
+                            {s.glPct.toFixed(1)}%
+                          </span>
+                        </TableCell>
+                        <TableCell
+                          className={`text-right text-xs tabular-nums font-semibold py-2.5 ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                        >
+                          {s.gl >= 0 ? "+" : ""}
+                          {fmt(s.gl)}
+                        </TableCell>
+                        <TableCell className="text-right text-xs tabular-nums text-slate-600 py-2.5">
+                          {alloc.toFixed(1)}%
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {/* Totals row */}
+                  <TableRow className="bg-slate-50 border-t-2 border-slate-200">
+                    <TableCell className="py-2.5 text-xs font-bold text-slate-700">
+                      Total
+                    </TableCell>
+                    <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
+                      {fmt(totalInvested)}
+                    </TableCell>
+                    <TableCell className="text-right text-xs tabular-nums font-bold text-slate-800 py-2.5">
+                      {fmt(totalCurrent)}
+                    </TableCell>
+                    <TableCell
+                      className={`text-right text-xs tabular-nums font-bold py-2.5 ${(totalCurrent - totalInvested) >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                    >
+                      {totalCurrent - totalInvested >= 0 ? "+" : ""}
+                      {fmt(totalCurrent - totalInvested)}
+                    </TableCell>
+                    <TableCell className="text-right py-2.5">
+                      {totalInvested > 0 && (
+                        <span
+                          className={`text-xs font-bold px-1.5 py-0.5 rounded ${(((totalCurrent - totalInvested) / totalInvested) * 100) >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}
+                        >
+                          {((totalCurrent - totalInvested) / totalInvested) *
+                            100 >=
+                          0
+                            ? "+"
+                            : ""}
+                          {(
+                            ((totalCurrent - totalInvested) / totalInvested) *
+                            100
+                          ).toFixed(1)}
+                          %
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right text-xs tabular-nums font-bold text-slate-700 py-2.5">
+                      100%
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Allocation Donut + Bar Chart row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -281,13 +281,37 @@ export function MonthlyTrackerTab() {
     [categories],
   );
   const budgetedExpenses = totalPlanned;
-  const incomePct =
+  const _incomePct =
     budgetedIncome > 0
       ? Math.min(200, (totalIncome / budgetedIncome) * 100)
       : 0;
-  const expensePct =
+  const _expensePct =
     budgetedExpenses > 0
       ? Math.min(200, (totalActual / budgetedExpenses) * 100)
+      : 0;
+
+  // All-months aggregated values for top metric cards (not filtered by month/year)
+  const allMonthsIncome = useMemo(
+    () =>
+      transactions
+        .filter((t) => t.transactionType === TransactionType.Income)
+        .reduce((s, t) => s + t.amount, 0),
+    [transactions],
+  );
+  const allMonthsExpense = useMemo(
+    () =>
+      transactions
+        .filter((t) => t.transactionType === TransactionType.Expense)
+        .reduce((s, t) => s + t.amount, 0),
+    [transactions],
+  );
+  const allMonthsIncomePct =
+    budgetedIncome > 0
+      ? Math.min(200, (allMonthsIncome / budgetedIncome) * 100)
+      : 0;
+  const allMonthsExpensePct =
+    budgetedExpenses > 0
+      ? Math.min(200, (allMonthsExpense / budgetedExpenses) * 100)
       : 0;
 
   const chartData = [
@@ -490,9 +514,9 @@ export function MonthlyTrackerTab() {
                   <PieChart width={130} height={130}>
                     <Pie
                       data={[
-                        { value: incomePct, fill: "#10b981" },
+                        { value: allMonthsIncomePct, fill: "#10b981" },
                         {
-                          value: Math.max(0, 100 - incomePct),
+                          value: Math.max(0, 100 - allMonthsIncomePct),
                           fill: "#f1f5f9",
                         },
                       ]}
@@ -512,7 +536,7 @@ export function MonthlyTrackerTab() {
                   </PieChart>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-lg font-bold text-emerald-600">
-                      {incomePct.toFixed(0)}%
+                      {allMonthsIncomePct.toFixed(0)}%
                     </span>
                   </div>
                 </div>
@@ -534,11 +558,12 @@ export function MonthlyTrackerTab() {
                     <Pie
                       data={[
                         {
-                          value: expensePct,
-                          fill: expensePct > 90 ? "#ef4444" : "#f97316",
+                          value: allMonthsExpensePct,
+                          fill:
+                            allMonthsExpensePct > 90 ? "#ef4444" : "#f97316",
                         },
                         {
-                          value: Math.max(0, 100 - expensePct),
+                          value: Math.max(0, 100 - allMonthsExpensePct),
                           fill: "#f1f5f9",
                         },
                       ]}
@@ -556,7 +581,7 @@ export function MonthlyTrackerTab() {
                           key={i}
                           fill={
                             i === 0
-                              ? expensePct > 90
+                              ? allMonthsExpensePct > 90
                                 ? "#ef4444"
                                 : "#f97316"
                               : "#f1f5f9"
@@ -567,9 +592,9 @@ export function MonthlyTrackerTab() {
                   </PieChart>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span
-                      className={`text-lg font-bold ${expensePct > 90 ? "text-red-500" : "text-orange-500"}`}
+                      className={`text-lg font-bold ${allMonthsExpensePct > 90 ? "text-red-500" : "text-orange-500"}`}
                     >
-                      {expensePct.toFixed(0)}%
+                      {allMonthsExpensePct.toFixed(0)}%
                     </span>
                   </div>
                 </div>

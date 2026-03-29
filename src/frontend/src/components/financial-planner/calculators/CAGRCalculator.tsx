@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function CAGRCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [initialVal, setInitialVal] = useState("100000");
   const [finalVal, setFinalVal] = useState("250000");
@@ -71,13 +64,13 @@ export function CAGRCalculator() {
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Initial Value</span>
             <span className="font-semibold">
-              {fmt(Number.parseFloat(initialVal) || 0)}
+              {formatCurrency(Number.parseFloat(initialVal) || 0)}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Final Value</span>
             <span className="font-semibold">
-              {fmt(Number.parseFloat(finalVal) || 0)}
+              {formatCurrency(Number.parseFloat(finalVal) || 0)}
             </span>
           </div>
           <div className="flex justify-between">

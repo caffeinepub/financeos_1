@@ -4,13 +4,6 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 function calcOldRegimeTax(taxableIncome: number): number {
   let tax = 0;
   if (taxableIncome <= 250000) tax = 0;
@@ -33,7 +26,7 @@ function calcNewRegimeTax(income: number): number {
 }
 
 export function TaxCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [income, setIncome] = useState("1200000");
   const [hra, setHra] = useState("120000");
@@ -125,7 +118,7 @@ export function TaxCalculator() {
               Old Regime Taxable Income
             </span>
             <span className="font-semibold">
-              {fmt(result.oldTaxableIncome)}
+              {formatCurrency(result.oldTaxableIncome)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -133,7 +126,7 @@ export function TaxCalculator() {
               Old Regime Tax (incl. cess)
             </span>
             <span className="font-semibold text-purple-600">
-              {fmt(result.oldTax)}
+              {formatCurrency(result.oldTax)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -141,7 +134,7 @@ export function TaxCalculator() {
               New Regime Tax (incl. cess)
             </span>
             <span className="font-semibold text-violet-600">
-              {fmt(result.newTax)}
+              {formatCurrency(result.newTax)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
@@ -153,7 +146,7 @@ export function TaxCalculator() {
           <div className="flex justify-between">
             <span className="text-sm font-bold">Tax Saving</span>
             <span className="font-bold text-green-600">
-              {fmt(result.saving)}
+              {formatCurrency(result.saving)}
             </span>
           </div>
         </CardContent>

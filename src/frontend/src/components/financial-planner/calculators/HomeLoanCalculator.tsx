@@ -12,15 +12,8 @@ import {
 } from "recharts";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function HomeLoanCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [propertyValue, setPropertyValue] = useState("5000000");
   const [downPayment, setDownPayment] = useState("1000000");
@@ -104,24 +97,28 @@ export function HomeLoanCalculator() {
         <CardContent className="space-y-3">
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Loan Amount</span>
-            <span className="font-semibold">{fmt(result.loanAmount)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.loanAmount)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Monthly EMI</span>
-            <span className="font-bold text-red-600">{fmt(result.emi)}</span>
+            <span className="font-bold text-red-600">
+              {formatCurrency(result.emi)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Total Interest
             </span>
             <span className="font-semibold text-orange-500">
-              {fmt(result.totalInterest)}
+              {formatCurrency(result.totalInterest)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Total Cost of Property</span>
             <span className="font-bold text-lg text-red-600">
-              {fmt(result.totalCost)}
+              {formatCurrency(result.totalCost)}
             </span>
           </div>
           <div className="mt-3">
@@ -143,7 +140,7 @@ export function HomeLoanCalculator() {
                   <Cell fill="#6366f1" />
                   <Cell fill="#f97316" />
                 </Pie>
-                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Tooltip formatter={(v: number) => formatCurrency(v)} />
                 <Legend iconType="circle" iconSize={10} />
               </PieChart>
             </ResponsiveContainer>

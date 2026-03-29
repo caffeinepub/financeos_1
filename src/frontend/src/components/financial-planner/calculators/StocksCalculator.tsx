@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 2,
-  }).format(n);
-
 export function StocksCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [buyPrice, setBuyPrice] = useState("100");
   const [qty, setQty] = useState("100");
@@ -87,7 +80,9 @@ export function StocksCalculator() {
             <span className="text-sm text-muted-foreground">
               Total Investment
             </span>
-            <span className="font-semibold">{fmt(result.investment)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.investment)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
@@ -96,7 +91,7 @@ export function StocksCalculator() {
             <span
               className={`font-semibold ${result.grossProfit >= 0 ? "text-green-600" : "text-red-500"}`}
             >
-              {fmt(result.grossProfit)}
+              {formatCurrency(result.grossProfit)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -104,7 +99,7 @@ export function StocksCalculator() {
               Brokerage Cost
             </span>
             <span className="font-semibold text-orange-500">
-              {fmt(result.brokerageCost)}
+              {formatCurrency(result.brokerageCost)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
@@ -112,7 +107,7 @@ export function StocksCalculator() {
             <span
               className={`font-bold text-lg ${result.netProfit >= 0 ? "text-green-600" : "text-red-500"}`}
             >
-              {fmt(result.netProfit)}
+              {formatCurrency(result.netProfit)}
             </span>
           </div>
           <div className="flex justify-between">

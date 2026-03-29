@@ -11,15 +11,8 @@ import {
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function HRACalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [basicSalary, setBasicSalary] = useState("50000");
   const [hraReceived, setHraReceived] = useState("20000");
@@ -98,32 +91,36 @@ export function HRACalculator() {
             <span className="text-sm text-muted-foreground">
               Actual HRA Received
             </span>
-            <span className="font-semibold">{fmt(result.condition1)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.condition1)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Rent Paid - 10% Basic
             </span>
             <span className="font-semibold">
-              {fmt(Math.max(0, result.condition2))}
+              {formatCurrency(Math.max(0, result.condition2))}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               {city === "metro" ? "50%" : "40%"} of Basic
             </span>
-            <span className="font-semibold">{fmt(result.condition3)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.condition3)}
+            </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">HRA Exemption</span>
             <span className="font-bold text-lg text-green-600">
-              {fmt(result.exemption)}
+              {formatCurrency(result.exemption)}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm font-bold">Taxable HRA</span>
             <span className="font-bold text-fuchsia-600">
-              {fmt(result.taxableHRA)}
+              {formatCurrency(result.taxableHRA)}
             </span>
           </div>
         </CardContent>

@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function ROICalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [invested, setInvested] = useState("100000");
   const [finalVal, setFinalVal] = useState("150000");
@@ -74,7 +67,7 @@ export function ROICalculator() {
             <span
               className={`font-semibold ${result.totalReturn >= 0 ? "text-green-600" : "text-red-500"}`}
             >
-              {fmt(result.totalReturn)}
+              {formatCurrency(result.totalReturn)}
             </span>
           </div>
           <div className="flex justify-between">

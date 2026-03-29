@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function CreditCardPayoffCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [balance, setBalance] = useState("50000");
   const [monthlyRate, setMonthlyRate] = useState("3.5");
@@ -95,13 +88,13 @@ export function CreditCardPayoffCalculator() {
                   Total Interest Paid
                 </span>
                 <span className="font-semibold text-red-500">
-                  {fmt(result.totalInterest)}
+                  {formatCurrency(result.totalInterest)}
                 </span>
               </div>
               <div className="flex justify-between border-t pt-2">
                 <span className="text-sm font-bold">Total Amount Paid</span>
                 <span className="font-bold text-lg text-pink-600">
-                  {fmt(result.totalAmount)}
+                  {formatCurrency(result.totalAmount)}
                 </span>
               </div>
             </>

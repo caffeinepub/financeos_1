@@ -12,15 +12,8 @@ import {
 } from "recharts";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function EMICalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [loanAmount, setLoanAmount] = useState("1000000");
   const [interestRate, setInterestRate] = useState("8.5");
@@ -88,7 +81,7 @@ export function EMICalculator() {
               Principal Amount
             </span>
             <span className="font-semibold">
-              {fmt(Number.parseFloat(loanAmount) || 0)}
+              {formatCurrency(Number.parseFloat(loanAmount) || 0)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -96,17 +89,19 @@ export function EMICalculator() {
               Total Interest
             </span>
             <span className="font-semibold text-orange-600">
-              {fmt(result.totalInterest)}
+              {formatCurrency(result.totalInterest)}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Total Payment</span>
-            <span className="font-semibold">{fmt(result.totalPayment)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.totalPayment)}
+            </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Monthly EMI</span>
             <span className="font-bold text-2xl text-orange-600">
-              {fmt(result.emi)}
+              {formatCurrency(result.emi)}
             </span>
           </div>
           <div className="mt-3">
@@ -127,7 +122,7 @@ export function EMICalculator() {
                   <Cell fill="#6366f1" />
                   <Cell fill="#f97316" />
                 </Pie>
-                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Tooltip formatter={(v: number) => formatCurrency(v)} />
                 <Legend iconType="circle" iconSize={10} />
               </PieChart>
             </ResponsiveContainer>

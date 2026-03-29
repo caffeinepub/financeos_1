@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function TwoBucketCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [corpus, setCorpus] = useState("10000000");
   const [monthlyExpenses, setMonthlyExpenses] = useState("80000");
@@ -88,7 +81,7 @@ export function TwoBucketCalculator() {
                 Safe Bucket ({safePct}%)
               </span>
               <span className="font-bold text-blue-700 dark:text-blue-300">
-                {fmt(result.safeBucket)}
+                {formatCurrency(result.safeBucket)}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -101,11 +94,12 @@ export function TwoBucketCalculator() {
                 Growth Bucket ({100 - Number.parseFloat(safePct)}%)
               </span>
               <span className="font-bold text-green-700 dark:text-green-300">
-                {fmt(result.growthBucket)}
+                {formatCurrency(result.growthBucket)}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Equity, MF | Annual income: {fmt(result.annualGrowthIncome)}
+              Equity, MF | Annual income:{" "}
+              {formatCurrency(result.annualGrowthIncome)}
             </p>
           </div>
         </CardContent>

@@ -12,15 +12,8 @@ import {
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useMemo, useState } from "react";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function EmergencyFundSufficiencyCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const [currentFund, setCurrentFund] = useState("200000");
   const [monthlyExpenses, setMonthlyExpenses] = useState("50000");
   const [jobStability, setJobStability] = useState("stable");
@@ -39,9 +32,9 @@ export function EmergencyFundSufficiencyCalculator() {
     if (score >= 100) recommendation = "Your emergency fund is sufficient!";
     else if (score >= 70) recommendation = "Almost there — add a bit more.";
     else
-      recommendation = `Build up to ${fmt(ME * requiredMonths)} (${requiredMonths} months coverage).`;
+      recommendation = `Build up to ${formatCurrency(ME * requiredMonths)} (${requiredMonths} months coverage).`;
     return { monthsCovered, requiredMonths, score, recommendation };
-  }, [currentFund, monthlyExpenses, jobStability]);
+  }, [currentFund, monthlyExpenses, jobStability, formatCurrency]);
 
   const scoreColor =
     result.score >= 100

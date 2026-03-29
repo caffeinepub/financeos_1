@@ -14,15 +14,8 @@ import {
 } from "recharts";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function RetirementCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [currentAge, setCurrentAge] = useState("30");
   const [retirementAge, setRetirementAge] = useState("60");
@@ -158,7 +151,7 @@ export function RetirementCalculator() {
               Future Monthly Expenses
             </span>
             <span className="font-semibold">
-              {fmt(result.futureMonthlyExpenses)}
+              {formatCurrency(result.futureMonthlyExpenses)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -166,13 +159,13 @@ export function RetirementCalculator() {
               Corpus Required
             </span>
             <span className="font-semibold text-green-600">
-              {fmt(result.corpusRequired)}
+              {formatCurrency(result.corpusRequired)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Monthly SIP Needed</span>
             <span className="font-bold text-lg text-emerald-600">
-              {fmt(result.monthlySIP)}
+              {formatCurrency(result.monthlySIP)}
             </span>
           </div>
           <div className="mt-3">
@@ -191,7 +184,7 @@ export function RetirementCalculator() {
                   tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                   width={45}
                 />
-                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Tooltip formatter={(v: number) => formatCurrency(v)} />
                 <Legend iconType="circle" iconSize={8} />
                 <Bar
                   dataKey="Current Expenses"

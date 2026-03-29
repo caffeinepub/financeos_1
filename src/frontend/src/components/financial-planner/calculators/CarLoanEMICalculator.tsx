@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function CarLoanEMICalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [carPrice, setCarPrice] = useState("800000");
   const [downPayment, setDownPayment] = useState("200000");
@@ -84,24 +77,28 @@ export function CarLoanEMICalculator() {
         <CardContent className="space-y-3">
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Loan Amount</span>
-            <span className="font-semibold">{fmt(result.loanAmount)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.loanAmount)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Monthly EMI</span>
-            <span className="font-bold text-amber-600">{fmt(result.emi)}</span>
+            <span className="font-bold text-amber-600">
+              {formatCurrency(result.emi)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Total Interest
             </span>
             <span className="font-semibold text-orange-500">
-              {fmt(result.totalInterest)}
+              {formatCurrency(result.totalInterest)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Total Cost</span>
             <span className="font-bold text-lg text-amber-600">
-              {fmt(result.totalCost)}
+              {formatCurrency(result.totalCost)}
             </span>
           </div>
         </CardContent>

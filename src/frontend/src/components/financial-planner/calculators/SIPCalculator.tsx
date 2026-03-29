@@ -13,15 +13,8 @@ import {
 } from "recharts";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function SIPCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [monthly, setMonthly] = useState("5000");
   const [rate, setRate] = useState("12");
@@ -112,27 +105,29 @@ export function SIPCalculator() {
             <span className="text-sm text-muted-foreground">
               Total Invested
             </span>
-            <span className="font-semibold">{fmt(result.invested)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.invested)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Estimated Returns
             </span>
             <span className="font-semibold text-green-600">
-              {fmt(result.returns)}
+              {formatCurrency(result.returns)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Total Value</span>
             <span className="font-bold text-lg text-blue-600">
-              {fmt(result.total)}
+              {formatCurrency(result.total)}
             </span>
           </div>
           <ResponsiveContainer width="100%" height={120}>
             <BarChart data={chartData}>
               <XAxis dataKey="name" tick={{ fontSize: 11 }} />
               <YAxis hide />
-              <Tooltip formatter={(v: number) => fmt(v)} />
+              <Tooltip formatter={(v: number) => formatCurrency(v)} />
               <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                 {chartData.map((entry) => (
                   <Cell key={entry.name} fill={entry.color} />

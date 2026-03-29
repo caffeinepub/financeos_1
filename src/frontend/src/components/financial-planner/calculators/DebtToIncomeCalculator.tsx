@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function DebtToIncomeCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [income, setIncome] = useState("100000");
   const [homeLoan, setHomeLoan] = useState("30000");
@@ -106,14 +99,16 @@ export function DebtToIncomeCalculator() {
             <span className="text-sm text-muted-foreground">
               Total Monthly Debt
             </span>
-            <span className="font-semibold">{fmt(result.totalDebt)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.totalDebt)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Monthly Income
             </span>
             <span className="font-semibold">
-              {fmt(Number.parseFloat(income) || 0)}
+              {formatCurrency(Number.parseFloat(income) || 0)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">

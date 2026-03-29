@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function EducationLoanCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [loanAmount, setLoanAmount] = useState("1000000");
   const [interestRate, setInterestRate] = useState("10");
@@ -91,27 +84,29 @@ export function EducationLoanCalculator() {
               Balance after Moratorium
             </span>
             <span className="font-semibold">
-              {fmt(result.balanceAfterMoratorium)}
+              {formatCurrency(result.balanceAfterMoratorium)}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               EMI after Moratorium
             </span>
-            <span className="font-bold text-yellow-600">{fmt(result.emi)}</span>
+            <span className="font-bold text-yellow-600">
+              {formatCurrency(result.emi)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Total Interest
             </span>
             <span className="font-semibold text-orange-500">
-              {fmt(result.totalInterest)}
+              {formatCurrency(result.totalInterest)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Total Payment</span>
             <span className="font-bold text-lg text-yellow-600">
-              {fmt(result.totalPayment)}
+              {formatCurrency(result.totalPayment)}
             </span>
           </div>
         </CardContent>

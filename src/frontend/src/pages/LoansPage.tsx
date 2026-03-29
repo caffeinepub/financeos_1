@@ -164,20 +164,20 @@ function healthLabel(score: number) {
     return {
       label: "Healthy",
       color: "#10b981",
-      bg: "bg-emerald-50 dark:bg-emerald-900/30",
+      bg: "bg-card",
       text: "text-emerald-700 dark:text-emerald-300",
     };
   if (score >= 40)
     return {
       label: "Moderate",
       color: "#f59e0b",
-      bg: "bg-amber-50 dark:bg-amber-900/30",
+      bg: "bg-card",
       text: "text-amber-700 dark:text-amber-300",
     };
   return {
     label: "High Risk",
     color: "#ef4444",
-    bg: "bg-red-50 dark:bg-red-900/30",
+    bg: "bg-card",
     text: "text-red-700 dark:text-red-300",
   };
 }
@@ -534,8 +534,8 @@ export default function LoansPage() {
       </div>
 
       <Tabs defaultValue="dashboard" className="space-y-4">
-        <div className="overflow-x-auto scrollbar-hide w-full">
-          <TabsList className="flex overflow-x-auto scrollbar-hide gap-1 bg-transparent rounded-xl p-1 h-auto flex-nowrap min-w-0 w-full border-b border-border">
+        <div className="overflow-x-auto pb-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-2">
+          <TabsList className="flex gap-2 bg-transparent h-auto flex-nowrap min-w-max">
             {[
               { value: "dashboard", label: "🏠 Dashboard" },
               { value: "tracker", label: "📋 Tracker" },
@@ -549,7 +549,7 @@ export default function LoansPage() {
                 key={tab.value}
                 value={tab.value}
                 data-ocid={`loans.${tab.value}.tab`}
-                className="text-xs whitespace-nowrap px-3 py-1.5 rounded-full border transition-all duration-200 flex-shrink-0 bg-card text-muted-foreground border-border hover:border-blue-400 data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:border-foreground data-[state=active]:shadow-sm"
+                className="text-xs whitespace-nowrap px-3 py-1.5 rounded-full border transition-all duration-200 flex-shrink-0 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-blue-400 data-[state=active]:bg-slate-800 data-[state=active]:text-white data-[state=active]:border-slate-800 data-[state=active]:shadow-sm"
               >
                 {tab.label}
               </TabsTrigger>
@@ -575,51 +575,59 @@ export default function LoansPage() {
 
           {/* Summary Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Card className="bg-card border-border">
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground">
-                  Total Outstanding
-                </p>
-                <p className="text-lg font-bold text-foreground mt-1">
-                  {fmt(totalOutstanding)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-card border-border">
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground">
-                  Total EMI / Month
-                </p>
-                <p className="text-lg font-bold text-blue-300 mt-1">
-                  {fmt(totalEMI)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-card border-border">
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground">Debt Burden</p>
-                <p className={`text-lg font-bold mt-1 ${burden.color}`}>
-                  {debtBurden.toFixed(1)}%
-                </p>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <BurdenIcon className={`w-3 h-3 ${burden.color}`} />
-                  <span className={`text-[10px] ${burden.color}`}>
-                    {burden.label}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card border-border">
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground">Health Score</p>
-                <p className={`text-lg font-bold mt-1 ${health.text}`}>
-                  {loans.length > 0 ? avgHealthScore : "—"}
-                </p>
-                <span className={`text-[10px] ${health.text}`}>
-                  {loans.length > 0 ? health.label : "No loans"}
+            <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 dark:border-blue-800 px-4 py-3">
+              <p className="text-[10px] font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide mb-1">
+                Total Outstanding
+              </p>
+              <p className="text-sm font-bold text-blue-800 dark:text-blue-200 tabular-nums">
+                {fmt(totalOutstanding)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/30 dark:border-indigo-800 px-4 py-3">
+              <p className="text-[10px] font-semibold text-indigo-700 dark:text-indigo-300 uppercase tracking-wide mb-1">
+                Total EMI / Month
+              </p>
+              <p className="text-sm font-bold text-indigo-800 dark:text-indigo-200 tabular-nums">
+                {fmt(totalEMI)}
+              </p>
+            </div>
+            <div
+              className={`rounded-xl border px-4 py-3 ${debtBurden > 50 ? "border-red-100 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:border-red-800" : debtBurden > 35 ? "border-amber-100 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:border-amber-800" : "border-green-100 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:border-green-800"}`}
+            >
+              <p
+                className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${debtBurden > 50 ? "text-red-700 dark:text-red-300" : debtBurden > 35 ? "text-amber-700 dark:text-amber-300" : "text-green-700 dark:text-green-300"}`}
+              >
+                Debt Burden
+              </p>
+              <p
+                className={`text-sm font-bold tabular-nums ${debtBurden > 50 ? "text-red-800 dark:text-red-200" : debtBurden > 35 ? "text-amber-800 dark:text-amber-200" : "text-green-800 dark:text-green-200"}`}
+              >
+                {debtBurden.toFixed(1)}%
+              </p>
+              <div className="flex items-center gap-1 mt-0.5">
+                <BurdenIcon className={`w-3 h-3 ${burden.color}`} />
+                <span className={`text-[10px] ${burden.color}`}>
+                  {burden.label}
                 </span>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            <div
+              className={`rounded-xl border px-4 py-3 ${avgHealthScore >= 70 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:border-green-800" : avgHealthScore >= 40 ? "border-amber-100 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:border-amber-800" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:border-red-800"}`}
+            >
+              <p
+                className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${avgHealthScore >= 70 ? "text-green-700 dark:text-green-300" : avgHealthScore >= 40 ? "text-amber-700 dark:text-amber-300" : "text-red-700 dark:text-red-300"}`}
+              >
+                Health Score
+              </p>
+              <p
+                className={`text-sm font-bold tabular-nums ${avgHealthScore >= 70 ? "text-green-800 dark:text-green-200" : avgHealthScore >= 40 ? "text-amber-800 dark:text-amber-200" : "text-red-800 dark:text-red-200"}`}
+              >
+                {loans.length > 0 ? avgHealthScore : "—"}
+              </p>
+              <span className={`text-[10px] ${health.text}`}>
+                {loans.length > 0 ? health.label : "No loans"}
+              </span>
+            </div>
           </div>
 
           {loans.length === 0 ? (
@@ -982,7 +990,7 @@ export default function LoansPage() {
                           </div>
                         </CardContent>
                       </Card>
-                      <Card className="bg-emerald-900/30 border-emerald-700">
+                      <Card className="bg-card border-border">
                         <CardContent className="p-4 space-y-3">
                           <p className="text-xs font-bold text-emerald-300 uppercase tracking-wide">
                             With Extra {fmt(extraPayment)}/mo
@@ -1015,7 +1023,7 @@ export default function LoansPage() {
                           </div>
                         </CardContent>
                       </Card>
-                      <Card className="sm:col-span-2 bg-blue-900/30 border-blue-700">
+                      <Card className="sm:col-span-2 bg-card border-border">
                         <CardContent className="p-4">
                           <div className="flex flex-wrap gap-6 justify-center text-center">
                             <div>
@@ -1095,9 +1103,7 @@ export default function LoansPage() {
               </div>
 
               {/* AI Recommendation */}
-              <div
-                className={`p-4 rounded-xl border ${recommend ? "bg-blue-900/30 border-blue-700" : "bg-emerald-900/30 border-emerald-700"}`}
-              >
+              <div className="p-4 rounded-xl border bg-card border-border">
                 <div className="flex items-start gap-3">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${recommend ? "bg-blue-600/30" : "bg-emerald-600/30"}`}
@@ -1206,15 +1212,7 @@ export default function LoansPage() {
                 </div>
               </div>
 
-              <div
-                className={`grid grid-cols-3 gap-3 text-center p-4 rounded-xl border ${
-                  affStatus === "safe"
-                    ? "bg-emerald-900/30 border-emerald-700"
-                    : affStatus === "caution"
-                      ? "bg-amber-900/30 border-amber-700"
-                      : "bg-red-900/30 border-red-700"
-                }`}
-              >
+              <div className="grid grid-cols-3 gap-3 text-center p-4 rounded-xl border bg-card border-border">
                 <div>
                   <p className="text-[10px] text-muted-foreground">
                     Max Safe EMI
@@ -1321,7 +1319,7 @@ export default function LoansPage() {
                       </p>
                     </div>
                     {dfExtra > 0 && (
-                      <div className="bg-emerald-900/30 border border-emerald-700 rounded-xl p-3 text-center">
+                      <div className="bg-card border border-border rounded-xl p-3 text-center">
                         <p className="text-xs text-muted-foreground">
                           With Extra {fmt(dfExtra)}/mo
                         </p>

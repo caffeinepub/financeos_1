@@ -305,11 +305,11 @@ export function MonthlyTrackerTab() {
         .reduce((s, t) => s + t.amount, 0),
     [transactions],
   );
-  const allMonthsIncomePct =
+  const _allMonthsIncomePct =
     budgetedIncome > 0
       ? Math.min(200, (allMonthsIncome / budgetedIncome) * 100)
       : 0;
-  const allMonthsExpensePct =
+  const _allMonthsExpensePct =
     budgetedExpenses > 0
       ? Math.min(200, (allMonthsExpense / budgetedExpenses) * 100)
       : 0;
@@ -514,9 +514,9 @@ export function MonthlyTrackerTab() {
                   <PieChart width={130} height={130}>
                     <Pie
                       data={[
-                        { value: allMonthsIncomePct, fill: "#10b981" },
+                        { value: _incomePct, fill: "#10b981" },
                         {
-                          value: Math.max(0, 100 - allMonthsIncomePct),
+                          value: Math.max(0, 100 - _incomePct),
                           fill: "#f1f5f9",
                         },
                       ]}
@@ -536,7 +536,7 @@ export function MonthlyTrackerTab() {
                   </PieChart>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-lg font-bold text-emerald-600">
-                      {allMonthsIncomePct.toFixed(0)}%
+                      {_incomePct.toFixed(0)}%
                     </span>
                   </div>
                 </div>
@@ -558,12 +558,11 @@ export function MonthlyTrackerTab() {
                     <Pie
                       data={[
                         {
-                          value: allMonthsExpensePct,
-                          fill:
-                            allMonthsExpensePct > 90 ? "#ef4444" : "#f97316",
+                          value: _expensePct,
+                          fill: _expensePct > 90 ? "#ef4444" : "#f97316",
                         },
                         {
-                          value: Math.max(0, 100 - allMonthsExpensePct),
+                          value: Math.max(0, 100 - _expensePct),
                           fill: "#f1f5f9",
                         },
                       ]}
@@ -581,7 +580,7 @@ export function MonthlyTrackerTab() {
                           key={i}
                           fill={
                             i === 0
-                              ? allMonthsExpensePct > 90
+                              ? _expensePct > 90
                                 ? "#ef4444"
                                 : "#f97316"
                               : "#f1f5f9"
@@ -592,9 +591,9 @@ export function MonthlyTrackerTab() {
                   </PieChart>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span
-                      className={`text-lg font-bold ${allMonthsExpensePct > 90 ? "text-red-500" : "text-orange-500"}`}
+                      className={`text-lg font-bold ${_expensePct > 90 ? "text-red-500" : "text-orange-500"}`}
                     >
-                      {allMonthsExpensePct.toFixed(0)}%
+                      {_expensePct.toFixed(0)}%
                     </span>
                   </div>
                 </div>
@@ -690,7 +689,7 @@ export function MonthlyTrackerTab() {
 
       {/* Category Breakdown */}
       <Card>
-        <CardHeader className="pb-1 pt-3">
+        <CardHeader className="pb-1 pt-2 px-4">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <CardTitle className="text-sm">Budget vs Spending</CardTitle>
             <Button

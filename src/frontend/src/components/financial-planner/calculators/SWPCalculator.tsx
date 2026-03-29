@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function SWPCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [initial, setInitial] = useState("1000000");
   const [withdrawal, setWithdrawal] = useState("10000");
@@ -113,7 +106,7 @@ export function SWPCalculator() {
               Total Withdrawal
             </span>
             <span className="font-semibold text-orange-600">
-              {fmt(result.totalWithdrawal)}
+              {formatCurrency(result.totalWithdrawal)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -121,13 +114,13 @@ export function SWPCalculator() {
               Final Corpus Value
             </span>
             <span className="font-semibold text-blue-600">
-              {fmt(result.finalValue)}
+              {formatCurrency(result.finalValue)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Total Returns Generated</span>
             <span className="font-bold text-lg text-green-600">
-              {fmt(result.totalReturns)}
+              {formatCurrency(result.totalReturns)}
             </span>
           </div>
         </CardContent>

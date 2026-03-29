@@ -11,15 +11,8 @@ import {
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function EmergencyFundCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [monthlyExpenses, setMonthlyExpenses] = useState("50000");
   const [monthsCover, setMonthsCover] = useState("6");
@@ -71,7 +64,9 @@ export function EmergencyFundCalculator() {
             <span className="text-sm text-muted-foreground">
               Monthly Expenses
             </span>
-            <span className="font-semibold">{fmt(result.monthlyExpenses)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.monthlyExpenses)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
@@ -82,7 +77,7 @@ export function EmergencyFundCalculator() {
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Emergency Fund Target</span>
             <span className="font-bold text-2xl text-rose-600">
-              {fmt(result.target)}
+              {formatCurrency(result.target)}
             </span>
           </div>
           <p className="text-xs text-muted-foreground">

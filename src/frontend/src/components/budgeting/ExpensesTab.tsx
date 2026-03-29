@@ -36,6 +36,53 @@ import {
 } from "../ui/select";
 import { Skeleton } from "../ui/skeleton";
 
+const SAVINGS_KEYWORDS_EXP = [
+  "savings",
+  "investment",
+  "sip",
+  "ppf",
+  "nps",
+  "fd",
+  "emergency",
+  "mutual fund",
+  "retirement",
+  "stocks",
+  "retiral",
+];
+const WANTS_KEYWORDS_EXP = [
+  "dining",
+  "eating out",
+  "restaurant",
+  "entertainment",
+  "streaming",
+  "netflix",
+  "subscription",
+  "shopping",
+  "clothing",
+  "travel",
+  "vacation",
+  "gym",
+  "fitness",
+  "hobbies",
+  "personal care",
+  "beauty",
+  "salon",
+  "electronics",
+  "games",
+  "leisure",
+];
+function inferBudgetTypeExp(name: string): string {
+  const lc = name.toLowerCase();
+  if (SAVINGS_KEYWORDS_EXP.some((k) => lc.includes(k))) return "Savings";
+  if (WANTS_KEYWORDS_EXP.some((k) => lc.includes(k))) return "Wants";
+  return "Needs";
+}
+const EXP_TYPE_BADGE: Record<string, string> = {
+  Needs: "bg-blue-100 text-blue-700 border border-blue-200",
+  Wants: "bg-amber-100 text-amber-700 border border-amber-200",
+  Savings: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+};
+
 const getEmptyForm = () => ({
   // date set dynamically in openAdd
   date: new Date().toISOString().slice(0, 10),
@@ -188,16 +235,23 @@ export function ExpensesTab() {
         <td className="p-3 text-xs font-medium max-w-[120px] truncate hidden sm:table-cell">
           {t.description}
         </td>
-        <td className="p-3 text-xs hidden sm:table-cell text-muted-foreground">
-          {t.account}
-        </td>
+
         <td className="p-3 hidden md:table-cell">
-          <Badge
-            variant={isIncome ? "default" : "destructive"}
-            className={`text-xs ${isIncome ? "bg-green-100 text-green-700 hover:bg-green-100" : ""}`}
-          >
-            {isIncome ? "Income" : "Expense"}
-          </Badge>
+          {isIncome ? (
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
+              Income
+            </span>
+          ) : cat ? (
+            <span
+              className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${EXP_TYPE_BADGE[inferBudgetTypeExp(cat.name)] ?? EXP_TYPE_BADGE.Needs}`}
+            >
+              {inferBudgetTypeExp(cat.name)}
+            </span>
+          ) : (
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+              Needs
+            </span>
+          )}
         </td>
         <td
           className={`p-3 text-xs font-bold text-right ${isIncome ? "text-green-600" : "text-red-500"}`}
@@ -233,8 +287,8 @@ export function ExpensesTab() {
 
   return (
     <div className="space-y-4">
-      {/* Row 1: Month/Year + Summary Cards + Filter Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center flex-wrap">
+      {/* Row 1: Month/Year + Search */}
+      <div className="flex gap-2 items-center flex-wrap">
         {/* Month/Year dropdowns - leftmost */}
         <div className="flex gap-2 items-center flex-shrink-0">
           <select
@@ -283,6 +337,20 @@ export function ExpensesTab() {
             ))}
           </select>
         </div>
+        {/* Search bar */}
+        <div className="relative flex-1 min-w-[160px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            data-ocid="expenses.search_input"
+            className="pl-9 h-9"
+            placeholder="Search transactions…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
+      {/* Row 2: Summary Cards + Filter Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center flex-wrap">
         {/* Income Card */}
         <div className="flex-1 rounded-xl border border-border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-3">
           <div className="flex items-center gap-2 mb-1">
@@ -342,19 +410,7 @@ export function ExpensesTab() {
           </Button>
         </div>
       </div>
-      {/* Row 2: Search on right */}
-      <div className="flex flex-wrap gap-2 items-center justify-end">
-        <div className="relative min-w-[160px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            data-ocid="expenses.search_input"
-            className="pl-9"
-            placeholder="Search transactions…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
+
       {filtered.length === 0 ? (
         <div
           data-ocid="expenses.empty_state"
@@ -378,11 +434,9 @@ export function ExpensesTab() {
                   <th className="text-left p-3 font-semibold text-xs text-white hidden sm:table-cell">
                     Description
                   </th>
-                  <th className="text-left p-3 font-semibold text-xs text-white hidden sm:table-cell">
-                    Account
-                  </th>
+
                   <th className="text-left p-3 font-semibold text-xs text-white hidden md:table-cell">
-                    Type
+                    Budget Type
                   </th>
                   <th className="text-right p-3 font-semibold text-xs text-white">
                     Amount
@@ -474,18 +528,8 @@ export function ExpensesTab() {
             </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Date</Label>
-                <Input
-                  data-ocid="expenses.date.input"
-                  type="date"
-                  value={form.date}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, date: e.target.value }))
-                  }
-                />
-              </div>
+            {/* Top row: Type + Category */}
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Type</Label>
                 <Select
@@ -511,6 +555,52 @@ export function ExpensesTab() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select
+                  value={form.categoryId}
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, categoryId: v }))
+                  }
+                >
+                  <SelectTrigger data-ocid="expenses.category.select">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
+                    {categories
+                      .filter((c) => c.categoryType === form.transactionType)
+                      .map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Date</Label>
+                <Input
+                  data-ocid="expenses.date.input"
+                  type="date"
+                  value={form.date}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, date: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Amount</Label>
+                <Input
+                  data-ocid="expenses.amount.input"
+                  type="number"
+                  value={form.amount}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, amount: Number(e.target.value) }))
+                  }
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Description</Label>
@@ -523,37 +613,7 @@ export function ExpensesTab() {
                 placeholder="e.g. Grocery shopping"
               />
             </div>
-            <div className="space-y-2">
-              <Label>Account</Label>
-              <Input
-                data-ocid="expenses.account.input"
-                value={form.account}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, account: e.target.value }))
-                }
-                placeholder="e.g. HDFC Savings"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Category</Label>
-              <Select
-                value={form.categoryId}
-                onValueChange={(v) => setForm((p) => ({ ...p, categoryId: v }))}
-              >
-                <SelectTrigger data-ocid="expenses.category.select">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories
-                    .filter((c) => c.categoryType === form.transactionType)
-                    .map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
+
             <div className="space-y-2">
               <Label>Amount ({country.symbol})</Label>
               <Input

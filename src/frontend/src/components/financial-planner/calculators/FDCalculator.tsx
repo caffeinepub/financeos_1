@@ -21,17 +21,10 @@ import {
 } from "recharts";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 const BAR_COLORS = ["#6366f1", "#10b981"];
 
 export function FDCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [principal, setPrincipal] = useState("100000");
   const [rate, setRate] = useState("7");
@@ -111,7 +104,7 @@ export function FDCalculator() {
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Principal</span>
             <span className="font-semibold">
-              {fmt(Number.parseFloat(principal) || 0)}
+              {formatCurrency(Number.parseFloat(principal) || 0)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -119,13 +112,13 @@ export function FDCalculator() {
               Interest Earned
             </span>
             <span className="font-semibold text-green-600">
-              {fmt(result.interest)}
+              {formatCurrency(result.interest)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Maturity Amount</span>
             <span className="font-bold text-2xl text-yellow-600">
-              {fmt(result.maturity)}
+              {formatCurrency(result.maturity)}
             </span>
           </div>
           <div className="mt-3">
@@ -144,7 +137,7 @@ export function FDCalculator() {
                   tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                   width={45}
                 />
-                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Tooltip formatter={(v: number) => formatCurrency(v)} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {chartData.map((entry) => (
                     <Cell

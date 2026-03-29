@@ -12,14 +12,8 @@ import { BookOpen } from "lucide-react";
 import { useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-function fmt(n: number, sym: string) {
-  if (n >= 1e7) return `${sym}${(n / 1e7).toFixed(2)} Cr`;
-  if (n >= 1e5) return `${sym}${(n / 1e5).toFixed(2)} L`;
-  return `${sym}${n.toLocaleString("en-IN")}`;
-}
-
 export function HLVCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [hlv, setHlv] = useState({
     currentAge: 30,
@@ -118,7 +112,7 @@ export function HLVCalculator() {
                 HLV-Based Cover
               </div>
               <div className="font-bold text-blue-700 text-xl">
-                {fmt(hlvRecommended, sym)}
+                {formatCurrency(hlvRecommended)}
               </div>
             </div>
             <Badge variant="outline" className="text-xs">

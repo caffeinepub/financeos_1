@@ -20,15 +20,8 @@ import {
 } from "recharts";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function CompoundInterestCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [principal, setPrincipal] = useState("100000");
   const [rate, setRate] = useState("10");
@@ -123,7 +116,7 @@ export function CompoundInterestCalculator() {
               Compound Interest
             </span>
             <span className="font-semibold text-orange-600">
-              {fmt(result.compoundInterest)}
+              {formatCurrency(result.compoundInterest)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -131,7 +124,7 @@ export function CompoundInterestCalculator() {
               Simple Interest (comparison)
             </span>
             <span className="font-semibold text-muted-foreground">
-              {fmt(result.simpleInterest)}
+              {formatCurrency(result.simpleInterest)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -139,13 +132,13 @@ export function CompoundInterestCalculator() {
               Extra from Compounding
             </span>
             <span className="font-semibold text-green-600">
-              {fmt(result.extra)}
+              {formatCurrency(result.extra)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Total Amount</span>
             <span className="font-bold text-2xl text-orange-600">
-              {fmt(result.totalAmount)}
+              {formatCurrency(result.totalAmount)}
             </span>
           </div>
           <div className="mt-3">
@@ -174,7 +167,7 @@ export function CompoundInterestCalculator() {
                   width={45}
                 />
                 <Tooltip
-                  formatter={(v: number) => fmt(v)}
+                  formatter={(v: number) => formatCurrency(v)}
                   labelFormatter={(l) => `Year ${l}`}
                 />
                 <Line

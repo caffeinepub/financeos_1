@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function ThreeBucketCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [corpus, setCorpus] = useState("10000000");
   const [monthlyExpenses, setMonthlyExpenses] = useState("80000");
@@ -111,7 +104,7 @@ export function ThreeBucketCalculator() {
                 Bucket 1: Short-term (20%)
               </span>
               <span className="font-bold text-blue-700 dark:text-blue-300">
-                {fmt(result.shortBucket)}
+                {formatCurrency(result.shortBucket)}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -124,7 +117,7 @@ export function ThreeBucketCalculator() {
                 Bucket 2: Medium-term (30%)
               </span>
               <span className="font-bold text-green-700 dark:text-green-300">
-                {fmt(result.medBucket)}
+                {formatCurrency(result.medBucket)}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -137,7 +130,7 @@ export function ThreeBucketCalculator() {
                 Bucket 3: Long-term (50%)
               </span>
               <span className="font-bold text-teal-700 dark:text-teal-300">
-                {fmt(result.longBucket)}
+                {formatCurrency(result.longBucket)}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">

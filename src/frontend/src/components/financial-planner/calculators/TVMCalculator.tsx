@@ -11,15 +11,8 @@ import {
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 2,
-  }).format(n);
-
 export function TVMCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [mode, setMode] = useState<"fv" | "pv" | "pmt">("fv");
   const [pv, setPv] = useState("100000");
@@ -147,7 +140,7 @@ export function TVMCalculator() {
           <div className="text-center pt-4">
             <p className="text-sm text-muted-foreground mb-2">{result.label}</p>
             <p className="font-bold text-4xl text-fuchsia-600">
-              {fmt(result.value)}
+              {formatCurrency(result.value)}
             </p>
           </div>
         </CardContent>

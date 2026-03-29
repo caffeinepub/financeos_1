@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function InflationCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [currentPrice, setCurrentPrice] = useState("100000");
   const [inflationRate, setInflationRate] = useState("6");
@@ -74,7 +67,7 @@ export function InflationCalculator() {
               Future Value of Amount
             </span>
             <span className="font-semibold text-orange-600">
-              {fmt(result.futureValue)}
+              {formatCurrency(result.futureValue)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
@@ -82,13 +75,13 @@ export function InflationCalculator() {
               Real Purchasing Power Today
             </span>
             <span className="font-bold text-lg text-muted-foreground">
-              {fmt(result.realValueToday)}
+              {formatCurrency(result.realValueToday)}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            What costs {fmt(Number.parseFloat(currentPrice) || 0)} today will
-            cost {fmt(result.futureValue)} in {years} years at {inflationRate}%
-            inflation.
+            What costs {formatCurrency(Number.parseFloat(currentPrice) || 0)}{" "}
+            today will cost {formatCurrency(result.futureValue)} in {years}{" "}
+            years at {inflationRate}% inflation.
           </p>
         </CardContent>
       </Card>

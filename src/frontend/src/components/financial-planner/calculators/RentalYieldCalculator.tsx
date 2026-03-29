@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function RentalYieldCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [propertyValue, setPropertyValue] = useState("5000000");
   const [monthlyRent, setMonthlyRent] = useState("25000");
@@ -84,7 +77,9 @@ export function RentalYieldCalculator() {
             <span className="text-sm text-muted-foreground">
               Annual Rental Income
             </span>
-            <span className="font-semibold">{fmt(result.annualRent)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.annualRent)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Gross Yield</span>
@@ -96,7 +91,9 @@ export function RentalYieldCalculator() {
             <span className="text-sm text-muted-foreground">
               Annual Net Income
             </span>
-            <span className="font-semibold">{fmt(result.netIncome)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.netIncome)}
+            </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Net Yield</span>

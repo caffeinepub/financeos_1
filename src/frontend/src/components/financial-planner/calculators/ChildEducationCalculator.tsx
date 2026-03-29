@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function ChildEducationCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [childAge, setChildAge] = useState("5");
   const [educationAge, setEducationAge] = useState("18");
@@ -107,13 +100,13 @@ export function ChildEducationCalculator() {
               Future Education Cost
             </span>
             <span className="font-semibold text-pink-600">
-              {fmt(result.futureCost)}
+              {formatCurrency(result.futureCost)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Monthly SIP Needed</span>
             <span className="font-bold text-2xl text-pink-600">
-              {fmt(result.monthlySIP)}
+              {formatCurrency(result.monthlySIP)}
             </span>
           </div>
         </CardContent>

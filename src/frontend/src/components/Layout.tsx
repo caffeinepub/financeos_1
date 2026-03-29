@@ -158,9 +158,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // Bootstrap admin then check - sequential to ensure admin is seeded first
     actor
       .bootstrapAdmin()
-      .catch(() => false)
-      .then(() => actor.isCallerAdmin().catch(() => false))
-      .then((a) => setIsAdmin(!!a));
+      .then((a) => setIsAdmin(!!a))
+      .catch(() => setIsAdmin(false));
   }, [actor, isFetching]);
 
   const navigate = useNavigate();

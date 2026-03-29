@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function FlatVsReducingCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [loanAmount, setLoanAmount] = useState("500000");
   const [flatRate, setFlatRate] = useState("10");
@@ -98,25 +91,25 @@ export function FlatVsReducingCalculator() {
           <div className="grid grid-cols-3 gap-2 text-sm">
             <span className="text-muted-foreground">Monthly EMI</span>
             <span className="text-center font-semibold text-rose-600">
-              {fmt(result.flatEMI)}
+              {formatCurrency(result.flatEMI)}
             </span>
             <span className="text-center font-semibold text-green-600">
-              {fmt(result.reducingEMI)}
+              {formatCurrency(result.reducingEMI)}
             </span>
           </div>
           <div className="grid grid-cols-3 gap-2 text-sm">
             <span className="text-muted-foreground">Total Interest</span>
             <span className="text-center font-semibold text-rose-600">
-              {fmt(result.flatInterest)}
+              {formatCurrency(result.flatInterest)}
             </span>
             <span className="text-center font-semibold text-green-600">
-              {fmt(result.reducingInterest)}
+              {formatCurrency(result.reducingInterest)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">You Save with Reducing</span>
             <span className="font-bold text-lg text-green-600">
-              {fmt(Math.max(result.saving, 0))}
+              {formatCurrency(Math.max(result.saving, 0))}
             </span>
           </div>
         </CardContent>

@@ -13,13 +13,6 @@ import {
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 interface YearRow {
   year: number;
   invested: number;
@@ -28,7 +21,7 @@ interface YearRow {
 }
 
 export function PPFCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [yearlyInvestment, setYearlyInvestment] = useState("150000");
   const [period, setPeriod] = useState("15");
@@ -99,20 +92,22 @@ export function PPFCalculator() {
               <span className="text-sm text-muted-foreground">
                 Total Invested
               </span>
-              <span className="font-semibold">{fmt(result.totalInvested)}</span>
+              <span className="font-semibold">
+                {formatCurrency(result.totalInvested)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">
                 Total Interest Earned
               </span>
               <span className="font-semibold text-green-600">
-                {fmt(result.totalInterest)}
+                {formatCurrency(result.totalInterest)}
               </span>
             </div>
             <div className="flex justify-between border-t pt-2">
               <span className="text-sm font-bold">Maturity Value</span>
               <span className="font-bold text-lg text-amber-600">
-                {fmt(result.maturityValue)}
+                {formatCurrency(result.maturityValue)}
               </span>
             </div>
           </CardContent>
@@ -138,13 +133,13 @@ export function PPFCalculator() {
                   <TableRow key={row.year}>
                     <TableCell>{row.year}</TableCell>
                     <TableCell className="text-right">
-                      {fmt(row.invested)}
+                      {formatCurrency(row.invested)}
                     </TableCell>
                     <TableCell className="text-right text-green-600">
-                      {fmt(row.interest)}
+                      {formatCurrency(row.interest)}
                     </TableCell>
                     <TableCell className="text-right font-semibold">
-                      {fmt(row.balance)}
+                      {formatCurrency(row.balance)}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useState } from "react";
 
 const RULES = [
@@ -82,6 +83,7 @@ function RuleCard({
 }
 
 export function BuyHousePlanner() {
+  const { formatCurrency } = useCurrency();
   const [annualIncome, setAnnualIncome] = useState(1200000);
   const [houseValue, setHouseValue] = useState(6000000);
   const [currentSavings, setCurrentSavings] = useState(500000);
@@ -138,13 +140,6 @@ export function BuyHousePlanner() {
       r5,
       r6,
     };
-  }
-
-  function fmt(n: number) {
-    if (n >= 10000000) return `\u20b9${(n / 10000000).toFixed(2)} Cr`;
-    if (n >= 100000) return `\u20b9${(n / 100000).toFixed(2)} L`;
-    if (n >= 1000) return `\u20b9${(n / 1000).toFixed(1)} K`;
-    return `\u20b9${Math.round(n).toLocaleString()}`;
   }
 
   const r = results;
@@ -231,22 +226,20 @@ export function BuyHousePlanner() {
           <button
             type="button"
             onClick={() => setPlanToStay(true)}
-            className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition-all $
               planToStay
                 ? "bg-emerald-500 text-white border-emerald-500"
-                : "border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400"
-            }`}
+                : "border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400"`}
           >
             Yes
           </button>
           <button
             type="button"
             onClick={() => setPlanToStay(false)}
-            className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition-all $
               !planToStay
                 ? "bg-red-500 text-white border-red-500"
-                : "border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400"
-            }`}
+                : "border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400"`}
           >
             No
           </button>
@@ -281,21 +274,30 @@ export function BuyHousePlanner() {
               {[
                 {
                   label: "Monthly Savings Needed",
-                  value: fmt(r.monthlyNeeded),
+                  value: formatCurrency(r.monthlyNeeded),
                 },
                 {
                   label: "Months to Ready",
                   value:
                     r.monthsToReady === 0
                       ? "Now! \u2705"
-                      : `${r.monthsToReady} mo`,
+                      : `${r.monthsToReady}mo`,
                 },
-                { label: "Recommended Loan", value: fmt(r.loanAmount) },
-                { label: "Down Payment (35%)", value: fmt(r.downPayment) },
-                { label: "Emergency Fund (15%)", value: fmt(r.emergencyFund) },
+                {
+                  label: "Recommended Loan",
+                  value: formatCurrency(r.loanAmount),
+                },
+                {
+                  label: "Down Payment (35%)",
+                  value: formatCurrency(r.downPayment),
+                },
+                {
+                  label: "Emergency Fund (15%)",
+                  value: formatCurrency(r.emergencyFund),
+                },
                 {
                   label: "Cost of 1yr Delay",
-                  value: `+${fmt(r.propertyInflationMonthly * 12)}`,
+                  value: `+${formatCurrency(r.propertyInflationMonthly * 12)}`,
                 },
               ].map(({ label, value }) => (
                 <div
@@ -319,7 +321,7 @@ export function BuyHousePlanner() {
               pass={r.r1}
               icon={RULES[0].icon}
               title={RULES[0].title}
-              detail={`Your ratio: ${r.costRatio.toFixed(1)}\u00d7 (max 5\u00d7). ${RULES[0].desc}`}
+              detail={`Your ratio: ${r.costRatio.toFixed(1)}× (max 5×). ${RULES[0].desc}`}
             />
             <RuleCard
               pass={r.r2}
@@ -337,7 +339,7 @@ export function BuyHousePlanner() {
               pass={r.r4}
               icon={RULES[3].icon}
               title={RULES[3].title}
-              detail={`Down: ${fmt(r.downPayment)} \u00b7 Emergency: ${fmt(r.emergencyFund)}. ${RULES[3].desc}`}
+              detail={`Down: ${formatCurrency(r.downPayment)} · Emergency: ${formatCurrency(r.emergencyFund)}. ${RULES[3].desc}`}
             />
             <RuleCard
               pass={r.r5}
@@ -382,8 +384,8 @@ export function BuyHousePlanner() {
               )}
               {!r.r3 && (
                 <li>
-                  Save {fmt(houseValue * 0.5 - currentSavings)} more before
-                  buying (need 50% of house value)
+                  Save {formatCurrency(houseValue * 0.5 - currentSavings)} more
+                  before buying (need 50% of house value)
                 </li>
               )}
               {!r.r5 && (

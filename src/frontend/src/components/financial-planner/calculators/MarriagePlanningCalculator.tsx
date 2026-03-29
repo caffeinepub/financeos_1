@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function MarriagePlanningCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [years, setYears] = useState("5");
   const [currentCost, setCurrentCost] = useState("2000000");
@@ -90,7 +83,7 @@ export function MarriagePlanningCalculator() {
               Future Cost (inflation-adj.)
             </span>
             <span className="font-semibold text-rose-600">
-              {fmt(result.futureCost)}
+              {formatCurrency(result.futureCost)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -98,13 +91,13 @@ export function MarriagePlanningCalculator() {
               Lumpsum Needed Today
             </span>
             <span className="font-semibold text-blue-600">
-              {fmt(result.lumpsumToday)}
+              {formatCurrency(result.lumpsumToday)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Monthly SIP Needed</span>
             <span className="font-bold text-2xl text-rose-600">
-              {fmt(result.monthlySIP)}
+              {formatCurrency(result.monthlySIP)}
             </span>
           </div>
         </CardContent>

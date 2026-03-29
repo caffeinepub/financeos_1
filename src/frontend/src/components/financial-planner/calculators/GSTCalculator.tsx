@@ -11,15 +11,8 @@ import {
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 2,
-  }).format(n);
-
 export function GSTCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [amount, setAmount] = useState("10000");
   const [gstRate, setGstRate] = useState("18");
@@ -101,14 +94,16 @@ export function GSTCalculator() {
         <CardContent className="space-y-3">
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Base Amount</span>
-            <span className="font-semibold">{fmt(result.baseAmount)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.baseAmount)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               CGST ({Number.parseFloat(gstRate) / 2}%)
             </span>
             <span className="font-semibold text-violet-600">
-              {fmt(result.cgst)}
+              {formatCurrency(result.cgst)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -116,19 +111,19 @@ export function GSTCalculator() {
               SGST ({Number.parseFloat(gstRate) / 2}%)
             </span>
             <span className="font-semibold text-violet-600">
-              {fmt(result.sgst)}
+              {formatCurrency(result.sgst)}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Total GST</span>
             <span className="font-semibold text-purple-600">
-              {fmt(result.gstAmount)}
+              {formatCurrency(result.gstAmount)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Total Amount</span>
             <span className="font-bold text-lg text-violet-600">
-              {fmt(result.total)}
+              {formatCurrency(result.total)}
             </span>
           </div>
         </CardContent>

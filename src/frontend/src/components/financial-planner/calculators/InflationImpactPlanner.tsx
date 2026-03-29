@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function InflationImpactPlanner() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [amount, setAmount] = useState("100000");
   const [rate, setRate] = useState("6");
@@ -74,7 +67,7 @@ export function InflationImpactPlanner() {
               Future Value Needed
             </span>
             <span className="font-semibold text-orange-600">
-              {fmt(result.futureValueNeeded)}
+              {formatCurrency(result.futureValueNeeded)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -82,7 +75,7 @@ export function InflationImpactPlanner() {
               Real Value of Current Amount
             </span>
             <span className="font-semibold text-red-500">
-              {fmt(result.realValue)}
+              {formatCurrency(result.realValue)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
@@ -92,8 +85,9 @@ export function InflationImpactPlanner() {
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Your {fmt(Number.parseFloat(amount) || 0)} today will only be worth{" "}
-            {fmt(result.realValue)} after {years} years due to inflation.
+            Your {formatCurrency(Number.parseFloat(amount) || 0)} today will
+            only be worth {formatCurrency(result.realValue)} after {years} years
+            due to inflation.
           </p>
         </CardContent>
       </Card>

@@ -26,6 +26,8 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -230,7 +232,7 @@ export default function PortfolioPage() {
   >(null);
   const [sortCol, setSortCol] = useState<SortCol>("invested");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+  const [viewMode, setViewMode] = useState<"table" | "card">("card");
   // Load user DOB from localStorage for age calculation
   const _userAge = (() => {
     const dob = localStorage.getItem("gff_dob");
@@ -506,83 +508,87 @@ export default function PortfolioPage() {
 
   return (
     <div data-ocid="portfolio.page" className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #0891b2, #06b6d4)" }}
-          >
-            <TrendingUp className="w-4 h-4 text-white" />
-          </div>
-          <h1 className="text-lg font-bold text-slate-800">Portfolio</h1>
-        </div>
-        <Button
-          data-ocid="portfolio.add_button"
-          onClick={openAdd}
-          className="gap-2"
+      <div className="flex items-center gap-2.5">
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{ background: "linear-gradient(135deg, #0891b2, #06b6d4)" }}
         >
-          <Plus className="w-4 h-4" /> Add Holding
-        </Button>
-        <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden ml-2">
-          <button
-            type="button"
-            title="Table View"
-            onClick={() => setViewMode("table")}
-            className={`p-2 transition-colors ${viewMode === "table" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
-            data-ocid="portfolio.table_view.toggle"
-          >
-            <LayoutList className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            title="Card View"
-            onClick={() => setViewMode("card")}
-            className={`p-2 transition-colors ${viewMode === "card" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
-            data-ocid="portfolio.card_view.toggle"
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </button>
+          <TrendingUp className="w-4 h-4 text-white" />
         </div>
+        <h1 className="text-lg font-bold text-slate-800">Portfolio</h1>
       </div>
 
-      {/* Industry-standard pill tab bar */}
+      {/* Industry-standard pill tab bar with Add Holding + Toggle on right */}
       <div className="overflow-x-auto pb-2 bg-slate-100 rounded-xl p-2">
-        <div className="flex flex-row gap-2 min-w-max">
-          <button
-            type="button"
-            data-ocid="portfolio.overview.tab"
-            onClick={() => navigate("/portfolio/overview")}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${isOverview ? "bg-slate-800 text-white border-slate-800" : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"}`}
-          >
-            Overview
-          </button>
-          {assetTypes.map((at) => {
-            const isActive = !isOverview && currentType === at.value;
-            return (
+        <div className="flex flex-row items-center gap-2 min-w-max justify-between w-full">
+          <div className="flex flex-row gap-2">
+            <button
+              type="button"
+              data-ocid="portfolio.overview.tab"
+              onClick={() => navigate("/portfolio/overview")}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${isOverview ? "bg-slate-800 text-white border-slate-800" : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"}`}
+            >
+              Overview
+            </button>
+            {assetTypes.map((at) => {
+              const isActive = !isOverview && currentType === at.value;
+              return (
+                <button
+                  key={at.value}
+                  type="button"
+                  data-ocid={`portfolio.${at.value.toLowerCase()}.tab`}
+                  onClick={() => navigate(`/portfolio/${at.value}`)}
+                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+                  style={
+                    isActive
+                      ? {
+                          backgroundColor: "#0f172a",
+                          color: "#fff",
+                          borderColor: "#0f172a",
+                        }
+                      : {
+                          backgroundColor: "#ffffff",
+                          color: "#475569",
+                          borderColor: "#e2e8f0",
+                        }
+                  }
+                >
+                  {at.label}
+                </button>
+              );
+            })}
+          </div>
+          {/* Add Holding + View Toggle — right side */}
+          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+            <Button
+              data-ocid="portfolio.add_button"
+              onClick={openAdd}
+              size="sm"
+              className="gap-1.5 h-8 text-xs"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Holding
+            </Button>
+            <div className="hidden sm:flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
               <button
-                key={at.value}
                 type="button"
-                data-ocid={`portfolio.${at.value.toLowerCase()}.tab`}
-                onClick={() => navigate(`/portfolio/${at.value}`)}
-                className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
-                style={
-                  isActive
-                    ? {
-                        backgroundColor: "#0f172a",
-                        color: "#fff",
-                        borderColor: "#0f172a",
-                      }
-                    : {
-                        backgroundColor: "#ffffff",
-                        color: "#475569",
-                        borderColor: "#e2e8f0",
-                      }
-                }
+                title="Table View"
+                onClick={() => setViewMode("table")}
+                className={`p-1.5 transition-colors ${viewMode === "table" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
+                data-ocid="portfolio.table_view.toggle"
               >
-                {at.label}
+                <LayoutList className="w-3.5 h-3.5" />
               </button>
-            );
-          })}
+              <button
+                type="button"
+                title="Card View"
+                onClick={() => setViewMode("card")}
+                className={`p-1.5 transition-colors ${viewMode === "card" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
+                data-ocid="portfolio.card_view.toggle"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -742,7 +748,27 @@ export default function PortfolioPage() {
                             }}
                           />
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                        <div className="flex justify-end gap-1 mb-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-slate-400 hover:text-slate-700"
+                            data-ocid={`portfolio.edit_button.${i + 1}`}
+                            onClick={() => openEdit(h)}
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-slate-300 hover:text-red-500"
+                            data-ocid={`portfolio.delete_button.${i + 1}`}
+                            onClick={() => del(h.id)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase tracking-wide">
                               Invested
@@ -781,26 +807,6 @@ export default function PortfolioPage() {
                               {fmt(gl)}
                             </p>
                           </div>
-                        </div>
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-slate-400 hover:text-slate-700"
-                            data-ocid={`portfolio.edit_button.${i + 1}`}
-                            onClick={() => openEdit(h)}
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-slate-300 hover:text-red-500"
-                            data-ocid={`portfolio.delete_button.${i + 1}`}
-                            onClick={() => del(h.id)}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
                         </div>
                       </div>
                     );
@@ -1055,48 +1061,58 @@ export default function PortfolioPage() {
                       </ResponsiveContainer>
                     </CardContent>
                   </Card>
-                  {/* Invested vs Current Value Bar Chart */}
+                  {/* 10-Year Growth Forecast Line Chart */}
                   <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
                     <CardHeader className="pb-2 pt-4 px-5">
                       <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                        Invested vs Current Value
+                        10-Year Growth Forecast
                       </CardTitle>
+                      <CardDescription className="text-xs text-slate-400">
+                        Projected corpus vs invested amount
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="px-2 pb-4">
                       {(() => {
-                        const barData = rawFiltered.map((h) => ({
-                          name:
-                            h.name.length > 10
-                              ? `${h.name.slice(0, 10)}…`
-                              : h.name,
-                          Invested: h.costBasis * h.quantity,
-                          Current: h.currentValue,
-                        }));
+                        const assetReturnRates: Record<string, number> = {
+                          [AssetType.Retirement]: 0.08,
+                          [AssetType.MutualFund]: 0.12,
+                          [AssetType.ETF]: 0.14,
+                          [AssetType.Crypto]: 0.2,
+                          [AssetType.Commodity]: 0.08,
+                          [AssetType.RealEstate]: 0.1,
+                          [AssetType.FixedIncome]: 0.07,
+                          [AssetType.Other]: 0.1,
+                        };
+                        const rate = assetReturnRates[currentType] ?? 0.1;
+                        const tabInvested = rawFiltered.reduce(
+                          (s, h) => s + h.costBasis * h.quantity,
+                          0,
+                        );
+                        const forecastData = Array.from(
+                          { length: 10 },
+                          (_, i) => ({
+                            year: `Y${i + 1}`,
+                            Projected: Math.round(
+                              tabInvested * (1 + rate) ** (i + 1),
+                            ),
+                            Invested: Math.round(tabInvested),
+                          }),
+                        );
                         return (
-                          <ResponsiveContainer
-                            width="100%"
-                            height={Math.max(200, barData.length * 52)}
-                          >
-                            <BarChart
-                              data={barData}
-                              layout="vertical"
+                          <ResponsiveContainer width="100%" height={240}>
+                            <LineChart
+                              data={forecastData}
                               margin={{ top: 4, right: 20, left: 0, bottom: 5 }}
                             >
                               <CartesianGrid
                                 strokeDasharray="3 3"
                                 stroke="#f1f5f9"
-                                horizontal={false}
                               />
+                              <XAxis dataKey="year" tick={{ fontSize: 10 }} />
                               <YAxis
-                                dataKey="name"
-                                type="category"
-                                tick={{ fontSize: 10 }}
-                                width={70}
-                              />
-                              <XAxis
-                                type="number"
                                 tick={{ fontSize: 10 }}
                                 tickFormatter={(v) => fmt(v)}
+                                width={56}
                               />
                               <Tooltip
                                 formatter={(v: number, name: string) => [
@@ -1108,25 +1124,23 @@ export default function PortfolioPage() {
                                   borderRadius: "8px",
                                 }}
                               />
-                              <Legend
-                                wrapperStyle={{
-                                  fontSize: "10px",
-                                  paddingTop: "8px",
-                                }}
+                              <Legend wrapperStyle={{ fontSize: "10px" }} />
+                              <Line
+                                type="monotone"
+                                dataKey="Projected"
+                                stroke="#10b981"
+                                strokeWidth={2}
+                                dot={false}
                               />
-                              <Bar
+                              <Line
+                                type="monotone"
                                 dataKey="Invested"
-                                fill="#60a5fa"
-                                radius={[0, 4, 4, 0]}
-                                barSize={16}
+                                stroke="#60a5fa"
+                                strokeWidth={2}
+                                strokeDasharray="5 5"
+                                dot={false}
                               />
-                              <Bar
-                                dataKey="Current"
-                                fill="#34d399"
-                                radius={[0, 4, 4, 0]}
-                                barSize={16}
-                              />
-                            </BarChart>
+                            </LineChart>
                           </ResponsiveContainer>
                         );
                       })()}
@@ -1487,11 +1501,11 @@ function PortfolioOverview({
                 {shortNum(totalInvested, sym)}
               </p>
             </div>
-            <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-emerald-100 px-4 py-3">
-              <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wide mb-1">
+            <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
+              <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
                 Current Value
               </p>
-              <p className="text-sm font-bold text-emerald-800 tabular-nums">
+              <p className="text-sm font-bold text-blue-800 tabular-nums">
                 {shortNum(totalCurrent, sym)}
               </p>
             </div>

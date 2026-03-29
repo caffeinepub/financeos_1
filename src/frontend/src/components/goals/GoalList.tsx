@@ -66,7 +66,7 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
   const [statusFilter, setStatusFilter] = useState<
     "All" | "On Track" | "Need Attention" | "Achieved"
   >("All");
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+  const [viewMode, setViewMode] = useState<"table" | "card">("card");
 
   const investmentMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -484,13 +484,13 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                             )}
                           </div>
                         </div>
-                        <span className="text-lg">{emoji}</span>
                       </div>
                       {/* Main Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div>
                             <p className="text-base font-bold text-slate-800 dark:text-slate-100">
+                              <span className="mr-1">{emoji}</span>
                               {goal.name}
                             </p>
                             <span
@@ -567,36 +567,59 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                             </p>
                           </div>
                         </div>
-                        {/* Investment tags */}
+                        {/* Investment tags — shown inline below name */}
                         {linkedInvestmentNames.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {linkedInvestmentNames.slice(0, 3).map((name) => (
-                              <span
-                                key={name}
-                                className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full"
-                              >
-                                {name.length > 14
-                                  ? `${name.slice(0, 14)}…`
-                                  : name}
-                              </span>
-                            ))}
-                            {linkedInvestmentNames.length > 3 && (
-                              <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                +{linkedInvestmentNames.length - 3} more
-                              </span>
-                            )}
-                          </div>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex flex-wrap gap-1 mb-2 cursor-default">
+                                  {linkedInvestmentNames
+                                    .slice(0, 4)
+                                    .map((name) => (
+                                      <span
+                                        key={name}
+                                        className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full"
+                                      >
+                                        {name.length > 12
+                                          ? `${name.slice(0, 12)}…`
+                                          : name}
+                                      </span>
+                                    ))}
+                                  {linkedInvestmentNames.length > 4 && (
+                                    <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                      +{linkedInvestmentNames.length - 4} more
+                                    </span>
+                                  )}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <div className="space-y-1">
+                                  <p className="font-semibold text-xs mb-1">
+                                    Linked Investments
+                                  </p>
+                                  {linkedInvestmentNames.map((name) => (
+                                    <p key={name} className="text-xs">
+                                      • {name}
+                                    </p>
+                                  ))}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
                       {/* Right Panel */}
                       <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0">
                         {isAchieved ? (
-                          <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl px-3 py-2 text-center">
+                          <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl px-3 py-2 text-center min-w-[80px]">
                             <p className="text-xs font-bold text-green-600">
-                              Goal completed
+                              Goal
                             </p>
-                            <p className="text-[10px] text-green-500">
-                              {progress.toFixed(0)}% achieved
+                            <p className="text-sm font-bold text-green-600">
+                              Achieved
+                            </p>
+                            <p className="text-[10px] text-green-500 mt-0.5">
+                              SIP/Mo: {formatCurrency(0)}
                             </p>
                           </div>
                         ) : (
@@ -617,9 +640,6 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                             </p>
                           </div>
                         )}
-                        <p className="text-[10px] text-slate-400">
-                          Deadline in {formatTimeLeft(monthsLeft)}
-                        </p>
                       </div>
                     </div>
                   </div>

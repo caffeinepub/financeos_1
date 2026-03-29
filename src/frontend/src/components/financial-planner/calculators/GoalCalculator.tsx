@@ -14,17 +14,10 @@ import {
 } from "recharts";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 const BAR_COLORS = ["#6366f1", "#10b981", "#f59e0b"];
 
 export function GoalCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [goalAmount, setGoalAmount] = useState("1000000");
   const [targetYears, setTargetYears] = useState("5");
@@ -107,7 +100,7 @@ export function GoalCalculator() {
               Current Savings Future Value
             </span>
             <span className="font-semibold">
-              {fmt(result.futureValueOfSavings)}
+              {formatCurrency(result.futureValueOfSavings)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -115,13 +108,13 @@ export function GoalCalculator() {
               Lumpsum Needed Today
             </span>
             <span className="font-semibold text-blue-600">
-              {fmt(result.lumpsumNeeded)}
+              {formatCurrency(result.lumpsumNeeded)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Monthly SIP Needed</span>
             <span className="font-bold text-lg text-emerald-600">
-              {fmt(result.monthlySIP)}
+              {formatCurrency(result.monthlySIP)}
             </span>
           </div>
           <div className="mt-3">
@@ -140,7 +133,7 @@ export function GoalCalculator() {
                   tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                   width={45}
                 />
-                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Tooltip formatter={(v: number) => formatCurrency(v)} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {chartData.map((entry) => (
                     <Cell

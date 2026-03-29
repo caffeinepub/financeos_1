@@ -4,15 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function GratuityCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [salary, setSalary] = useState("50000");
   const [yearsOfService, setYearsOfService] = useState("10");
@@ -69,21 +62,23 @@ export function GratuityCalculator() {
               Gratuity Amount
             </span>
             <span className="font-bold text-2xl text-indigo-600">
-              {fmt(result.gratuity)}
+              {formatCurrency(result.gratuity)}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Tax-Free Limit
             </span>
-            <span className="font-semibold">{fmt(result.taxFreeLimit)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.taxFreeLimit)}
+            </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Taxable Gratuity</span>
             <span
               className={`font-bold text-lg ${result.taxable > 0 ? "text-orange-500" : "text-green-600"}`}
             >
-              {fmt(result.taxable)}
+              {formatCurrency(result.taxable)}
             </span>
           </div>
           {result.gratuity < 5 * 12 * (Number.parseFloat(salary) || 0) && (

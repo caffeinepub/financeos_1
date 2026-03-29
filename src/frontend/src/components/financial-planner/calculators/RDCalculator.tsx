@@ -14,15 +14,8 @@ import {
 } from "recharts";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function RDCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [monthly, setMonthly] = useState("5000");
   const [rate, setRate] = useState("7");
@@ -94,20 +87,22 @@ export function RDCalculator() {
             <span className="text-sm text-muted-foreground">
               Total Deposited
             </span>
-            <span className="font-semibold">{fmt(result.totalDeposited)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.totalDeposited)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Interest Earned
             </span>
             <span className="font-semibold text-green-600">
-              {fmt(result.interest)}
+              {formatCurrency(result.interest)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">Maturity Amount</span>
             <span className="font-bold text-2xl text-lime-600">
-              {fmt(result.maturity)}
+              {formatCurrency(result.maturity)}
             </span>
           </div>
           <div className="mt-3">
@@ -126,7 +121,7 @@ export function RDCalculator() {
                   tickFormatter={(v) => `${sym}${(v / 1000).toFixed(0)}k`}
                   width={45}
                 />
-                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Tooltip formatter={(v: number) => formatCurrency(v)} />
                 <Legend iconType="circle" iconSize={8} />
                 <Bar
                   dataKey="Total Deposited"

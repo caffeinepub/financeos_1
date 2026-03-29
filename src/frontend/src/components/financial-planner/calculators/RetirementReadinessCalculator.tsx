@@ -5,15 +5,8 @@ import { Progress } from "@/components/ui/progress";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../../contexts/CurrencyContext";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
 export function RetirementReadinessCalculator() {
-  const { country } = useCurrency();
+  const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const [currentAge, setCurrentAge] = useState("35");
   const [retirementAge, setRetirementAge] = useState("60");
@@ -139,14 +132,16 @@ export function RetirementReadinessCalculator() {
               Projected Corpus
             </span>
             <span className="font-semibold text-teal-600">
-              {fmt(result.projectedCorpus)}
+              {formatCurrency(result.projectedCorpus)}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Required Corpus (25x)
             </span>
-            <span className="font-semibold">{fmt(result.requiredCorpus)}</span>
+            <span className="font-semibold">
+              {formatCurrency(result.requiredCorpus)}
+            </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="text-sm font-bold">
@@ -155,7 +150,7 @@ export function RetirementReadinessCalculator() {
             <span
               className={`font-bold text-lg ${result.gap > 0 ? "text-red-500" : "text-green-600"}`}
             >
-              {fmt(Math.abs(result.gap))}
+              {formatCurrency(Math.abs(result.gap))}
             </span>
           </div>
         </CardContent>

@@ -431,7 +431,7 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                 const linkedInvestmentNames = goal.linkedInvestments
                   .map((id) => investmentMap.get(id))
                   .filter(Boolean) as string[];
-                const r = 32;
+                const r = 26;
                 const circ = 2 * Math.PI * r;
                 const dash = (Math.min(progress, 100) / 100) * circ;
                 return (
@@ -443,29 +443,29 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                     <div className="flex items-start gap-4">
                       {/* Circular Progress Ring */}
                       <div className="flex-shrink-0 flex flex-col items-center gap-1">
-                        <div className="relative w-[72px] h-[72px]">
+                        <div className="relative w-[60px] h-[60px]">
                           <svg
-                            width="72"
-                            height="72"
-                            viewBox="0 0 72 72"
+                            width="60"
+                            height="60"
+                            viewBox="0 0 60 60"
                             className="-rotate-90"
                             aria-hidden="true"
                           >
                             <circle
-                              cx="36"
-                              cy="36"
+                              cx="30"
+                              cy="30"
                               r={r}
                               fill="none"
                               stroke="#f1f5f9"
-                              strokeWidth="6"
+                              strokeWidth="5"
                             />
                             <circle
-                              cx="36"
-                              cy="36"
+                              cx="30"
+                              cy="30"
                               r={r}
                               fill="none"
                               stroke={ringColor}
-                              strokeWidth="6"
+                              strokeWidth="5"
                               strokeDasharray={`${dash} ${circ - dash}`}
                               strokeLinecap="round"
                               className="transition-all duration-500"
@@ -487,107 +487,66 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                       </div>
                       {/* Main Content */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div>
-                            <p className="text-base font-bold text-slate-800 dark:text-slate-100">
-                              <span className="mr-1">{emoji}</span>
-                              {goal.name}
-                            </p>
-                            <span
-                              className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mt-0.5 ${statusClass}`}
-                            >
-                              {statusLabel}
-                            </span>
-                          </div>
+                        {/* Title + Actions */}
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                            <span className="mr-1">{emoji}</span>
+                            {goal.name}
+                          </p>
                           <div className="flex gap-0.5 flex-shrink-0">
                             <button
                               type="button"
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                              className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
                               onClick={() => setLinkingGoal(goal)}
                               data-ocid={`goals.link.button.${idx + 1}`}
                             >
-                              <LinkIcon className="h-3.5 w-3.5" />
+                              <LinkIcon className="h-3 w-3" />
                             </button>
                             <button
                               type="button"
-                              className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded"
+                              className="p-1 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded"
                               onClick={() => setEditingGoal(goal)}
                               data-ocid={`goals.edit_button.${idx + 1}`}
                             >
-                              <Pencil className="h-3.5 w-3.5" />
+                              <Pencil className="h-3 w-3" />
                             </button>
                             <button
                               type="button"
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
+                              className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
                               onClick={() => setDeletingGoal(goal)}
                               data-ocid={`goals.delete_button.${idx + 1}`}
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Trash2 className="h-3 w-3" />
                             </button>
                           </div>
                         </div>
-                        {/* 4-column metrics */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-                          <div>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
-                              Target
-                            </p>
-                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
-                              {formatCurrency(goal.targetAmount)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
-                              Current
-                            </p>
-                            <p
-                              className={`text-xs font-semibold tabular-nums ${isAchieved ? "text-green-600" : currentAmount >= goal.targetAmount * 0.8 ? "text-blue-600" : "text-slate-700 dark:text-slate-300"}`}
-                            >
-                              {formatCurrency(currentAmount)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
-                              Goal Date
-                            </p>
-                            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                              {targetDate.toLocaleDateString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "2-digit",
-                              })}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
-                              Timeline
-                            </p>
-                            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                              {formatTimeLeft(monthsLeft)}
-                            </p>
-                          </div>
-                        </div>
-                        {/* Investment tags — shown inline below name */}
+                        {/* Status badge */}
+                        <span
+                          className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mb-1.5 ${statusClass}`}
+                        >
+                          {statusLabel}
+                        </span>
+                        {/* Linked investments — beneath status */}
                         {linkedInvestmentNames.length > 0 && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="flex flex-wrap gap-1 mb-2 cursor-default">
                                   {linkedInvestmentNames
-                                    .slice(0, 4)
+                                    .slice(0, 3)
                                     .map((name) => (
                                       <span
                                         key={name}
-                                        className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full"
+                                        className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded-full"
                                       >
-                                        {name.length > 12
-                                          ? `${name.slice(0, 12)}…`
+                                        {name.length > 10
+                                          ? `${name.slice(0, 10)}…`
                                           : name}
                                       </span>
                                     ))}
-                                  {linkedInvestmentNames.length > 4 && (
-                                    <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                      +{linkedInvestmentNames.length - 4} more
+                                  {linkedInvestmentNames.length > 3 && (
+                                    <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+                                      +{linkedInvestmentNames.length - 3} more
                                     </span>
                                   )}
                                 </div>
@@ -607,39 +566,72 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                             </Tooltip>
                           </TooltipProvider>
                         )}
-                      </div>
-                      {/* Right Panel */}
-                      <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0">
-                        {isAchieved ? (
-                          <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl px-3 py-2 text-center min-w-[80px]">
-                            <p className="text-xs font-bold text-green-600">
-                              Goal
+                        {/* Row 1: Target / Current / Need */}
+                        <div className="grid grid-cols-3 gap-2 mb-1.5">
+                          <div>
+                            <p className="text-[9px] text-slate-400 uppercase tracking-wide">
+                              Target
                             </p>
-                            <p className="text-sm font-bold text-green-600">
-                              Achieved
-                            </p>
-                            <p className="text-[10px] text-green-500 mt-0.5">
-                              SIP/Mo: {formatCurrency(0)}
+                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
+                              {formatCurrency(goal.targetAmount)}
                             </p>
                           </div>
-                        ) : (
-                          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl px-3 py-2 text-right">
-                            <p className="text-[10px] text-blue-400 uppercase tracking-wide mb-0.5">
+                          <div>
+                            <p className="text-[9px] text-slate-400 uppercase tracking-wide">
+                              Current
+                            </p>
+                            <p
+                              className={`text-xs font-semibold tabular-nums ${isAchieved ? "text-green-600" : "text-blue-600"}`}
+                            >
+                              {formatCurrency(currentAmount)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] text-slate-400 uppercase tracking-wide">
                               Need
                             </p>
-                            <p className="text-sm font-bold text-blue-700 dark:text-blue-300 tabular-nums">
-                              {formatCurrency(amountNeeded)}
-                            </p>
-                            <p className="text-[10px] text-blue-400 uppercase tracking-wide mt-1 mb-0.5">
-                              SIP/mo
-                            </p>
-                            <p className="text-sm font-bold text-indigo-700 dark:text-indigo-300 tabular-nums">
-                              {monthsLeft > 0
-                                ? formatCurrency(sipPerMonth)
-                                : "N/A"}
+                            <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 tabular-nums">
+                              {isAchieved
+                                ? formatCurrency(0)
+                                : formatCurrency(amountNeeded)}
                             </p>
                           </div>
-                        )}
+                        </div>
+                        {/* Row 2: Goal Date / Timeline / SIP/Mo */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <p className="text-[9px] text-slate-400 uppercase tracking-wide">
+                              Goal Date
+                            </p>
+                            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                              {targetDate.toLocaleDateString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "2-digit",
+                              })}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] text-slate-400 uppercase tracking-wide">
+                              Timeline
+                            </p>
+                            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                              {formatTimeLeft(monthsLeft)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] text-slate-400 uppercase tracking-wide">
+                              SIP/Mo
+                            </p>
+                            <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 tabular-nums">
+                              {isAchieved
+                                ? formatCurrency(0)
+                                : monthsLeft > 0
+                                  ? formatCurrency(sipPerMonth)
+                                  : "N/A"}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

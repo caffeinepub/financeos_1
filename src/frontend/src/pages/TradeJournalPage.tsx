@@ -269,6 +269,9 @@ export default function TradeJournalPage() {
   const [filterSearch, setFilterSearch] = useState("");
   const [tagFilter, setTagFilter] = useState("");
 
+  // Market prices for open trades (frontend only, no CRUD)
+  const [marketPrices, setMarketPrices] = useState<Record<string, number>>({});
+
   // Checklist
   const [newCheckItem, setNewCheckItem] = useState("");
 
@@ -1281,9 +1284,43 @@ export default function TradeJournalPage() {
                             </TableCell>
                             <TableCell>
                               {t.isOpen ? (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 font-medium">
-                                  OPEN
-                                </span>
+                                (() => {
+                                  const mp = marketPrices[t.id] || 0;
+                                  const runPnL =
+                                    mp > 0
+                                      ? (mp - t.entryPrice) *
+                                        t.quantity *
+                                        (t.positionType === "Long" ? 1 : -1)
+                                      : null;
+                                  return (
+                                    <div className="flex flex-col gap-1 min-w-[110px]">
+                                      <input
+                                        type="number"
+                                        placeholder="Mkt Price"
+                                        value={mp || ""}
+                                        onChange={(e) =>
+                                          setMarketPrices((prev) => ({
+                                            ...prev,
+                                            [t.id]: Number(e.target.value),
+                                          }))
+                                        }
+                                        className="w-full text-xs px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                                      />
+                                      {runPnL !== null ? (
+                                        <span
+                                          className={`text-xs font-semibold font-mono ${runPnL >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+                                        >
+                                          {runPnL >= 0 ? "+" : ""}
+                                          {fmtCurrency(runPnL)}
+                                        </span>
+                                      ) : (
+                                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 font-medium">
+                                          OPEN
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })()
                               ) : (
                                 <span
                                   className={`text-xs font-semibold font-mono ${pnl >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}

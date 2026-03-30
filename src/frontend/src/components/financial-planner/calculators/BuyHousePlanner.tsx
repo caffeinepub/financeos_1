@@ -83,7 +83,8 @@ function RuleCard({
 }
 
 export function BuyHousePlanner() {
-  const { formatCurrency } = useCurrency();
+  const { formatCurrency, country } = useCurrency();
+  const sym = country.symbol;
   const [annualIncome, setAnnualIncome] = useState(1200000);
   const [houseValue, setHouseValue] = useState(6000000);
   const [currentSavings, setCurrentSavings] = useState(500000);
@@ -157,23 +158,23 @@ export function BuyHousePlanner() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
           {
-            label: "Annual Income (\u20b9)",
+            label: `Annual Income (${sym})`,
             value: annualIncome,
             set: setAnnualIncome,
           },
           {
-            label: "Target House Value (\u20b9)",
+            label: `Target House Value (${sym})`,
             value: houseValue,
             set: setHouseValue,
           },
           {
-            label: "Current Savings (\u20b9)",
+            label: `Current Savings (${sym})`,
             value: currentSavings,
             set: setCurrentSavings,
           },
           { label: "Current Age", value: currentAge, set: setCurrentAge },
           {
-            label: "Monthly EMI Capacity (\u20b9)",
+            label: `Monthly EMI Capacity (${sym})`,
             value: emiCapacity,
             set: setEmiCapacity,
           },

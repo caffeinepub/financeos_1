@@ -537,8 +537,7 @@ export default function LoansPage() {
         <div className="overflow-x-auto pb-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-2">
           <TabsList className="flex gap-2 bg-transparent h-auto flex-nowrap min-w-max">
             {[
-              { value: "dashboard", label: "🏠 Dashboard" },
-              { value: "tracker", label: "📋 Tracker" },
+              { value: "dashboard", label: "🏠 Loans" },
               { value: "prepayment", label: "⚡ Prepayment" },
               { value: "loanandinvest", label: "🤔 Loan vs Invest" },
               { value: "affordability", label: "✅ Affordability" },
@@ -638,11 +637,11 @@ export default function LoansPage() {
               <CreditCard className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="text-sm font-medium">No active loans</p>
               <p className="text-xs mt-1">
-                Add your first loan to see your health dashboard
+                Add your first loan to track it here
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {loans.map((loan, idx) => {
                 const score = calcHealthScore(loan);
                 const h = healthLabel(score);
@@ -654,115 +653,6 @@ export default function LoansPage() {
                         loan.principal) *
                       100
                     : 0;
-                return (
-                  <Card
-                    key={loan.id}
-                    data-ocid={`loans.item.${idx + 1}`}
-                    className="bg-card border-border overflow-hidden"
-                  >
-                    <div
-                      className="h-1"
-                      style={{ backgroundColor: typeInfo.color }}
-                    />
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-8 h-8 rounded-lg flex items-center justify-center"
-                            style={{ backgroundColor: `${typeInfo.color}20` }}
-                          >
-                            <TypeIcon
-                              className="w-4 h-4"
-                              style={{ color: typeInfo.color }}
-                            />
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-foreground">
-                              {loan.name}
-                            </p>
-                            <Badge
-                              className="text-[10px] px-1.5 py-0"
-                              style={{
-                                backgroundColor: `${typeInfo.color}20`,
-                                color: typeInfo.color,
-                              }}
-                            >
-                              {typeInfo.label}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div
-                          className={`text-center px-3 py-1 rounded-lg ${h.bg}`}
-                        >
-                          <p className={`text-lg font-bold ${h.text}`}>
-                            {score}
-                          </p>
-                          <p className={`text-[10px] ${h.text}`}>{h.label}</p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-3 gap-3 text-center mb-3">
-                        <div>
-                          <p className="text-[10px] text-muted-foreground">
-                            Outstanding
-                          </p>
-                          <p className="text-sm font-bold text-foreground">
-                            {fmt(loan.currentBalance)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-muted-foreground">
-                            EMI / mo
-                          </p>
-                          <p className="text-sm font-bold text-blue-600 dark:text-blue-300">
-                            {fmt(loan.monthlyPayment)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-muted-foreground">
-                            Rate
-                          </p>
-                          <p className="text-sm font-bold text-amber-600 dark:text-amber-300">
-                            {loan.interestRate}%
-                          </p>
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] text-muted-foreground">
-                          <span>Repaid</span>
-                          <span>{progress.toFixed(0)}%</span>
-                        </div>
-                        <Progress value={progress} className="h-1.5 bg-muted" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* ─── TAB 2: Smart Loan Tracker ─── */}
-        <TabsContent value="tracker" className="space-y-4">
-          {loans.length === 0 ? (
-            <div
-              data-ocid="loans.tracker.empty_state"
-              className="text-center py-16 text-muted-foreground"
-            >
-              <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium">No loans tracked yet</p>
-              <Button
-                size="sm"
-                className="mt-4 bg-blue-600 hover:bg-blue-700"
-                onClick={openAdd}
-              >
-                <Plus className="w-4 h-4 mr-1" /> Add First Loan
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {loans.map((loan, idx) => {
-                const typeInfo = getLoanTypeInfo(loan.loanType);
-                const TypeIcon = typeInfo.icon;
                 const emi =
                   loan.monthlyPayment ||
                   calcEMI(
@@ -791,54 +681,73 @@ export default function LoansPage() {
                 return (
                   <Card
                     key={loan.id}
-                    data-ocid={`loans.tracker.item.${idx + 1}`}
-                    className="bg-card border-border"
+                    data-ocid={`loans.item.${idx + 1}`}
+                    className="bg-card border-border overflow-hidden"
                   >
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
+                    <div
+                      className="h-1"
+                      style={{ backgroundColor: typeInfo.color }}
+                    />
+                    <CardContent className="p-4">
+                      {/* Header: name + type + health score + edit/delete */}
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <TypeIcon
-                            className="w-4 h-4"
-                            style={{ color: typeInfo.color }}
-                          />
-                          <CardTitle className="text-sm text-foreground">
-                            {loan.name}
-                          </CardTitle>
-                          <Badge
-                            className="text-[10px]"
-                            style={{
-                              backgroundColor: `${typeInfo.color}20`,
-                              color: typeInfo.color,
-                            }}
+                          <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center"
+                            style={{ backgroundColor: `${typeInfo.color}20` }}
                           >
-                            {typeInfo.label}
-                          </Badge>
+                            <TypeIcon
+                              className="w-4 h-4"
+                              style={{ color: typeInfo.color }}
+                            />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">
+                              {loan.name}
+                            </p>
+                            <Badge
+                              className="text-[10px] px-1.5 py-0"
+                              style={{
+                                backgroundColor: `${typeInfo.color}20`,
+                                color: typeInfo.color,
+                              }}
+                            >
+                              {typeInfo.label}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`text-center px-2.5 py-1 rounded-lg border ${score >= 70 ? "border-green-200 bg-green-50 dark:bg-green-950/30 dark:border-green-800" : score >= 40 ? "border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800" : "border-red-200 bg-red-50 dark:bg-red-950/30 dark:border-red-800"}`}
+                          >
+                            <p className={`text-base font-bold ${h.text}`}>
+                              {score}
+                            </p>
+                            <p className={`text-[10px] ${h.text}`}>{h.label}</p>
+                          </div>
                           <Button
                             size="icon"
                             variant="ghost"
                             className="h-7 w-7 hover:bg-muted"
                             onClick={() => openEdit(loan)}
-                            data-ocid={`loans.tracker.edit_button.${idx + 1}`}
+                            data-ocid={`loans.edit_button.${idx + 1}`}
                           >
                             <Pencil className="w-3 h-3 text-muted-foreground" />
                           </Button>
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-7 w-7 hover:bg-red-900/40"
+                            className="h-7 w-7 hover:bg-red-100 dark:hover:bg-red-900/40"
                             onClick={() => handleDelete(loan.id)}
-                            data-ocid={`loans.tracker.delete_button.${idx + 1}`}
+                            data-ocid={`loans.delete_button.${idx + 1}`}
                           >
-                            <Trash2 className="w-3 h-3 text-red-400" />
+                            <Trash2 className="w-3 h-3 text-red-500" />
                           </Button>
                         </div>
                       </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                        <div className="bg-muted/50 rounded-lg p-2">
+                      {/* Metrics grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center mb-3">
+                        <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-2">
                           <p className="text-[10px] text-muted-foreground">
                             Outstanding
                           </p>
@@ -846,7 +755,7 @@ export default function LoansPage() {
                             {fmt(loan.currentBalance)}
                           </p>
                         </div>
-                        <div className="bg-muted/50 rounded-lg p-2">
+                        <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-2">
                           <p className="text-[10px] text-muted-foreground">
                             EMI/Month
                           </p>
@@ -854,7 +763,7 @@ export default function LoansPage() {
                             {fmt(emi)}
                           </p>
                         </div>
-                        <div className="bg-muted/50 rounded-lg p-2">
+                        <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-2">
                           <p className="text-[10px] text-muted-foreground">
                             Interest Rate
                           </p>
@@ -862,27 +771,35 @@ export default function LoansPage() {
                             {loan.interestRate}% p.a.
                           </p>
                         </div>
-                        <div className="bg-muted/50 rounded-lg p-2">
+                        <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-2">
                           <p className="text-[10px] text-muted-foreground">
                             Tenure
                           </p>
                           <p className="text-sm font-bold text-foreground">
-                            {loan.termMonths} mo
+                            {Number(loan.termMonths)} mo
                           </p>
                         </div>
                       </div>
+                      {/* Repayment progress */}
+                      <div className="space-y-1 mb-3">
+                        <div className="flex justify-between text-[10px] text-muted-foreground">
+                          <span>Repaid</span>
+                          <span>{progress.toFixed(0)}%</span>
+                        </div>
+                        <Progress value={progress} className="h-1.5 bg-muted" />
+                      </div>
                       {/* Principal vs Interest split */}
                       <div>
-                        <p className="text-xs text-muted-foreground mb-2">
-                          Principal Paid vs Interest Paid
+                        <p className="text-xs text-muted-foreground mb-1.5">
+                          Principal vs Interest Paid
                         </p>
-                        <div className="flex h-4 rounded-full overflow-hidden">
+                        <div className="flex h-3 rounded-full overflow-hidden">
                           <div
                             className="bg-emerald-500 transition-all"
                             style={{ width: `${pPct}%` }}
                           />
                           <div
-                            className="bg-red-500 transition-all"
+                            className="bg-red-400 transition-all"
                             style={{ width: `${totalInterest}%` }}
                           />
                         </div>
@@ -905,7 +822,7 @@ export default function LoansPage() {
           )}
         </TabsContent>
 
-        {/* ─── TAB 3: Prepayment Simulator ─── */}
+        {/* ─── TAB 2: Prepayment Simulator ─── */}
         <TabsContent value="prepayment" className="space-y-4">
           <Card className="bg-card border-border">
             <CardHeader className="pb-2">

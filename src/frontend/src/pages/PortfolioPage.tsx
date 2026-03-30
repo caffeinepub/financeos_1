@@ -768,44 +768,40 @@ export default function PortfolioPage() {
                             <Trash2 className="w-3 h-3" />
                           </Button>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                          <div>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                        <div className="flex items-center gap-3 flex-wrap text-xs">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-slate-400 uppercase tracking-wide">
                               Invested
-                            </p>
-                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
+                            </span>
+                            <span className="font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
                               {fmt(invested)}
-                            </p>
+                            </span>
                           </div>
-                          <div>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                          <span className="text-slate-300 dark:text-slate-600 text-sm">
+                            |
+                          </span>
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-slate-400 uppercase tracking-wide">
                               Current
-                            </p>
-                            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
+                            </span>
+                            <span className="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
                               {fmt(h.currentValue)}
-                            </p>
+                            </span>
                           </div>
-                          <div>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
-                              Gain/Loss%
-                            </p>
-                            <p
-                              className={`text-xs font-bold tabular-nums ${glPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
-                            >
-                              {glPct >= 0 ? "+" : ""}
-                              {glPct.toFixed(1)}%
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                          <span className="text-slate-300 dark:text-slate-600 text-sm">
+                            |
+                          </span>
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-slate-400 uppercase tracking-wide">
                               Gain/Loss
-                            </p>
-                            <p
-                              className={`text-xs font-bold tabular-nums ${gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                            </span>
+                            <span
+                              className={`font-bold tabular-nums ${gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
                             >
                               {gl >= 0 ? "+" : ""}
-                              {fmt(gl)}
-                            </p>
+                              {fmt(gl)} ({glPct >= 0 ? "+" : ""}
+                              {glPct.toFixed(1)}%)
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1598,44 +1594,40 @@ function PortfolioOverview({
                       }}
                     />
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                  <div className="flex items-center gap-3 flex-wrap text-xs">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wide">
                         Invested
-                      </p>
-                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
+                      </span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
                         {fmt(s.invested)}
-                      </p>
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                    <span className="text-slate-300 dark:text-slate-600 text-sm">
+                      |
+                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wide">
                         Current
-                      </p>
-                      <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
+                      </span>
+                      <span className="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
                         {fmt(s.current)}
-                      </p>
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">
-                        Gain/Loss%
-                      </p>
-                      <p
-                        className={`text-xs font-bold tabular-nums ${s.glPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
-                      >
-                        {s.glPct >= 0 ? "+" : ""}
-                        {s.glPct.toFixed(1)}%
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                    <span className="text-slate-300 dark:text-slate-600 text-sm">
+                      |
+                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wide">
                         Gain/Loss
-                      </p>
-                      <p
-                        className={`text-xs font-bold tabular-nums ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                      </span>
+                      <span
+                        className={`font-bold tabular-nums ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
                       >
                         {s.gl >= 0 ? "+" : ""}
-                        {fmt(s.gl)}
-                      </p>
+                        {fmt(s.gl)} ({s.glPct >= 0 ? "+" : ""}
+                        {s.glPct.toFixed(1)}%)
+                      </span>
                     </div>
                   </div>
                 </div>

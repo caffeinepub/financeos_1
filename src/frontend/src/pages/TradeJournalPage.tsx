@@ -269,6 +269,9 @@ export default function TradeJournalPage() {
   const [filterSearch, setFilterSearch] = useState("");
   const [tagFilter, setTagFilter] = useState("");
 
+  // Live prices for open trades
+  const [livePrices, setLivePrices] = useState<Record<string, number>>({});
+
   // Checklist
   const [newCheckItem, setNewCheckItem] = useState("");
 
@@ -344,6 +347,57 @@ export default function TradeJournalPage() {
       return d >= monthAgo;
     });
   }, [trades, timeFilter]);
+
+  // ── Live Price Fetching ──────────────────────────────────────────────────
+  const fetchLivePrices = useCallback(async () => {
+    const openTrades = trades.filter((t) => t.isOpen && t.ticker);
+    if (openTrades.length === 0) return;
+    const tickers = [...new Set(openTrades.map((t) => t.ticker.trim()))];
+    const prices: Record<string, number> = {};
+    await Promise.all(
+      tickers.map(async (ticker) => {
+        try {
+          const res = await fetch(
+            `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1m&range=1d`,
+            { signal: AbortSignal.timeout(5000) },
+          );
+          if (!res.ok) throw new Error("HTTP error");
+          const data = await res.json();
+          const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+          if (typeof price === "number") {
+            prices[ticker] = price;
+          } else {
+          }
+        } catch {}
+      }),
+    );
+    setLivePrices((prev) => ({ ...prev, ...prices }));
+  }, [trades]);
+
+  // Compute stable list of open tickers to use as effect dependency
+  const openTickers = useMemo(
+    () =>
+      [
+        ...new Set(
+          trades
+            .filter((t) => t.isOpen && t.ticker)
+            .map((t) => t.ticker.trim()),
+        ),
+      ]
+        .sort()
+        .join(","),
+    [trades],
+  );
+
+  // Start/restart interval only when component is mounted or open trades change.
+  // Cleanup clears the interval on unmount — no background polling.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fetchLivePrices is stable; openTickers drives re-runs
+  useEffect(() => {
+    if (!openTickers) return;
+    fetchLivePrices();
+    const interval = setInterval(fetchLivePrices, 30000);
+    return () => clearInterval(interval);
+  }, [openTickers]);
 
   // ── Dashboard Metrics ────────────────────────────────────────────────────
   const metrics = useMemo(() => {
@@ -1103,6 +1157,18 @@ export default function TradeJournalPage() {
         {/* ═══ TAB 2: Trade Log ════════════════════════════════════════════════ */}
         {activeTab === "log" && (
           <div className="space-y-4">
+            {/* Trade Log Header */}
+            <div className="flex items-center justify-between mb-1">
+              <div />
+              <button
+                type="button"
+                onClick={fetchLivePrices}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
+                data-ocid="trade.log.refresh.button"
+              >
+                🔄 Refresh Live Prices
+              </button>
+            </div>
             {/* Filters */}
             <div className="bg-card rounded-2xl border border-slate-200 dark:border-slate-700 p-4 space-y-3">
               <div className="flex flex-wrap gap-3 items-end">
@@ -1225,6 +1291,7 @@ export default function TradeJournalPage() {
                           "L/S",
                           "Entry",
                           "Exit",
+                          "Mkt Price",
                           "Qty",
                           "P&L",
                           "P&L%",
@@ -1276,14 +1343,65 @@ export default function TradeJournalPage() {
                             <TableCell className="text-xs text-slate-400 font-mono">
                               {t.isOpen ? "-" : t.exitPrice}
                             </TableCell>
+                            <TableCell className="text-xs font-mono">
+                              {t.isOpen ? (
+                                (() => {
+                                  const livePrice = livePrices[t.ticker];
+                                  const hasLive =
+                                    livePrice != null && livePrice > 0;
+                                  const usingFallback = !hasLive;
+                                  const displayPrice = hasLive
+                                    ? livePrice
+                                    : t.entryPrice;
+                                  return (
+                                    <span
+                                      className={
+                                        hasLive
+                                          ? "text-blue-600 dark:text-blue-400 font-semibold"
+                                          : "text-slate-500"
+                                      }
+                                    >
+                                      {displayPrice}
+                                      {usingFallback && (
+                                        <span className="text-[10px] text-slate-400 ml-0.5">
+                                          (est.)
+                                        </span>
+                                      )}
+                                    </span>
+                                  );
+                                })()
+                              ) : (
+                                <span className="text-slate-400">-</span>
+                              )}
+                            </TableCell>
                             <TableCell className="text-xs text-slate-400">
                               {t.quantity}
                             </TableCell>
                             <TableCell>
                               {t.isOpen ? (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 font-medium">
-                                  OPEN
-                                </span>
+                                (() => {
+                                  const livePrice = livePrices[t.ticker];
+                                  const hasLive =
+                                    livePrice != null && livePrice > 0;
+                                  if (!hasLive) {
+                                    return (
+                                      <span className="text-xs text-slate-400 font-mono">
+                                        -
+                                      </span>
+                                    );
+                                  }
+                                  const runPnl =
+                                    t.positionType === "Long"
+                                      ? (livePrice - t.entryPrice) * t.quantity
+                                      : (t.entryPrice - livePrice) * t.quantity;
+                                  return (
+                                    <span
+                                      className={`text-xs font-semibold font-mono ${runPnl >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+                                    >
+                                      {fmtCurrency(runPnl)}
+                                    </span>
+                                  );
+                                })()
                               ) : (
                                 <span
                                   className={`text-xs font-semibold font-mono ${pnl >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}

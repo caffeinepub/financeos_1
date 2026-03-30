@@ -419,16 +419,39 @@ export function GoalsTab({
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={(entry) => {
-                            const total =
-                              analyticsData.achievementQuality.reduce(
-                                (s, d) => s + d.value,
-                                0,
-                              );
-                            return `${((entry.value / total) * 100).toFixed(0)}%`;
+                          label={({
+                            cx,
+                            cy,
+                            midAngle,
+                            innerRadius,
+                            outerRadius,
+                            value,
+                          }) => {
+                            const RADIAN = Math.PI / 180;
+                            const radius =
+                              innerRadius + (outerRadius - innerRadius) * 0.5;
+                            const x =
+                              (cx as number) +
+                              radius * Math.cos(-midAngle * RADIAN);
+                            const y =
+                              (cy as number) +
+                              radius * Math.sin(-midAngle * RADIAN);
+                            return (
+                              <text
+                                x={x}
+                                y={y}
+                                fill="white"
+                                textAnchor="middle"
+                                dominantBaseline="central"
+                                fontSize={10}
+                                fontWeight="bold"
+                              >
+                                {value}
+                              </text>
+                            );
                           }}
-                          innerRadius={40}
-                          outerRadius={75}
+                          innerRadius={52}
+                          outerRadius={70}
                           dataKey="value"
                         >
                           {analyticsData.achievementQuality.map((entry) => (
@@ -471,16 +494,39 @@ export function GoalsTab({
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={(entry) => {
-                            const total =
-                              analyticsData.goalDiversification.reduce(
-                                (s, d) => s + d.value,
-                                0,
-                              );
-                            return `${((entry.value / total) * 100).toFixed(0)}%`;
+                          label={({
+                            cx,
+                            cy,
+                            midAngle,
+                            innerRadius,
+                            outerRadius,
+                            value,
+                          }) => {
+                            const RADIAN = Math.PI / 180;
+                            const radius =
+                              innerRadius + (outerRadius - innerRadius) * 0.5;
+                            const x =
+                              (cx as number) +
+                              radius * Math.cos(-midAngle * RADIAN);
+                            const y =
+                              (cy as number) +
+                              radius * Math.sin(-midAngle * RADIAN);
+                            return (
+                              <text
+                                x={x}
+                                y={y}
+                                fill="white"
+                                textAnchor="middle"
+                                dominantBaseline="central"
+                                fontSize={10}
+                                fontWeight="bold"
+                              >
+                                {value}
+                              </text>
+                            );
                           }}
-                          innerRadius={40}
-                          outerRadius={75}
+                          innerRadius={52}
+                          outerRadius={70}
                           dataKey="value"
                         >
                           {analyticsData.goalDiversification.map((entry) => (

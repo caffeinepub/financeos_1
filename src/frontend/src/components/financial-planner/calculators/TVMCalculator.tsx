@@ -9,11 +9,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMemo, useState } from "react";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function TVMCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [mode, setMode] = useState<"fv" | "pv" | "pmt">("fv");
   const [pv, setPv] = useState("100000");
   const [fv, setFv] = useState("200000");

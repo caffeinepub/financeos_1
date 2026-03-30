@@ -9,11 +9,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMemo, useState } from "react";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function HRACalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [basicSalary, setBasicSalary] = useState("50000");
   const [hraReceived, setHraReceived] = useState("20000");
   const [rentPaid, setRentPaid] = useState("18000");

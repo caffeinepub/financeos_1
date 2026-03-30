@@ -2,11 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function CreditCardPayoffCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [balance, setBalance] = useState("50000");
   const [monthlyRate, setMonthlyRate] = useState("3.5");
   const [monthlyPayment, setMonthlyPayment] = useState("3000");

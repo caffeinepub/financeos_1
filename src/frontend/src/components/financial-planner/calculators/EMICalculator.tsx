@@ -10,11 +10,11 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function EMICalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [loanAmount, setLoanAmount] = useState("1000000");
   const [interestRate, setInterestRate] = useState("8.5");
   const [tenure, setTenure] = useState("240");

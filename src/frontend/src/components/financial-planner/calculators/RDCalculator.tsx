@@ -12,11 +12,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function RDCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [monthly, setMonthly] = useState("5000");
   const [rate, setRate] = useState("7");
   const [tenure, setTenure] = useState("24");

@@ -12,11 +12,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function RetirementCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [currentAge, setCurrentAge] = useState("30");
   const [retirementAge, setRetirementAge] = useState("60");
   const [monthlyExpenses, setMonthlyExpenses] = useState("50000");

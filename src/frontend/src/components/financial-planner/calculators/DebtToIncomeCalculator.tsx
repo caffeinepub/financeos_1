@@ -2,11 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function DebtToIncomeCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [income, setIncome] = useState("100000");
   const [homeLoan, setHomeLoan] = useState("30000");
   const [carLoan, setCarLoan] = useState("10000");

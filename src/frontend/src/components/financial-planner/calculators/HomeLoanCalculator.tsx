@@ -10,11 +10,11 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function HomeLoanCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [propertyValue, setPropertyValue] = useState("5000000");
   const [downPayment, setDownPayment] = useState("1000000");
   const [interestRate, setInterestRate] = useState("8.5");

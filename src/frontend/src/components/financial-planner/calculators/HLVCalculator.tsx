@@ -10,11 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BookOpen } from "lucide-react";
 import { useState } from "react";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function HLVCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [hlv, setHlv] = useState({
     currentAge: 30,
     retirementAge: 60,

@@ -18,11 +18,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 export function CompoundInterestCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [principal, setPrincipal] = useState("100000");
   const [rate, setRate] = useState("10");
   const [time, setTime] = useState("5");

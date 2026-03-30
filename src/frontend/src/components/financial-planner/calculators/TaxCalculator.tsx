@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMemo, useState } from "react";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 function calcOldRegimeTax(taxableIncome: number): number {
   let tax = 0;
@@ -26,8 +25,9 @@ function calcNewRegimeTax(income: number): number {
 }
 
 export function TaxCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [income, setIncome] = useState("1200000");
   const [hra, setHra] = useState("120000");
   const [section80C, setSection80C] = useState("150000");

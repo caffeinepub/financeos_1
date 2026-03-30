@@ -9,15 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCurrency } from "@/contexts/CurrencyContext";
 import { useMemo, useState } from "react";
 
 export function EmergencyFundSufficiencyCalculator() {
-  const { country, formatCurrency } = useCurrency();
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
   const [currentFund, setCurrentFund] = useState("200000");
   const [monthlyExpenses, setMonthlyExpenses] = useState("50000");
   const [jobStability, setJobStability] = useState("stable");
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: formatCurrency is a stable local function
   const result = useMemo(() => {
     const CF = Number.parseFloat(currentFund) || 0;
     const ME = Number.parseFloat(monthlyExpenses) || 1;
@@ -34,7 +35,7 @@ export function EmergencyFundSufficiencyCalculator() {
     else
       recommendation = `Build up to ${formatCurrency(ME * requiredMonths)} (${requiredMonths} months coverage).`;
     return { monthsCovered, requiredMonths, score, recommendation };
-  }, [currentFund, monthlyExpenses, jobStability, formatCurrency]);
+  }, [currentFund, monthlyExpenses, jobStability]);
 
   const scoreColor =
     result.score >= 100
@@ -51,7 +52,7 @@ export function EmergencyFundSufficiencyCalculator() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Current Emergency Fund ({country.symbol})</Label>
+            <Label>Current Emergency Fund ({"₹"})</Label>
             <Input
               value={currentFund}
               onChange={(e) => setCurrentFund(e.target.value)}
@@ -60,7 +61,7 @@ export function EmergencyFundSufficiencyCalculator() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Monthly Expenses ({country.symbol})</Label>
+            <Label>Monthly Expenses ({"₹"})</Label>
             <Input
               value={monthlyExpenses}
               onChange={(e) => setMonthlyExpenses(e.target.value)}

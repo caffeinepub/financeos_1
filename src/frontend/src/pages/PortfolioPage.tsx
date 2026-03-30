@@ -695,113 +695,123 @@ export default function PortfolioPage() {
                     );
                     const iconInfo = assetIcons[h.assetType];
                     const IconComp = iconInfo?.Icon;
+                    const barColor =
+                      typeInfo?.color ?? iconInfo?.color ?? "#64748b";
                     return (
                       <div
                         key={h.id}
                         data-ocid={`portfolio.item.${i + 1}`}
-                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-4 hover:shadow-md transition-shadow"
+                        className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700 rounded-2xl shadow-sm p-4 hover:shadow-md transition-shadow"
                       >
-                        <div className="flex items-start justify-between gap-3 mb-2">
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                            {IconComp && (
-                              <div
-                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                style={{
-                                  backgroundColor: `${iconInfo.color}18`,
-                                }}
-                              >
-                                <IconComp
-                                  className="w-4 h-4"
-                                  style={{ color: iconInfo.color }}
-                                />
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
+                        <div className="flex items-start gap-3">
+                          {/* Left: name + badge + metrics */}
+                          <div className="flex-1 min-w-0">
+                            {/* Name row with icon */}
+                            <div className="flex items-center gap-2 mb-1">
+                              {IconComp && (
+                                <div
+                                  className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                                  style={{
+                                    backgroundColor: `${iconInfo?.color}20`,
+                                  }}
+                                >
+                                  <IconComp
+                                    className="w-3.5 h-3.5"
+                                    style={{ color: iconInfo?.color }}
+                                  />
+                                </div>
+                              )}
+                              <p className="text-base font-bold text-gray-900 dark:text-slate-100 truncate">
                                 {h.name}
                               </p>
                               <span
-                                className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full text-white mt-0.5"
-                                style={{
-                                  backgroundColor: typeInfo?.color ?? "#64748b",
-                                }}
+                                className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full text-white flex-shrink-0"
+                                style={{ backgroundColor: barColor }}
                               >
                                 {h.notes || typeInfo?.label || h.assetType}
                               </span>
                             </div>
+                            {/* 4-column metrics */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1.5 mt-2">
+                              <div>
+                                <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
+                                  Invested
+                                </p>
+                                <p className="text-sm font-semibold text-gray-800 dark:text-slate-200 tabular-nums">
+                                  {fmt(invested)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
+                                  Current
+                                </p>
+                                <p className="text-sm font-semibold text-gray-800 dark:text-slate-200 tabular-nums">
+                                  {fmt(h.currentValue)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
+                                  Gain/Loss %
+                                </p>
+                                <p
+                                  className={`text-sm font-bold tabular-nums ${glPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                                >
+                                  {glPct >= 0 ? "+" : ""}
+                                  {glPct.toFixed(1)}%
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
+                                  Gain/Loss
+                                </p>
+                                <p
+                                  className={`text-sm font-bold tabular-nums ${gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                                >
+                                  {gl >= 0 ? "+" : ""}
+                                  {fmt(gl)}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-right flex-shrink-0">
-                            <p className="text-xl font-bold text-slate-700 dark:text-slate-200 tabular-nums">
-                              {allocPct.toFixed(1)}%
-                            </p>
-                            <p className="text-[10px] text-slate-400">
-                              Allocation
-                            </p>
-                          </div>
-                        </div>
-                        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mb-3 overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${Math.min(allocPct, 100)}%`,
-                              backgroundColor: typeInfo?.color ?? "#64748b",
-                            }}
-                          />
-                        </div>
-                        <div className="flex justify-end gap-1 mb-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-slate-400 hover:text-slate-700"
-                            data-ocid={`portfolio.edit_button.${i + 1}`}
-                            onClick={() => openEdit(h)}
-                          >
-                            <Pencil className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-slate-300 hover:text-red-500"
-                            data-ocid={`portfolio.delete_button.${i + 1}`}
-                            onClick={() => del(h.id)}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                        <div className="flex items-center gap-3 flex-wrap text-xs">
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-slate-400 uppercase tracking-wide">
-                              Invested
-                            </span>
-                            <span className="font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
-                              {fmt(invested)}
-                            </span>
-                          </div>
-                          <span className="text-slate-300 dark:text-slate-600 text-sm">
-                            |
-                          </span>
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-slate-400 uppercase tracking-wide">
-                              Current
-                            </span>
-                            <span className="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
-                              {fmt(h.currentValue)}
-                            </span>
-                          </div>
-                          <span className="text-slate-300 dark:text-slate-600 text-sm">
-                            |
-                          </span>
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-slate-400 uppercase tracking-wide">
-                              Gain/Loss
-                            </span>
-                            <span
-                              className={`font-bold tabular-nums ${gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
-                            >
-                              {gl >= 0 ? "+" : ""}
-                              {fmt(gl)} ({glPct >= 0 ? "+" : ""}
-                              {glPct.toFixed(1)}%)
-                            </span>
+                          {/* Right: Allocation% + bar + actions */}
+                          <div className="flex-shrink-0 flex flex-col items-end gap-1.5 min-w-[80px]">
+                            <div className="text-right">
+                              <p className="text-2xl font-bold text-gray-800 dark:text-slate-200 tabular-nums leading-none">
+                                {allocPct.toFixed(1)}%
+                              </p>
+                              <p className="text-[10px] text-gray-400 mt-0.5">
+                                Allocation
+                              </p>
+                            </div>
+                            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{
+                                  width: `${Math.min(allocPct, 100)}%`,
+                                  backgroundColor: barColor,
+                                }}
+                              />
+                            </div>
+                            <div className="flex gap-1 mt-0.5">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-7 w-7 border-gray-200 dark:border-slate-600 text-gray-500 hover:text-blue-600 hover:border-blue-300 rounded-lg"
+                                data-ocid={`portfolio.edit_button.${i + 1}`}
+                                onClick={() => openEdit(h)}
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-7 w-7 border-gray-200 dark:border-slate-600 text-gray-400 hover:text-red-500 hover:border-red-300 rounded-lg"
+                                data-ocid={`portfolio.delete_button.${i + 1}`}
+                                onClick={() => del(h.id)}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1550,84 +1560,98 @@ function PortfolioOverview({
             .map((s, i) => {
               const iconInfo = assetIcons[s.value];
               const IconComp = iconInfo?.Icon;
+              const barColor = s.color ?? iconInfo?.color ?? "#64748b";
               return (
                 <div
                   key={s.value}
                   data-ocid={`portfolio.overview.item.${i + 1}`}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-4 hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700 rounded-2xl shadow-sm p-4 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      {IconComp && (
-                        <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: `${iconInfo.color}18` }}
-                        >
-                          <IconComp
-                            className="w-4 h-4"
-                            style={{ color: iconInfo.color }}
-                          />
+                  <div className="flex items-start gap-3">
+                    {/* Left: name + holdings count + metrics */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {IconComp && (
+                          <div
+                            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: `${iconInfo?.color}20` }}
+                          >
+                            <IconComp
+                              className="w-3.5 h-3.5"
+                              style={{ color: iconInfo?.color }}
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-base font-bold text-gray-900 dark:text-slate-100">
+                            {s.label.replace(" (ETF/Stocks)", " ETF/Stocks")}
+                          </p>
+                          <p className="text-[10px] text-gray-500 dark:text-slate-400">
+                            {s.count} holding{s.count !== 1 ? "s" : ""}
+                          </p>
                         </div>
-                      )}
-                      <div>
-                        <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                          {s.label.replace(" (ETF/Stocks)", " ETF/Stocks")}
-                        </p>
-                        <p className="text-[10px] text-slate-500">
-                          {s.count} holding{s.count !== 1 ? "s" : ""}
-                        </p>
+                      </div>
+                      {/* 4-column metrics */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1.5 mt-2">
+                        <div>
+                          <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
+                            Invested
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800 dark:text-slate-200 tabular-nums">
+                            {fmt(s.invested)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
+                            Current
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800 dark:text-slate-200 tabular-nums">
+                            {fmt(s.current)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
+                            Gain/Loss %
+                          </p>
+                          <p
+                            className={`text-sm font-bold tabular-nums ${s.glPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                          >
+                            {s.glPct >= 0 ? "+" : ""}
+                            {s.glPct.toFixed(1)}%
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
+                            Gain/Loss
+                          </p>
+                          <p
+                            className={`text-sm font-bold tabular-nums ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                          >
+                            {s.gl >= 0 ? "+" : ""}
+                            {fmt(s.gl)}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-xl font-bold text-slate-700 dark:text-slate-200 tabular-nums">
-                        {s.alloc.toFixed(1)}%
-                      </p>
-                      <p className="text-[10px] text-slate-400">Allocation</p>
-                    </div>
-                  </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mb-3 overflow-hidden">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${Math.min(s.alloc, 100)}%`,
-                        backgroundColor: s.color,
-                      }}
-                    />
-                  </div>
-                  <div className="flex items-center gap-3 flex-wrap text-xs">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-wide">
-                        Invested
-                      </span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
-                        {fmt(s.invested)}
-                      </span>
-                    </div>
-                    <span className="text-slate-300 dark:text-slate-600 text-sm">
-                      |
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-wide">
-                        Current
-                      </span>
-                      <span className="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
-                        {fmt(s.current)}
-                      </span>
-                    </div>
-                    <span className="text-slate-300 dark:text-slate-600 text-sm">
-                      |
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-wide">
-                        Gain/Loss
-                      </span>
-                      <span
-                        className={`font-bold tabular-nums ${s.gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
-                      >
-                        {s.gl >= 0 ? "+" : ""}
-                        {fmt(s.gl)} ({s.glPct >= 0 ? "+" : ""}
-                        {s.glPct.toFixed(1)}%)
-                      </span>
+                    {/* Right: Allocation% + bar */}
+                    <div className="flex-shrink-0 flex flex-col items-end gap-1.5 min-w-[80px]">
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-gray-800 dark:text-slate-200 tabular-nums leading-none">
+                          {s.alloc.toFixed(1)}%
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">
+                          Allocation
+                        </p>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(s.alloc, 100)}%`,
+                            backgroundColor: barColor,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -19,13 +19,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useCurrency } from "../../../contexts/CurrencyContext";
 
 const BAR_COLORS = ["#6366f1", "#10b981"];
 
 export function FDCalculator() {
-  const { country, formatCurrency } = useCurrency();
-  const sym = country.symbol;
+  const formatCurrency = (v: number) =>
+    `₹${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  const sym = "₹";
   const [principal, setPrincipal] = useState("100000");
   const [rate, setRate] = useState("7");
   const [tenure, setTenure] = useState("12");

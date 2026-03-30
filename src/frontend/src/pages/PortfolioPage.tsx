@@ -508,48 +508,14 @@ export default function PortfolioPage() {
 
   return (
     <div data-ocid="portfolio.page" className="space-y-6">
-      <div className="flex items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #0891b2, #06b6d4)" }}
-          >
-            <TrendingUp className="w-4 h-4 text-white" />
-          </div>
-          <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-            Portfolio
-          </h1>
+      <div className="flex items-center gap-2.5">
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{ background: "linear-gradient(135deg, #0891b2, #06b6d4)" }}
+        >
+          <TrendingUp className="w-4 h-4 text-white" />
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Button
-            data-ocid="portfolio.add_button"
-            onClick={openAdd}
-            size="sm"
-            className="gap-1.5 h-8 text-xs"
-          >
-            <Plus className="w-3.5 h-3.5" /> Add Holding
-          </Button>
-          <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white dark:bg-slate-800">
-            <button
-              type="button"
-              title="Table View"
-              onClick={() => setViewMode("table")}
-              className={`p-1.5 transition-colors ${viewMode === "table" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
-              data-ocid="portfolio.table_view.toggle"
-            >
-              <LayoutList className="w-3.5 h-3.5" />
-            </button>
-            <button
-              type="button"
-              title="Card View"
-              onClick={() => setViewMode("card")}
-              className={`p-1.5 transition-colors ${viewMode === "card" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
-              data-ocid="portfolio.card_view.toggle"
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
+        <h1 className="text-lg font-bold text-slate-800">Portfolio</h1>
       </div>
 
       {/* Industry-standard pill tab bar with Add Holding + Toggle on right */}
@@ -592,6 +558,37 @@ export default function PortfolioPage() {
               );
             })}
           </div>
+          {/* Add Holding + View Toggle — right side */}
+          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+            <Button
+              data-ocid="portfolio.add_button"
+              onClick={openAdd}
+              size="sm"
+              className="gap-1.5 h-8 text-xs"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Holding
+            </Button>
+            <div className="hidden sm:flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
+              <button
+                type="button"
+                title="Table View"
+                onClick={() => setViewMode("table")}
+                className={`p-1.5 transition-colors ${viewMode === "table" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
+                data-ocid="portfolio.table_view.toggle"
+              >
+                <LayoutList className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                title="Card View"
+                onClick={() => setViewMode("card")}
+                className={`p-1.5 transition-colors ${viewMode === "card" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
+                data-ocid="portfolio.card_view.toggle"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -630,10 +627,10 @@ export default function PortfolioPage() {
                 const tabGLPct =
                   tabInvested > 0 ? (tabGL / tabInvested) * 100 : 0;
                 return (
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
                       <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
-                        Invested
+                        Total Invested
                       </p>
                       <p className="text-sm font-bold text-blue-800 tabular-nums">
                         {fmt(tabInvested)}
@@ -641,7 +638,7 @@ export default function PortfolioPage() {
                     </div>
                     <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
                       <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
-                        Current
+                        Current Value
                       </p>
                       <p className="text-sm font-bold text-blue-800 tabular-nums">
                         {fmt(tabCurrent)}
@@ -660,10 +657,21 @@ export default function PortfolioPage() {
                       >
                         {tabGL >= 0 ? "+" : ""}
                         {fmt(tabGL)}
-                        <span className="text-xs ml-1 opacity-80">
-                          ({tabGLPct >= 0 ? "+" : ""}
-                          {tabGLPct.toFixed(1)}%)
-                        </span>
+                      </p>
+                    </div>
+                    <div
+                      className={`rounded-xl border px-4 py-3 ${tabGLPct >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+                    >
+                      <p
+                        className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${tabGLPct >= 0 ? "text-green-700" : "text-red-700"}`}
+                      >
+                        Gain/Loss%
+                      </p>
+                      <p
+                        className={`text-sm font-bold tabular-nums ${tabGLPct >= 0 ? "text-green-800" : "text-red-700"}`}
+                      >
+                        {tabGLPct >= 0 ? "+" : ""}
+                        {tabGLPct.toFixed(2)}%
                       </p>
                     </div>
                   </div>
@@ -1484,10 +1492,10 @@ function PortfolioOverview({
         const glPct = totalInvested > 0 ? (gl / totalInvested) * 100 : 0;
         const sym = ovCountry.symbol;
         return (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
               <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
-                Invested
+                Total Invested
               </p>
               <p className="text-sm font-bold text-blue-800 tabular-nums">
                 {shortNum(totalInvested, sym)}
@@ -1495,7 +1503,7 @@ function PortfolioOverview({
             </div>
             <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
               <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
-                Current
+                Current Value
               </p>
               <p className="text-sm font-bold text-blue-800 tabular-nums">
                 {shortNum(totalCurrent, sym)}
@@ -1507,17 +1515,28 @@ function PortfolioOverview({
               <p
                 className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${gl >= 0 ? "text-green-700" : "text-red-700"}`}
               >
-                Gain/Loss
+                Gain / Loss
               </p>
               <p
                 className={`text-sm font-bold tabular-nums ${gl >= 0 ? "text-green-800" : "text-red-700"}`}
               >
                 {gl >= 0 ? "+" : ""}
                 {shortNum(gl, sym)}
-                <span className="text-xs ml-1 opacity-80">
-                  ({glPct >= 0 ? "+" : ""}
-                  {glPct.toFixed(1)}%)
-                </span>
+              </p>
+            </div>
+            <div
+              className={`rounded-xl border px-4 py-3 ${glPct >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+            >
+              <p
+                className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${glPct >= 0 ? "text-green-700" : "text-red-700"}`}
+              >
+                % Gain/Loss
+              </p>
+              <p
+                className={`text-sm font-bold tabular-nums ${glPct >= 0 ? "text-green-800" : "text-red-700"}`}
+              >
+                {glPct >= 0 ? "+" : ""}
+                {glPct.toFixed(2)}%
               </p>
             </div>
           </div>

@@ -22,42 +22,44 @@ export default function GoalsPage() {
             Financial Goals
           </h1>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {activeTab === "track" && (
-            <Button
-              onClick={() => setAddGoalOpen(true)}
-              size="sm"
-              className="gap-1.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow text-xs"
-              data-ocid="goals.page.add_button"
-            >
-              <Plus className="h-3.5 w-3.5" /> Add Goal
-            </Button>
-          )}
-          <button
-            type="button"
-            data-ocid="goals.track.tab"
-            onClick={() => setActiveTab("track")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-              activeTab === "track"
-                ? "bg-emerald-600 text-white shadow"
-                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
-            }`}
+        {activeTab === "track" && (
+          <Button
+            onClick={() => setAddGoalOpen(true)}
+            size="sm"
+            className="gap-1.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow text-xs"
+            data-ocid="goals.page.add_button"
           >
-            Track Goals
-          </button>
-          <button
-            type="button"
-            data-ocid="goals.plan.tab"
-            onClick={() => setActiveTab("plan")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-              activeTab === "plan"
-                ? "bg-emerald-600 text-white shadow"
-                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
-            }`}
-          >
-            Plan Goals
-          </button>
-        </div>
+            <Plus className="h-3.5 w-3.5" /> Add Goal
+          </Button>
+        )}
+      </div>
+
+      {/* Tab pills */}
+      <div className="flex gap-2 mb-4">
+        <button
+          type="button"
+          data-ocid="goals.track.tab"
+          onClick={() => setActiveTab("track")}
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+            activeTab === "track"
+              ? "bg-emerald-600 text-white shadow"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+          }`}
+        >
+          Track Goals
+        </button>
+        <button
+          type="button"
+          data-ocid="goals.plan.tab"
+          onClick={() => setActiveTab("plan")}
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+            activeTab === "plan"
+              ? "bg-emerald-600 text-white shadow"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+          }`}
+        >
+          Plan Goals
+        </button>
       </div>
 
       {activeTab === "track" && (

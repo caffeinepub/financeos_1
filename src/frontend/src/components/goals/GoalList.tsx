@@ -573,10 +573,14 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                           </div>
                           <div>
                             <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
-                              Timeline
+                              SIP/Mo
                             </p>
                             <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
-                              {formatTimeLeft(monthsLeft)}
+                              {isAchieved
+                                ? "N/A"
+                                : monthsLeft > 0
+                                  ? formatCurrency(sipPerMonth)
+                                  : "N/A"}
                             </p>
                           </div>
                         </div>
@@ -619,45 +623,6 @@ export function GoalList({ goals, allInvestments }: GoalListProps) {
                             )}
                           </div>
                         )}
-                      </div>
-
-                      {/* Right: Fixed off-white summary panel */}
-                      <div className="w-full md:w-44 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-600 p-3 flex-shrink-0">
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
-                              Need
-                            </span>
-                            <span className="text-[13px] font-bold text-gray-800 dark:text-slate-200 tabular-nums">
-                              {isAchieved
-                                ? formatCurrency(0)
-                                : formatCurrency(amountNeeded)}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
-                              SIP
-                            </span>
-                            <span className="text-[13px] font-bold text-green-600 tabular-nums">
-                              {isAchieved
-                                ? `${formatCurrency(0)} needed`
-                                : monthsLeft > 0
-                                  ? `${formatCurrency(sipPerMonth)}/mo`
-                                  : "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="border-t border-gray-200 dark:border-slate-600 mt-2 pt-2">
-                          {isAchieved ? (
-                            <p className="text-[11px] text-green-600 font-semibold text-center">
-                              Goal completed · {Math.round(progress)}%
-                            </p>
-                          ) : (
-                            <p className="text-[11px] text-gray-500 dark:text-slate-400">
-                              Deadline in {formatTimeLeft(monthsLeft)}
-                            </p>
-                          )}
-                        </div>
                       </div>
                     </div>
                   </div>

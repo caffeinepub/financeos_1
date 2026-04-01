@@ -72,11 +72,7 @@ export default function GoalsPage() {
         />
       )}
 
-      {activeTab === "plan" && (
-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
-          <ModelGoalPlanningTab />
-        </div>
-      )}
+      {activeTab === "plan" && <ModelGoalPlanningTab />}
     </div>
   );
 }

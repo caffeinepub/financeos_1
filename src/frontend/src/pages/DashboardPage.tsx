@@ -313,6 +313,108 @@ function CustomDot(props: {
   );
 }
 
+// ─── Risk-o-Meter Component ───────────────────────────────────────────────────
+function RiskOMeter({ score }: { score: number }) {
+  const LEVELS = [
+    { label: "Low Risk", color: "#08A04B", max: 25 },
+    { label: "Low to Moderate", color: "#7FFF00", max: 35 },
+    { label: "Moderate", color: "#FFFF33", max: 45 },
+    { label: "Moderately High", color: "#C68E17", max: 60 },
+    { label: "High Risk", color: "#FF8C00", max: 75 },
+    { label: "Very High Risk", color: "#F70D1A", max: 100 },
+  ];
+
+  const currentLevel = LEVELS.find((l) => score <= l.max) ?? LEVELS[5];
+  const clampedScore = Math.min(score, 100);
+  const needleRotateDeg = -180 + (clampedScore / 100) * 180;
+
+  function polarToCartesian(
+    cx: number,
+    cy: number,
+    r: number,
+    angleDeg: number,
+  ) {
+    const rad = (angleDeg * Math.PI) / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  const segmentDeg = 30;
+  const cx = 100;
+  const cy = 100;
+  const outerR = 88;
+  const innerR = 58;
+
+  const segments = LEVELS.map((level, i) => {
+    const startDeg = 180 - i * segmentDeg;
+    const endDeg = 180 - (i + 1) * segmentDeg;
+    const outerStart = polarToCartesian(cx, cy, outerR, startDeg);
+    const outerEnd = polarToCartesian(cx, cy, outerR, endDeg);
+    const innerStart = polarToCartesian(cx, cy, innerR, startDeg);
+    const innerEnd = polarToCartesian(cx, cy, innerR, endDeg);
+    const d = `M ${outerStart.x} ${outerStart.y} A ${outerR} ${outerR} 0 0 0 ${outerEnd.x} ${outerEnd.y} L ${innerEnd.x} ${innerEnd.y} A ${innerR} ${innerR} 0 0 1 ${innerStart.x} ${innerStart.y} Z`;
+    return (
+      <path
+        key={level.label}
+        d={d}
+        fill={level.color}
+        stroke="white"
+        strokeWidth="1.5"
+      />
+    );
+  });
+
+  return (
+    <div className="flex flex-col items-center">
+      <svg
+        viewBox="0 0 200 110"
+        className="w-full max-w-[220px]"
+        role="img"
+        aria-label="Portfolio Risk-o-meter gauge"
+      >
+        {segments}
+        <g transform={`rotate(${needleRotateDeg}, ${cx}, ${cy})`}>
+          <line
+            x1={cx}
+            y1={cy}
+            x2={cx - 72}
+            y2={cy}
+            stroke="#1e293b"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+        </g>
+        <circle cx={cx} cy={cy} r="6" fill="#1e293b" />
+        <circle cx={cx} cy={cy} r="3" fill="white" />
+        <text
+          x={cx}
+          y={cy - 10}
+          textAnchor="middle"
+          fontSize="10"
+          fontWeight="bold"
+          fill="#1e293b"
+        >
+          {score.toFixed(1)}%
+        </text>
+      </svg>
+      <div className="text-center mt-1">
+        <span
+          className="text-sm font-bold px-3 py-1 rounded-full"
+          style={{
+            backgroundColor: currentLevel.color,
+            color: score <= 35 ? "#1e293b" : "#fff",
+          }}
+        >
+          {currentLevel.label}
+        </span>
+      </div>
+      <div className="flex justify-between w-full max-w-[220px] mt-2 px-1">
+        <span className="text-[9px] text-slate-400">Low</span>
+        <span className="text-[9px] text-slate-400">Very High</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { actor, isFetching } = useActor();
@@ -480,6 +582,14 @@ export default function DashboardPage() {
       })),
     [byType],
   );
+
+  const portfolioRiskScore = useMemo(() => {
+    if (totalNAV === 0) return 0;
+    // Risk = allocation % of high-volatility assets: Equity (ETF), Mutual Funds, Crypto
+    const highVolatileValue =
+      (byType.ETF ?? 0) + (byType.MutualFund ?? 0) + (byType.Crypto ?? 0);
+    return (highVolatileValue / totalNAV) * 100;
+  }, [byType, totalNAV]);
 
   // ── Section 6 data ──
   const incomeExpenseTrend = useMemo(() => {
@@ -1280,6 +1390,75 @@ export default function DashboardPage() {
                   </div>
                 );
               })()}
+            </CardContent>
+          </Card>
+          {/* Risk-o-meter */}
+          <Card
+            data-ocid="dashboard.riskometer.card"
+            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+          >
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700">
+                Portfolio Risk-o-meter
+              </CardTitle>
+              <p className="text-xs text-slate-400">
+                Based on Equity, Mutual Funds & Crypto allocation
+              </p>
+            </CardHeader>
+            <CardContent className="px-5 pb-4">
+              <RiskOMeter score={portfolioRiskScore} />
+              <div className="mt-3 space-y-1">
+                {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => {
+                  const allocPct =
+                    totalNAV > 0 ? ((byType[t] ?? 0) / totalNAV) * 100 : 0;
+                  const isHighVol =
+                    t === "ETF" || t === "MutualFund" || t === "Crypto";
+                  const barColor = isHighVol
+                    ? allocPct <= 8
+                      ? "#08A04B"
+                      : allocPct <= 16
+                        ? "#7FFF00"
+                        : allocPct <= 25
+                          ? "#FFFF33"
+                          : allocPct <= 35
+                            ? "#C68E17"
+                            : allocPct <= 50
+                              ? "#FF8C00"
+                              : "#F70D1A"
+                    : "#08A04B";
+                  return (
+                    <div
+                      key={t}
+                      className="flex items-center justify-between text-xs"
+                    >
+                      <span
+                        className={`${isHighVol ? "font-semibold text-slate-700" : "text-slate-400"}`}
+                      >
+                        {ASSET_CONFIG[t].shortLabel}
+                        {isHighVol && (
+                          <span className="ml-1 text-[9px] text-orange-500">
+                            ●
+                          </span>
+                        )}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-1.5 w-16 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.min(allocPct, 100)}%`,
+                              backgroundColor: barColor,
+                            }}
+                          />
+                        </div>
+                        <span className="text-slate-500 w-8 text-right font-medium">
+                          {allocPct.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
         </div>

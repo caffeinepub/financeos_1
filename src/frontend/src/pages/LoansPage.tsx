@@ -533,12 +533,11 @@ export default function LoansPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="healthdashboard" className="space-y-4">
+      <Tabs defaultValue="loantracker" className="space-y-4">
         <div className="overflow-x-auto pb-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-2">
           <TabsList className="flex gap-2 bg-transparent h-auto flex-nowrap min-w-max">
             {[
-              { value: "healthdashboard", label: "❤️ Health Dashboard" },
-              { value: "tracker", label: "📋 Smart Tracker" },
+              { value: "loantracker", label: "🏦 Loan Tracker" },
               { value: "prepayment", label: "⚡ Prepayment" },
               { value: "loanandinvest", label: "🤔 Loan vs Invest" },
               { value: "affordability", label: "✅ Affordability" },
@@ -558,7 +557,7 @@ export default function LoansPage() {
         </div>
 
         {/* ─── TAB 1: Dashboard ─── */}
-        <TabsContent value="healthdashboard" className="space-y-4">
+        <TabsContent value="loantracker" className="space-y-4">
           <div className="flex items-center gap-2 p-3 bg-card rounded-xl border border-border">
             <Shield className="w-4 h-4 text-blue-400 shrink-0" />
             <Label className="text-xs text-muted-foreground">
@@ -629,10 +628,8 @@ export default function LoansPage() {
               </span>
             </div>
           </div>
-        </TabsContent>
+          <div className="border-t border-border my-4" />
 
-        {/* ─── TAB 2: Smart Tracker ─── */}
-        <TabsContent value="tracker" className="space-y-4">
           {loans.length === 0 ? (
             <div
               data-ocid="loans.empty_state"

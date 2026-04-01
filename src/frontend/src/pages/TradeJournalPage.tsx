@@ -229,7 +229,7 @@ function MetricCard({
   color?: string;
 }) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+    <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
       <div className="flex items-center justify-between mb-2">
         <span className="text-slate-400 text-xs font-medium uppercase tracking-wide">
           {label}
@@ -736,7 +736,9 @@ export default function TradeJournalPage() {
       {/* Header */}
       <div className="px-4 md:px-6 pt-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Trade Journal</h1>
+          <h1 className="text-2xl font-bold text-black dark:text-white">
+            Trade Journal
+          </h1>
           <p className="text-slate-400 text-sm mt-0.5">
             Log, track & analyze your trades
           </p>
@@ -870,7 +872,7 @@ export default function TradeJournalPage() {
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Equity Curve */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                 <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   Equity Curve
                 </h3>
@@ -909,7 +911,7 @@ export default function TradeJournalPage() {
               </div>
 
               {/* Win/Loss Distribution */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                 <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   Win / Loss Distribution
                 </h3>
@@ -948,7 +950,7 @@ export default function TradeJournalPage() {
               </div>
 
               {/* P&L by Strategy */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                 <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   P&L by Strategy
                 </h3>
@@ -992,7 +994,7 @@ export default function TradeJournalPage() {
               </div>
 
               {/* P&L by Instrument */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                 <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   P&L by Instrument
                 </h3>
@@ -1039,7 +1041,7 @@ export default function TradeJournalPage() {
             {/* Scatter + Heatmap */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Risk/Reward Scatter */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                 <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   Risk / Reward Scatter
                 </h3>
@@ -1090,7 +1092,7 @@ export default function TradeJournalPage() {
               </div>
 
               {/* Monthly Heatmap */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                 <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   Monthly Performance Heatmap
                 </h3>
@@ -1104,7 +1106,7 @@ export default function TradeJournalPage() {
         {activeTab === "log" && (
           <div className="space-y-4">
             {/* Filters */}
-            <div className="bg-card rounded-2xl border border-slate-200 dark:border-slate-700 p-4 space-y-3">
+            <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4 space-y-3">
               <div className="flex flex-wrap gap-3 items-end">
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs text-slate-400">From</Label>
@@ -1200,7 +1202,7 @@ export default function TradeJournalPage() {
             {logFiltered.length === 0 ? (
               <div
                 data-ocid="trade.log.empty_state"
-                className="bg-card rounded-2xl border border-slate-200 dark:border-slate-700 p-12 flex flex-col items-center gap-3 text-center"
+                className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-12 flex flex-col items-center gap-3 text-center"
               >
                 <BookOpen className="h-12 w-12 text-slate-400" />
                 <p className="text-slate-400 font-medium">
@@ -1212,7 +1214,7 @@ export default function TradeJournalPage() {
               </div>
             ) : (
               <div
-                className="bg-card rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden"
+                className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 overflow-hidden"
                 data-ocid="trade.log.table"
               >
                 <div className="overflow-x-auto">
@@ -1380,7 +1382,7 @@ export default function TradeJournalPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Pre-Trade Checklist */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-5">
                 <h3 className="text-sm font-semibold text-slate-100 mb-4 flex items-center gap-2">
                   <CheckSquare className="h-4 w-4 text-emerald-400" /> Pre-Trade
                   Checklist
@@ -1433,7 +1435,7 @@ export default function TradeJournalPage() {
               </div>
 
               {/* Post-Trade Reviews */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-5">
                 <h3 className="text-sm font-semibold text-slate-100 mb-4 flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-blue-400" /> Post-Trade
                   Reviews
@@ -1541,7 +1543,7 @@ export default function TradeJournalPage() {
 
             {/* Tag Cloud */}
             {allTags.length > 0 && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-5">
                 <h3 className="text-sm font-semibold text-slate-100 mb-3">
                   Tag Cloud
                 </h3>
@@ -1579,7 +1581,7 @@ export default function TradeJournalPage() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Most Profitable Setup */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+                <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Award className="h-4 w-4 text-emerald-400" />
                     <span className="text-xs font-semibold text-slate-400">
@@ -1601,7 +1603,7 @@ export default function TradeJournalPage() {
                 </div>
 
                 {/* Most Profitable Instrument */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+                <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="h-4 w-4 text-blue-400" />
                     <span className="text-xs font-semibold text-slate-400">
@@ -1623,7 +1625,7 @@ export default function TradeJournalPage() {
                 </div>
 
                 {/* Best Day of Week */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+                <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="h-4 w-4 text-amber-400" />
                     <span className="text-xs font-semibold text-slate-400">
@@ -1650,7 +1652,7 @@ export default function TradeJournalPage() {
                 </div>
 
                 {/* Common Losing Patterns */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+                <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-red-400" />
                     <span className="text-xs font-semibold text-slate-400">
@@ -1686,7 +1688,7 @@ export default function TradeJournalPage() {
                 </div>
 
                 {/* Best Time Period */}
-                <div className="bg-card rounded-2xl border border-slate-200 dark:border-slate-700 p-4 md:col-span-2">
+                <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4 md:col-span-2">
                   <div className="flex items-center gap-2 mb-3">
                     <Activity className="h-4 w-4 text-purple-400" />
                     <span className="text-xs font-semibold text-slate-400">
@@ -1721,7 +1723,7 @@ export default function TradeJournalPage() {
             </div>
 
             {/* Day of Week Table */}
-            <div className="bg-card rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-700">
                 <h3 className="text-sm font-semibold text-slate-100">
                   Day of Week Performance

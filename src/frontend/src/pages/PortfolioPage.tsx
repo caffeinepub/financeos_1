@@ -508,14 +508,46 @@ export default function PortfolioPage() {
 
   return (
     <div data-ocid="portfolio.page" className="space-y-6">
-      <div className="flex items-center gap-2.5">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg, #0891b2, #06b6d4)" }}
-        >
-          <TrendingUp className="w-4 h-4 text-white" />
+      <div className="flex items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #0891b2, #06b6d4)" }}
+          >
+            <TrendingUp className="w-4 h-4 text-white" />
+          </div>
+          <h1 className="text-lg font-bold text-slate-800">Portfolio</h1>
         </div>
-        <h1 className="text-lg font-bold text-slate-800">Portfolio</h1>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
+            <button
+              type="button"
+              title="Table View"
+              onClick={() => setViewMode("table")}
+              className={`p-1.5 transition-colors ${viewMode === "table" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
+              data-ocid="portfolio.table_view.toggle"
+            >
+              <LayoutList className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              title="Card View"
+              onClick={() => setViewMode("card")}
+              className={`p-1.5 transition-colors ${viewMode === "card" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
+              data-ocid="portfolio.card_view.toggle"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <Button
+            data-ocid="portfolio.add_button"
+            onClick={openAdd}
+            size="sm"
+            className="gap-1.5 h-8 text-xs"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add Holding
+          </Button>
+        </div>
       </div>
 
       {/* Industry-standard pill tab bar with Add Holding + Toggle on right */}
@@ -557,37 +589,6 @@ export default function PortfolioPage() {
                 </button>
               );
             })}
-          </div>
-          {/* Add Holding + View Toggle — right side */}
-          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-            <Button
-              data-ocid="portfolio.add_button"
-              onClick={openAdd}
-              size="sm"
-              className="gap-1.5 h-8 text-xs"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Holding
-            </Button>
-            <div className="hidden sm:flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
-              <button
-                type="button"
-                title="Table View"
-                onClick={() => setViewMode("table")}
-                className={`p-1.5 transition-colors ${viewMode === "table" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
-                data-ocid="portfolio.table_view.toggle"
-              >
-                <LayoutList className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                title="Card View"
-                onClick={() => setViewMode("card")}
-                className={`p-1.5 transition-colors ${viewMode === "card" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}
-                data-ocid="portfolio.card_view.toggle"
-              >
-                <LayoutGrid className="w-3.5 h-3.5" />
-              </button>
-            </div>
           </div>
         </div>
       </div>

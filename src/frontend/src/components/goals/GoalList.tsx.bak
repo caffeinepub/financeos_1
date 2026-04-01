@@ -14,7 +14,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Link as LinkIcon, Pencil, Trash2 } from "lucide-react";
+import {
+  LayoutGrid,
+  LayoutList,
+  Link as LinkIcon,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { useCurrency } from "../../contexts/CurrencyContext";
 import type { Goal, Investment } from "../../hooks/useGoals";
@@ -25,8 +31,6 @@ import { LinkInvestmentDialog } from "./dialogs/LinkInvestmentDialog";
 interface GoalListProps {
   goals: Goal[];
   allInvestments: Investment[];
-  viewMode?: "table" | "card";
-  onViewModeChange?: (mode: "table" | "card") => void;
 }
 
 function getGoalEmoji(name: string): string {
@@ -54,12 +58,7 @@ const formatTimeLeft = (months: number): string => {
   return `${yrs} yr${yrs > 1 ? "s" : ""} ${mo} mo`;
 };
 
-export function GoalList({
-  goals,
-  allInvestments,
-  viewMode: externalViewMode,
-  onViewModeChange: _onViewModeChange,
-}: GoalListProps) {
+export function GoalList({ goals, allInvestments }: GoalListProps) {
   const { formatCurrency } = useCurrency();
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [deletingGoal, setDeletingGoal] = useState<Goal | null>(null);
@@ -67,8 +66,7 @@ export function GoalList({
   const [statusFilter, setStatusFilter] = useState<
     "All" | "On Track" | "Need Attention" | "Achieved"
   >("All");
-  const [_ivm] = useState<"table" | "card">("card");
-  const viewMode = externalViewMode ?? _ivm;
+  const [viewMode, setViewMode] = useState<"table" | "card">("card");
 
   const investmentMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -368,7 +366,26 @@ export function GoalList({
               ),
             )}
           </div>
-          {/* Toggle moved to GoalsPage submenu header */}
+          <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+            <button
+              type="button"
+              title="Table View"
+              onClick={() => setViewMode("table")}
+              className={`p-1.5 transition-colors ${viewMode === "table" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              data-ocid="goals.table_view.toggle"
+            >
+              <LayoutList className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              title="Card View"
+              onClick={() => setViewMode("card")}
+              className={`p-1.5 transition-colors ${viewMode === "card" ? "bg-slate-800 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              data-ocid="goals.card_view.toggle"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {viewMode === "card" ? (
@@ -423,10 +440,10 @@ export function GoalList({
                     data-ocid={`goals.item.${idx + 1}`}
                     className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700 rounded-2xl shadow-sm p-4 hover:shadow-md transition-shadow"
                   >
-                    <div className="flex flex-row items-start gap-3">
+                    <div className="flex flex-col md:flex-row items-start gap-4">
                       {/* Left: Circular Progress Ring */}
                       <div className="flex-shrink-0 flex items-start justify-center pt-1">
-                        <div className="relative w-[60px] h-[60px] md:w-[72px] md:h-[72px]">
+                        <div className="relative w-[72px] h-[72px]">
                           <svg
                             width="72"
                             height="72"

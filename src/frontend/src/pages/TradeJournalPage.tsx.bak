@@ -62,8 +62,6 @@ import {
   Legend,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   Tooltip as ReTooltip,
   ResponsiveContainer,
   Scatter,
@@ -436,8 +434,7 @@ export default function TradeJournalPage() {
     }
     return Object.entries(map)
       .map(([name, pnl]) => ({ name, pnl: Math.round(pnl) }))
-      .sort((a, b) => b.pnl - a.pnl)
-      .slice(0, 6);
+      .sort((a, b) => b.pnl - a.pnl);
   }, [filteredByTime]);
 
   // ── P&L by Instrument ────────────────────────────────────────────────────
@@ -449,8 +446,7 @@ export default function TradeJournalPage() {
     }
     return Object.entries(map)
       .map(([name, pnl]) => ({ name, pnl: Math.round(pnl) }))
-      .sort((a, b) => b.pnl - a.pnl)
-      .slice(0, 6);
+      .sort((a, b) => b.pnl - a.pnl);
   }, [filteredByTime]);
 
   // ── Scatter (Risk/Reward) ────────────────────────────────────────────────
@@ -738,7 +734,7 @@ export default function TradeJournalPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="px-4 md:px-6 pt-2 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="px-4 md:px-6 pt-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-black dark:text-white">
             Trade Journal
@@ -806,7 +802,6 @@ export default function TradeJournalPage() {
                 label="Total Trades"
                 value={String(metrics.total)}
                 icon={Activity}
-                color="text-black dark:text-white"
               />
               <MetricCard
                 label="Win Rate"
@@ -877,8 +872,8 @@ export default function TradeJournalPage() {
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Equity Curve */}
-              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
+                <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   Equity Curve
                 </h3>
                 {equityCurve.length === 0 ? (
@@ -915,97 +910,48 @@ export default function TradeJournalPage() {
                 )}
               </div>
 
-              {/* Win/Loss Distribution - Donut Charts */}
-              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+              {/* Win/Loss Distribution */}
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
+                <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   Win / Loss Distribution
                 </h3>
-                <div className="flex items-center justify-center gap-8">
-                  {/* Wins Donut */}
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-[120px] h-[120px]">
-                      <PieChart width={120} height={120}>
-                        <Pie
-                          data={[
-                            { value: metrics.wins },
-                            {
-                              value: Math.max(metrics.total - metrics.wins, 0),
-                            },
-                          ]}
-                          cx={60}
-                          cy={60}
-                          innerRadius={35}
-                          outerRadius={55}
-                          dataKey="value"
-                          startAngle={90}
-                          endAngle={-270}
-                        >
-                          <Cell fill="#10b981" />
-                          <Cell fill="#e2e8f0" />
-                        </Pie>
-                      </PieChart>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-lg font-bold text-emerald-500">
-                          {metrics.wins}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                      Wins
-                    </span>
-                    {metrics.total > 0 && (
-                      <span className="text-xs text-emerald-600 font-semibold">
-                        {((metrics.wins / metrics.total) * 100).toFixed(0)}%
-                      </span>
-                    )}
-                  </div>
-                  {/* Losses Donut */}
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-[120px] h-[120px]">
-                      <PieChart width={120} height={120}>
-                        <Pie
-                          data={[
-                            { value: metrics.losses },
-                            {
-                              value: Math.max(
-                                metrics.total - metrics.losses,
-                                0,
-                              ),
-                            },
-                          ]}
-                          cx={60}
-                          cy={60}
-                          innerRadius={35}
-                          outerRadius={55}
-                          dataKey="value"
-                          startAngle={90}
-                          endAngle={-270}
-                        >
-                          <Cell fill="#ef4444" />
-                          <Cell fill="#e2e8f0" />
-                        </Pie>
-                      </PieChart>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-lg font-bold text-red-500">
-                          {metrics.losses}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                      Losses
-                    </span>
-                    {metrics.total > 0 && (
-                      <span className="text-xs text-red-600 font-semibold">
-                        {((metrics.losses / metrics.total) * 100).toFixed(0)}%
-                      </span>
-                    )}
-                  </div>
-                </div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart
+                    data={[
+                      {
+                        name: "Trades",
+                        Wins: metrics.wins,
+                        Losses: metrics.losses,
+                      },
+                    ]}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fill: "#94a3b8", fontSize: 10 }}
+                    />
+                    <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                    <ReTooltip
+                      contentStyle={{
+                        background: "#1e293b",
+                        border: "1px solid #334155",
+                        borderRadius: 8,
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="Wins" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="Losses"
+                      fill="#ef4444"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
 
               {/* P&L by Strategy */}
-              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
+                <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   P&L by Strategy
                 </h3>
                 {pnlByStrategy.length === 0 ? (
@@ -1048,8 +994,8 @@ export default function TradeJournalPage() {
               </div>
 
               {/* P&L by Instrument */}
-              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
+                <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   P&L by Instrument
                 </h3>
                 {pnlByTicker.length === 0 ? (
@@ -1095,8 +1041,8 @@ export default function TradeJournalPage() {
             {/* Scatter + Heatmap */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Risk/Reward Scatter */}
-              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
+                <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   Risk / Reward Scatter
                 </h3>
                 {scatterData.length === 0 ? (
@@ -1146,8 +1092,8 @@ export default function TradeJournalPage() {
               </div>
 
               {/* Monthly Heatmap */}
-              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+              <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
+                <h3 className="text-sm font-semibold text-slate-400 mb-4">
                   Monthly Performance Heatmap
                 </h3>
                 <MonthlyHeatmap trades={filteredByTime} />
@@ -1168,7 +1114,7 @@ export default function TradeJournalPage() {
                     type="date"
                     value={filterFrom}
                     onChange={(e) => setFilterFrom(e.target.value)}
-                    className="bg-white dark:bg-[#112240] border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 h-8 text-xs w-36"
+                    className="bg-[#112240] border-slate-200 dark:border-slate-700 text-slate-100 h-8 text-xs w-36"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -1177,7 +1123,7 @@ export default function TradeJournalPage() {
                     type="date"
                     value={filterTo}
                     onChange={(e) => setFilterTo(e.target.value)}
-                    className="bg-white dark:bg-[#112240] border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 h-8 text-xs w-36"
+                    className="bg-[#112240] border-slate-200 dark:border-slate-700 text-slate-100 h-8 text-xs w-36"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -1186,7 +1132,7 @@ export default function TradeJournalPage() {
                     placeholder="e.g. NIFTY"
                     value={filterTicker}
                     onChange={(e) => setFilterTicker(e.target.value)}
-                    className="bg-white dark:bg-[#112240] border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 h-8 text-xs w-28"
+                    className="bg-[#112240] border-slate-200 dark:border-slate-700 text-slate-100 h-8 text-xs w-28"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -1195,10 +1141,10 @@ export default function TradeJournalPage() {
                     value={filterStrategy}
                     onValueChange={setFilterStrategy}
                   >
-                    <SelectTrigger className="bg-white dark:bg-[#112240] border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 h-8 text-xs w-32">
+                    <SelectTrigger className="bg-[#112240] border-slate-200 dark:border-slate-700 text-slate-100 h-8 text-xs w-32">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-[#112240] border-slate-200 dark:border-slate-700">
+                    <SelectContent className="bg-[#112240] border-slate-200 dark:border-slate-700">
                       <SelectItem value="all">All</SelectItem>
                       {allStrategies.map((s) => (
                         <SelectItem key={s} value={s}>
@@ -1214,10 +1160,10 @@ export default function TradeJournalPage() {
                     value={filterOutcome}
                     onValueChange={setFilterOutcome}
                   >
-                    <SelectTrigger className="bg-white dark:bg-[#112240] border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 h-8 text-xs w-28">
+                    <SelectTrigger className="bg-[#112240] border-slate-200 dark:border-slate-700 text-slate-100 h-8 text-xs w-28">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-[#112240] border-slate-200 dark:border-slate-700">
+                    <SelectContent className="bg-[#112240] border-slate-200 dark:border-slate-700">
                       <SelectItem value="all">All</SelectItem>
                       <SelectItem value="win">Win</SelectItem>
                       <SelectItem value="loss">Loss</SelectItem>
@@ -1235,7 +1181,7 @@ export default function TradeJournalPage() {
                       placeholder="Search..."
                       value={filterSearch}
                       onChange={(e) => setFilterSearch(e.target.value)}
-                      className="bg-white dark:bg-[#112240] border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 h-8 text-xs pl-7"
+                      className="bg-[#112240] border-slate-200 dark:border-slate-700 text-slate-100 h-8 text-xs pl-7"
                     />
                   </div>
                 </div>
@@ -1309,10 +1255,10 @@ export default function TradeJournalPage() {
                             data-ocid={`trade.log.item.${idx + 1}`}
                             className="border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                           >
-                            <TableCell className="text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                            <TableCell className="text-xs text-slate-400 whitespace-nowrap">
                               {t.entryDate}
                             </TableCell>
-                            <TableCell className="text-xs font-semibold text-slate-800 dark:text-slate-100">
+                            <TableCell className="text-xs font-semibold text-slate-100">
                               {t.ticker}
                             </TableCell>
                             <TableCell>
@@ -1326,13 +1272,13 @@ export default function TradeJournalPage() {
                                 {t.positionType === "Long" ? "L" : "S"}
                               </span>
                             </TableCell>
-                            <TableCell className="text-xs text-slate-700 dark:text-slate-300 font-mono">
+                            <TableCell className="text-xs text-slate-400 font-mono">
                               {t.entryPrice}
                             </TableCell>
-                            <TableCell className="text-xs text-slate-700 dark:text-slate-300 font-mono">
+                            <TableCell className="text-xs text-slate-400 font-mono">
                               {t.isOpen ? "-" : t.exitPrice}
                             </TableCell>
-                            <TableCell className="text-xs text-slate-600 dark:text-slate-400">
+                            <TableCell className="text-xs text-slate-400">
                               {t.quantity}
                             </TableCell>
                             <TableCell>
@@ -1357,10 +1303,10 @@ export default function TradeJournalPage() {
                                 </span>
                               )}
                             </TableCell>
-                            <TableCell className="text-xs text-slate-600 dark:text-slate-400">
+                            <TableCell className="text-xs text-slate-400">
                               {rr > 0 ? `${fmtNum(rr, 1)}:1` : "-"}
                             </TableCell>
-                            <TableCell className="text-xs text-slate-600 dark:text-slate-400 max-w-24 truncate">
+                            <TableCell className="text-xs text-slate-400 max-w-24 truncate">
                               {t.strategy || "-"}
                             </TableCell>
                             <TableCell>
@@ -1392,7 +1338,7 @@ export default function TradeJournalPage() {
                                     <MoreVertical className="h-3.5 w-3.5" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="bg-white dark:bg-[#112240] border-slate-200 dark:border-slate-700">
+                                <DropdownMenuContent className="bg-[#112240] border-slate-200 dark:border-slate-700">
                                   <DropdownMenuItem
                                     data-ocid={`trade.log.edit_button.${idx + 1}`}
                                     onClick={() => openEdit(t)}
@@ -1638,13 +1584,13 @@ export default function TradeJournalPage() {
                 <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Award className="h-4 w-4 text-emerald-400" />
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="text-xs font-semibold text-slate-400">
                       Most Profitable Setup
                     </span>
                   </div>
                   {pnlByStrategy.length > 0 ? (
                     <>
-                      <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                      <div className="text-lg font-bold text-slate-100">
                         {pnlByStrategy[0].name}
                       </div>
                       <div className="text-sm text-emerald-400">
@@ -1660,13 +1606,13 @@ export default function TradeJournalPage() {
                 <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="h-4 w-4 text-blue-400" />
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="text-xs font-semibold text-slate-400">
                       Most Profitable Instrument
                     </span>
                   </div>
                   {pnlByTicker.length > 0 ? (
                     <>
-                      <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                      <div className="text-lg font-bold text-slate-100">
                         {pnlByTicker[0].name}
                       </div>
                       <div className="text-sm text-emerald-400">
@@ -1682,7 +1628,7 @@ export default function TradeJournalPage() {
                 <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="h-4 w-4 text-amber-400" />
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="text-xs font-semibold text-slate-400">
                       Best Day of Week
                     </span>
                   </div>
@@ -1692,7 +1638,7 @@ export default function TradeJournalPage() {
                       .sort((a, b) => b.winRate - a.winRate)[0];
                     return best ? (
                       <>
-                        <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                        <div className="text-lg font-bold text-slate-100">
                           {best.day}
                         </div>
                         <div className="text-sm text-emerald-400">
@@ -1709,7 +1655,7 @@ export default function TradeJournalPage() {
                 <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-red-400" />
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="text-xs font-semibold text-slate-400">
                       Common Losing Patterns
                     </span>
                   </div>
@@ -1728,9 +1674,7 @@ export default function TradeJournalPage() {
                       <div className="space-y-1">
                         {top3.map(([s, cnt]) => (
                           <div key={s} className="flex justify-between text-xs">
-                            <span className="text-slate-800 dark:text-slate-100 truncate">
-                              {s}
-                            </span>
+                            <span className="text-slate-100 truncate">{s}</span>
                             <span className="text-red-400 ml-2">
                               {cnt} losses
                             </span>
@@ -1747,7 +1691,7 @@ export default function TradeJournalPage() {
                 <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-4 md:col-span-2">
                   <div className="flex items-center gap-2 mb-3">
                     <Activity className="h-4 w-4 text-purple-400" />
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="text-xs font-semibold text-slate-400">
                       Session Performance
                     </span>
                   </div>
@@ -2049,7 +1993,7 @@ export default function TradeJournalPage() {
                   <SelectTrigger className="bg-[#112240] border-slate-200 dark:border-slate-700 text-slate-100 mt-1">
                     <SelectValue placeholder="Select strategy" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-[#112240] border-slate-200 dark:border-slate-700">
+                  <SelectContent className="bg-[#112240] border-slate-200 dark:border-slate-700">
                     {[
                       "Trend Following",
                       "Momentum",
@@ -2088,7 +2032,7 @@ export default function TradeJournalPage() {
                   <SelectTrigger className="bg-[#112240] border-slate-200 dark:border-slate-700 text-slate-100 mt-1">
                     <SelectValue placeholder="Select condition" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-[#112240] border-slate-200 dark:border-slate-700">
+                  <SelectContent className="bg-[#112240] border-slate-200 dark:border-slate-700">
                     {[
                       "Bullish Trend",
                       "Bearish Trend",
@@ -2125,7 +2069,7 @@ export default function TradeJournalPage() {
                   <SelectTrigger className="bg-[#112240] border-slate-200 dark:border-slate-700 text-slate-100 mt-1">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-[#112240] border-slate-200 dark:border-slate-700">
+                  <SelectContent className="bg-[#112240] border-slate-200 dark:border-slate-700">
                     {EMOTION_OPTIONS.map((e) => (
                       <SelectItem key={e} value={e}>
                         {e}
@@ -2247,26 +2191,10 @@ export default function TradeJournalPage() {
 // ─── Monthly Heatmap ──────────────────────────────────────────────────────────
 function MonthlyHeatmap({ trades }: { trades: TradeEntry[] }) {
   const now = new Date();
-  const [navYear, setNavYear] = useState(now.getFullYear());
-  const [navMonth, setNavMonth] = useState(now.getMonth());
-  const year = navYear;
-  const month = navMonth;
+  const year = now.getFullYear();
+  const month = now.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
-
-  const goPrev = () => {
-    if (month === 0) {
-      setNavYear((y) => y - 1);
-      setNavMonth(11);
-    } else setNavMonth((m) => m - 1);
-  };
-  const goNext = () => {
-    if (month === 11) {
-      setNavYear((y) => y + 1);
-      setNavMonth(0);
-    } else setNavMonth((m) => m + 1);
-  };
-  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
 
   const dayPnL: Record<number, number> = {};
   for (const t of trades.filter((t) => !t.isOpen && t.entryDate)) {
@@ -2294,71 +2222,9 @@ function MonthlyHeatmap({ trades }: { trades: TradeEntry[] }) {
   }
 
   const dayLabels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-  const MONTH_NAMES = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <button
-          type="button"
-          onClick={goPrev}
-          className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 4L6 8L10 12"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-          {MONTH_NAMES[month]} {year}
-        </span>
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={isCurrentMonth}
-          className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M6 4L10 8L6 12"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
       <div className="grid grid-cols-7 gap-1 mb-1">
         {dayLabels.map((d) => (
           <div key={d} className="text-center text-xs text-slate-400">

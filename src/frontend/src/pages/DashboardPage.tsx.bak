@@ -753,8 +753,8 @@ export default function DashboardPage() {
         </Card>
       </section>
 
-      {/* ── Section 2: Allocation + Net Worth + Risk-o-meter ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* ── Section 2: Allocation + Categories ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card
           data-ocid="dashboard.allocation.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -932,24 +932,6 @@ export default function DashboardPage() {
                 </Line>
               </LineChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Risk-o-meter */}
-        <Card
-          data-ocid="dashboard.riskometer.card"
-          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-        >
-          <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-semibold text-slate-700">
-              Portfolio Risk-o-meter
-            </CardTitle>
-            <p className="text-xs text-slate-400">
-              Based on Equity, Mutual Funds &amp; Crypto allocation
-            </p>
-          </CardHeader>
-          <CardContent className="px-5 pb-4">
-            <RiskOMeter score={portfolioRiskScore} />
           </CardContent>
         </Card>
       </div>
@@ -1408,6 +1390,75 @@ export default function DashboardPage() {
                   </div>
                 );
               })()}
+            </CardContent>
+          </Card>
+          {/* Risk-o-meter */}
+          <Card
+            data-ocid="dashboard.riskometer.card"
+            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+          >
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700">
+                Portfolio Risk-o-meter
+              </CardTitle>
+              <p className="text-xs text-slate-400">
+                Based on Equity, Mutual Funds & Crypto allocation
+              </p>
+            </CardHeader>
+            <CardContent className="px-5 pb-4">
+              <RiskOMeter score={portfolioRiskScore} />
+              <div className="mt-3 space-y-1">
+                {ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => {
+                  const allocPct =
+                    totalNAV > 0 ? ((byType[t] ?? 0) / totalNAV) * 100 : 0;
+                  const isHighVol =
+                    t === "ETF" || t === "MutualFund" || t === "Crypto";
+                  const barColor = isHighVol
+                    ? allocPct <= 8
+                      ? "#08A04B"
+                      : allocPct <= 16
+                        ? "#7FFF00"
+                        : allocPct <= 25
+                          ? "#FFFF33"
+                          : allocPct <= 35
+                            ? "#C68E17"
+                            : allocPct <= 50
+                              ? "#FF8C00"
+                              : "#F70D1A"
+                    : "#08A04B";
+                  return (
+                    <div
+                      key={t}
+                      className="flex items-center justify-between text-xs"
+                    >
+                      <span
+                        className={`${isHighVol ? "font-semibold text-slate-700" : "text-slate-400"}`}
+                      >
+                        {ASSET_CONFIG[t].shortLabel}
+                        {isHighVol && (
+                          <span className="ml-1 text-[9px] text-orange-500">
+                            ●
+                          </span>
+                        )}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-1.5 w-16 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.min(allocPct, 100)}%`,
+                              backgroundColor: barColor,
+                            }}
+                          />
+                        </div>
+                        <span className="text-slate-500 w-8 text-right font-medium">
+                          {allocPct.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
         </div>

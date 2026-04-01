@@ -49,15 +49,11 @@ import { AddGoalDialog } from "./dialogs/AddGoalDialog";
 interface GoalsTabProps {
   externalAddOpen?: boolean;
   onExternalAddOpenChange?: (open: boolean) => void;
-  viewMode?: "table" | "card";
-  onViewModeChange?: (mode: "table" | "card") => void;
 }
 
 export function GoalsTab({
   externalAddOpen,
   onExternalAddOpenChange,
-  viewMode,
-  onViewModeChange,
 }: GoalsTabProps = {}) {
   const { data: goals = [], isLoading, isError } = useGetAllGoals();
   const [_internalAddOpen, _setInternalAddOpen] = useState(false);
@@ -237,9 +233,12 @@ export function GoalsTab({
 
   return (
     <div className="space-y-4">
-      {/* Goals Content - no outer card wrapper */}
-      <div data-ocid="goals.main.card" className="space-y-4">
-        <div>
+      {/* Main Goals Card */}
+      <Card
+        data-ocid="goals.main.card"
+        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+      >
+        <CardContent className="px-5 pb-5 pt-4">
           {goals.length === 0 ? (
             <div className="text-center py-12" data-ocid="goals.empty_state">
               <div className="w-16 h-16 rounded-2xl bg-green-50 flex items-center justify-center mx-auto mb-4">
@@ -317,16 +316,11 @@ export function GoalsTab({
                 </div>
               </div>
 
-              <GoalList
-                goals={goals}
-                allInvestments={allInvestments}
-                viewMode={viewMode}
-                onViewModeChange={onViewModeChange}
-              />
+              <GoalList goals={goals} allInvestments={allInvestments} />
             </>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Analytics Section */}
       {goals.length > 0 && (

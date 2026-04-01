@@ -678,8 +678,7 @@ export default function LoansPage() {
                   principalPaid + interestPaid > 0
                     ? (interestPaid / (principalPaid + interestPaid)) * 100
                     : 50;
-                const _pPct = 100 - totalInterest;
-                void _pPct;
+                const pPct = 100 - totalInterest;
                 return (
                   <Card
                     key={loan.id}
@@ -789,6 +788,32 @@ export default function LoansPage() {
                           <span>{progress.toFixed(0)}%</span>
                         </div>
                         <Progress value={progress} className="h-1.5 bg-muted" />
+                      </div>
+                      {/* Principal vs Interest split */}
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1.5">
+                          Principal vs Interest Paid
+                        </p>
+                        <div className="flex h-3 rounded-full overflow-hidden">
+                          <div
+                            className="bg-emerald-500 transition-all"
+                            style={{ width: `${pPct}%` }}
+                          />
+                          <div
+                            className="bg-red-400 transition-all"
+                            style={{ width: `${totalInterest}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                          <span>
+                            🟢 Principal {pPct.toFixed(0)}% (
+                            {fmt(principalPaid)})
+                          </span>
+                          <span>
+                            🔴 Interest {totalInterest.toFixed(0)}% (
+                            {fmt(interestPaid)})
+                          </span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

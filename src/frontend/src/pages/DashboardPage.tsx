@@ -56,14 +56,16 @@ import {
 } from "../hooks/useGoals";
 
 const SLICE_COLORS = [
-  "#60a5fa",
-  "#34d399",
-  "#a78bfa",
-  "#f87171",
-  "#fbbf24",
-  "#fb923c",
-  "#22d3ee",
-  "#94a3b8",
+  "#2563eb",
+  "#0891b2",
+  "#059669",
+  "#7c3aed",
+  "#d97706",
+  "#dc2626",
+  "#0d9488",
+  "#9333ea",
+  "#e11d48",
+  "#ca8a04",
 ];
 
 // ─── Asset Config ────────────────────────────────────────────────────────────
@@ -282,67 +284,38 @@ function GoalsProgressList({
   );
 }
 
-function CustomDot(props: {
-  cx?: number;
-  cy?: number;
-  payload?: { label: string; color: string };
-}) {
-  const { cx = 0, cy = 0, payload } = props;
-  if (!payload) return null;
-  return (
-    <g>
-      <circle
-        cx={cx}
-        cy={cy}
-        r={7}
-        fill={payload.color}
-        stroke="#fff"
-        strokeWidth={2}
-      />
-      <text
-        x={cx}
-        y={cy - 12}
-        textAnchor="middle"
-        fontSize={10}
-        fill="#374151"
-        fontWeight={500}
-      >
-        {payload.label}
-      </text>
-    </g>
-  );
-}
-
 // ─── Risk-o-Meter Component ───────────────────────────────────────────────────
 function RiskOMeter({ score }: { score: number }) {
   const LEVELS = [
     { label: "Low Risk", color: "#08A04B", max: 25 },
-    { label: "Low to Moderate", color: "#7FFF00", max: 35 },
+    { label: "Low-Moderate", color: "#7FFF00", max: 35 },
     { label: "Moderate", color: "#FFFF33", max: 45 },
-    { label: "Moderately High", color: "#C68E17", max: 60 },
+    { label: "Mod. High", color: "#C68E17", max: 60 },
     { label: "High Risk", color: "#FF8C00", max: 75 },
-    { label: "Very High Risk", color: "#F70D1A", max: 100 },
+    { label: "Very High", color: "#F70D1A", max: 100 },
   ];
 
   const currentLevel = LEVELS.find((l) => score <= l.max) ?? LEVELS[5];
-  const clampedScore = Math.min(score, 100);
-  const needleRotateDeg = -180 + (clampedScore / 100) * 180;
+  const clampedScore = Math.min(Math.max(score, 0), 100);
+
+  const W = 320;
+  const H = 200;
+  const cx = 160;
+  const cy = 175;
+  const outerR = 130;
+  const innerR = 88;
 
   function polarToCartesian(
-    cx: number,
-    cy: number,
+    px: number,
+    py: number,
     r: number,
     angleDeg: number,
   ) {
     const rad = (angleDeg * Math.PI) / 180;
-    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+    return { x: px + r * Math.cos(rad), y: py + r * Math.sin(rad) };
   }
 
   const segmentDeg = 30;
-  const cx = 100;
-  const cy = 100;
-  const outerR = 88;
-  const innerR = 58;
 
   const segments = LEVELS.map((level, i) => {
     const startDeg = 180 - i * segmentDeg;
@@ -352,65 +325,112 @@ function RiskOMeter({ score }: { score: number }) {
     const innerStart = polarToCartesian(cx, cy, innerR, startDeg);
     const innerEnd = polarToCartesian(cx, cy, innerR, endDeg);
     const d = `M ${outerStart.x} ${outerStart.y} A ${outerR} ${outerR} 0 0 0 ${outerEnd.x} ${outerEnd.y} L ${innerEnd.x} ${innerEnd.y} A ${innerR} ${innerR} 0 0 1 ${innerStart.x} ${innerStart.y} Z`;
+    const isActive = level.label === currentLevel.label;
     return (
       <path
         key={level.label}
         d={d}
         fill={level.color}
         stroke="white"
-        strokeWidth="1.5"
+        strokeWidth={isActive ? "3" : "1.5"}
+        opacity={isActive ? 1 : 0.85}
       />
     );
   });
 
+  const segLabels = LEVELS.map((level, i) => {
+    const midDeg = 180 - (i + 0.5) * segmentDeg;
+    const labelR = (outerR + innerR) / 2;
+    const pos = polarToCartesian(cx, cy, labelR, midDeg);
+    const textColor = ["#7FFF00", "#FFFF33"].includes(level.color)
+      ? "#374151"
+      : "white";
+    const words = level.label.split(" ");
+    return (
+      <text
+        key={`lbl-${level.label}`}
+        x={pos.x}
+        y={pos.y}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontSize="7.5"
+        fontWeight="700"
+        fill={textColor}
+        style={{ pointerEvents: "none" }}
+      >
+        {words.map((word, wi) => (
+          <tspan
+            key={`${level.label}-${word}-${wi}`}
+            x={pos.x}
+            dy={wi === 0 ? `-${(words.length - 1) * 4.5}` : "9"}
+          >
+            {word}
+          </tspan>
+        ))}
+      </text>
+    );
+  });
+
+  const needleAngleDeg = 180 - (clampedScore / 100) * 180;
+  const needleTipR = innerR - 6;
+  const needleBaseW = 7;
+  const needleTip = polarToCartesian(cx, cy, needleTipR, needleAngleDeg);
+  const needleBase1 = polarToCartesian(
+    cx,
+    cy,
+    needleBaseW,
+    needleAngleDeg + 90,
+  );
+  const needleBase2 = polarToCartesian(
+    cx,
+    cy,
+    needleBaseW,
+    needleAngleDeg - 90,
+  );
+
+  const textColor = ["#7FFF00", "#FFFF33"].includes(currentLevel.color)
+    ? "#374151"
+    : currentLevel.color;
+
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full">
       <svg
-        viewBox="0 0 200 110"
-        className="w-full max-w-[220px]"
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full max-w-[300px]"
         role="img"
-        aria-label="Portfolio Risk-o-meter gauge"
+        aria-label="Portfolio Risk-o-meter"
       >
         {segments}
-        <g transform={`rotate(${needleRotateDeg}, ${cx}, ${cy})`}>
-          <line
-            x1={cx}
-            y1={cy}
-            x2={cx - 72}
-            y2={cy}
-            stroke="#1e293b"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-        </g>
-        <circle cx={cx} cy={cy} r="6" fill="#1e293b" />
-        <circle cx={cx} cy={cy} r="3" fill="white" />
+        {segLabels}
+        <polygon
+          points={`${needleTip.x},${needleTip.y} ${needleBase1.x},${needleBase1.y} ${needleBase2.x},${needleBase2.y}`}
+          fill="#1e293b"
+          stroke="white"
+          strokeWidth="1"
+        />
+        <circle
+          cx={cx}
+          cy={cy}
+          r="10"
+          fill="#1e293b"
+          stroke="white"
+          strokeWidth="2"
+        />
+        <circle cx={cx} cy={cy} r="4" fill="white" />
         <text
           x={cx}
-          y={cy - 10}
+          y={cy - 48}
           textAnchor="middle"
-          fontSize="10"
-          fontWeight="bold"
-          fill="#1e293b"
+          fontSize="13"
+          fontWeight="800"
+          fill={textColor}
         >
-          {score.toFixed(1)}%
+          {score.toFixed(0)}%
         </text>
       </svg>
-      <div className="text-center mt-1">
-        <span
-          className="text-sm font-bold px-3 py-1 rounded-full"
-          style={{
-            backgroundColor: currentLevel.color,
-            color: score <= 35 ? "#1e293b" : "#fff",
-          }}
-        >
-          {currentLevel.label}
-        </span>
-      </div>
-      <div className="flex justify-between w-full max-w-[220px] mt-2 px-1">
-        <span className="text-[9px] text-slate-400">Low</span>
-        <span className="text-[9px] text-slate-400">Very High</span>
-      </div>
+      <p className="text-xs font-semibold mt-1" style={{ color: textColor }}>
+        Risk Level: {currentLevel.label}
+      </p>
     </div>
   );
 }
@@ -571,7 +591,7 @@ export default function DashboardPage() {
     });
   }, [transactions, budgetCats]);
 
-  const riskReturn = useMemo(
+  const _riskReturn = useMemo(
     () =>
       ASSET_TYPES.filter((t) => (byType[t] ?? 0) > 0).map((t) => ({
         x: RISK_RETURN[t].risk,
@@ -631,7 +651,7 @@ export default function DashboardPage() {
     });
   }, [transactions]);
 
-  const expenseByCategory = useMemo(() => {
+  const _expenseByCategory = useMemo(() => {
     const catTotals: Record<string, number> = {};
     for (const t of transactions) {
       if (getKey(t.transactionType) === "Expense" && t.categoryId) {
@@ -654,7 +674,7 @@ export default function DashboardPage() {
     }));
   }, [transactions, budgetCats]);
 
-  const savingsRate = useMemo(
+  const _savingsRate = useMemo(
     () =>
       incomeExpenseTrend.slice(-6).map((d) => ({
         month: d.month,
@@ -844,6 +864,23 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Risk-o-meter */}
+        <Card
+          data-ocid="dashboard.riskometer.card"
+          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+        >
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700">
+              Portfolio Risk-o-meter
+            </CardTitle>
+            <p className="text-xs text-slate-400">
+              Based on Equity, Mutual Funds &amp; Crypto allocation
+            </p>
+          </CardHeader>
+          <CardContent className="px-5 pb-4">
+            <RiskOMeter score={portfolioRiskScore} />
+          </CardContent>
+        </Card>
         <Card
           data-ocid="dashboard.networth.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -934,27 +971,646 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Risk-o-meter */}
+      {/* ── Assets vs Liabilities + DTI + Cash Flow ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Liability vs Asset */}
         <Card
-          data-ocid="dashboard.riskometer.card"
+          data-ocid="dashboard.liabilityasset.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
         >
           <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-semibold text-slate-700">
-              Portfolio Risk-o-meter
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              Assets vs Liabilities
             </CardTitle>
-            <p className="text-xs text-slate-400">
-              Based on Equity, Mutual Funds &amp; Crypto allocation
-            </p>
+            <CardDescription className="text-xs text-slate-400">
+              Total portfolio value vs outstanding loans
+            </CardDescription>
           </CardHeader>
-          <CardContent className="px-5 pb-4">
-            <RiskOMeter score={portfolioRiskScore} />
+          <CardContent className="px-5 pb-5">
+            {(() => {
+              const totalLiabilities = loans.reduce(
+                (s, l) => s + l.currentBalance,
+                0,
+              );
+              const pieData = [
+                { name: "Assets", value: totalNAV, color: "#10b981" },
+                {
+                  name: "Liabilities",
+                  value: totalLiabilities,
+                  color: "#f43f5e",
+                },
+              ].filter((d) => d.value > 0);
+              if (pieData.length === 0) {
+                return (
+                  <div className="h-[180px] flex flex-col items-center justify-center gap-2">
+                    <span className="text-3xl">📊</span>
+                    <p className="text-sm text-slate-400">
+                      No portfolio data yet
+                    </p>
+                  </div>
+                );
+              }
+              return (
+                <div className="flex items-center gap-4">
+                  <ResponsiveContainer width="50%" height={180}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={75}
+                        dataKey="value"
+                        labelLine={false}
+                        label={({
+                          cx: pcx,
+                          cy: pcy,
+                          midAngle,
+                          innerRadius: ir,
+                          outerRadius: or,
+                          percent,
+                        }: {
+                          cx: number;
+                          cy: number;
+                          midAngle: number;
+                          innerRadius: number;
+                          outerRadius: number;
+                          percent: number;
+                        }) => {
+                          if (percent < 0.05) return null;
+                          const RADIAN = Math.PI / 180;
+                          const radius = ir + (or - ir) * 0.5;
+                          const lx =
+                            pcx + radius * Math.cos(-midAngle * RADIAN);
+                          const ly =
+                            pcy + radius * Math.sin(-midAngle * RADIAN);
+                          return (
+                            <text
+                              x={lx}
+                              y={ly}
+                              fill="#fff"
+                              textAnchor="middle"
+                              dominantBaseline="central"
+                              fontSize={11}
+                              fontWeight={700}
+                            >
+                              {`${(percent * 100).toFixed(1)}%`}
+                            </text>
+                          );
+                        }}
+                      >
+                        {pieData.map((entry) => (
+                          <Cell
+                            key={entry.name}
+                            fill={entry.color}
+                            stroke="#fff"
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(v: number, name: string) => [
+                          formatCurrency(v),
+                          name,
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="flex-1 space-y-3">
+                    {pieData.map((d) => (
+                      <div key={d.name}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                            style={{ background: d.color }}
+                          />
+                          <span className="text-xs text-slate-500">
+                            {d.name}
+                          </span>
+                        </div>
+                        <p className="text-sm font-bold text-slate-800 ml-4">
+                          {formatCurrency(d.value)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+
+        {/* Debt-to-Income Ratio */}
+        <Card
+          data-ocid="dashboard.dti.card"
+          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+        >
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              Debt-to-Income Ratio
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-400">
+              Monthly loan EMIs ÷ monthly income (industry standard: under 36%)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-5 pb-5 space-y-4">
+            {(() => {
+              const monthlyEMI = loans.reduce(
+                (s, l) => s + l.monthlyPayment,
+                0,
+              );
+              const monthlyIncome =
+                incomeExpenseTrend.length > 0
+                  ? incomeExpenseTrend
+                      .slice(-3)
+                      .reduce((s, d) => s + d.Income, 0) / 3
+                  : 0;
+              const dti =
+                monthlyIncome > 0
+                  ? Math.min(100, (monthlyEMI / monthlyIncome) * 100)
+                  : 0;
+              const color =
+                dti < 30 ? "#10b981" : dti < 50 ? "#f59e0b" : "#ef4444";
+              const label =
+                dti < 30 ? "Healthy" : dti < 50 ? "Moderate" : "High Risk";
+              return (
+                <div className="space-y-5">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-3xl font-extrabold" style={{ color }}>
+                        {dti.toFixed(1)}%
+                      </p>
+                      <p
+                        className="text-xs font-semibold mt-0.5"
+                        style={{ color }}
+                      >
+                        {label}
+                      </p>
+                    </div>
+                    <div className="text-right text-xs text-slate-400 space-y-1">
+                      <p>
+                        Monthly EMI:{" "}
+                        <span className="font-semibold text-slate-700">
+                          {formatCurrency(monthlyEMI)}
+                        </span>
+                      </p>
+                      <p>
+                        Avg Income:{" "}
+                        <span className="font-semibold text-slate-700">
+                          {formatCurrency(monthlyIncome)}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="relative h-3 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: `${Math.min(100, dti)}%`,
+                        background: color,
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-slate-400">
+                    <span>0%</span>
+                    <span className="text-emerald-500 font-medium">
+                      Good &lt;30%
+                    </span>
+                    <span className="text-amber-500 font-medium">
+                      36% threshold
+                    </span>
+                    <span className="text-red-500 font-medium">
+                      High &gt;50%
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+
+        {/* Cash Flow Summary */}
+        <Card
+          data-ocid="dashboard.cashflow.card"
+          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+        >
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              Cash Flow Summary
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-400">
+              Monthly income vs expenses (6 months)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-5 pb-5">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={incomeExpenseTrend.slice(-6)}
+                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  opacity={0.15}
+                  vertical={false}
+                />
+                <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v: number) => shortNum(v, sym, country.code)}
+                  width={52}
+                />
+                <Tooltip
+                  formatter={(v: number, name: string) => [
+                    formatCurrency(v),
+                    name,
+                  ]}
+                  contentStyle={{
+                    fontSize: "11px",
+                    borderRadius: "10px",
+                    border: "1px solid #e2e8f0",
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: "12px" }} />
+                <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]}>
+                  <LabelList
+                    dataKey="Income"
+                    position="top"
+                    style={{ fontSize: "9px", fill: "#10b981" }}
+                    formatter={(v: number) => shortNum(v, sym, country.code)}
+                  />
+                </Bar>
+                <Bar dataKey="Expense" fill="#f43f5e" radius={[4, 4, 0, 0]}>
+                  <LabelList
+                    dataKey="Expense"
+                    position="top"
+                    style={{ fontSize: "9px", fill: "#f43f5e" }}
+                    formatter={(v: number) => shortNum(v, sym, country.code)}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      {/* ── Section 3+4: Goals Progress + Budget 6M in one row ── */}
+      {/* ── Income vs Expense Trend ── */}
+      <Card
+        data-ocid="dashboard.incomevexpense.card"
+        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+      >
+        <CardHeader className="pb-2 pt-4 px-5">
+          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+            Income vs Expense Trend
+          </CardTitle>
+          <CardDescription className="text-xs text-slate-400">
+            12-month view showing income, expenses &amp; savings
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          {incomeExpenseTrend.every(
+            (d) => d.Income === 0 && d.Expense === 0,
+          ) ? (
+            <div className="h-64 flex flex-col items-center justify-center gap-2">
+              <span className="text-3xl">📊</span>
+              <p className="text-sm text-slate-400">No transaction data yet</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <AreaChart
+                data={incomeExpenseTrend}
+                margin={{ top: 5, right: 10, left: 10, bottom: 30 }}
+              >
+                <defs>
+                  <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 9 }}
+                  angle={-20}
+                  textAnchor="end"
+                  height={45}
+                />
+                <YAxis
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v: number) => shortNum(v, sym, country.code)}
+                />
+                <Tooltip
+                  formatter={(v: number, name: string) => [
+                    formatCurrency(v),
+                    name,
+                  ]}
+                  contentStyle={{
+                    fontSize: "11px",
+                    borderRadius: "10px",
+                    border: "1px solid #e2e8f0",
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: "11px" }} />
+                <Area
+                  type="monotone"
+                  dataKey="Income"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  fill="url(#colorIncome)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="Expense"
+                  stroke="#ef4444"
+                  strokeWidth={2}
+                  fill="url(#colorExpense)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Investment Categories (horizontal bar) ── */}
+      <div className="grid grid-cols-1 gap-4">
+        {/* Investment Categories - Horizontal Bar */}
+        <Card
+          data-ocid="dashboard.categories.card"
+          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+        >
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              Investment Categories
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-400">
+              Current value by asset category
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-5 pb-5">
+            {categoryBar.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center gap-2 text-slate-300">
+                <span className="text-3xl">📈</span>
+                <p className="text-sm text-slate-400">No portfolio data yet</p>
+              </div>
+            ) : (
+              <ResponsiveContainer
+                width="100%"
+                height={Math.max(120, categoryBar.length * 44)}
+              >
+                <BarChart
+                  data={[...categoryBar].sort((a, b) => b.value - a.value)}
+                  layout="vertical"
+                  margin={{ top: 5, right: 80, left: 8, bottom: 5 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    opacity={0.15}
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(v: number) =>
+                      shortNum(v, sym, country.code)
+                    }
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 11 }}
+                    width={60}
+                  />
+                  <Tooltip
+                    formatter={(v: number) => [formatCurrency(v), "Value"]}
+                    contentStyle={{
+                      fontSize: "11px",
+                      borderRadius: "10px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                    }}
+                  />
+                  <Bar dataKey="value" radius={[0, 5, 5, 0]}>
+                    {[...categoryBar]
+                      .sort((a, b) => b.value - a.value)
+                      .map((entry) => (
+                        <Cell key={entry.name} fill={entry.color} />
+                      ))}
+                    <LabelList
+                      dataKey="value"
+                      position="right"
+                      formatter={(v: number) => shortNum(v, sym, country.code)}
+                      style={{
+                        fontSize: "10px",
+                        fill: "#64748b",
+                        fontWeight: 600,
+                      }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+      <Card
+        data-ocid="dashboard.budgetrule.card"
+        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+      >
+        <CardHeader className="pb-2 pt-4 px-5">
+          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+            50/30/20 Budget Rule Analysis
+          </CardTitle>
+          <CardDescription className="text-xs text-slate-400">
+            Current month: Needs vs Wants vs Savings vs ideal allocation
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          {(() => {
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            const currentMonthExpenses = transactions.filter((tx) => {
+              const d = new Date(Number(tx.date));
+              return (
+                d.getMonth() === currentMonth &&
+                d.getFullYear() === currentYear &&
+                getKey(tx.transactionType) === "Expense"
+              );
+            });
+            const currentMonthInc =
+              transactions
+                .filter((tx) => {
+                  const d = new Date(Number(tx.date));
+                  return (
+                    d.getMonth() === currentMonth &&
+                    d.getFullYear() === currentYear &&
+                    getKey(tx.transactionType) === "Income"
+                  );
+                })
+                .reduce((s, t) => s + t.amount, 0) || 1;
+            const catTypeMap: Record<string, string> = {};
+            for (const bc of budgetCats) {
+              catTypeMap[bc.id] =
+                (bc as { budgetType?: string }).budgetType ?? "Needs";
+            }
+            const needsTotal = currentMonthExpenses
+              .filter(
+                (t) =>
+                  (catTypeMap[
+                    (t as { categoryId?: string }).categoryId ?? ""
+                  ] ?? "Needs") === "Needs",
+              )
+              .reduce((s, t) => s + t.amount, 0);
+            const wantsTotal = currentMonthExpenses
+              .filter(
+                (t) =>
+                  (catTypeMap[
+                    (t as { categoryId?: string }).categoryId ?? ""
+                  ] ?? "Needs") === "Wants",
+              )
+              .reduce((s, t) => s + t.amount, 0);
+            const savingsTotal = currentMonthExpenses
+              .filter(
+                (t) =>
+                  (catTypeMap[
+                    (t as { categoryId?: string }).categoryId ?? ""
+                  ] ?? "Needs") === "Savings",
+              )
+              .reduce((s, t) => s + t.amount, 0);
+            const rule5030Data = [
+              {
+                name: "Needs",
+                actual: Number(
+                  ((needsTotal / currentMonthInc) * 100).toFixed(1),
+                ),
+                ideal: 50,
+                color: "#3b82f6",
+              },
+              {
+                name: "Wants",
+                actual: Number(
+                  ((wantsTotal / currentMonthInc) * 100).toFixed(1),
+                ),
+                ideal: 30,
+                color: "#f59e0b",
+              },
+              {
+                name: "Savings",
+                actual: Number(
+                  ((savingsTotal / currentMonthInc) * 100).toFixed(1),
+                ),
+                ideal: 20,
+                color: "#10b981",
+              },
+            ];
+            if (currentMonthExpenses.length === 0) {
+              return (
+                <div className="h-48 flex flex-col items-center justify-center gap-2">
+                  <span className="text-3xl">💰</span>
+                  <p className="text-sm text-slate-400">
+                    No transactions for current month
+                  </p>
+                </div>
+              );
+            }
+            return (
+              <div className="space-y-4">
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart
+                    data={rule5030Data}
+                    layout="vertical"
+                    margin={{ top: 5, right: 60, left: 60, bottom: 5 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      opacity={0.15}
+                      horizontal={false}
+                    />
+                    <XAxis
+                      type="number"
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v: number) => `${v}%`}
+                      domain={[0, 60]}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      tick={{ fontSize: 11 }}
+                      width={55}
+                    />
+                    <Tooltip
+                      formatter={(v: number, name: string) => [`${v}%`, name]}
+                      contentStyle={{
+                        fontSize: "11px",
+                        borderRadius: "10px",
+                        border: "1px solid #e2e8f0",
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: "11px" }} />
+                    <Bar dataKey="actual" name="Actual %" radius={[0, 4, 4, 0]}>
+                      {rule5030Data.map((entry) => (
+                        <Cell key={entry.name} fill={entry.color} />
+                      ))}
+                      <LabelList
+                        dataKey="actual"
+                        position="right"
+                        formatter={(v: number) => `${v}%`}
+                        style={{
+                          fontSize: "10px",
+                          fill: "#64748b",
+                          fontWeight: 600,
+                        }}
+                      />
+                    </Bar>
+                    <Bar
+                      dataKey="ideal"
+                      name="Ideal %"
+                      fill="#e2e8f0"
+                      radius={[0, 4, 4, 0]}
+                    >
+                      <LabelList
+                        dataKey="ideal"
+                        position="right"
+                        formatter={(v: number) => `${v}%`}
+                        style={{ fontSize: "10px", fill: "#94a3b8" }}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+                <div className="flex flex-wrap gap-3 justify-center text-xs text-slate-500">
+                  {rule5030Data.map((d) => (
+                    <div key={d.name} className="flex items-center gap-1.5">
+                      <div
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ background: d.color }}
+                      />
+                      <span>
+                        {d.name}:{" "}
+                        <span
+                          className="font-semibold"
+                          style={{ color: d.color }}
+                        >
+                          {d.actual}%
+                        </span>{" "}
+                        (ideal {d.ideal}%)
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+        </CardContent>
+      </Card>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card
           data-ocid="dashboard.goals.card"
@@ -1052,780 +1708,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      {/* end goals+budget grid */}
-
-      {/* ── Financial Health Overview ── */}
-      <div>
-        <h3 className="text-sm font-semibold text-slate-600 mb-3 uppercase tracking-wide">
-          Financial Health Overview
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Investment Categories */}
-          <Card
-            data-ocid="dashboard.categories.card"
-            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-          >
-            <CardHeader className="pb-2 pt-4 px-5">
-              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                Investment Categories
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-400">
-                Current value by asset category
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {categoryBar.length === 0 ? (
-                <div className="h-64 flex flex-col items-center justify-center gap-2 text-slate-300">
-                  <span className="text-3xl">📈</span>
-                  <p className="text-sm text-slate-400">
-                    No portfolio data yet
-                  </p>
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart
-                    data={categoryBar}
-                    margin={{ top: 5, right: 10, left: 10, bottom: 40 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis
-                      dataKey="name"
-                      tick={{ fontSize: 10 }}
-                      angle={-20}
-                      textAnchor="end"
-                      height={50}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 10 }}
-                      tickFormatter={(v: number) =>
-                        shortNum(v, sym, country.code)
-                      }
-                    />
-                    <Tooltip
-                      formatter={(v: number) => [formatCurrency(v), "Value"]}
-                      contentStyle={{
-                        fontSize: "11px",
-                        borderRadius: "10px",
-                        border: "1px solid #e2e8f0",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                      }}
-                    />
-                    <Bar dataKey="value" radius={[5, 5, 0, 0]}>
-                      {categoryBar.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
-                      ))}
-                      <LabelList
-                        dataKey="value"
-                        position="top"
-                        content={({
-                          x,
-                          y,
-                          width,
-                          value,
-                        }: {
-                          x?: number | string;
-                          y?: number | string;
-                          width?: number | string;
-                          value?: number | string;
-                        }) => {
-                          const numVal = typeof value === "number" ? value : 0;
-                          const numX = typeof x === "number" ? x : 0;
-                          const numY = typeof y === "number" ? y : 0;
-                          const numW = typeof width === "number" ? width : 0;
-                          if (numVal === 0) return null;
-                          return (
-                            <text
-                              x={numX + numW / 2}
-                              y={numY - 4}
-                              fill="#64748b"
-                              textAnchor="middle"
-                              fontSize={9}
-                              fontWeight={600}
-                            >
-                              {formatCurrency(numVal)}
-                            </text>
-                          );
-                        }}
-                      />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Cash Flow Summary */}
-          <Card
-            data-ocid="dashboard.cashflow.card"
-            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-          >
-            <CardHeader className="pb-2 pt-4 px-5">
-              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                Cash Flow Summary
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-400">
-                Monthly income vs expenses (6 months)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart
-                  data={incomeExpenseTrend.slice(-6)}
-                  margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    opacity={0.15}
-                    vertical={false}
-                  />
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                  <YAxis
-                    tick={{ fontSize: 10 }}
-                    tickFormatter={(v: number) =>
-                      shortNum(v, sym, country.code)
-                    }
-                    width={52}
-                  />
-                  <Tooltip
-                    formatter={(v: number, name: string) => [
-                      formatCurrency(v),
-                      name,
-                    ]}
-                    contentStyle={{
-                      fontSize: "11px",
-                      borderRadius: "10px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: "12px" }} />
-                  <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]}>
-                    <LabelList
-                      dataKey="Income"
-                      position="top"
-                      style={{ fontSize: "9px", fill: "#10b981" }}
-                      formatter={(v: number) => shortNum(v, sym, country.code)}
-                    />
-                  </Bar>
-                  <Bar dataKey="Expense" fill="#f43f5e" radius={[4, 4, 0, 0]}>
-                    <LabelList
-                      dataKey="Expense"
-                      position="top"
-                      style={{ fontSize: "9px", fill: "#f43f5e" }}
-                      formatter={(v: number) => shortNum(v, sym, country.code)}
-                    />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Liability vs Asset */}
-          <Card
-            data-ocid="dashboard.liabilityasset.card"
-            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-          >
-            <CardHeader className="pb-2 pt-4 px-5">
-              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                Assets vs Liabilities
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-400">
-                Total portfolio value vs outstanding loans
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {(() => {
-                const totalLiabilities = loans.reduce(
-                  (s, l) => s + l.currentBalance,
-                  0,
-                );
-                const pieData = [
-                  { name: "Assets", value: totalNAV, color: "#10b981" },
-                  {
-                    name: "Liabilities",
-                    value: totalLiabilities,
-                    color: "#f43f5e",
-                  },
-                ].filter((d) => d.value > 0);
-                if (pieData.length === 0) {
-                  return (
-                    <div className="h-[180px] flex flex-col items-center justify-center gap-2">
-                      <span className="text-3xl">📊</span>
-                      <p className="text-sm text-slate-400">
-                        No portfolio data yet
-                      </p>
-                    </div>
-                  );
-                }
-                const total = pieData.reduce((s, d) => s + d.value, 0);
-                return (
-                  <div className="flex items-center gap-4">
-                    <ResponsiveContainer width="50%" height={180}>
-                      <PieChart>
-                        <Pie
-                          data={pieData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={50}
-                          outerRadius={75}
-                          dataKey="value"
-                          label={({ value }: { name: string; value: number }) =>
-                            `${total > 0 ? ((value / total) * 100).toFixed(1) : "0.0"}%`
-                          }
-                          labelLine={false}
-                        >
-                          {pieData.map((entry) => (
-                            <Cell
-                              key={entry.name}
-                              fill={entry.color}
-                              stroke="#fff"
-                              strokeWidth={2}
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          formatter={(v: number, name: string) => [
-                            formatCurrency(v),
-                            name,
-                          ]}
-                          contentStyle={{
-                            fontSize: "11px",
-                            borderRadius: "10px",
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="flex-1 space-y-3">
-                      {pieData.map((d) => (
-                        <div key={d.name}>
-                          <div className="flex items-center gap-2 mb-1">
-                            <div
-                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                              style={{ background: d.color }}
-                            />
-                            <span className="text-xs text-slate-500">
-                              {d.name}
-                            </span>
-                          </div>
-                          <p className="text-sm font-bold text-slate-800 ml-4">
-                            {formatCurrency(d.value)}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-            </CardContent>
-          </Card>
-
-          {/* Debt-to-Income Ratio */}
-          <Card
-            data-ocid="dashboard.dti.card"
-            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-          >
-            <CardHeader className="pb-2 pt-4 px-5">
-              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                Debt-to-Income Ratio
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-400">
-                Monthly loan EMIs ÷ monthly income (industry standard: under
-                36%)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-5 pb-5 space-y-4">
-              {(() => {
-                const monthlyEMI = loans.reduce(
-                  (s, l) => s + l.monthlyPayment,
-                  0,
-                );
-                const monthlyIncome =
-                  incomeExpenseTrend.length > 0
-                    ? incomeExpenseTrend
-                        .slice(-3)
-                        .reduce((s, d) => s + d.Income, 0) / 3
-                    : 0;
-                const dti =
-                  monthlyIncome > 0
-                    ? Math.min(100, (monthlyEMI / monthlyIncome) * 100)
-                    : 0;
-                const color =
-                  dti < 30 ? "#10b981" : dti < 50 ? "#f59e0b" : "#ef4444";
-                const label =
-                  dti < 30 ? "Healthy" : dti < 50 ? "Moderate" : "High Risk";
-                return (
-                  <div className="space-y-5">
-                    <div className="flex justify-between items-end">
-                      <div>
-                        <p
-                          className="text-3xl font-extrabold"
-                          style={{ color }}
-                        >
-                          {dti.toFixed(1)}%
-                        </p>
-                        <p
-                          className="text-xs font-semibold mt-0.5"
-                          style={{ color }}
-                        >
-                          {label}
-                        </p>
-                      </div>
-                      <div className="text-right text-xs text-slate-400 space-y-1">
-                        <p>
-                          Monthly EMI:{" "}
-                          <span className="font-semibold text-slate-700">
-                            {formatCurrency(monthlyEMI)}
-                          </span>
-                        </p>
-                        <p>
-                          Avg Income:{" "}
-                          <span className="font-semibold text-slate-700">
-                            {formatCurrency(monthlyIncome)}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="relative h-3 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{
-                          width: `${Math.min(100, dti)}%`,
-                          background: color,
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[10px] text-slate-400">
-                      <span>0%</span>
-                      <span className="text-emerald-500 font-medium">
-                        Good &lt;30%
-                      </span>
-                      <span className="text-amber-500 font-medium">
-                        36% threshold
-                      </span>
-                      <span className="text-red-500 font-medium">
-                        High &gt;50%
-                      </span>
-                    </div>
-                  </div>
-                );
-              })()}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      {/* end financial health */}
-
-      {/* ── Section 6: Advanced Finance Analytics ── */}
-      <div>
-        <h3 className="text-sm font-semibold text-slate-600 mb-3 uppercase tracking-wide">
-          Advanced Analytics
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Income vs Expense Trend */}
-          <Card
-            data-ocid="dashboard.incomevexpense.card"
-            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-          >
-            <CardHeader className="pb-2 pt-4 px-5">
-              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                Income vs Expense Trend
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-400">
-                12-month view showing income, expenses &amp; savings
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {incomeExpenseTrend.every(
-                (d) => d.Income === 0 && d.Expense === 0,
-              ) ? (
-                <div className="h-64 flex flex-col items-center justify-center gap-2">
-                  <span className="text-3xl">📊</span>
-                  <p className="text-sm text-slate-400">
-                    No transaction data yet
-                  </p>
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height={280}>
-                  <AreaChart
-                    data={incomeExpenseTrend}
-                    margin={{ top: 5, right: 10, left: 10, bottom: 30 }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="colorIncome"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#10b981"
-                          stopOpacity={0.3}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#10b981"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="colorExpense"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#ef4444"
-                          stopOpacity={0.3}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#ef4444"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                    <XAxis
-                      dataKey="month"
-                      tick={{ fontSize: 9 }}
-                      angle={-20}
-                      textAnchor="end"
-                      height={45}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 9 }}
-                      tickFormatter={(v: number) =>
-                        shortNum(v, sym, country.code)
-                      }
-                    />
-                    <Tooltip
-                      formatter={(v: number, name: string) => [
-                        formatCurrency(v),
-                        name,
-                      ]}
-                      contentStyle={{
-                        fontSize: "11px",
-                        borderRadius: "10px",
-                        border: "1px solid #e2e8f0",
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: "11px" }} />
-                    <Area
-                      type="monotone"
-                      dataKey="Income"
-                      stroke="#10b981"
-                      strokeWidth={2}
-                      fill="url(#colorIncome)"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="Expense"
-                      stroke="#ef4444"
-                      strokeWidth={2}
-                      fill="url(#colorExpense)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Expense by Category Donut */}
-          <Card
-            data-ocid="dashboard.expcat.card"
-            className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-          >
-            <CardHeader className="pb-2 pt-4 px-5">
-              <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                Expense by Category
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-400">
-                Top spending categories breakdown
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {expenseByCategory.length === 0 ? (
-                <div className="h-64 flex flex-col items-center justify-center gap-2">
-                  <span className="text-3xl">🧾</span>
-                  <p className="text-sm text-slate-400">No expense data yet</p>
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height={280}>
-                  <PieChart>
-                    <Pie
-                      data={expenseByCategory}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={90}
-                      dataKey="value"
-                      labelLine={false}
-                      label={({
-                        cx: pcx,
-                        cy: pcy,
-                        midAngle,
-                        innerRadius: ir,
-                        outerRadius: or,
-                        percent,
-                      }: {
-                        cx: number;
-                        cy: number;
-                        midAngle: number;
-                        innerRadius: number;
-                        outerRadius: number;
-                        percent: number;
-                      }) => {
-                        if (percent < 0.04) return null;
-                        const RADIAN = Math.PI / 180;
-                        const radius = ir + (or - ir) * 0.5;
-                        const lx = pcx + radius * Math.cos(-midAngle * RADIAN);
-                        const ly = pcy + radius * Math.sin(-midAngle * RADIAN);
-                        return (
-                          <text
-                            x={lx}
-                            y={ly}
-                            fill="#fff"
-                            textAnchor="middle"
-                            dominantBaseline="central"
-                            fontSize={11}
-                            fontWeight={700}
-                          >
-                            {`${(percent * 100).toFixed(0)}%`}
-                          </text>
-                        );
-                      }}
-                    >
-                      {expenseByCategory.map((entry) => (
-                        <Cell
-                          key={entry.name}
-                          fill={entry.color}
-                          stroke="#fff"
-                          strokeWidth={2}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(
-                        v: number,
-                        _name: string,
-                        entry: { payload?: { pct?: string } },
-                      ) => [
-                        `${formatCurrency(v)} (${entry.payload?.pct ?? "0"}%)`,
-                        "Spent",
-                      ]}
-                      contentStyle={{
-                        fontSize: "11px",
-                        borderRadius: "10px",
-                        border: "1px solid #e2e8f0",
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: "11px" }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      {/* end Advanced Analytics outer */}
-      {/* ── Savings Rate + Risk vs Return in one row ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card
-          data-ocid="dashboard.savingsrate.card"
-          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-        >
-          <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-              Monthly Savings Rate (%)
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
-              Percentage of income saved each month — industry benchmark is 20%+
-              (50/30/20 rule)
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-5 pb-5">
-            {savingsRate.every((d) => d.rate === 0) ? (
-              <div className="h-48 flex flex-col items-center justify-center gap-2">
-                <span className="text-3xl">💰</span>
-                <p className="text-sm text-slate-400">No data yet</p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart
-                  data={savingsRate}
-                  margin={{ top: 10, right: 20, left: 5, bottom: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                  <XAxis
-                    dataKey="month"
-                    tick={{ fontSize: 9 }}
-                    angle={-20}
-                    textAnchor="end"
-                    height={45}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 9 }}
-                    tickFormatter={(v: number) => `${v}%`}
-                  />
-                  <Tooltip
-                    formatter={(v: number) => [`${v}%`, "Savings Rate"]}
-                    contentStyle={{
-                      fontSize: "11px",
-                      borderRadius: "10px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Bar dataKey="rate" radius={[4, 4, 0, 0]}>
-                    {savingsRate.map((entry) => (
-                      <Cell
-                        key={entry.month}
-                        fill={
-                          entry.rate >= 20
-                            ? "#10b981"
-                            : entry.rate >= 10
-                              ? "#f59e0b"
-                              : "#ef4444"
-                        }
-                      />
-                    ))}
-                    <LabelList
-                      content={({
-                        x,
-                        y,
-                        width,
-                        index,
-                      }: {
-                        x?: number | string;
-                        y?: number | string;
-                        width?: number | string;
-                        index?: number;
-                      }) => {
-                        const i = index ?? 0;
-                        const entry = savingsRate[i];
-                        if (!entry || entry.rate === 0) return null;
-                        const numX = typeof x === "number" ? x : 0;
-                        const numY = typeof y === "number" ? y : 0;
-                        const numW = typeof width === "number" ? width : 0;
-                        const cx = numX + numW / 2;
-                        return (
-                          <g>
-                            <text
-                              x={cx}
-                              y={numY - 14}
-                              fill="#475569"
-                              textAnchor="middle"
-                              fontSize={10}
-                              fontWeight={700}
-                            >
-                              {`${entry.rate}%`}
-                            </text>
-                            <text
-                              x={cx}
-                              y={numY - 4}
-                              fill="#64748b"
-                              textAnchor="middle"
-                              fontSize={9}
-                              fontWeight={500}
-                              opacity={0.9}
-                            >
-                              {formatCurrency(entry.savings)}
-                            </text>
-                          </g>
-                        );
-                      }}
-                    />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-        {/* ── Risk vs Return ── */}
-        <Card
-          data-ocid="dashboard.riskreturn.card"
-          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-        >
-          <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-              Risk vs Return
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
-              Annual return (%) vs risk (std dev %) for held asset types
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-5 pb-5">
-            {riskReturn.length === 0 ? (
-              <div className="h-64 flex flex-col items-center justify-center gap-2">
-                <span className="text-3xl">⚖️</span>
-                <p className="text-sm text-slate-400">No portfolio data yet</p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <ScatterChart
-                  margin={{ top: 20, right: 20, bottom: 20, left: 10 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis
-                    type="number"
-                    dataKey="x"
-                    name="Risk"
-                    tick={{ fontSize: 10 }}
-                    label={{
-                      value: "Risk (%)",
-                      position: "insideBottom",
-                      offset: -10,
-                      fontSize: 11,
-                    }}
-                  />
-                  <YAxis
-                    type="number"
-                    dataKey="y"
-                    name="Return"
-                    tick={{ fontSize: 10 }}
-                    label={{
-                      value: "Return (%)",
-                      angle: -90,
-                      position: "insideLeft",
-                      fontSize: 11,
-                    }}
-                  />
-                  <Tooltip
-                    cursor={{ strokeDasharray: "3 3" }}
-                    formatter={(v: number, name: string) => [
-                      `${v}%`,
-                      name === "x" ? "Risk" : "Return",
-                    ]}
-                    labelFormatter={(_label, payload) => {
-                      const pt = (
-                        payload as Array<{ payload?: { label?: string } }>
-                      )?.[0]?.payload;
-                      return pt?.label ?? "";
-                    }}
-                    contentStyle={{
-                      fontSize: "11px",
-                      borderRadius: "10px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    }}
-                  />
-                  <Scatter
-                    data={riskReturn}
-                    shape={(p: {
-                      cx?: number;
-                      cy?: number;
-                      payload?: { label: string; color: string };
-                    }) => <CustomDot cx={p.cx} cy={p.cy} payload={p.payload} />}
-                  />
-                </ScatterChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-      {/* end savings+risk grid */}
     </div>
   );
 }

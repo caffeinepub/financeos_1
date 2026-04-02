@@ -79,16 +79,16 @@ function shortNum(n: number, sym: string): string {
 }
 
 const SLICE_COLORS = [
-  "#60a5fa",
-  "#34d399",
-  "#a78bfa",
-  "#f87171",
-  "#fbbf24",
-  "#fb923c",
-  "#22d3ee",
-  "#94a3b8",
-  "#e879f9",
-  "#4ade80",
+  "#2563eb",
+  "#0891b2",
+  "#059669",
+  "#7c3aed",
+  "#d97706",
+  "#dc2626",
+  "#0d9488",
+  "#9333ea",
+  "#e11d48",
+  "#ca8a04",
 ];
 
 const assetTypes: { value: AssetType; label: string; color: string }[] = [
@@ -629,47 +629,43 @@ export default function PortfolioPage() {
                   tabInvested > 0 ? (tabGL / tabInvested) * 100 : 0;
                 return (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
-                      <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
+                    <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-blue-500 px-4 py-3 shadow-sm">
+                      <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                         Total Invested
                       </p>
-                      <p className="text-sm font-bold text-blue-800 tabular-nums">
+                      <p className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums">
                         {fmt(tabInvested)}
                       </p>
                     </div>
-                    <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
-                      <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
+                    <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-indigo-500 px-4 py-3 shadow-sm">
+                      <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                         Current Value
                       </p>
-                      <p className="text-sm font-bold text-blue-800 tabular-nums">
+                      <p className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums">
                         {fmt(tabCurrent)}
                       </p>
                     </div>
                     <div
-                      className={`rounded-xl border px-4 py-3 ${tabGL >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+                      className={`rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 px-4 py-3 shadow-sm ${tabGL >= 0 ? "border-l-emerald-500" : "border-l-red-500"}`}
                     >
-                      <p
-                        className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${tabGL >= 0 ? "text-green-700" : "text-red-700"}`}
-                      >
+                      <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                         Gain/Loss
                       </p>
                       <p
-                        className={`text-sm font-bold tabular-nums ${tabGL >= 0 ? "text-green-800" : "text-red-700"}`}
+                        className={`text-base font-bold tabular-nums ${tabGL >= 0 ? "text-emerald-600" : "text-red-500"}`}
                       >
                         {tabGL >= 0 ? "+" : ""}
                         {fmt(tabGL)}
                       </p>
                     </div>
                     <div
-                      className={`rounded-xl border px-4 py-3 ${tabGLPct >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+                      className={`rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 px-4 py-3 shadow-sm ${tabGLPct >= 0 ? "border-l-emerald-500" : "border-l-red-500"}`}
                     >
-                      <p
-                        className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${tabGLPct >= 0 ? "text-green-700" : "text-red-700"}`}
-                      >
+                      <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                         Gain/Loss%
                       </p>
                       <p
-                        className={`text-sm font-bold tabular-nums ${tabGLPct >= 0 ? "text-green-800" : "text-red-700"}`}
+                        className={`text-base font-bold tabular-nums ${tabGLPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
                       >
                         {tabGLPct >= 0 ? "+" : ""}
                         {tabGLPct.toFixed(2)}%
@@ -1500,47 +1496,43 @@ function PortfolioOverview({
         const sym = ovCountry.symbol;
         return (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
-              <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-blue-500 px-4 py-3 shadow-sm">
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                 Total Invested
               </p>
-              <p className="text-sm font-bold text-blue-800 tabular-nums">
+              <p className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums">
                 {shortNum(totalInvested, sym)}
               </p>
             </div>
-            <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
-              <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide mb-1">
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-indigo-500 px-4 py-3 shadow-sm">
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                 Current Value
               </p>
-              <p className="text-sm font-bold text-blue-800 tabular-nums">
+              <p className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums">
                 {shortNum(totalCurrent, sym)}
               </p>
             </div>
             <div
-              className={`rounded-xl border px-4 py-3 ${gl >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+              className={`rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 px-4 py-3 shadow-sm ${gl >= 0 ? "border-l-emerald-500" : "border-l-red-500"}`}
             >
-              <p
-                className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${gl >= 0 ? "text-green-700" : "text-red-700"}`}
-              >
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                 Gain / Loss
               </p>
               <p
-                className={`text-sm font-bold tabular-nums ${gl >= 0 ? "text-green-800" : "text-red-700"}`}
+                className={`text-base font-bold tabular-nums ${gl >= 0 ? "text-emerald-600" : "text-red-500"}`}
               >
                 {gl >= 0 ? "+" : ""}
-                {shortNum(gl, sym)}
+                {fmt(gl)}
               </p>
             </div>
             <div
-              className={`rounded-xl border px-4 py-3 ${glPct >= 0 ? "border-green-100 bg-gradient-to-br from-green-50 to-green-100" : "border-red-100 bg-gradient-to-br from-red-50 to-red-100"}`}
+              className={`rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 px-4 py-3 shadow-sm ${glPct >= 0 ? "border-l-emerald-500" : "border-l-red-500"}`}
             >
-              <p
-                className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${glPct >= 0 ? "text-green-700" : "text-red-700"}`}
-              >
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                 % Gain/Loss
               </p>
               <p
-                className={`text-sm font-bold tabular-nums ${glPct >= 0 ? "text-green-800" : "text-red-700"}`}
+                className={`text-base font-bold tabular-nums ${glPct >= 0 ? "text-emerald-600" : "text-red-500"}`}
               >
                 {glPct >= 0 ? "+" : ""}
                 {glPct.toFixed(2)}%

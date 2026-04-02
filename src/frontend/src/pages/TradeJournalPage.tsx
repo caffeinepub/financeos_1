@@ -740,11 +740,14 @@ export default function TradeJournalPage() {
       {/* Header */}
       <div className="px-4 md:px-6 pt-2 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-black dark:text-white">
-            Trade Journal
-          </h1>
-          <p className="text-slate-400 text-sm mt-0.5">
-            Log, track & analyze your trades
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            <h1 className="text-lg font-bold text-black dark:text-white">
+              Trade Journal
+            </h1>
+          </div>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+            Log, track &amp; analyze your trades
           </p>
         </div>
         <Button
@@ -1437,7 +1440,7 @@ export default function TradeJournalPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Pre-Trade Checklist */}
               <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-5">
-                <h3 className="text-sm font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                   <CheckSquare className="h-4 w-4 text-emerald-400" /> Pre-Trade
                   Checklist
                 </h3>
@@ -1490,7 +1493,7 @@ export default function TradeJournalPage() {
 
               {/* Post-Trade Reviews */}
               <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 p-5">
-                <h3 className="text-sm font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-blue-400" /> Post-Trade
                   Reviews
                 </h3>
@@ -1531,7 +1534,7 @@ export default function TradeJournalPage() {
                               }
                             >
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold text-slate-100 text-sm">
+                                <span className="font-semibold text-slate-800 dark:text-slate-100 text-sm">
                                   {t.ticker}
                                 </span>
                                 <span className="text-slate-400 text-xs">
@@ -1560,7 +1563,7 @@ export default function TradeJournalPage() {
                                   </div>
                                 )}
                                 {t.notes && (
-                                  <div className="text-xs text-slate-400 bg-card rounded-lg p-2">
+                                  <div className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-card rounded-lg p-2">
                                     {t.notes}
                                   </div>
                                 )}

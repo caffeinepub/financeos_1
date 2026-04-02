@@ -1,5 +1,6 @@
 import { BookOpen, Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { type BudgetCategory, TransactionType } from "../backend.d";
 import { AnalyseTab } from "../components/budgeting/AnalyseTab";
 import { ExpensesTab } from "../components/budgeting/ExpensesTab";
@@ -288,13 +289,38 @@ export default function BudgetingPage() {
   const [saving, setSaving] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [showAllPlanIncome, setShowAllPlanIncome] = useState(false);
+  const [autofillMonth, setAutofillMonth] = useState<number>(
+    new Date().getMonth(),
+  );
+  const [autofillYear, setAutofillYear] = useState<number>(
+    new Date().getFullYear(),
+  );
+  const [autofillData, setAutofillData] = useState<{
+    income: number;
+    needs: number;
+    wants: number;
+    savings: number;
+  } | null>(null);
+  const [transactions, setTransactions] = useState<
+    Array<{
+      amount: number;
+      transactionType: { Income?: null; Expense?: null };
+      categoryId: string;
+      date: string;
+    }>
+  >([]);
 
   const load = () => {
     if (!actor) return;
     setLoading(true);
-    actor
-      .getAllBudgetCategories()
-      .then(setCategories)
+    Promise.all([
+      actor.getAllBudgetCategories(),
+      actor.getAllTransactions().catch(() => []),
+    ])
+      .then(([cats, txns]) => {
+        setCategories(cats);
+        setTransactions(txns as typeof transactions);
+      })
       .finally(() => setLoading(false));
   };
   // biome-ignore lint/correctness/useExhaustiveDependencies: load is stable
@@ -365,6 +391,71 @@ export default function BudgetingPage() {
     }
   };
 
+  const handleAutofill = () => {
+    const monthTx = transactions.filter((t) => {
+      const d = new Date(t.date);
+      return d.getMonth() === autofillMonth && d.getFullYear() === autofillYear;
+    });
+    if (monthTx.length === 0) {
+      toast.error("No transactions found for the selected month");
+      return;
+    }
+    const income = monthTx
+      .filter((t) => Object.keys(t.transactionType)[0] === "Income")
+      .reduce((s, t) => s + t.amount, 0);
+    const expenses = monthTx.filter(
+      (t) => Object.keys(t.transactionType)[0] === "Expense",
+    );
+    // Build category type map
+    const catTypeMap: Record<string, string> = {};
+    for (const c of categories) {
+      const lc = c.name.toLowerCase();
+      if (
+        [
+          "savings",
+          "investment",
+          "sip",
+          "ppf",
+          "nps",
+          "fd",
+          "emergency",
+          "mutual fund",
+          "retirement",
+        ].some((k) => lc.includes(k))
+      ) {
+        catTypeMap[c.id] = "Savings";
+      } else if (
+        [
+          "dining",
+          "eating out",
+          "entertainment",
+          "streaming",
+          "subscription",
+          "shopping",
+          "clothing",
+          "travel",
+          "gym",
+          "leisure",
+        ].some((k) => lc.includes(k))
+      ) {
+        catTypeMap[c.id] = "Wants";
+      } else {
+        catTypeMap[c.id] = "Needs";
+      }
+    }
+    const needs = expenses
+      .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Needs")
+      .reduce((s, t) => s + t.amount, 0);
+    const wants = expenses
+      .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Wants")
+      .reduce((s, t) => s + t.amount, 0);
+    const savings = expenses
+      .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Savings")
+      .reduce((s, t) => s + t.amount, 0);
+    setAutofillData({ income, needs, wants, savings });
+    toast.success("Data autofilled from tracker");
+  };
+
   const totalIncome = categories
     .filter((c) => c.categoryType === TransactionType.Income)
     .reduce((s, c) => s + c.monthlyLimit, 0);
@@ -420,19 +511,19 @@ export default function BudgetingPage() {
         <TabsContent value="categories" className="space-y-4 mt-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="grid grid-cols-2 gap-4 flex-1 min-w-0">
-              <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
-                <div className="text-xs text-emerald-600 font-medium">
+              <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-emerald-500 px-4 py-3 shadow-sm">
+                <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                   Budgeted Income
                 </div>
-                <div className="text-xl font-bold text-emerald-700">
+                <div className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums">
                   {fmt(totalIncome)}
                 </div>
               </div>
-              <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-                <div className="text-xs text-red-600 font-medium">
+              <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-rose-500 px-4 py-3 shadow-sm">
+                <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                   Budgeted Expense
                 </div>
-                <div className="text-xl font-bold text-red-700">
+                <div className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums">
                   {fmt(totalExpense)}
                 </div>
               </div>
@@ -667,7 +758,92 @@ export default function BudgetingPage() {
           <MonthlyTrackerTab />
         </TabsContent>
         <TabsContent value="improve" className="mt-4">
-          <ModelBudgetingTab />
+          <div className="space-y-4">
+            {/* Autofill bar */}
+            <div className="flex flex-wrap items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm">
+              <span className="text-xs font-semibold text-slate-600 mr-1">
+                Autofill from Tracker:
+              </span>
+              <select
+                className="h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                value={String(autofillMonth)}
+                onChange={(e) => setAutofillMonth(Number(e.target.value))}
+              >
+                {[
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec",
+                ].map((m, i) => (
+                  <option key={m} value={i}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                value={String(autofillYear)}
+                onChange={(e) => setAutofillYear(Number(e.target.value))}
+              >
+                {[
+                  new Date().getFullYear(),
+                  new Date().getFullYear() - 1,
+                  new Date().getFullYear() - 2,
+                ].map((yr) => (
+                  <option key={yr} value={yr}>
+                    {yr}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={handleAutofill}
+                className="h-8 px-3 rounded-md bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
+              >
+                Autofill from Tracker
+              </button>
+              {autofillData && (
+                <span className="text-xs text-emerald-600 font-medium">
+                  ✓ Data loaded for{" "}
+                  {
+                    [
+                      "Jan",
+                      "Feb",
+                      "Mar",
+                      "Apr",
+                      "May",
+                      "Jun",
+                      "Jul",
+                      "Aug",
+                      "Sep",
+                      "Oct",
+                      "Nov",
+                      "Dec",
+                    ][autofillMonth]
+                  }{" "}
+                  {autofillYear}
+                </span>
+              )}
+              {autofillData && (
+                <button
+                  type="button"
+                  onClick={() => setAutofillData(null)}
+                  className="text-xs text-slate-400 hover:text-slate-600 underline"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <ModelBudgetingTab autofillData={autofillData} />
+          </div>
         </TabsContent>
       </Tabs>
 

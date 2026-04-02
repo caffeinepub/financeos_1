@@ -265,53 +265,53 @@ export function GoalsTab({
               {/* Summary Cards — Budget Insights style, 2 per row on mobile, 4 on desktop */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
                 {/* Total Target */}
-                <div className="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 p-3">
+                <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-emerald-500 px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-1.5 mb-1">
                     <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="text-[10px] text-emerald-600 font-medium uppercase tracking-wide">
+                    <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                       Total Target
                     </span>
                   </div>
-                  <p className="text-base font-bold text-emerald-700 tabular-nums truncate">
+                  <p className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums truncate">
                     {formatCurrency(totalTargetAmount)}
                   </p>
                 </div>
 
                 {/* Current Savings */}
-                <div className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50 p-3">
+                <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-violet-500 px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <PieChart className="w-3.5 h-3.5 text-purple-500" />
-                    <span className="text-[10px] text-purple-600 font-medium uppercase tracking-wide">
+                    <PieChart className="w-3.5 h-3.5 text-violet-500" />
+                    <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                       Current Savings
                     </span>
                   </div>
-                  <p className="text-base font-bold text-purple-700 tabular-nums truncate">
+                  <p className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums truncate">
                     {formatCurrency(currentSavings)}
                   </p>
                 </div>
 
                 {/* Amount Required */}
-                <div className="rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-3">
+                <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-amber-500 px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-1.5 mb-1">
                     <MinusCircle className="w-3.5 h-3.5 text-amber-500" />
-                    <span className="text-[10px] text-amber-600 font-medium uppercase tracking-wide">
+                    <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                       Amount Required
                     </span>
                   </div>
-                  <p className="text-base font-bold text-amber-700 tabular-nums truncate">
+                  <p className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums truncate">
                     {formatCurrency(amountRequired)}
                   </p>
                 </div>
 
                 {/* Overall Progress */}
-                <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-3">
+                <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-blue-500 px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-1.5 mb-1">
                     <BarChart3 className="w-3.5 h-3.5 text-blue-500" />
-                    <span className="text-[10px] text-blue-600 font-medium uppercase tracking-wide">
+                    <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                       Overall Progress
                     </span>
                   </div>
-                  <p className="text-base font-bold text-blue-700">
+                  <p className="text-base font-bold text-slate-800 dark:text-slate-100">
                     {overallProgress.toFixed(1)}%
                   </p>
                 </div>

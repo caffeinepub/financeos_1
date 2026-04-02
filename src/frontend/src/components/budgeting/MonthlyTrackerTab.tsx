@@ -613,32 +613,32 @@ export function MonthlyTrackerTab() {
         <div className="grid grid-cols-2 gap-3">
           <Card
             data-ocid="budgeting.income.card"
-            className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50"
+            className="rounded-xl border border-emerald-100 dark:border-emerald-800 bg-white dark:bg-slate-900 shadow-sm"
           >
-            <CardContent className="p-3">
+            <CardContent className="p-4">
               <div className="flex items-center gap-1.5 mb-1">
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-[10px] text-emerald-600 font-medium uppercase tracking-wide">
+                <span className="text-[10px] text-emerald-600 font-semibold uppercase tracking-wide">
                   Actual Income
                 </span>
               </div>
-              <p className="text-base font-bold text-emerald-700">
+              <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
                 {fmt(totalIncome, country)}
               </p>
             </CardContent>
           </Card>
           <Card
             data-ocid="budgeting.actual.card"
-            className="border-red-200 bg-gradient-to-br from-red-50 to-rose-50"
+            className="rounded-xl border border-red-100 dark:border-red-800 bg-white dark:bg-slate-900 shadow-sm"
           >
-            <CardContent className="p-3">
+            <CardContent className="p-4">
               <div className="flex items-center gap-1.5 mb-1">
                 <TrendingDown className="w-3.5 h-3.5 text-red-500" />
-                <span className="text-[10px] text-red-600 font-medium uppercase tracking-wide">
+                <span className="text-[10px] text-red-600 font-semibold uppercase tracking-wide">
                   Actual Expenses
                 </span>
               </div>
-              <p className="text-base font-bold text-red-600">
+              <p className="text-lg font-bold text-red-600 dark:text-red-400">
                 {fmt(totalActual, country)}
               </p>
             </CardContent>

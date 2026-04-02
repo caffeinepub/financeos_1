@@ -42,8 +42,8 @@ const SCENARIOS: {
 }[] = [
   {
     id: "standard",
-    title: "Salaried: Budget Setup",
-    desc: "Take-home ₹65,000. Knows main expenses but unsure where the rest goes.",
+    title: "Fresh Graduate: First Budget",
+    desc: "Take-home ₹65,000. Just started working, learning to manage expenses.",
     inputs: {
       income: 65000,
       rent: 18000,
@@ -61,8 +61,8 @@ const SCENARIOS: {
   },
   {
     id: "leakage",
-    title: "Leakage Detection",
-    desc: "Earns ₹80,000 but runs out of money by the 25th every month.",
+    title: "Salaried Professional: Optimize Spending",
+    desc: "Earns ₹80,000 but runs out of money every month. Optimize spending.",
     inputs: {
       income: 80000,
       rent: 22000,
@@ -80,8 +80,8 @@ const SCENARIOS: {
   },
   {
     id: "tightening",
-    title: "Budget Tightening",
-    desc: "Need to reduce monthly spend by ₹10,000 without giving up gym, Netflix, or outings.",
+    title: "Small Business Owner: Irregular Income",
+    desc: "Business income varies month to month. Needs a stable budget plan.",
     inputs: {
       income: 75000,
       rent: 20000,
@@ -99,8 +99,8 @@ const SCENARIOS: {
   },
   {
     id: "freelancer",
-    title: "Freelancer Variable Income",
-    desc: "Monthly income swings between ₹40,000 and ₹1,20,000. Needs a stable budget.",
+    title: "Family Budget: Dual Income",
+    desc: "Dual income household. Plan household budget and maximize savings.",
     inputs: {
       income: 70000,
       rent: 18000,
@@ -431,7 +431,16 @@ function numField(
 
 export function ModelBudgetingTab({
   initialScenario,
-}: { initialScenario?: string } = {}) {
+  autofillData,
+}: {
+  initialScenario?: string;
+  autofillData?: {
+    income: number;
+    needs: number;
+    wants: number;
+    savings: number;
+  } | null;
+} = {}) {
   const initScenario =
     SCENARIOS.find((s) => s.id === initialScenario) ?? SCENARIOS[0];
   const [inputs, setInputs] = useState<BudgetInputs>(initScenario.inputs);
@@ -451,6 +460,25 @@ export function ModelBudgetingTab({
     setActiveScenario(s.id);
     setResult(null);
     setError("");
+  };
+
+  // Apply autofill data if provided
+  const _applyAutofill = () => {
+    if (!autofillData) return;
+    setInputs((prev) => ({
+      ...prev,
+      income: autofillData.income,
+      rent: Math.round(autofillData.needs * 0.4),
+      groceries: Math.round(autofillData.needs * 0.25),
+      transport: Math.round(autofillData.needs * 0.15),
+      emi: Math.round(autofillData.needs * 0.2),
+      eatingOut: Math.round(autofillData.wants * 0.4),
+      subscriptions: Math.round(autofillData.wants * 0.3),
+      otherMisc: Math.round(autofillData.wants * 0.3),
+    }));
+    setResult(null);
+    setError("");
+    setView("detail");
   };
 
   const handleAnalyze = () => {

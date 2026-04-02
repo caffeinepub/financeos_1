@@ -415,7 +415,7 @@ export function GoalList({
                   .map((id) => investmentMap.get(id))
                   .filter(Boolean) as string[];
                 const circumference = 2 * Math.PI * 28;
-                const dashOffset =
+                const _dashOffset =
                   circumference * (1 - Math.min(progress, 100) / 100);
                 return (
                   <div
@@ -424,102 +424,62 @@ export function GoalList({
                     className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700 rounded-2xl shadow-sm p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex flex-row items-start gap-3">
-                      {/* Left: Circular Progress Ring */}
-                      <div className="flex-shrink-0 flex items-start justify-center pt-1">
-                        <div className="relative w-[60px] h-[60px] md:w-[72px] md:h-[72px]">
-                          <svg
-                            width="72"
-                            height="72"
-                            viewBox="0 0 72 72"
-                            className="-rotate-90"
-                            aria-hidden="true"
+                      {/* Left: Main Content */}
+                      <div className="flex-1 min-w-0">
+                        {/* Name + Status */}
+                        <div className="flex items-center gap-2 min-w-0 flex-wrap mb-2">
+                          <p className="text-base font-bold text-gray-900 dark:text-slate-100">
+                            <span className="mr-1">{emoji}</span>
+                            {goal.name}
+                          </p>
+                          <span
+                            className={`inline-flex text-[11px] font-semibold px-2.5 py-0.5 rounded-full flex-shrink-0 ${statusClass}`}
                           >
-                            <circle
-                              cx="36"
-                              cy="36"
-                              r="28"
-                              fill="none"
-                              stroke="#e2e8f0"
-                              strokeWidth="5"
-                            />
-                            <circle
-                              cx="36"
-                              cy="36"
-                              r="28"
-                              fill="none"
-                              stroke={ringColor}
-                              strokeWidth="5"
-                              strokeDasharray={`${circumference} ${circumference}`}
-                              strokeDashoffset={isAchieved ? 0 : dashOffset}
-                              strokeLinecap="round"
-                              className="transition-all duration-500"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            {isAchieved ? (
-                              <span className="text-base text-green-600 font-bold">
-                                ✓
-                              </span>
-                            ) : (
+                            {statusLabel}
+                          </span>
+                        </div>
+
+                        {/* Linked investment tags */}
+                        {linkedNames.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {linkedNames.slice(0, 3).map((name) => (
                               <span
-                                className="text-[11px] font-bold tabular-nums"
-                                style={{ color: ringColor }}
+                                key={name}
+                                className="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 text-[10px] font-medium rounded-full px-2 py-0.5"
                               >
-                                {Math.round(progress)}%
+                                {name.length > 14
+                                  ? `${name.slice(0, 14)}…`
+                                  : name}
                               </span>
+                            ))}
+                            {linkedNames.length > 3 && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="bg-gray-200 dark:bg-slate-600 text-gray-600 dark:text-slate-300 text-[10px] font-semibold rounded-full px-2 py-0.5 cursor-help">
+                                      +{linkedNames.length - 3} more
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs">
+                                    <div className="space-y-1">
+                                      <p className="font-semibold text-xs mb-1">
+                                        All Linked Investments
+                                      </p>
+                                      {linkedNames.map((name) => (
+                                        <p key={name} className="text-xs">
+                                          • {name}
+                                        </p>
+                                      ))}
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             )}
                           </div>
-                        </div>
-                      </div>
-
-                      {/* Middle: Main Content */}
-                      <div className="flex-1 min-w-0">
-                        {/* Name + Status + Actions */}
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                            <p className="text-base font-bold text-gray-900 dark:text-slate-100">
-                              <span className="mr-1">{emoji}</span>
-                              {goal.name}
-                            </p>
-                            <span
-                              className={`inline-flex text-[11px] font-semibold px-2.5 py-0.5 rounded-full flex-shrink-0 ${statusClass}`}
-                            >
-                              {statusLabel}
-                            </span>
-                          </div>
-                          <div className="flex gap-0.5 flex-shrink-0">
-                            <button
-                              type="button"
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                              onClick={() => setLinkingGoal(goal)}
-                              data-ocid={`goals.link.button.${idx + 1}`}
-                              title="Link Investments"
-                            >
-                              <LinkIcon className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                              onClick={() => setEditingGoal(goal)}
-                              data-ocid={`goals.edit_button.${idx + 1}`}
-                              title="Edit"
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              onClick={() => setDeletingGoal(goal)}
-                              data-ocid={`goals.delete_button.${idx + 1}`}
-                              title="Delete"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        </div>
+                        )}
 
                         {/* 4-column metrics */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 mb-2.5">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2">
                           <div>
                             <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-0.5">
                               Target
@@ -567,45 +527,92 @@ export function GoalList({
                             </p>
                           </div>
                         </div>
+                      </div>
 
-                        {/* Linked investment tags */}
-                        {linkedNames.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {linkedNames.slice(0, 4).map((name) => (
-                              <span
-                                key={name}
-                                className="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 text-[10px] font-medium rounded-full px-2 py-0.5"
-                              >
-                                {name.length > 14
-                                  ? `${name.slice(0, 14)}\u2026`
-                                  : name}
+                      {/* Right: Circular Progress Ring + Horizontal Action Buttons */}
+                      <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                        {/* Horizontal action buttons at top */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            onClick={() => setLinkingGoal(goal)}
+                            data-ocid={`goals.link.button.${idx + 1}`}
+                            title="Link Investments"
+                          >
+                            <LinkIcon className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                            onClick={() => setEditingGoal(goal)}
+                            data-ocid={`goals.edit_button.${idx + 1}`}
+                            title="Edit"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            onClick={() => setDeletingGoal(goal)}
+                            data-ocid={`goals.delete_button.${idx + 1}`}
+                            title="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                        {/* Larger Ring */}
+                        <div className="relative w-[96px] h-[96px]">
+                          <svg
+                            width="96"
+                            height="96"
+                            viewBox="0 0 100 100"
+                            className="-rotate-90"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="42"
+                              fill="none"
+                              stroke="#e2e8f0"
+                              strokeWidth="7"
+                            />
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="42"
+                              fill="none"
+                              stroke={ringColor}
+                              strokeWidth="7"
+                              strokeDasharray={`${2 * Math.PI * 42} ${2 * Math.PI * 42}`}
+                              strokeDashoffset={
+                                isAchieved
+                                  ? 0
+                                  : 2 *
+                                    Math.PI *
+                                    42 *
+                                    (1 - Math.min(progress, 100) / 100)
+                              }
+                              strokeLinecap="round"
+                              className="transition-all duration-500"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            {isAchieved ? (
+                              <span className="text-xl text-green-600 font-bold">
+                                ✓
                               </span>
-                            ))}
-                            {linkedNames.length > 4 && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="bg-gray-200 dark:bg-slate-600 text-gray-600 dark:text-slate-300 text-[10px] font-semibold rounded-full px-2 py-0.5 cursor-help">
-                                      +{linkedNames.length - 4} more
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-xs">
-                                    <div className="space-y-1">
-                                      <p className="font-semibold text-xs mb-1">
-                                        All Linked Investments
-                                      </p>
-                                      {linkedNames.map((name) => (
-                                        <p key={name} className="text-xs">
-                                          • {name}
-                                        </p>
-                                      ))}
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                            ) : (
+                              <span
+                                className="text-sm font-bold tabular-nums leading-none"
+                                style={{ color: ringColor }}
+                              >
+                                {Math.round(progress)}%
+                              </span>
                             )}
                           </div>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>

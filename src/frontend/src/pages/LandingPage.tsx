@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   BarChart3,
+  BookOpen,
   Bot,
   CalendarDays,
   ChevronDown,
@@ -26,66 +27,73 @@ const MODULE_CONFIGS = [
   {
     icon: LayoutDashboard,
     name: "Dashboard",
-    desc: "Net worth, asset breakdown & 20-year forecast",
+    desc: "Net worth, Risk-o-meter, 10+ charts & 20-year forecast",
     accent: "#60a5fa",
     glow: "rgba(96,165,250,0.15)",
   },
   {
     icon: Target,
     name: "Goals",
-    desc: "Set, track & hit every financial milestone",
+    desc: "Track & plan every financial milestone with SIP guidance",
     accent: "#34d399",
     glow: "rgba(52,211,153,0.15)",
   },
   {
     icon: TrendingUp,
     name: "Portfolio",
-    desc: "8 asset classes in one unified view",
+    desc: "8 asset classes — Equity, MF, Gold, Retiral, Crypto & more",
     accent: "#38bdf8",
     glow: "rgba(56,189,248,0.15)",
   },
   {
     icon: PiggyBank,
     name: "Budgeting",
-    desc: "Income vs expense monthly tracker",
+    desc: "50/30/20 rule, income vs expense tracker & insights",
     accent: "#a78bfa",
     glow: "rgba(167,139,250,0.15)",
   },
   {
     icon: BarChart3,
     name: "Financial Model",
-    desc: "Insurance, allocation & retirement models",
+    desc: "8 models: Asset Allocation, Goal Planning, Debt, Retirement",
     accent: "#f87171",
     glow: "rgba(248,113,113,0.15)",
   },
   {
     icon: CalendarDays,
     name: "Financial Planner",
-    desc: "35+ professional calculators",
+    desc: "35+ calculators — SIP, FIRE, EMI, Tax, Retirement & more",
     accent: "#fbbf24",
     glow: "rgba(251,191,36,0.15)",
   },
   {
     icon: Shield,
     name: "Learn Finance",
-    desc: "AI-guided money rules & knowledge base",
+    desc: "Rules, 50 Mistakes, Intelligent Investor models & AI picks",
     accent: "#2dd4bf",
     glow: "rgba(45,212,191,0.15)",
   },
   {
     icon: CreditCard,
     name: "Loans",
-    desc: "Track EMIs, payoff & amortization",
+    desc: "Loan tracker, prepayment simulator & debt-free timeline",
     accent: "#c084fc",
     glow: "rgba(192,132,252,0.15)",
+  },
+  {
+    icon: BookOpen,
+    name: "Trade Journal",
+    desc: "Log trades, live P&L, analytics & monthly heatmap",
+    accent: "#fb923c",
+    glow: "rgba(251,146,60,0.15)",
   },
 ];
 
 const STATS = [
   { value: "35+", label: "Calculators" },
-  { value: "8", label: "Asset Classes" },
-  { value: "80+", label: "Finance Rules" },
+  { value: "10", label: "Modules" },
   { value: "50", label: "Mistake Guides" },
+  { value: "8", label: "Asset Classes" },
 ];
 
 function CurrencyDropdown({
@@ -312,8 +320,8 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-slate-400 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
-              Your complete financial companion — track, plan, and grow your
-              wealth with institutional-grade tools.
+              Your complete financial companion — 10 professional modules to
+              track, plan, and grow your wealth with institutional-grade tools.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -328,7 +336,7 @@ export default function LandingPage() {
                   boxShadow: "0 8px 25px rgba(79,70,229,0.45)",
                 }}
               >
-                {isLoggingIn ? "Signing in..." : "Get Started — Free"}
+                {isLoggingIn ? "Signing in..." : "Get Started \u2014 Free"}
               </Button>
               <button
                 type="button"
@@ -336,7 +344,7 @@ export default function LandingPage() {
                 disabled={isLoggingIn}
                 className="text-sm text-indigo-400 font-semibold hover:text-indigo-300 transition-colors"
               >
-                Login to existing account →
+                Login to existing account &rarr;
               </button>
             </div>
           </motion.div>
@@ -367,7 +375,7 @@ export default function LandingPage() {
         </section>
 
         {/* Module Cards */}
-        <section className="mb-14">
+        <section className="mb-10">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -378,10 +386,10 @@ export default function LandingPage() {
               Everything you need in one place
             </h2>
             <p className="text-sm text-slate-500">
-              8 powerful modules covering every aspect of personal finance
+              10 powerful modules covering every aspect of personal finance
             </p>
           </motion.div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3">
             {MODULE_CONFIGS.map((mod, i) => {
               const Icon = mod.icon;
               return (
@@ -434,6 +442,30 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Feature Highlights Strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.0, ease: "easeOut" }}
+          className="flex flex-wrap justify-center gap-3 mb-10"
+        >
+          {[
+            { icon: "\u26a1", text: "Instant Calculations" },
+            { icon: "\ud83d\udcf1", text: "Mobile-First Design" },
+            { icon: "\ud83d\udd12", text: "Blockchain Security" },
+            { icon: "\ud83c\udf0d", text: "Multi-Currency" },
+          ].map((f) => (
+            <div
+              key={f.text}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/15 bg-white/8 text-white/80 text-xs font-medium backdrop-blur-sm"
+              style={{ background: "rgba(255,255,255,0.08)" }}
+            >
+              <span>{f.icon}</span>
+              <span>{f.text}</span>
+            </div>
+          ))}
+        </motion.div>
+
         {/* AI Assistant Callout */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
@@ -472,8 +504,8 @@ export default function LandingPage() {
               </div>
               <p className="text-sm text-white/70 leading-relaxed">
                 Ask anything about your finances — SIP, FIRE, portfolio design,
-                tax, retirement, and more. Trained on all 8 modules &amp; 35+
-                calculators.
+                tax, retirement, and more. Trained on all 10 modules, 35+
+                calculators &amp; 50 financial mistakes.
               </p>
             </div>
             <Button
@@ -496,7 +528,7 @@ export default function LandingPage() {
               icon: Shield,
               color: "#34d399",
               title: "Secure & Private",
-              desc: "Powered by Internet Identity — no passwords, no leaks.",
+              desc: "Powered by Internet Identity \u2014 no passwords, no leaks.",
             },
             {
               icon: TrendingUp,
@@ -540,14 +572,14 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/10 py-6 text-center text-xs text-slate-600">
-        © {new Date().getFullYear()}.{" "}
+        &copy; {new Date().getFullYear()}.{" "}
         <a
           href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
           target="_blank"
           rel="noreferrer"
           className="hover:text-indigo-400 transition-colors"
         >
-          Built with ❤ using caffeine.ai
+          Built with &#10084; using caffeine.ai
         </a>
       </footer>
     </div>

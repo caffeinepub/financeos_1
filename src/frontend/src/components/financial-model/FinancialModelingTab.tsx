@@ -1,3 +1,4 @@
+import { AssetType, type PortfolioHolding } from "@/backend";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,8 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useActor } from "@/hooks/useActor";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Cell,
   Legend,
@@ -350,24 +352,102 @@ function FinancialModelingTab() {
   );
 }
 
+const ASSET_TYPE_TO_KEY: Record<string, string> = {
+  [AssetType.Retirement]: "Retiral",
+  [AssetType.ETF]: "Equity (ETF & Stocks)",
+  [AssetType.MutualFund]: "Mutual Funds",
+  [AssetType.Commodity]: "Commodities",
+  [AssetType.RealEstate]: "Real Estate",
+  [AssetType.FixedIncome]: "Fixed Income",
+  [AssetType.Crypto]: "Crypto",
+  [AssetType.Other]: "IPO/Unlisted/Other",
+};
+
 function AssetAllocationTab() {
   const [selectedProfile, setSelectedProfile] = useState<
     "conservative" | "moderate" | "aggressive"
   >("moderate");
+
+  const { actor } = useActor();
+  const [holdings, setHoldings] = useState<PortfolioHolding[]>([]);
+
+  useEffect(() => {
+    if (!actor) return;
+    actor
+      .getAllPortfolioHoldings()
+      .then(setHoldings)
+      .catch(() => setHoldings([]));
+  }, [actor]);
+
+  const actualAllocations = useMemo(() => {
+    const totalValue = holdings.reduce((s, h) => s + h.currentValue, 0);
+    const result: Record<string, number> = {};
+    if (totalValue === 0) return result;
+    for (const h of holdings) {
+      const key = ASSET_TYPE_TO_KEY[h.assetType] ?? "IPO/Unlisted/Other";
+      result[key] = (result[key] ?? 0) + (h.currentValue / totalValue) * 100;
+    }
+    return result;
+  }, [holdings]);
+
+  function generateRecommendations(
+    planned: Record<string, number>,
+    actual: Record<string, number>,
+  ): string[] {
+    const recs: string[] = [];
+    const totalActual = Object.values(actual).reduce((s, v) => s + v, 0);
+    if (totalActual === 0) {
+      recs.push(
+        "No portfolio data found. Start adding investments to see personalized allocation recommendations.",
+      );
+      recs.push(
+        `For a ${selectedProfile} profile, prioritize ${selectedProfile === "conservative" ? "Retiral (30%) and Fixed Income (25%)" : selectedProfile === "moderate" ? "Equity (22%) and Mutual Funds (20%)" : "Equity (35%) and Mutual Funds (22%)"} as your core allocation.`,
+      );
+      recs.push(
+        "Diversify across at least 4–5 asset classes to reduce concentration risk.",
+      );
+      return recs;
+    }
+    for (const [asset, plannedPct] of Object.entries(planned)) {
+      const actualPct = actual[asset] ?? 0;
+      const variance = actualPct - plannedPct;
+      if (variance < -5) {
+        recs.push(
+          `${asset} is under-allocated (Actual: ${actualPct.toFixed(1)}% vs Target: ${plannedPct}%). Consider increasing exposure to rebalance.`,
+        );
+      } else if (variance > 5) {
+        recs.push(
+          `${asset} is over-allocated (Actual: ${actualPct.toFixed(1)}% vs Target: ${plannedPct}%). Consider booking partial profits or redirecting new investments elsewhere.`,
+        );
+      }
+    }
+    if (recs.length === 0) {
+      recs.push(
+        "Your portfolio allocation is well-balanced and aligns closely with your risk profile targets.",
+      );
+      recs.push(
+        "Continue SIP investments to maintain this allocation as markets move.",
+      );
+    }
+    recs.push(
+      `Industry standard for ${selectedProfile} profile: rebalance quarterly when any asset class deviates more than 5% from target allocation.`,
+    );
+    return recs;
+  }
 
   const riskProfiles = {
     conservative: {
       name: "Conservative",
       description: "Low risk, stable returns with capital preservation focus",
       allocation: {
-        Retiral: 20,
-        "Equity (ETF & Stocks)": 10,
+        Retiral: 30,
+        "Equity (ETF & Stocks)": 15,
         "Mutual Funds": 15,
-        Commodities: 10,
+        Commodities: 5,
         "Real Estate": 5,
-        "Fixed Income": 30,
+        "Fixed Income": 25,
         Crypto: 0,
-        "IPO/Unlisted/Other": 10,
+        "IPO/Unlisted/Other": 5,
       },
       color: "from-green-500 to-emerald-600",
       bgGradient:
@@ -386,14 +466,14 @@ function AssetAllocationTab() {
       name: "Moderate",
       description: "Balanced risk-return with diversified portfolio",
       allocation: {
-        Retiral: 15,
-        "Equity (ETF & Stocks)": 25,
+        Retiral: 20,
+        "Equity (ETF & Stocks)": 22,
         "Mutual Funds": 20,
         Commodities: 8,
         "Real Estate": 10,
-        "Fixed Income": 12,
+        "Fixed Income": 15,
         Crypto: 5,
-        "IPO/Unlisted/Other": 5,
+        "IPO/Unlisted/Other": 0,
       },
       color: "from-blue-500 to-indigo-600",
       bgGradient:
@@ -411,13 +491,13 @@ function AssetAllocationTab() {
       name: "Aggressive",
       description: "High risk, high return with growth-oriented investments",
       allocation: {
-        Retiral: 5,
+        Retiral: 10,
         "Equity (ETF & Stocks)": 35,
-        "Mutual Funds": 25,
+        "Mutual Funds": 22,
         Commodities: 5,
         "Real Estate": 8,
         "Fixed Income": 5,
-        Crypto: 12,
+        Crypto: 10,
         "IPO/Unlisted/Other": 5,
       },
       color: "from-orange-500 to-red-600",
@@ -666,6 +746,90 @@ function AssetAllocationTab() {
           </ul>
         </CardContent>
       </Card>
+
+      {/* Planned vs Actual Allocation Table */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2.5 border-b border-border">
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Planned vs Actual Allocation
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {holdings.length === 0
+              ? "No portfolio data — showing 0% actual. Add investments to see your real allocation."
+              : `Based on ${holdings.length} portfolio holdings`}
+          </p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-800/50 text-xs border-b border-border">
+                <th className="text-left px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">
+                  Asset Class
+                </th>
+                <th className="text-right px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">
+                  Planned %
+                </th>
+                <th className="text-right px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">
+                  Actual %
+                </th>
+                <th className="text-right px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">
+                  Variance
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(profile.allocation).map(
+                ([asset, planned], idx) => {
+                  const actual = actualAllocations[asset] ?? 0;
+                  const variance = actual - planned;
+                  return (
+                    <tr
+                      key={asset}
+                      className={`border-t border-border ${idx % 2 === 0 ? "" : "bg-slate-50/50 dark:bg-slate-800/20"} hover:bg-muted/30`}
+                    >
+                      <td className="px-3 py-2 font-medium text-slate-700 dark:text-slate-300">
+                        {asset}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-400">
+                        {planned}%
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums font-semibold text-slate-800 dark:text-slate-200">
+                        {actual.toFixed(1)}%
+                      </td>
+                      <td
+                        className={`px-3 py-2 text-right tabular-nums font-semibold ${variance > 2 ? "text-emerald-600" : variance < -2 ? "text-red-500" : "text-slate-500"}`}
+                      >
+                        {variance > 0 ? "+" : ""}
+                        {variance.toFixed(1)}%
+                      </td>
+                    </tr>
+                  );
+                },
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* AI Recommendations */}
+      <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-base">🤖</span>
+          <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+            AI Portfolio Recommendations
+          </h3>
+        </div>
+        <div className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+          {generateRecommendations(profile.allocation, actualAllocations).map(
+            (rec) => (
+              <div key={rec.slice(0, 30)} className="flex items-start gap-2">
+                <span className="text-amber-600 mt-0.5 flex-shrink-0">→</span>
+                <p>{rec}</p>
+              </div>
+            ),
+          )}
+        </div>
+      </div>
     </div>
   );
 }

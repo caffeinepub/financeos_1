@@ -213,7 +213,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <button
                   type="button"
                   data-ocid="nav.portfolio.toggle"
-                  onClick={() => setPortfolioOpen((o) => !o)}
+                  onClick={() => {
+                    if (!isPortfolioActive) {
+                      navigate("/portfolio/overview");
+                      setPortfolioOpen(true);
+                    } else {
+                      setPortfolioOpen((prev) => !prev);
+                    }
+                    if (isMobile) setSidebarOpen(false);
+                  }}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isPortfolioActive
                       ? "bg-blue-600 text-white"
@@ -260,6 +268,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               type="button"
               data-ocid={`nav.${item.label.toLowerCase().replace(/[^a-z0-9]/g, "")}.link`}
               onClick={() => {
+                setPortfolioOpen(false);
                 navigate(item.path);
                 if (isMobile) setSidebarOpen(false);
               }}
@@ -436,8 +445,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* ── COLLAPSED HORIZONTAL NAV (desktop only, when sidebar collapsed) ── */}
-      {!isMobile && sidebarCollapsed && (
+      {/* ── COLLAPSED HORIZONTAL NAV (desktop collapsed or mobile closed) ── */}
+      {((!isMobile && sidebarCollapsed) || (isMobile && !sidebarOpen)) && (
         <div className="bg-slate-800 border-b border-slate-700 flex-shrink-0">
           <div className="flex items-center gap-1 px-3 overflow-x-auto py-1.5 scrollbar-thin">
             {collapsedNavItems.map((item) => {

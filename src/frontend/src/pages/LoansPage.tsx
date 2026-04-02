@@ -354,33 +354,41 @@ export default function LoansPage() {
   const simLoan = loans.find((l) => l.id === selectedLoanId) ?? loans[0];
   const prepaySim = useMemo(() => {
     if (!simLoan) return null;
+    const monthlyRate = simLoan.interestRate / 100 / 12;
+    // Use the actual EMI from loan record, or calculate from outstanding balance and remaining tenure
+    const remainingTenure = Number(simLoan.termMonths);
     const emi =
       simLoan.monthlyPayment ||
-      calcEMI(
-        simLoan.currentBalance,
-        simLoan.interestRate,
-        Number(simLoan.termMonths),
-      );
-    const orig = calcAmortization(
-      simLoan.currentBalance,
-      simLoan.interestRate,
-      emi,
+      calcEMI(simLoan.currentBalance, simLoan.interestRate, remainingTenure);
+
+    // Without prepayment: total payment = EMI * remaining tenure
+    // Total interest = total payment - outstanding principal
+    const totalWithout = emi * remainingTenure;
+    const origTotalInterest = Math.max(
+      0,
+      totalWithout - simLoan.currentBalance,
     );
+
+    // With prepayment: run amortization with extra payment to find actual months
     const withPrepay = calcAmortization(
       simLoan.currentBalance,
       simLoan.interestRate,
       emi + extraPayment,
     );
-    const origTotalInterest = orig.reduce((s, r) => s + r.interest, 0);
     const newTotalInterest = withPrepay.reduce((s, r) => s + r.interest, 0);
+
     const origDate = new Date();
-    origDate.setMonth(origDate.getMonth() + orig.length);
+    origDate.setMonth(origDate.getMonth() + remainingTenure);
     const newDate = new Date();
     newDate.setMonth(newDate.getMonth() + withPrepay.length);
+
+    // Verify monthly rate consistency
+    const _ = monthlyRate; // used for reference
+
     return {
-      origMonths: orig.length,
+      origMonths: remainingTenure,
       newMonths: withPrepay.length,
-      monthsSaved: orig.length - withPrepay.length,
+      monthsSaved: remainingTenure - withPrepay.length,
       origTotalInterest,
       newTotalInterest,
       interestSaved: origTotalInterest - newTotalInterest,

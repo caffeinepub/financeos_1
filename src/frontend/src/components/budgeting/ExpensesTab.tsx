@@ -350,32 +350,35 @@ export function ExpensesTab() {
         </div>
       </div>
       {/* Row 2: Summary Cards + Filter Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center flex-wrap">
-        {/* Income Card */}
-        <div className="flex-1 rounded-xl border border-border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="h-4 w-4 text-green-600" />
-            <span className="text-xs font-medium text-muted-foreground">
-              Actual Income
-            </span>
+      <div className="space-y-3">
+        {/* Cards row - always 2 columns on all screen sizes */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Income Card - INDmoney style */}
+          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-emerald-500 px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-1.5 mb-1">
+              <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Actual Income
+              </span>
+            </div>
+            <div className="text-base font-bold text-emerald-600 tabular-nums">
+              {fmt(filteredIncome)}
+            </div>
           </div>
-          <div className="text-lg font-bold text-green-600">
-            {fmt(filteredIncome)}
+          {/* Expense Card - INDmoney style */}
+          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-rose-500 px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-1.5 mb-1">
+              <TrendingDown className="h-3.5 w-3.5 text-rose-500" />
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Actual Expenses
+              </span>
+            </div>
+            <div className="text-base font-bold text-rose-500 tabular-nums">
+              {fmt(filteredExpense)}
+            </div>
           </div>
         </div>
-        {/* Expense Card */}
-        <div className="flex-1 rounded-xl border border-border bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingDown className="h-4 w-4 text-red-500" />
-            <span className="text-xs font-medium text-muted-foreground">
-              Actual Expenses
-            </span>
-          </div>
-          <div className="text-lg font-bold text-red-500">
-            {fmt(filteredExpense)}
-          </div>
-        </div>
-        {/* Filter Buttons */}
+        {/* Filter Buttons row */}
         <div className="flex gap-2 flex-shrink-0 items-center flex-wrap">
           {(
             ["All", TransactionType.Income, TransactionType.Expense] as const

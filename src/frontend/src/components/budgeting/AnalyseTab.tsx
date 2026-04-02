@@ -177,28 +177,26 @@ export function AnalyseTab() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
-          <p className="text-[10px] text-emerald-600 font-medium uppercase tracking-wide">
+        <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm border-l-4 border-l-emerald-500">
+          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">
             Actual Income
           </p>
-          <p className="text-lg font-bold text-emerald-700 mt-0.5">
+          <p className="text-lg font-bold text-slate-800 mt-0.5">
             {fmt(income)}
           </p>
         </div>
-        <div className="bg-red-50 rounded-xl p-3 border border-red-100">
-          <p className="text-[10px] text-red-600 font-medium uppercase tracking-wide">
+        <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm border-l-4 border-l-red-500">
+          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">
             Total Expenses
           </p>
-          <p className="text-lg font-bold text-red-700 mt-0.5">
+          <p className="text-lg font-bold text-slate-800 mt-0.5">
             {fmt(expenses)}
           </p>
         </div>
         <div
-          className={`${savings >= 0 ? "bg-blue-50 border-blue-100" : "bg-orange-50 border-orange-100"} rounded-xl p-3 border`}
+          className={`bg-white rounded-xl p-3 border border-slate-200 shadow-sm border-l-4 ${savings >= 0 ? "border-l-blue-500" : "border-l-orange-500"}`}
         >
-          <p
-            className={`text-[10px] font-medium uppercase tracking-wide ${savings >= 0 ? "text-blue-600" : "text-orange-600"}`}
-          >
+          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">
             Net Savings
           </p>
           <p
@@ -208,9 +206,9 @@ export function AnalyseTab() {
           </p>
         </div>
         <div
-          className={`${savingsRate >= 20 ? "bg-violet-50 border-violet-100" : savingsRate >= 10 ? "bg-amber-50 border-amber-100" : "bg-rose-50 border-rose-100"} rounded-xl p-3 border`}
+          className={`bg-white rounded-xl p-3 border border-slate-200 shadow-sm border-l-4 ${savingsRate >= 20 ? "border-l-violet-500" : savingsRate >= 10 ? "border-l-amber-500" : "border-l-rose-500"}`}
         >
-          <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">
             Savings Rate
           </p>
           <p

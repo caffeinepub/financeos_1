@@ -132,16 +132,17 @@ function calcAmortization(
   let m = 0;
   while (bal > 0 && m < 600) {
     const interest = r > 0 ? bal * r : 0;
-    const principal = Math.min(emi - interest, bal);
-    bal = Math.max(0, bal - principal);
+    const principal = emi - interest;
+    if (principal <= 0) break; // EMI too low to cover interest, exit
+    const actualPrincipal = Math.min(principal, bal);
+    bal = Math.max(0, bal - actualPrincipal);
     result.push({
       month: m + 1,
       balance: Math.round(bal),
-      principal: Math.round(principal),
+      principal: Math.round(actualPrincipal),
       interest: Math.round(interest),
     });
     m++;
-    if (principal <= 0) break;
   }
   return result;
 }
@@ -361,13 +362,14 @@ export default function LoansPage() {
       simLoan.monthlyPayment ||
       calcEMI(simLoan.currentBalance, simLoan.interestRate, remainingTenure);
 
-    // Without prepayment: total payment = EMI * remaining tenure
-    // Total interest = total payment - outstanding principal
-    const totalWithout = emi * remainingTenure;
-    const origTotalInterest = Math.max(
-      0,
-      totalWithout - simLoan.currentBalance,
+    // Without prepayment: use actual amortization for accuracy
+    const withoutPrepay = calcAmortization(
+      simLoan.currentBalance,
+      simLoan.interestRate,
+      emi,
     );
+    const origTotalInterest = withoutPrepay.reduce((s, r) => s + r.interest, 0);
+    const origMonths = withoutPrepay.length;
 
     // With prepayment: run amortization with extra payment to find actual months
     const withPrepay = calcAmortization(
@@ -377,21 +379,20 @@ export default function LoansPage() {
     );
     const newTotalInterest = withPrepay.reduce((s, r) => s + r.interest, 0);
 
+    const _ = monthlyRate; // used for reference
+
     const origDate = new Date();
-    origDate.setMonth(origDate.getMonth() + remainingTenure);
+    origDate.setMonth(origDate.getMonth() + origMonths);
     const newDate = new Date();
     newDate.setMonth(newDate.getMonth() + withPrepay.length);
 
-    // Verify monthly rate consistency
-    const _ = monthlyRate; // used for reference
-
     return {
-      origMonths: remainingTenure,
+      origMonths,
       newMonths: withPrepay.length,
-      monthsSaved: remainingTenure - withPrepay.length,
+      monthsSaved: Math.max(0, origMonths - withPrepay.length),
       origTotalInterest,
       newTotalInterest,
-      interestSaved: origTotalInterest - newTotalInterest,
+      interestSaved: Math.max(0, origTotalInterest - newTotalInterest),
       origDate: origDate.toLocaleDateString("en-IN", {
         month: "long",
         year: "numeric",

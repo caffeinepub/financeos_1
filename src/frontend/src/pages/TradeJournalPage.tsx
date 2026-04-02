@@ -1633,7 +1633,7 @@ export default function TradeJournalPage() {
           <div className="space-y-6">
             {/* Pattern Recognition */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-400 mb-3">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
                 Pattern Recognition
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1784,7 +1784,7 @@ export default function TradeJournalPage() {
             {/* Day of Week Table */}
             <div className="bg-card rounded-2xl border border-slate-300 dark:border-slate-600 overflow-hidden">
               <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                <h3 className="text-sm font-semibold text-slate-100">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                   Day of Week Performance
                 </h3>
               </div>
@@ -1817,10 +1817,10 @@ export default function TradeJournalPage() {
                               : "hover:bg-red-900/10"
                         }`}
                       >
-                        <TableCell className="text-sm font-medium text-slate-100">
+                        <TableCell className="text-sm font-medium text-slate-800 dark:text-slate-100">
                           {d.day}
                         </TableCell>
-                        <TableCell className="text-sm text-slate-400">
+                        <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                           {d.trades}
                         </TableCell>
                         <TableCell>

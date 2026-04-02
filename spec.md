@@ -1,44 +1,66 @@
-# Growfinfire Global
+# Growfinfire Global - Focused UI Fixes
 
 ## Current State
-App has Goals, Dashboard, Budgeting, Loans, Trade Journal modules fully implemented.
+Comprehensive finance app with Dashboard, Portfolio, Goals, Budgeting, Financial Model, Financial Planner, Learn Finance, Loans, Trade Journal. Version 136 deployed in production.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Dashboard: Rebuild Risk-o-meter as semicircular gauge (like image) with needle, 6 color bands, no investment allocation bars below it. Move it next to Allocation% chart.
-- Trade Journal: Heatmap navigation (prev/next month/year buttons)
-- Trade Journal: Win/Loss as Donut charts with count inside the ring
-- Budgeting Improve Budget: ability to copy specific month data from Track Income vs Expense
+- Landing Page: Hidden admin icon triggered by 5 clicks on bottom-right corner; password prompt (password: `288nitK!`); reveals admin panel link
 
 ### Modify
-- Goals GoalsPage: Move toggle icons (table/card) to rightmost side of submenu header row (same row as Track Goals / Plan Goals tabs)
-- Goals GoalList card view: keep circular ring in parallel (same vertical alignment) with Target/Current fields — shift metric fields slightly right so they sit beside the ring, not below it. Ring should align vertically with the first metric row.
-- Goals GoalsTab/GoalsPage: Remove the outer Card wrapper (white panel/skeleton) that wraps around the 4 summary cards + status tabs + GoalList. The content should lay out directly like Portfolio module (no extra rectangular outer container below the submenu header).
-- Dashboard: Risk-o-meter card moved to be next to Allocation% chart (same row), remove investment allocation bar list from inside the risk-o-meter card
-- Budgeting Track Income & Expenses: On mobile, Actual Income and Actual Expenses cards must be in one row (same sizing as Plan Budget cards)
-- Budgeting Budget Insights: Move "Type" column to the end, just before "Variance" (last two columns)
-- Loans: Remove Principal vs Interest paid bar from loan cards
-- Loans: Replace Financial Model cards (Goal Planning, Debt Model, Improve Budget sub-sections) with card style matching main modules (Portfolio/Budgeting card style)
-- Loans: Plan Goals cards nested under Goal Planning card; Debt Model cards under Loan Management & Repayment; Improve Budget cards under Budgeting & Expense Tracking
-- Trade Journal Dashboard: P&L by Strategy limited to top 6; P&L by Instrument limited to top 6
-- Trade Journal Dashboard: Total Trades value font color = black (dark mode aware: text-slate-900 dark:text-white or similar)
-- Trade Journal: Reduce space above "Trade Journal" title (reduce pt-6 to pt-2 or remove)
-- Trade Journal Trade Log: search/filter input fields background = white (bg-white) in light mode
-- Trade Journal Analytics: card label/value font colors follow app standard (text-slate-700 dark:text-slate-200 for labels, text-slate-900 dark:text-white for values)
-- Trade Journal tables: font colors follow app standard (text-slate-800 dark:text-slate-200)
+
+**Dashboard - DashboardPage.tsx**
+1. Risk-o-meter (RiskOMeter component ~line 288-433): Fix SVG viewBox clipping. The arc only shows at left/right corners, needle partially visible, only 2/6 color bands render. Root cause: `cy=175` with `outerR=130` means the center is too low and arcs go below the viewBox. Fix: increase H to 220, set cy=190, recalculate all polarToCartesian so the full 180° arc fits. All 6 color bands must be visible. Needle tip must be inside the arc. Add bottom padding.
+2. Chart layout - rearrange these into 2-per-row grids:
+   - Row: Assets vs Liabilities (currently in 3-col grid) + Debt-to-Income Ratio (currently in 3-col grid)
+   - Row: Cash Flow Summary (currently in 3-col grid) + Income vs Expense Trend (currently standalone full-width)
+   - Row: Investment Categories (currently standalone) + 50/30/20 Budget Rule Analysis (currently standalone)
+   - Goals Progress + Budgeting (6 Months) already in 2-col grid — keep as is
+   Currently the 3-col grid has Assets vs Liabilities, DTI, and Cash Flow all together. Split to: [Assets vs Liabilities + DTI] in one 2-col row, [Cash Flow + Income vs Expense] in another 2-col row.
+
+**Portfolio - PortfolioPage.tsx**
+- Overview: "Equity - Allocation%" and "Mutual Fund - Allocation%" donut charts (~line 1968-2090): Update to use the same style as the main Allocation% donut chart. The Allocation% donut uses `innerRadius={50}` `outerRadius={80}`, white text labels inside with `%`, and Cell colors from the entry. Update these two charts to match: same innerRadius/outerRadius, same label function showing `%` inside (white text, fontSize 9, fontWeight 600), same tooltip and legend style.
+
+**Budgeting - MonthlyTrackerTab.tsx**
+- Track Income vs Expense: Move Month/Year dropdowns and Search box below the two summary cards (Actual Income + Actual Expense). On desktop (md+), keep "All/Income/Expense/Add" buttons in the same top row as the cards. The current layout has dropdowns on top row. New layout: Top row = [Actual Income card] [Actual Expense card] [All/Income/Expense/Add buttons — desktop only]. Below cards = [Month dropdown] [Year dropdown] [Search bar — fills remaining space]
+- Table font size: Ensure table text uses `text-sm` (same as Plan Budget table), not `text-xs`
+
+**Budget Insights - AnalyseTab.tsx**
+- Update summary card theme from colored background divs (bg-emerald-50, bg-red-50, etc.) to match Portfolio/Goals INDmoney-style cards: white background, `border-l-4` colored accent, subtle shadow, consistent height
+
+**Improve Budget - BudgetingPage.tsx (improve tab, lines ~762-840)**
+- The autofill button calls `handleAutofill` which filters `transactions` state. The `transactions` state is loaded in the parent `BudgetingPage` via `actor.getAllTransactions()`. The issue is likely that `transactions` is empty or filtering is wrong. Fix: ensure transactions are loaded before autofill runs; add a console check; if transactions are empty show a toast "No transaction data — add transactions in Track Income & Expense first". Also the autofill populates `autofillData` which shows as a banner but doesn't map into the scenario card inputs — fix so autofill data is actually applied to the editable scenario input fields.
+- ModelBudgetingTab.tsx scenarios: The 4 scenario cards need to have comprehensive Needs/Wants/Savings category fields. Each scenario's input form should have industry-standard categories: Income (salary/business/freelance), Needs (rent, groceries, transport, utilities, EMIs, healthcare), Wants (dining out, entertainment, subscriptions, shopping, travel), Savings (emergency fund, SIP/investments, retirement), and a Miscellaneous field. This replaces the current minimal input fields.
+
+**Financial Model - ModelBudgetingTab.tsx**
+- The Budget & Expense Tracking tab in Financial Model uses ModelBudgetingTab. Compare with Improve Budget in BudgetingPage. Make ModelBudgetingTab visually consistent with the Improve Budget tab: same card accordion theme, same expanded view, same white card backgrounds with colored headers.
+
+**Loans - LoansPage.tsx**
+- Prepayment simulator: Fix `calcAmortization` usage in `prepaySim` (~line 354-403). Current logic: `emi + extraPayment` is passed as the total monthly payment to `calcAmortization`. This should correctly reduce tenure. However the bug may be that `remainingTenure = Number(simLoan.termMonths)` uses the original full term, not remaining months. Fix: use `simLoan.termMonths` as remaining months (current implementation), but verify `calcAmortization` terminates correctly. The real fix: when `principal <= 0` in calcAmortization, the loop should break. Check `principal = Math.min(emi - interest, bal)` — if `emi < interest` then `principal` is negative and balance never decreases. Add guard: if `emi <= interest` then principal = 0 and break. This is the root cause when extraPayment is added but base emi is already miscalculated.
+
+**Trade Journal - TradeJournalPage.tsx Analytics section (~line 1631+)**
+- Fix font colors in Analytics tab to match app standard:
+  - Section headers like "Pattern Recognition" and "Day of Week Performance": change `text-slate-400` to `text-slate-700 dark:text-slate-300`
+  - Table header in "Day of Week Performance": `text-slate-100` → `text-slate-700 dark:text-slate-200`
+  - `TableCell` with `text-slate-100` → `text-slate-800 dark:text-slate-100`
+  - `TableCell` with `text-slate-400` for trade count → `text-slate-600 dark:text-slate-400`
+
+**Landing Page - LandingPage.tsx**
+- Add hidden admin icon: Track click count on a small invisible area (bottom-right corner, 30x30px, z-50). After 5 clicks within 10 seconds, show a modal/dialog with password input. If user enters `288nitK!`, navigate to `/admin`. Reset counter after 10s or successful/failed auth.
 
 ### Remove
-- Goals: The outer Card/CardContent wrapper in GoalsTab that wraps around everything (4 summary cards + GoalList). Keep the Analytics card as is. The inner content (summary cards + GoalList) should render without the outer white card panel.
-- Dashboard Risk-o-meter: Remove the investment allocation breakdown list (bars) from inside the Risk-o-meter card
+- Nothing removed
 
 ## Implementation Plan
-1. GoalsPage.tsx: Add toggle icons (LayoutList/LayoutGrid) to the submenu header row, rightmost. Remove them from GoalList's own filter row if duplicated.
-2. GoalsTab.tsx: Remove outer Card/CardContent wrapper — render summary cards and GoalList directly in a div. Keep Analytics card unchanged.
-3. GoalList.tsx card view: Fix layout so circular ring (72px) is vertically aligned with the first metric row. Use flex-row with ring on left, metrics on right (not stacked below). Ring aligns to the start of the Target/Current row.
-4. DashboardPage.tsx: Move Risk-o-meter card into the same grid row as Allocation% chart (2-column grid). Remove the allocation bars from inside RiskOMeter card content.
-5. BudgetingPage.tsx (MonthlyTrackerTab): ensure Actual Income and Actual Expenses cards are in a flex row on mobile (grid-cols-2 always, not stacking to 1 col).
-6. BudgetingPage.tsx Budget Insights table: Move Type column to end, just before Variance.
-7. BudgetingPage.tsx Improve Budget: Add "Copy Month Data" button that copies from Track Income vs Expense for the selected month into the Improve Budget scenario.
-8. LoansPage.tsx: Remove Principal vs Interest bar. Replace Financial Model accordion cards (Goal Planning, Debt Model, Improve Budget) with Portfolio/Budgeting styled cards. Nest Plan Goals cards under Goal Planning, Debt Model cards under Loan Management, Improve Budget cards under Budgeting section.
-9. TradeJournalPage.tsx: Limit pnlByStrategy to top 6, pnlByTicker to top 6. Convert Win/Loss from BarChart to two PieChart donuts showing count in center. Add prev/next navigation to MonthlyHeatmap. Fix Total Trades color to black. Reduce header padding. Search filter inputs bg-white. Analytics card text colors follow app standard. Table font colors follow app standard.
+1. Fix RiskOMeter SVG in DashboardPage.tsx — adjust viewBox H, cy, and recalculate coordinates
+2. Rearrange Dashboard chart grid layout — split 3-col section, make Cash Flow + Income vs Expense a 2-col row, Investment Categories + 50/30/20 a 2-col row
+3. Fix Portfolio Overview Equity/MF donut charts — update to match main Allocation% donut style
+4. Fix MonthlyTrackerTab layout — move dropdowns below cards, fix table font size
+5. Fix AnalyseTab card theme — INDmoney border-l-4 style
+6. Fix Improve Budget autofill — ensure it actually populates scenario fields, add expanded category fields to scenarios
+7. Fix ModelBudgetingTab visual consistency — match Improve Budget tab theme
+8. Fix Loans prepayment simulator logic — guard against negative principal in calcAmortization
+9. Fix Trade Journal Analytics font colors
+10. Add hidden admin trigger to LandingPage
+11. Validate and deploy

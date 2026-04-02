@@ -299,11 +299,11 @@ function RiskOMeter({ score }: { score: number }) {
   const clampedScore = Math.min(Math.max(score, 0), 100);
 
   const W = 320;
-  const H = 200;
+  const H = 220;
   const cx = 160;
-  const cy = 175;
-  const outerR = 130;
-  const innerR = 88;
+  const cy = 185;
+  const outerR = 120;
+  const innerR = 80;
 
   function polarToCartesian(
     px: number,
@@ -419,7 +419,7 @@ function RiskOMeter({ score }: { score: number }) {
         <circle cx={cx} cy={cy} r="4" fill="white" />
         <text
           x={cx}
-          y={cy - 48}
+          y={cy + 20}
           textAnchor="middle"
           fontSize="13"
           fontWeight="800"
@@ -973,8 +973,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* ── Assets vs Liabilities + DTI + Cash Flow ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* ── Assets vs Liabilities + DTI ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Liability vs Asset */}
         <Card
           data-ocid="dashboard.liabilityasset.card"
@@ -1194,8 +1194,10 @@ export default function DashboardPage() {
             })()}
           </CardContent>
         </Card>
+      </div>
 
-        {/* Cash Flow Summary */}
+      {/* ── Cash Flow Summary + Income vs Expense Trend ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card
           data-ocid="dashboard.cashflow.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -1257,91 +1259,105 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+        <Card
+          data-ocid="dashboard.incomevexpense.card"
+          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+        >
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              Income vs Expense Trend
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-400">
+              12-month view showing income, expenses &amp; savings
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-5 pb-5">
+            {incomeExpenseTrend.every(
+              (d) => d.Income === 0 && d.Expense === 0,
+            ) ? (
+              <div className="h-64 flex flex-col items-center justify-center gap-2">
+                <span className="text-3xl">📊</span>
+                <p className="text-sm text-slate-400">
+                  No transaction data yet
+                </p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={280}>
+                <AreaChart
+                  data={incomeExpenseTrend}
+                  margin={{ top: 5, right: 10, left: 10, bottom: 30 }}
+                >
+                  <defs>
+                    <linearGradient
+                      id="colorIncome"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient
+                      id="colorExpense"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 9 }}
+                    angle={-20}
+                    textAnchor="end"
+                    height={45}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 9 }}
+                    tickFormatter={(v: number) =>
+                      shortNum(v, sym, country.code)
+                    }
+                  />
+                  <Tooltip
+                    formatter={(v: number, name: string) => [
+                      formatCurrency(v),
+                      name,
+                    ]}
+                    contentStyle={{
+                      fontSize: "11px",
+                      borderRadius: "10px",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                  <Area
+                    type="monotone"
+                    dataKey="Income"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    fill="url(#colorIncome)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="Expense"
+                    stroke="#ef4444"
+                    strokeWidth={2}
+                    fill="url(#colorExpense)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* ── Income vs Expense Trend ── */}
-      <Card
-        data-ocid="dashboard.incomevexpense.card"
-        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-      >
-        <CardHeader className="pb-2 pt-4 px-5">
-          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-            Income vs Expense Trend
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-400">
-            12-month view showing income, expenses &amp; savings
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-5 pb-5">
-          {incomeExpenseTrend.every(
-            (d) => d.Income === 0 && d.Expense === 0,
-          ) ? (
-            <div className="h-64 flex flex-col items-center justify-center gap-2">
-              <span className="text-3xl">📊</span>
-              <p className="text-sm text-slate-400">No transaction data yet</p>
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <AreaChart
-                data={incomeExpenseTrend}
-                margin={{ top: 5, right: 10, left: 10, bottom: 30 }}
-              >
-                <defs>
-                  <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 9 }}
-                  angle={-20}
-                  textAnchor="end"
-                  height={45}
-                />
-                <YAxis
-                  tick={{ fontSize: 9 }}
-                  tickFormatter={(v: number) => shortNum(v, sym, country.code)}
-                />
-                <Tooltip
-                  formatter={(v: number, name: string) => [
-                    formatCurrency(v),
-                    name,
-                  ]}
-                  contentStyle={{
-                    fontSize: "11px",
-                    borderRadius: "10px",
-                    border: "1px solid #e2e8f0",
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: "11px" }} />
-                <Area
-                  type="monotone"
-                  dataKey="Income"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  fill="url(#colorIncome)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="Expense"
-                  stroke="#ef4444"
-                  strokeWidth={2}
-                  fill="url(#colorExpense)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* ── Investment Categories (horizontal bar) ── */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* ── Investment Categories + 50/30/20 ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Investment Categories - Horizontal Bar */}
         <Card
           data-ocid="dashboard.categories.card"
@@ -1420,197 +1436,202 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
-      </div>
-      <Card
-        data-ocid="dashboard.budgetrule.card"
-        className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-      >
-        <CardHeader className="pb-2 pt-4 px-5">
-          <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-            50/30/20 Budget Rule Analysis
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-400">
-            Current month: Needs vs Wants vs Savings vs ideal allocation
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-5 pb-5">
-          {(() => {
-            const currentDate = new Date();
-            const currentMonth = currentDate.getMonth();
-            const currentYear = currentDate.getFullYear();
-            const currentMonthExpenses = transactions.filter((tx) => {
-              const d = new Date(Number(tx.date));
+        <Card
+          data-ocid="dashboard.budgetrule.card"
+          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
+        >
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              50/30/20 Budget Rule Analysis
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-400">
+              Current month: Needs vs Wants vs Savings vs ideal allocation
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-5 pb-5">
+            {(() => {
+              const currentDate = new Date();
+              const currentMonth = currentDate.getMonth();
+              const currentYear = currentDate.getFullYear();
+              const currentMonthExpenses = transactions.filter((tx) => {
+                const d = new Date(Number(tx.date));
+                return (
+                  d.getMonth() === currentMonth &&
+                  d.getFullYear() === currentYear &&
+                  getKey(tx.transactionType) === "Expense"
+                );
+              });
+              const currentMonthInc =
+                transactions
+                  .filter((tx) => {
+                    const d = new Date(Number(tx.date));
+                    return (
+                      d.getMonth() === currentMonth &&
+                      d.getFullYear() === currentYear &&
+                      getKey(tx.transactionType) === "Income"
+                    );
+                  })
+                  .reduce((s, t) => s + t.amount, 0) || 1;
+              const catTypeMap: Record<string, string> = {};
+              for (const bc of budgetCats) {
+                catTypeMap[bc.id] =
+                  (bc as { budgetType?: string }).budgetType ?? "Needs";
+              }
+              const needsTotal = currentMonthExpenses
+                .filter(
+                  (t) =>
+                    (catTypeMap[
+                      (t as { categoryId?: string }).categoryId ?? ""
+                    ] ?? "Needs") === "Needs",
+                )
+                .reduce((s, t) => s + t.amount, 0);
+              const wantsTotal = currentMonthExpenses
+                .filter(
+                  (t) =>
+                    (catTypeMap[
+                      (t as { categoryId?: string }).categoryId ?? ""
+                    ] ?? "Needs") === "Wants",
+                )
+                .reduce((s, t) => s + t.amount, 0);
+              const savingsTotal = currentMonthExpenses
+                .filter(
+                  (t) =>
+                    (catTypeMap[
+                      (t as { categoryId?: string }).categoryId ?? ""
+                    ] ?? "Needs") === "Savings",
+                )
+                .reduce((s, t) => s + t.amount, 0);
+              const rule5030Data = [
+                {
+                  name: "Needs",
+                  actual: Number(
+                    ((needsTotal / currentMonthInc) * 100).toFixed(1),
+                  ),
+                  ideal: 50,
+                  color: "#3b82f6",
+                },
+                {
+                  name: "Wants",
+                  actual: Number(
+                    ((wantsTotal / currentMonthInc) * 100).toFixed(1),
+                  ),
+                  ideal: 30,
+                  color: "#f59e0b",
+                },
+                {
+                  name: "Savings",
+                  actual: Number(
+                    ((savingsTotal / currentMonthInc) * 100).toFixed(1),
+                  ),
+                  ideal: 20,
+                  color: "#10b981",
+                },
+              ];
+              if (currentMonthExpenses.length === 0) {
+                return (
+                  <div className="h-48 flex flex-col items-center justify-center gap-2">
+                    <span className="text-3xl">💰</span>
+                    <p className="text-sm text-slate-400">
+                      No transactions for current month
+                    </p>
+                  </div>
+                );
+              }
               return (
-                d.getMonth() === currentMonth &&
-                d.getFullYear() === currentYear &&
-                getKey(tx.transactionType) === "Expense"
-              );
-            });
-            const currentMonthInc =
-              transactions
-                .filter((tx) => {
-                  const d = new Date(Number(tx.date));
-                  return (
-                    d.getMonth() === currentMonth &&
-                    d.getFullYear() === currentYear &&
-                    getKey(tx.transactionType) === "Income"
-                  );
-                })
-                .reduce((s, t) => s + t.amount, 0) || 1;
-            const catTypeMap: Record<string, string> = {};
-            for (const bc of budgetCats) {
-              catTypeMap[bc.id] =
-                (bc as { budgetType?: string }).budgetType ?? "Needs";
-            }
-            const needsTotal = currentMonthExpenses
-              .filter(
-                (t) =>
-                  (catTypeMap[
-                    (t as { categoryId?: string }).categoryId ?? ""
-                  ] ?? "Needs") === "Needs",
-              )
-              .reduce((s, t) => s + t.amount, 0);
-            const wantsTotal = currentMonthExpenses
-              .filter(
-                (t) =>
-                  (catTypeMap[
-                    (t as { categoryId?: string }).categoryId ?? ""
-                  ] ?? "Needs") === "Wants",
-              )
-              .reduce((s, t) => s + t.amount, 0);
-            const savingsTotal = currentMonthExpenses
-              .filter(
-                (t) =>
-                  (catTypeMap[
-                    (t as { categoryId?: string }).categoryId ?? ""
-                  ] ?? "Needs") === "Savings",
-              )
-              .reduce((s, t) => s + t.amount, 0);
-            const rule5030Data = [
-              {
-                name: "Needs",
-                actual: Number(
-                  ((needsTotal / currentMonthInc) * 100).toFixed(1),
-                ),
-                ideal: 50,
-                color: "#3b82f6",
-              },
-              {
-                name: "Wants",
-                actual: Number(
-                  ((wantsTotal / currentMonthInc) * 100).toFixed(1),
-                ),
-                ideal: 30,
-                color: "#f59e0b",
-              },
-              {
-                name: "Savings",
-                actual: Number(
-                  ((savingsTotal / currentMonthInc) * 100).toFixed(1),
-                ),
-                ideal: 20,
-                color: "#10b981",
-              },
-            ];
-            if (currentMonthExpenses.length === 0) {
-              return (
-                <div className="h-48 flex flex-col items-center justify-center gap-2">
-                  <span className="text-3xl">💰</span>
-                  <p className="text-sm text-slate-400">
-                    No transactions for current month
-                  </p>
-                </div>
-              );
-            }
-            return (
-              <div className="space-y-4">
-                <ResponsiveContainer width="100%" height={160}>
-                  <BarChart
-                    data={rule5030Data}
-                    layout="vertical"
-                    margin={{ top: 5, right: 60, left: 60, bottom: 5 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      opacity={0.15}
-                      horizontal={false}
-                    />
-                    <XAxis
-                      type="number"
-                      tick={{ fontSize: 10 }}
-                      tickFormatter={(v: number) => `${v}%`}
-                      domain={[0, 60]}
-                    />
-                    <YAxis
-                      type="category"
-                      dataKey="name"
-                      tick={{ fontSize: 11 }}
-                      width={55}
-                    />
-                    <Tooltip
-                      formatter={(v: number, name: string) => [`${v}%`, name]}
-                      contentStyle={{
-                        fontSize: "11px",
-                        borderRadius: "10px",
-                        border: "1px solid #e2e8f0",
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: "11px" }} />
-                    <Bar dataKey="actual" name="Actual %" radius={[0, 4, 4, 0]}>
-                      {rule5030Data.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
-                      ))}
-                      <LabelList
-                        dataKey="actual"
-                        position="right"
-                        formatter={(v: number) => `${v}%`}
-                        style={{
-                          fontSize: "10px",
-                          fill: "#64748b",
-                          fontWeight: 600,
+                <div className="space-y-4">
+                  <ResponsiveContainer width="100%" height={160}>
+                    <BarChart
+                      data={rule5030Data}
+                      layout="vertical"
+                      margin={{ top: 5, right: 60, left: 60, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        opacity={0.15}
+                        horizontal={false}
+                      />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(v: number) => `${v}%`}
+                        domain={[0, 60]}
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="name"
+                        tick={{ fontSize: 11 }}
+                        width={55}
+                      />
+                      <Tooltip
+                        formatter={(v: number, name: string) => [`${v}%`, name]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                          border: "1px solid #e2e8f0",
                         }}
                       />
-                    </Bar>
-                    <Bar
-                      dataKey="ideal"
-                      name="Ideal %"
-                      fill="#e2e8f0"
-                      radius={[0, 4, 4, 0]}
-                    >
-                      <LabelList
+                      <Legend wrapperStyle={{ fontSize: "11px" }} />
+                      <Bar
+                        dataKey="actual"
+                        name="Actual %"
+                        radius={[0, 4, 4, 0]}
+                      >
+                        {rule5030Data.map((entry) => (
+                          <Cell key={entry.name} fill={entry.color} />
+                        ))}
+                        <LabelList
+                          dataKey="actual"
+                          position="right"
+                          formatter={(v: number) => `${v}%`}
+                          style={{
+                            fontSize: "10px",
+                            fill: "#64748b",
+                            fontWeight: 600,
+                          }}
+                        />
+                      </Bar>
+                      <Bar
                         dataKey="ideal"
-                        position="right"
-                        formatter={(v: number) => `${v}%`}
-                        style={{ fontSize: "10px", fill: "#94a3b8" }}
-                      />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="flex flex-wrap gap-3 justify-center text-xs text-slate-500">
-                  {rule5030Data.map((d) => (
-                    <div key={d.name} className="flex items-center gap-1.5">
-                      <div
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ background: d.color }}
-                      />
-                      <span>
-                        {d.name}:{" "}
-                        <span
-                          className="font-semibold"
-                          style={{ color: d.color }}
-                        >
-                          {d.actual}%
-                        </span>{" "}
-                        (ideal {d.ideal}%)
-                      </span>
-                    </div>
-                  ))}
+                        name="Ideal %"
+                        fill="#e2e8f0"
+                        radius={[0, 4, 4, 0]}
+                      >
+                        <LabelList
+                          dataKey="ideal"
+                          position="right"
+                          formatter={(v: number) => `${v}%`}
+                          style={{ fontSize: "10px", fill: "#94a3b8" }}
+                        />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <div className="flex flex-wrap gap-3 justify-center text-xs text-slate-500">
+                    {rule5030Data.map((d) => (
+                      <div key={d.name} className="flex items-center gap-1.5">
+                        <div
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ background: d.color }}
+                        />
+                        <span>
+                          {d.name}:{" "}
+                          <span
+                            className="font-semibold"
+                            style={{ color: d.color }}
+                          >
+                            {d.actual}%
+                          </span>{" "}
+                          (ideal {d.ideal}%)
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })()}
-        </CardContent>
-      </Card>
+              );
+            })()}
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card
           data-ocid="dashboard.goals.card"

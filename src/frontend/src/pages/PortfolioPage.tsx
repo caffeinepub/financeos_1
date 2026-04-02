@@ -1427,7 +1427,7 @@ function PortfolioOverview({
     Other: "#94a3b8",
   };
 
-  const renderPieLabel = ({ name, pct }: { name: string; pct: string }) =>
+  const _renderPieLabel = ({ name, pct }: { name: string; pct: string }) =>
     `${name}: ${pct}%`;
 
   // Total invested and current across all types
@@ -1982,9 +1982,36 @@ function PortfolioOverview({
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={renderPieLabel}
-                    innerRadius={40}
-                    outerRadius={90}
+                    label={({
+                      cx,
+                      cy,
+                      midAngle,
+                      innerRadius,
+                      outerRadius,
+                      percent,
+                    }) => {
+                      if (percent < 0.04) return null;
+                      const RADIAN = Math.PI / 180;
+                      const radius =
+                        innerRadius + (outerRadius - innerRadius) * 0.5;
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill="white"
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fontSize={9}
+                          fontWeight={600}
+                        >
+                          {`${(percent * 100).toFixed(0)}%`}
+                        </text>
+                      );
+                    }}
+                    innerRadius={50}
+                    outerRadius={80}
                     dataKey="value"
                   >
                     {equityCapData.map((entry) => (
@@ -2036,9 +2063,36 @@ function PortfolioOverview({
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={renderPieLabel}
-                    innerRadius={40}
-                    outerRadius={90}
+                    label={({
+                      cx,
+                      cy,
+                      midAngle,
+                      innerRadius,
+                      outerRadius,
+                      percent,
+                    }) => {
+                      if (percent < 0.04) return null;
+                      const RADIAN = Math.PI / 180;
+                      const radius =
+                        innerRadius + (outerRadius - innerRadius) * 0.5;
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill="white"
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fontSize={9}
+                          fontWeight={600}
+                        >
+                          {`${(percent * 100).toFixed(0)}%`}
+                        </text>
+                      );
+                    }}
+                    innerRadius={50}
+                    outerRadius={80}
                     dataKey="value"
                   >
                     {mfCapData.map((entry) => (

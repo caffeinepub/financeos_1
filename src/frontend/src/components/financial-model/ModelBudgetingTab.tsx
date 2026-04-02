@@ -15,9 +15,12 @@ import {
   Wallet,
 } from "lucide-react";
 import { useState } from "react";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 const fmt = (n: number) => Math.round(n).toLocaleString("en-IN");
-const fmtC = (n: number) => `₹${fmt(n)}`;
+// Default symbol used by module-level analyzeBudget function; component overrides via useCurrency
+let _currencySymbol = "₹";
+const fmtC = (n: number) => `${_currencySymbol}${fmt(n)}`;
 
 type BudgetInputs = {
   income: number;
@@ -441,6 +444,9 @@ export function ModelBudgetingTab({
     savings: number;
   } | null;
 } = {}) {
+  const { country } = useCurrency();
+  // Update module-level currency symbol so analyzeBudget uses current currency
+  _currencySymbol = country.symbol;
   const initScenario =
     SCENARIOS.find((s) => s.id === initialScenario) ?? SCENARIOS[0];
   const [inputs, setInputs] = useState<BudgetInputs>(initScenario.inputs);
@@ -463,22 +469,43 @@ export function ModelBudgetingTab({
   };
 
   // Apply autofill data if provided
-  const _applyAutofill = () => {
+  const applyAutofill = () => {
     if (!autofillData) return;
     setInputs((prev) => ({
       ...prev,
-      income: autofillData.income,
-      rent: Math.round(autofillData.needs * 0.4),
-      groceries: Math.round(autofillData.needs * 0.25),
-      transport: Math.round(autofillData.needs * 0.15),
-      emi: Math.round(autofillData.needs * 0.2),
-      eatingOut: Math.round(autofillData.wants * 0.4),
-      subscriptions: Math.round(autofillData.wants * 0.3),
-      otherMisc: Math.round(autofillData.wants * 0.3),
+      income: autofillData.income || prev.income,
+      rent:
+        autofillData.needs > 0
+          ? Math.round(autofillData.needs * 0.4)
+          : prev.rent,
+      groceries:
+        autofillData.needs > 0
+          ? Math.round(autofillData.needs * 0.25)
+          : prev.groceries,
+      transport:
+        autofillData.needs > 0
+          ? Math.round(autofillData.needs * 0.15)
+          : prev.transport,
+      emi:
+        autofillData.needs > 0
+          ? Math.round(autofillData.needs * 0.2)
+          : prev.emi,
+      eatingOut:
+        autofillData.wants > 0
+          ? Math.round(autofillData.wants * 0.4)
+          : prev.eatingOut,
+      subscriptions:
+        autofillData.wants > 0
+          ? Math.round(autofillData.wants * 0.3)
+          : prev.subscriptions,
+      otherMisc:
+        autofillData.wants > 0
+          ? Math.round(autofillData.wants * 0.3)
+          : prev.otherMisc,
     }));
     setResult(null);
     setError("");
-    setView("detail");
+    if (view === "menu") setView("detail");
   };
 
   const handleAnalyze = () => {
@@ -512,6 +539,24 @@ export function ModelBudgetingTab({
             </h3>
           </div>
         </div>
+        {autofillData && (
+          <div className="flex flex-wrap items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+            <span className="text-xs font-semibold text-emerald-700">
+              ✓ Autofill data available:
+            </span>
+            <span className="text-xs text-emerald-600">
+              Income {fmtC(autofillData.income)}, Needs{" "}
+              {fmtC(autofillData.needs)}, Wants {fmtC(autofillData.wants)}
+            </span>
+            <button
+              type="button"
+              onClick={applyAutofill}
+              className="ml-auto h-7 px-3 rounded-md bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-colors"
+            >
+              Apply & Analyze
+            </button>
+          </div>
+        )}
         {SCENARIOS.map((s, idx) => {
           const accentColor =
             SCENARIO_COLORS_BUDGETING[idx % SCENARIO_COLORS_BUDGETING.length];
@@ -563,6 +608,27 @@ export function ModelBudgetingTab({
         <ChevronLeft className="w-4 h-4" />
         Back to Menu
       </button>
+
+      {/* Autofill Banner */}
+      {autofillData && (
+        <div className="flex flex-wrap items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+          <span className="text-xs font-semibold text-emerald-700">
+            ✓ Autofill ready:
+          </span>
+          <span className="text-xs text-emerald-600">
+            Income {fmtC(autofillData.income)}, Needs {fmtC(autofillData.needs)}
+            , Wants {fmtC(autofillData.wants)}, Savings{" "}
+            {fmtC(autofillData.savings)}
+          </span>
+          <button
+            type="button"
+            onClick={applyAutofill}
+            className="ml-auto h-7 px-3 rounded-md bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-colors"
+          >
+            Apply to Scenario
+          </button>
+        </div>
+      )}
 
       {/* Input Fields */}
       <div className="bg-white border border-slate-100 rounded-xl p-4 space-y-3">

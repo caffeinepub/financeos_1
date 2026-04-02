@@ -220,10 +220,10 @@ export function ExpensesTab() {
         data-ocid={`expenses.item.${rowIndex}`}
         className="border-t border-border hover:bg-muted/30 transition-colors"
       >
-        <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
+        <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">
           {t.date}
         </td>
-        <td className="p-3 text-xs">
+        <td className="p-3 text-sm">
           {cat ? (
             <Badge variant="secondary" className="text-xs">
               {cat.name}
@@ -232,7 +232,7 @@ export function ExpensesTab() {
             <span className="text-muted-foreground">—</span>
           )}
         </td>
-        <td className="p-3 text-xs font-medium max-w-[120px] truncate hidden sm:table-cell">
+        <td className="p-3 text-sm font-medium max-w-[120px] truncate hidden sm:table-cell">
           {t.description}
         </td>
 
@@ -254,7 +254,7 @@ export function ExpensesTab() {
           )}
         </td>
         <td
-          className={`p-3 text-xs font-bold text-right ${isIncome ? "text-green-600" : "text-red-500"}`}
+          className={`p-3 text-sm font-bold text-right ${isIncome ? "text-green-600" : "text-red-500"}`}
         >
           {isIncome ? "+" : "-"}
           {fmt(t.amount)}
@@ -287,7 +287,72 @@ export function ExpensesTab() {
 
   return (
     <div className="space-y-4">
-      {/* Row 1: Month/Year + Search */}
+      {/* Row 1: Summary Cards + Action Buttons (desktop) */}
+      <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+        {/* Cards - always 2 columns */}
+        <div className="grid grid-cols-2 gap-3 flex-1">
+          {/* Income Card - INDmoney style */}
+          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-emerald-500 px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-1.5 mb-1">
+              <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Actual Income
+              </span>
+            </div>
+            <div className="text-base font-bold text-emerald-600 tabular-nums">
+              {fmt(filteredIncome)}
+            </div>
+          </div>
+          {/* Expense Card - INDmoney style */}
+          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-rose-500 px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-1.5 mb-1">
+              <TrendingDown className="h-3.5 w-3.5 text-rose-500" />
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Actual Expenses
+              </span>
+            </div>
+            <div className="text-base font-bold text-rose-500 tabular-nums">
+              {fmt(filteredExpense)}
+            </div>
+          </div>
+        </div>
+        {/* Action Buttons - right side on desktop, below on mobile */}
+        <div className="flex gap-2 flex-shrink-0 items-center flex-wrap">
+          {(
+            ["All", TransactionType.Income, TransactionType.Expense] as const
+          ).map((f) => (
+            <Button
+              key={f}
+              size="sm"
+              variant={typeFilter === f ? "default" : "outline"}
+              onClick={() => setTypeFilter(f)}
+              data-ocid={`expenses.filter.${String(f).toLowerCase()}.toggle`}
+            >
+              {f === "All" ? (
+                <ArrowLeftRight className="h-3 w-3 mr-1" />
+              ) : f === TransactionType.Income ? (
+                <TrendingUp className="h-3 w-3 mr-1" />
+              ) : (
+                <TrendingDown className="h-3 w-3 mr-1" />
+              )}
+              {f === TransactionType.Income
+                ? "Income"
+                : f === TransactionType.Expense
+                  ? "Expense"
+                  : "All"}
+            </Button>
+          ))}
+          <Button
+            data-ocid="expenses.add.open_modal_button"
+            onClick={openAdd}
+            className="gap-1"
+          >
+            <Plus className="h-4 w-4" /> Add
+          </Button>
+        </div>
+      </div>
+
+      {/* Row 2: Month/Year + Search */}
       <div className="flex gap-2 items-center flex-wrap">
         {/* Month/Year dropdowns - leftmost */}
         <div className="flex gap-2 items-center flex-shrink-0">
@@ -347,70 +412,6 @@ export function ExpensesTab() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-        </div>
-      </div>
-      {/* Row 2: Summary Cards + Filter Buttons */}
-      <div className="space-y-3">
-        {/* Cards row - always 2 columns on all screen sizes */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Income Card - INDmoney style */}
-          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-emerald-500 px-4 py-3 shadow-sm">
-            <div className="flex items-center gap-1.5 mb-1">
-              <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                Actual Income
-              </span>
-            </div>
-            <div className="text-base font-bold text-emerald-600 tabular-nums">
-              {fmt(filteredIncome)}
-            </div>
-          </div>
-          {/* Expense Card - INDmoney style */}
-          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-rose-500 px-4 py-3 shadow-sm">
-            <div className="flex items-center gap-1.5 mb-1">
-              <TrendingDown className="h-3.5 w-3.5 text-rose-500" />
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                Actual Expenses
-              </span>
-            </div>
-            <div className="text-base font-bold text-rose-500 tabular-nums">
-              {fmt(filteredExpense)}
-            </div>
-          </div>
-        </div>
-        {/* Filter Buttons row */}
-        <div className="flex gap-2 flex-shrink-0 items-center flex-wrap">
-          {(
-            ["All", TransactionType.Income, TransactionType.Expense] as const
-          ).map((f) => (
-            <Button
-              key={f}
-              size="sm"
-              variant={typeFilter === f ? "default" : "outline"}
-              onClick={() => setTypeFilter(f)}
-              data-ocid={`expenses.filter.${String(f).toLowerCase()}.toggle`}
-            >
-              {f === "All" ? (
-                <ArrowLeftRight className="h-3 w-3 mr-1" />
-              ) : f === TransactionType.Income ? (
-                <TrendingUp className="h-3 w-3 mr-1" />
-              ) : (
-                <TrendingDown className="h-3 w-3 mr-1" />
-              )}
-              {f === TransactionType.Income
-                ? "Income"
-                : f === TransactionType.Expense
-                  ? "Expense"
-                  : "All"}
-            </Button>
-          ))}
-          <Button
-            data-ocid="expenses.add.open_modal_button"
-            onClick={openAdd}
-            className="gap-1"
-          >
-            <Plus className="h-4 w-4" /> Add
-          </Button>
         </div>
       </div>
 

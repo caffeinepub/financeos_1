@@ -17,7 +17,7 @@ import {
   Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SUPPORTED_CURRENCIES, useCurrency } from "../contexts/CurrencyContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -178,6 +178,50 @@ export default function LandingPage() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const isLoggingIn = loginStatus === "logging-in";
+
+  // Hidden admin trigger
+  const [_adminClickCount, setAdminClickCount] = useState(0);
+  const [adminClickTimer, setAdminClickTimer] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminError, setAdminError] = useState("");
+
+  const handleAdminZoneClick = useCallback(() => {
+    setAdminClickCount((prev) => {
+      const next = prev + 1;
+      if (next >= 5) {
+        setShowAdminModal(true);
+        setAdminClickTimer((t) => {
+          if (t) clearTimeout(t);
+          return null;
+        });
+        return 0;
+      }
+      setAdminClickTimer((t) => {
+        if (t) clearTimeout(t);
+        return setTimeout(() => setAdminClickCount(0), 10000);
+      });
+      return next;
+    });
+  }, []);
+
+  const handleAdminLogin = () => {
+    if (adminPassword === "288nitK!") {
+      setShowAdminModal(false);
+      setAdminPassword("");
+      navigate("/admin");
+    } else {
+      setAdminError("Incorrect password");
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (adminClickTimer) clearTimeout(adminClickTimer);
+    };
+  }, [adminClickTimer]);
 
   useEffect(() => {
     if (identity && !identity.getPrincipal().isAnonymous()) {
@@ -582,6 +626,60 @@ export default function LandingPage() {
           Built with &#10084; using caffeine.ai
         </a>
       </footer>
+
+      {/* Hidden admin trigger zone — bottom-right corner */}
+      <div
+        className="fixed bottom-0 right-0 w-8 h-8 z-50 cursor-default"
+        onClick={handleAdminZoneClick}
+        onKeyDown={handleAdminZoneClick}
+        aria-hidden="true"
+        role="presentation"
+      />
+
+      {/* Admin password modal */}
+      {showAdminModal && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-80 shadow-2xl">
+            <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-4">
+              Admin Access
+            </h2>
+            <input
+              type="password"
+              placeholder="Enter admin password"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800"
+              value={adminPassword}
+              onChange={(e) => {
+                setAdminPassword(e.target.value);
+                setAdminError("");
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleAdminLogin()}
+            />
+            {adminError && (
+              <p className="text-xs text-red-500 mb-2">{adminError}</p>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleAdminLogin}
+                className="flex-1 bg-indigo-600 text-white text-sm py-2 rounded-lg font-medium hover:bg-indigo-700"
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAdminModal(false);
+                  setAdminPassword("");
+                  setAdminError("");
+                }}
+                className="flex-1 bg-slate-100 text-slate-600 text-sm py-2 rounded-lg font-medium hover:bg-slate-200"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, LayoutDashboard } from "lucide-react";
 import type React from "react";
-import { memo, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -285,7 +285,7 @@ function GoalsProgressList({
 }
 
 // ─── Risk-o-Meter Component ───────────────────────────────────────────────────
-const RiskOMeter = memo(function RiskOMeterInner({ score }: { score: number }) {
+function RiskOMeter({ score }: { score: number }) {
   const LEVELS = [
     { label: "Low Risk", color: "#08A04B", max: 25 },
     { label: "Low-Moderate", color: "#7FFF00", max: 35 },
@@ -433,7 +433,7 @@ const RiskOMeter = memo(function RiskOMeterInner({ score }: { score: number }) {
       </p>
     </div>
   );
-});
+}
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function DashboardPage() {

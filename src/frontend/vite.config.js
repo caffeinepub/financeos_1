@@ -2,7 +2,6 @@ import { fileURLToPath, URL } from "url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import environment from "vite-plugin-environment";
-import { compression } from "vite-plugin-compression2";
 
 const ii_url =
   process.env.DFX_NETWORK === "local"
@@ -18,62 +17,7 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     sourcemap: false,
-    minify: "esbuild",
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // Vendor chunks
-          if (id.includes("node_modules/recharts") || id.includes("node_modules/d3")) {
-            return "vendor-charts";
-          }
-          if (
-            id.includes("node_modules/@dfinity") ||
-            id.includes("node_modules/@icp-sdk")
-          ) {
-            return "vendor-icp";
-          }
-          if (
-            id.includes("node_modules/@radix-ui") ||
-            id.includes("node_modules/cmdk") ||
-            id.includes("node_modules/vaul") ||
-            id.includes("node_modules/sonner")
-          ) {
-            return "vendor-ui";
-          }
-          if (
-            id.includes("node_modules/react") ||
-            id.includes("node_modules/react-dom")
-          ) {
-            return "vendor-react";
-          }
-          if (
-            id.includes("node_modules/@react-three") ||
-            id.includes("node_modules/three")
-          ) {
-            return "vendor-3d";
-          }
-          // App chunks - split heavy pages
-          if (id.includes("/pages/DashboardPage")) {
-            return "page-dashboard";
-          }
-          if (id.includes("/pages/PortfolioPage")) {
-            return "page-portfolio";
-          }
-          if (id.includes("/pages/TradeJournalPage")) {
-            return "page-tradejournal";
-          }
-          if (id.includes("/pages/FinancialPlannerPage") || id.includes("/components/financial-planner")) {
-            return "page-financial-planner";
-          }
-          if (id.includes("/pages/FinancialModelPage") || id.includes("/components/financial-model")) {
-            return "page-financial-model";
-          }
-          if (id.includes("/pages/FinancialRulesPage")) {
-            return "page-learn-finance";
-          }
-        },
-      },
-    },
+    minify: false,
   },
   css: {
     postcss: "./postcss.config.js",
@@ -99,16 +43,6 @@ export default defineConfig({
     environment(["II_URL"]),
     environment(["STORAGE_GATEWAY_URL"]),
     react(),
-    // Gzip compression
-    compression({
-      algorithm: "gzip",
-      exclude: [/\.(br)$/, /\.(gz)$/],
-    }),
-    // Brotli compression
-    compression({
-      algorithm: "brotliCompress",
-      exclude: [/\.(br)$/, /\.(gz)$/],
-    }),
   ],
   resolve: {
     alias: [

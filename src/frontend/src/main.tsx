@@ -14,18 +14,7 @@ declare global {
   }
 }
 
-// Cache all backend query responses for 60 seconds before re-fetching.
-// Data is shown immediately from cache; background refresh happens silently.
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60_000, // 60 seconds before data is considered stale
-      gcTime: 5 * 60_000, // Keep unused data in cache for 5 minutes
-      refetchOnWindowFocus: false, // Don't refetch on every tab focus
-      retry: 1,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>

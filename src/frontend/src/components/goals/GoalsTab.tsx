@@ -153,6 +153,9 @@ export function GoalsTab({
           name: "Ahead",
           value: goals.filter((g) => getProgress(g) >= 100).length,
           color: "#10b981",
+          goalNames: goals
+            .filter((g) => getProgress(g) >= 100)
+            .map((g) => g.name),
         },
         {
           name: "On Track",
@@ -160,6 +163,9 @@ export function GoalsTab({
             (g) => getProgress(g) >= 75 && getProgress(g) < 100,
           ).length,
           color: "#3b82f6",
+          goalNames: goals
+            .filter((g) => getProgress(g) >= 75 && getProgress(g) < 100)
+            .map((g) => g.name),
         },
         {
           name: "Behind",
@@ -167,11 +173,17 @@ export function GoalsTab({
             (g) => getProgress(g) >= 50 && getProgress(g) < 75,
           ).length,
           color: "#f59e0b",
+          goalNames: goals
+            .filter((g) => getProgress(g) >= 50 && getProgress(g) < 75)
+            .map((g) => g.name),
         },
         {
           name: "Need Attention",
           value: goals.filter((g) => getProgress(g) < 50).length,
           color: "#ef4444",
+          goalNames: goals
+            .filter((g) => getProgress(g) < 50)
+            .map((g) => g.name),
         },
       ].filter((d) => d.value > 0),
 
@@ -191,6 +203,14 @@ export function GoalsTab({
             return y < 2;
           }).length,
           color: "#3b82f6",
+          goalNames: goals
+            .filter((g) => {
+              const y =
+                Number(g.targetDate - BigInt(Date.now() * 1000000)) /
+                (365 * 24 * 60 * 60 * 1e9);
+              return y < 2;
+            })
+            .map((g) => g.name),
         },
         {
           name: "Medium (2-5y)",
@@ -201,6 +221,14 @@ export function GoalsTab({
             return y >= 2 && y < 5;
           }).length,
           color: "#10b981",
+          goalNames: goals
+            .filter((g) => {
+              const y =
+                Number(g.targetDate - BigInt(Date.now() * 1000000)) /
+                (365 * 24 * 60 * 60 * 1e9);
+              return y >= 2 && y < 5;
+            })
+            .map((g) => g.name),
         },
         {
           name: "Long (5y+)",
@@ -211,6 +239,14 @@ export function GoalsTab({
             return y >= 5;
           }).length,
           color: "#8b5cf6",
+          goalNames: goals
+            .filter((g) => {
+              const y =
+                Number(g.targetDate - BigInt(Date.now() * 1000000)) /
+                (365 * 24 * 60 * 60 * 1e9);
+              return y >= 5;
+            })
+            .map((g) => g.name),
         },
       ].filter((d) => d.value > 0),
     };
@@ -330,249 +366,283 @@ export function GoalsTab({
 
       {/* Analytics Section */}
       {goals.length > 0 && (
-        <Card
-          data-ocid="goals.analytics.card"
-          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-        >
-          <CardHeader
-            className="pb-2 pt-4 px-5"
-            style={{ borderLeft: "3px solid #6366f1" }}
-          >
-            <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
-              <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 shadow">
-                <TrendingUp className="h-4 w-4 text-white" />
-              </div>
+        <div data-ocid="goals.analytics.card">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="h-4 w-4 text-indigo-500" />
+            <h3 className="text-sm font-bold text-slate-700">
               Goals Analytics
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
-              Achievement quality, savings adequacy, and diversification
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-5 pb-5">
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="rounded-xl border border-slate-100 shadow-sm">
-                <CardHeader className="pb-2 pt-3 px-4">
-                  <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                    <BarChart3 className="h-3.5 w-3.5 text-blue-500" />
-                    Savings Adequacy
-                  </CardTitle>
-                  <CardDescription className="text-[11px] text-slate-400">
-                    Current vs target
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="px-3 pb-3">
-                  {analyticsData.savingsAdequacy.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={220}>
-                      <BarChart data={analyticsData.savingsAdequacy}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                        <XAxis
-                          dataKey="name"
-                          tick={{ fontSize: 9 }}
-                          angle={-15}
-                          textAnchor="end"
-                          height={50}
-                        />
-                        <YAxis
-                          tick={{ fontSize: 9 }}
-                          tickFormatter={(v) => formatCurrency(v)}
-                        />
-                        <Tooltip
-                          formatter={(v: number) => formatCurrency(v)}
-                          contentStyle={{
-                            fontSize: "11px",
-                            borderRadius: "8px",
-                          }}
-                        />
-                        <Legend wrapperStyle={{ fontSize: "11px" }} />
-                        <Bar
-                          dataKey="target"
-                          fill="#3b82f6"
-                          name="Target"
-                          radius={[3, 3, 0, 0]}
-                        />
-                        <Bar
-                          dataKey="current"
-                          fill="#10b981"
-                          name="Current Value"
-                          radius={[3, 3, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
-                      No data
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+            </h3>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="rounded-xl border border-slate-100 shadow-sm">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                  <BarChart3 className="h-3.5 w-3.5 text-blue-500" />
+                  Savings Adequacy
+                </CardTitle>
+                <CardDescription className="text-[11px] text-slate-400">
+                  Current vs target
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-3 pb-3">
+                {analyticsData.savingsAdequacy.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={analyticsData.savingsAdequacy}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 9 }}
+                        angle={-15}
+                        textAnchor="end"
+                        height={50}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 9 }}
+                        tickFormatter={(v) => formatCurrency(v)}
+                      />
+                      <Tooltip
+                        formatter={(v: number) => formatCurrency(v)}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: "11px" }} />
+                      <Bar
+                        dataKey="target"
+                        fill="#3b82f6"
+                        name="Target"
+                        radius={[3, 3, 0, 0]}
+                      />
+                      <Bar
+                        dataKey="current"
+                        fill="#10b981"
+                        name="Current Value"
+                        radius={[3, 3, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
+                    No data
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-              <Card className="rounded-xl border border-slate-100 shadow-sm">
-                <CardHeader className="pb-2 pt-3 px-4">
-                  <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                    <PieChart className="h-3.5 w-3.5 text-emerald-500" />
-                    Achievement Quality
-                  </CardTitle>
-                  <CardDescription className="text-[11px] text-slate-400">
-                    By progress status
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="px-3 pb-3">
-                  {analyticsData.achievementQuality.length > 0 ? (
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex-shrink-0"
-                        style={{ width: 160, height: 200 }}
-                      >
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RechartsPieChart>
-                            <Pie
-                              data={analyticsData.achievementQuality}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={55}
-                              outerRadius={90}
-                              dataKey="value"
-                              labelLine={false}
-                            >
-                              {analyticsData.achievementQuality.map((entry) => (
-                                <Cell
-                                  key={entry.name}
-                                  fill={entry.color}
-                                  stroke="#fff"
-                                  strokeWidth={2}
-                                />
-                              ))}
-                            </Pie>
-                            <Tooltip contentStyle={{ fontSize: "11px" }} />
-                          </RechartsPieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                        {analyticsData.achievementQuality.map((entry) => {
-                          const total = analyticsData.achievementQuality.reduce(
-                            (s, d) => s + d.value,
-                            0,
-                          );
-                          const pct =
-                            total > 0
-                              ? ((entry.value / total) * 100).toFixed(1)
-                              : "0";
-                          return (
+            <Card className="rounded-xl border border-slate-100 shadow-sm">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                  <PieChart className="h-3.5 w-3.5 text-emerald-500" />
+                  Achievement Quality
+                </CardTitle>
+                <CardDescription className="text-[11px] text-slate-400">
+                  By progress status
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-3 pb-3">
+                {analyticsData.achievementQuality.length > 0 ? (
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex-shrink-0"
+                      style={{ width: 140, height: 200 }}
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={analyticsData.achievementQuality}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={45}
+                            outerRadius={75}
+                            dataKey="value"
+                            labelLine={false}
+                          >
+                            {analyticsData.achievementQuality.map((entry) => (
+                              <Cell
+                                key={entry.name}
+                                fill={entry.color}
+                                stroke="#fff"
+                                strokeWidth={2}
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            content={({
+                              active,
+                              payload,
+                            }: {
+                              active?: boolean;
+                              payload?: Array<{
+                                payload?: {
+                                  name?: string;
+                                  value?: number;
+                                  color?: string;
+                                  goalNames?: string[];
+                                };
+                              }>;
+                            }) => {
+                              if (!active || !payload?.[0]) return null;
+                              const entry = payload[0].payload;
+                              if (!entry) return null;
+                              return (
+                                <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-lg text-xs max-w-[200px]">
+                                  <p
+                                    className="font-semibold text-slate-700 mb-1"
+                                    style={{ color: entry.color }}
+                                  >
+                                    {entry.name}: {entry.value} goal
+                                    {(entry.value ?? 0) !== 1 ? "s" : ""}
+                                  </p>
+                                  {entry.goalNames?.map((n: string) => (
+                                    <p key={n} className="text-slate-500">
+                                      • {n}
+                                    </p>
+                                  ))}
+                                </div>
+                              );
+                            }}
+                          />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                      {analyticsData.achievementQuality.map((entry) => (
+                        <div
+                          key={entry.name}
+                          className="flex items-center justify-between gap-1"
+                        >
+                          <div className="flex items-center gap-1.5 min-w-0">
                             <div
-                              key={entry.name}
-                              className="flex items-center justify-between gap-2"
-                            >
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <div
-                                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                                  style={{ background: entry.color }}
-                                />
-                                <span className="text-[11px] text-slate-600 truncate">
-                                  {entry.name}
-                                </span>
-                              </div>
-                              <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
-                                {pct}%
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                              style={{ background: entry.color }}
+                            />
+                            <span className="text-[11px] text-slate-600 truncate">
+                              {entry.name}
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
+                            {entry.value} goal{entry.value !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                  ) : (
-                    <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
-                      No data
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                ) : (
+                  <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
+                    No data
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-              <Card className="rounded-xl border border-slate-100 shadow-sm">
-                <CardHeader className="pb-2 pt-3 px-4">
-                  <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                    <Target className="h-3.5 w-3.5 text-purple-500" />
-                    Goal Diversification
-                  </CardTitle>
-                  <CardDescription className="text-[11px] text-slate-400">
-                    By time horizon
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="px-3 pb-3">
-                  {analyticsData.goalDiversification.length > 0 ? (
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex-shrink-0"
-                        style={{ width: 160, height: 200 }}
-                      >
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RechartsPieChart>
-                            <Pie
-                              data={analyticsData.goalDiversification}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={55}
-                              outerRadius={90}
-                              dataKey="value"
-                              labelLine={false}
-                            >
-                              {analyticsData.goalDiversification.map(
-                                (entry) => (
-                                  <Cell
-                                    key={entry.name}
-                                    fill={entry.color}
-                                    stroke="#fff"
-                                    strokeWidth={2}
-                                  />
-                                ),
-                              )}
-                            </Pie>
-                            <Tooltip contentStyle={{ fontSize: "11px" }} />
-                          </RechartsPieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                        {analyticsData.goalDiversification.map((entry) => {
-                          const total =
-                            analyticsData.goalDiversification.reduce(
-                              (s, d) => s + d.value,
-                              0,
-                            );
-                          const pct =
-                            total > 0
-                              ? ((entry.value / total) * 100).toFixed(1)
-                              : "0";
-                          return (
+            <Card className="rounded-xl border border-slate-100 shadow-sm">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <CardTitle className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                  <Target className="h-3.5 w-3.5 text-purple-500" />
+                  Goal Diversification
+                </CardTitle>
+                <CardDescription className="text-[11px] text-slate-400">
+                  By time horizon
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-3 pb-3">
+                {analyticsData.goalDiversification.length > 0 ? (
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex-shrink-0"
+                      style={{ width: 140, height: 200 }}
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={analyticsData.goalDiversification}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={45}
+                            outerRadius={75}
+                            dataKey="value"
+                            labelLine={false}
+                          >
+                            {analyticsData.goalDiversification.map((entry) => (
+                              <Cell
+                                key={entry.name}
+                                fill={entry.color}
+                                stroke="#fff"
+                                strokeWidth={2}
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            content={({
+                              active,
+                              payload,
+                            }: {
+                              active?: boolean;
+                              payload?: Array<{
+                                payload?: {
+                                  name?: string;
+                                  value?: number;
+                                  color?: string;
+                                  goalNames?: string[];
+                                };
+                              }>;
+                            }) => {
+                              if (!active || !payload?.[0]) return null;
+                              const entry = payload[0].payload;
+                              if (!entry) return null;
+                              return (
+                                <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-lg text-xs max-w-[200px]">
+                                  <p
+                                    className="font-semibold text-slate-700 mb-1"
+                                    style={{ color: entry.color }}
+                                  >
+                                    {entry.name}: {entry.value} goal
+                                    {(entry.value ?? 0) !== 1 ? "s" : ""}
+                                  </p>
+                                  {entry.goalNames?.map((n: string) => (
+                                    <p key={n} className="text-slate-500">
+                                      • {n}
+                                    </p>
+                                  ))}
+                                </div>
+                              );
+                            }}
+                          />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                      {analyticsData.goalDiversification.map((entry) => (
+                        <div
+                          key={entry.name}
+                          className="flex items-center justify-between gap-1"
+                        >
+                          <div className="flex items-center gap-1.5 min-w-0">
                             <div
-                              key={entry.name}
-                              className="flex items-center justify-between gap-2"
-                            >
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <div
-                                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                                  style={{ background: entry.color }}
-                                />
-                                <span className="text-[11px] text-slate-600 truncate">
-                                  {entry.name}
-                                </span>
-                              </div>
-                              <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
-                                {pct}%
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                              style={{ background: entry.color }}
+                            />
+                            <span className="text-[11px] text-slate-600 truncate">
+                              {entry.name}
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
+                            {entry.value} goal{entry.value !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                  ) : (
-                    <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
-                      No data
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </CardContent>
-        </Card>
+                  </div>
+                ) : (
+                  <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
+                    No data
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       )}
 
       <AddGoalDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />

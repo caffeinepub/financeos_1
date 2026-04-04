@@ -12,6 +12,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  LabelList,
   Legend,
   Line,
   LineChart,
@@ -72,6 +73,19 @@ const MONTHS = [
   "November",
   "December",
 ];
+
+function shortNum(n: number, sym: string, code = "INR"): string {
+  if (code !== "INR") {
+    if (n >= 1_000_000_000) return `${sym}${(n / 1_000_000_000).toFixed(1)}B`;
+    if (n >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${sym}${(n / 1_000).toFixed(1)}K`;
+    return `${sym}${Math.round(n)}`;
+  }
+  if (n >= 10_000_000) return `${sym}${(n / 10_000_000).toFixed(1)}Cr`;
+  if (n >= 100_000) return `${sym}${(n / 100_000).toFixed(1)}L`;
+  if (n >= 1_000) return `${sym}${(n / 1_000).toFixed(1)}K`;
+  return `${sym}${Math.round(n)}`;
+}
 
 const SAVINGS_KEYWORDS = [
   "savings",
@@ -389,11 +403,11 @@ export function MonthlyTrackerTab() {
     return catMap;
   }, [analyticsFiltered, expenseCategories]);
 
-  const analyticsTop3 = useMemo(
+  const analyticsTop5 = useMemo(
     () =>
       Object.entries(analyticsCatMap)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 3),
+        .slice(0, 5),
     [analyticsCatMap],
   );
 
@@ -423,12 +437,17 @@ export function MonthlyTrackerTab() {
     setSaving(true);
     try {
       if (editingTx) {
-        await actor.updateTransaction(editingTx.id, { ...editingTx, ...form });
+        const updated = { ...editingTx, ...form };
+        await actor.updateTransaction(editingTx.id, updated);
+        setTransactions((prev) =>
+          prev.map((t) => (t.id === editingTx.id ? updated : t)),
+        );
       } else {
-        await actor.createTransaction({ id: crypto.randomUUID(), ...form });
+        const newTx = { id: crypto.randomUUID(), ...form };
+        await actor.createTransaction(newTx);
+        setTransactions((prev) => [...prev, newTx]);
       }
       setDialogOpen(false);
-      load();
     } finally {
       setSaving(false);
     }
@@ -437,7 +456,7 @@ export function MonthlyTrackerTab() {
   const _del = async (id: string) => {
     if (!actor) return;
     await actor.deleteTransaction(id);
-    load();
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
 
   const yearRange = Array.from(
@@ -448,6 +467,28 @@ export function MonthlyTrackerTab() {
   const filteredCategories = categories.filter(
     (c) => c.categoryType === form.transactionType,
   );
+
+  const PRIORITY_CATS = [
+    "Housing & Rent",
+    "Groceries & Food",
+    "Utilities & Bills",
+    "Transportation",
+    "Healthcare & Medical",
+    "Education",
+    "Insurance",
+    "Entertainment & Leisure",
+    "Clothing & Apparel",
+    "Savings & Investments",
+    "Travel & Vacation",
+  ];
+  const sortedCategories = [...filteredCategories].sort((a, b) => {
+    const ai = PRIORITY_CATS.indexOf(a.name);
+    const bi = PRIORITY_CATS.indexOf(b.name);
+    if (ai !== -1 && bi !== -1) return ai - bi;
+    if (ai !== -1) return -1;
+    if (bi !== -1) return 1;
+    return a.name.localeCompare(b.name);
+  });
 
   if (loading) return <Skeleton className="h-96" />;
 
@@ -540,10 +581,10 @@ export function MonthlyTrackerTab() {
                     </span>
                   </div>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   Budget: {fmt(budgetedIncome, country)}
                 </p>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-xs text-slate-500">
                   Balance:{" "}
                   {fmt(Math.max(0, budgetedIncome - totalIncome), country)}
                 </p>
@@ -597,10 +638,10 @@ export function MonthlyTrackerTab() {
                     </span>
                   </div>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   Budget: {fmt(budgetedExpenses, country)}
                 </p>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-xs text-slate-500">
                   Balance:{" "}
                   {fmt(Math.max(0, budgetedExpenses - totalActual), country)}
                 </p>
@@ -611,85 +652,79 @@ export function MonthlyTrackerTab() {
 
         {/* Right: 4 Metric Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <Card
+          {/* Actual Income */}
+          <div
             data-ocid="budgeting.income.card"
-            className="rounded-xl border border-emerald-100 dark:border-emerald-800 bg-white dark:bg-slate-900 shadow-sm"
+            className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-emerald-500 px-4 py-3 shadow-sm"
           >
-            <CardContent className="p-4">
-              <div className="flex items-center gap-1.5 mb-1">
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-[10px] text-emerald-600 font-semibold uppercase tracking-wide">
-                  Actual Income
-                </span>
-              </div>
-              <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
-                {fmt(totalIncome, country)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card
+            <div className="flex items-center gap-1.5 mb-1">
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Actual Income
+              </span>
+            </div>
+            <div className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums">
+              {fmt(totalIncome, country)}
+            </div>
+          </div>
+          {/* Actual Expenses */}
+          <div
             data-ocid="budgeting.actual.card"
-            className="rounded-xl border border-red-100 dark:border-red-800 bg-white dark:bg-slate-900 shadow-sm"
+            className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-rose-500 px-4 py-3 shadow-sm"
           >
-            <CardContent className="p-4">
-              <div className="flex items-center gap-1.5 mb-1">
-                <TrendingDown className="w-3.5 h-3.5 text-red-500" />
-                <span className="text-[10px] text-red-600 font-semibold uppercase tracking-wide">
-                  Actual Expenses
-                </span>
-              </div>
-              <p className="text-lg font-bold text-red-600 dark:text-red-400">
-                {fmt(totalActual, country)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card
+            <div className="flex items-center gap-1.5 mb-1">
+              <TrendingDown className="w-3.5 h-3.5 text-rose-500" />
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Actual Expenses
+              </span>
+            </div>
+            <div className="text-base font-bold text-slate-800 dark:text-slate-100 tabular-nums">
+              {fmt(totalActual, country)}
+            </div>
+          </div>
+          {/* Total Savings */}
+          <div
             data-ocid="budgeting.savings.card"
-            className="border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50"
+            className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-blue-500 px-4 py-3 shadow-sm"
           >
-            <CardContent className="p-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <PiggyBank className="w-3.5 h-3.5 text-blue-500" />
-                <span className="text-[10px] text-blue-600 font-medium uppercase tracking-wide">
-                  Total Savings
-                </span>
-              </div>
-              <p
-                className={`text-base font-bold ${(totalIncome - totalActual) >= 0 ? "text-blue-700" : "text-red-600"}`}
-              >
-                {fmt(totalIncome - totalActual, country)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card
+            <div className="flex items-center gap-1.5 mb-1">
+              <PiggyBank className="w-3.5 h-3.5 text-blue-500" />
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Total Savings
+              </span>
+            </div>
+            <div
+              className={`text-base font-bold tabular-nums ${(totalIncome - totalActual) >= 0 ? "text-blue-700" : "text-red-600"}`}
+            >
+              {fmt(totalIncome - totalActual, country)}
+            </div>
+          </div>
+          {/* Savings Rate */}
+          <div
             data-ocid="budgeting.savings_rate.card"
-            className="border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50"
+            className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-violet-500 px-4 py-3 shadow-sm"
           >
-            <CardContent className="p-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <TrendingUp className="w-3.5 h-3.5 text-violet-500" />
-                <span className="text-[10px] text-violet-600 font-medium uppercase tracking-wide">
-                  Savings Rate
-                </span>
-              </div>
-              <p
-                className={`text-base font-bold ${totalIncome > 0 ? (((totalIncome - totalActual) / totalIncome) * 100 >= 20 ? "text-violet-700" : ((totalIncome - totalActual) / totalIncome) * 100 >= 10 ? "text-amber-700" : "text-red-600") : "text-slate-500"}`}
-              >
-                {totalIncome > 0
-                  ? (((totalIncome - totalActual) / totalIncome) * 100).toFixed(
-                      1,
-                    )
-                  : "0.0"}
-                %
-              </p>
-            </CardContent>
-          </Card>
+            <div className="flex items-center gap-1.5 mb-1">
+              <TrendingUp className="w-3.5 h-3.5 text-violet-500" />
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Savings Rate
+              </span>
+            </div>
+            <div
+              className={`text-base font-bold tabular-nums ${totalIncome > 0 ? (((totalIncome - totalActual) / totalIncome) * 100 >= 20 ? "text-violet-700" : "text-amber-600") : "text-slate-500"}`}
+            >
+              {totalIncome > 0
+                ? (((totalIncome - totalActual) / totalIncome) * 100).toFixed(1)
+                : "0.0"}
+              %
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Category Breakdown */}
       <Card>
-        <CardHeader className="pb-1 pt-2 px-4">
+        <CardHeader className="py-0 px-4 pt-2 pb-1">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <CardTitle className="text-sm">Budget vs Spending</CardTitle>
             <Button
@@ -949,7 +984,7 @@ export function MonthlyTrackerTab() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {filteredCategories.map((c) => (
+                  {sortedCategories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       <div className="flex items-center gap-2">
                         <div
@@ -992,16 +1027,6 @@ export function MonthlyTrackerTab() {
                 value={form.description}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, description: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label>Account</Label>
-              <Input
-                data-ocid="budgeting.account.input"
-                value={form.account}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, account: e.target.value }))
                 }
               />
             </div>
@@ -1390,91 +1415,132 @@ export function MonthlyTrackerTab() {
             </>
           )}
           {/* 5. Spending by Category */}
-          {/* 1. Spending by Category Donut */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Spending by Category</CardTitle>
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700">
+                Spending by Category
+              </CardTitle>
+              <p className="text-xs text-slate-400">
+                Top 8 categories by expense
+              </p>
             </CardHeader>
-            <CardContent data-ocid="budgeting.spending_category.chart">
+            <CardContent
+              data-ocid="budgeting.spending_category.chart"
+              className="px-4 pb-4"
+            >
               {(() => {
+                const SC_COLORS = [
+                  "#2563eb",
+                  "#0891b2",
+                  "#059669",
+                  "#7c3aed",
+                  "#d97706",
+                  "#dc2626",
+                  "#0d9488",
+                  "#9333ea",
+                ];
                 const catMap: Record<
                   string,
                   { name: string; value: number; color: string }
                 > = {};
-                const COLORS = [
-                  "#6366f1",
-                  "#10b981",
-                  "#f59e0b",
-                  "#ef4444",
-                  "#3b82f6",
-                  "#8b5cf6",
-                  "#06b6d4",
-                  "#f97316",
-                ];
                 for (const t of transactions.filter(
                   (tx) => tx.transactionType === TransactionType.Expense,
                 )) {
                   const cat = categories.find((c) => c.id === t.categoryId);
                   if (cat) {
-                    catMap[cat.id] = catMap[cat.id] ?? {
-                      name: cat.name,
-                      value: 0,
-                      color:
-                        cat.color ||
-                        COLORS[Object.keys(catMap).length % COLORS.length],
-                    };
+                    if (!catMap[cat.id]) {
+                      catMap[cat.id] = {
+                        name: cat.name,
+                        value: 0,
+                        color:
+                          cat.color ||
+                          SC_COLORS[
+                            Object.keys(catMap).length % SC_COLORS.length
+                          ],
+                      };
+                    }
                     catMap[cat.id].value += t.amount;
                   }
                 }
-                const data = Object.values(catMap)
+                const catData = Object.values(catMap)
                   .filter((d) => d.value > 0)
-                  .sort((a, b) => b.value - a.value);
-                const total = data.reduce((s, d) => s + d.value, 0);
-                if (data.length === 0)
+                  .sort((a, b) => b.value - a.value)
+                  .slice(0, 8)
+                  .map((d, i) => ({
+                    ...d,
+                    color: SC_COLORS[i % SC_COLORS.length],
+                  }));
+                const total = catData.reduce((s, d) => s + d.value, 0);
+                if (catData.length === 0)
                   return (
                     <div className="h-44 flex items-center justify-center text-sm text-slate-400">
                       No expense data yet
                     </div>
                   );
                 return (
-                  <ResponsiveContainer width="100%" height={220}>
-                    <PieChart>
-                      <Pie
-                        data={data}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={80}
-                        dataKey="value"
-                        label={({ value }: { value: number }) =>
-                          total > 0
-                            ? `${((value / total) * 100).toFixed(0)}%`
-                            : ""
-                        }
-                        labelLine={false}
-                      >
-                        {data.map((entry, idx) => (
-                          <Cell
-                            key={entry.name}
-                            fill={entry.color || COLORS[idx % COLORS.length]}
-                            stroke="#fff"
-                            strokeWidth={2}
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex-shrink-0"
+                      style={{ width: 180, height: 220 }}
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={catData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={80}
+                            dataKey="value"
+                            labelLine={false}
+                          >
+                            {catData.map((entry) => (
+                              <Cell
+                                key={entry.name}
+                                fill={entry.color}
+                                stroke="#fff"
+                                strokeWidth={2}
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(v: number) => [formatCurrency(v), ""]}
+                            contentStyle={{
+                              fontSize: "11px",
+                              borderRadius: "10px",
+                            }}
                           />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(v: number, n: string) => [
-                          formatCurrency(v),
-                          n,
-                        ]}
-                        contentStyle={{
-                          fontSize: "11px",
-                          borderRadius: "10px",
-                        }}
-                      />
-                      <Legend wrapperStyle={{ fontSize: "11px" }} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                      {catData.map((entry) => {
+                        const pct =
+                          total > 0
+                            ? ((entry.value / total) * 100).toFixed(1)
+                            : "0";
+                        return (
+                          <div
+                            key={entry.name}
+                            className="flex items-center justify-between gap-1"
+                          >
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <div
+                                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                                style={{ background: entry.color }}
+                              />
+                              <span className="text-[11px] text-slate-600 truncate">
+                                {entry.name}
+                              </span>
+                            </div>
+                            <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
+                              {pct}%
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })()}
             </CardContent>
@@ -1483,7 +1549,7 @@ export function MonthlyTrackerTab() {
           {analyticsIncome > 0 && (
             <>
               {/* Top Spending Categories */}
-              {analyticsTop3.length > 0 && (
+              {analyticsTop5.length > 0 && (
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-semibold text-slate-700">
@@ -1491,7 +1557,7 @@ export function MonthlyTrackerTab() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="px-5 pb-5 space-y-3">
-                    {analyticsTop3.map(([name, amount], i) => (
+                    {analyticsTop5.map(([name, amount], i) => (
                       <div key={name} className="flex items-center gap-3">
                         <span className="w-6 h-6 rounded-full bg-red-100 text-red-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
                           {i + 1}
@@ -1615,7 +1681,14 @@ export function MonthlyTrackerTab() {
                         strokeWidth={2.5}
                         dot={{ fill: "#6366f1", r: 4 }}
                         activeDot={{ r: 6 }}
-                      />
+                      >
+                        <LabelList
+                          dataKey="Savings Rate"
+                          position="top"
+                          style={{ fontSize: "9px", fill: "#6366f1" }}
+                          formatter={(v: number) => `${v}%`}
+                        />
+                      </Line>
                     </LineChart>
                   </ResponsiveContainer>
                 );
@@ -1697,12 +1770,30 @@ export function MonthlyTrackerTab() {
                         dataKey="Planned"
                         fill="#10b981"
                         radius={[4, 4, 0, 0]}
-                      />
+                      >
+                        <LabelList
+                          dataKey="Planned"
+                          position="top"
+                          style={{ fontSize: "9px", fill: "#10b981" }}
+                          formatter={(v: number) =>
+                            shortNum(v, sym, country.code)
+                          }
+                        />
+                      </Bar>
                       <Bar
                         dataKey="Actual"
                         fill="#f43f5e"
                         radius={[4, 4, 0, 0]}
-                      />
+                      >
+                        <LabelList
+                          dataKey="Actual"
+                          position="top"
+                          style={{ fontSize: "9px", fill: "#f43f5e" }}
+                          formatter={(v: number) =>
+                            shortNum(v, sym, country.code)
+                          }
+                        />
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 );

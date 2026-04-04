@@ -296,11 +296,11 @@ function RiskOMeter({ score }: { score: number }) {
   ];
 
   const W = 320;
-  const H = 200;
+  const H = 220;
   const cx = 160;
-  const cy = 185;
-  const R_OUT = 120;
-  const R_IN = 80;
+  const cy = 200;
+  const R_OUT = 140;
+  const R_IN = 98;
 
   // score 0 → left (180°), score 100 → right (0°)
   const toRad = (s: number) => Math.PI - (s / 100) * Math.PI;
@@ -397,7 +397,7 @@ function RiskOMeter({ score }: { score: number }) {
     <div className="flex flex-col items-center w-full">
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        className="w-full max-w-[280px]"
+        className="w-full max-w-[320px]"
         role="img"
         aria-label="Portfolio Risk-o-meter"
       >
@@ -871,7 +871,7 @@ export default function DashboardPage() {
               Portfolio Risk-o-meter
             </CardTitle>
             <p className="text-xs text-slate-400">
-              Based on Equity, Mutual Funds &amp; Crypto allocation
+              Based on risk profile of portfolio investments
             </p>
           </CardHeader>
           <CardContent className="px-5 pb-4">
@@ -1014,7 +1014,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <div
                     className="flex-shrink-0"
-                    style={{ width: 140, height: 160 }}
+                    style={{ width: 110, height: 160 }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -1022,8 +1022,8 @@ export default function DashboardPage() {
                           data={pieData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={55}
-                          outerRadius={90}
+                          innerRadius={42}
+                          outerRadius={70}
                           dataKey="value"
                           labelLine={false}
                         >
@@ -1058,7 +1058,7 @@ export default function DashboardPage() {
                       return (
                         <div
                           key={d.name}
-                          className="flex items-center justify-between gap-2"
+                          className="flex items-center justify-between gap-1"
                         >
                           <div className="flex items-center gap-1.5 min-w-0">
                             <div
@@ -1068,15 +1068,13 @@ export default function DashboardPage() {
                             <span className="text-[11px] text-slate-600 truncate">
                               {d.name}
                             </span>
-                          </div>
-                          <div className="text-right flex-shrink-0">
-                            <span className="text-[11px] font-bold text-slate-800 block tabular-nums">
-                              {formatCurrency(d.value)}
-                            </span>
-                            <span className="text-[10px] text-slate-500">
+                            <span className="text-[10px] text-slate-500 flex-shrink-0">
                               {pct}%
                             </span>
                           </div>
+                          <span className="text-[11px] font-bold text-slate-800 flex-shrink-0 tabular-nums">
+                            {formatCurrency(d.value)}
+                          </span>
                         </div>
                       );
                     })}
@@ -1435,7 +1433,7 @@ export default function DashboardPage() {
               const currentMonth = currentDate.getMonth();
               const currentYear = currentDate.getFullYear();
               const currentMonthExpenses = transactions.filter((tx) => {
-                const d = new Date(Number(tx.date));
+                const d = new Date(tx.date);
                 return (
                   d.getMonth() === currentMonth &&
                   d.getFullYear() === currentYear &&
@@ -1445,7 +1443,7 @@ export default function DashboardPage() {
               const currentMonthInc =
                 transactions
                   .filter((tx) => {
-                    const d = new Date(Number(tx.date));
+                    const d = new Date(tx.date);
                     return (
                       d.getMonth() === currentMonth &&
                       d.getFullYear() === currentYear &&
@@ -1547,12 +1545,12 @@ export default function DashboardPage() {
                   color: "#10b981",
                 },
               ];
-              if (currentMonthExpenses.length === 0) {
+              if (currentMonthExpenses.length === 0 && currentMonthInc <= 1) {
                 return (
                   <div className="h-48 flex flex-col items-center justify-center gap-2">
                     <span className="text-3xl">💰</span>
                     <p className="text-sm text-slate-400">
-                      No transactions for current month
+                      No transaction data for current month
                     </p>
                   </div>
                 );

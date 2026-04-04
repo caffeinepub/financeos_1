@@ -355,6 +355,7 @@ export function ModelGoalPlanningTab({
   });
   const [result, setResult] = useState<GoalAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
+  const [addingToTrack, setAddingToTrack] = useState(false);
   const [error, setError] = useState("");
   const [_activeScenario, setActiveScenario] = useState(initScenario.id);
 
@@ -878,8 +879,10 @@ export function ModelGoalPlanningTab({
           <div className="mt-4 pt-4 border-t border-slate-100">
             <button
               type="button"
+              disabled={addingToTrack}
               onClick={async () => {
                 if (!actor) return;
+                setAddingToTrack(true);
                 try {
                   for (const g of res.goals) {
                     const goalDateMs =
@@ -910,12 +913,44 @@ export function ModelGoalPlanningTab({
                   toast.success("Goals added to Track Goals!");
                 } catch {
                   toast.error("Failed to add goals. Please try again.");
+                } finally {
+                  setTimeout(() => setAddingToTrack(false), 1500);
                 }
               }}
-              className="w-full py-2.5 px-4 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors"
+              className={`w-full py-2.5 px-4 text-white text-sm font-semibold rounded-xl transition-all ${
+                addingToTrack
+                  ? "bg-green-400 cursor-not-allowed scale-95"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
               data-ocid="goal_planning.add_to_track_button"
             >
-              + Add to Track Goals
+              {addingToTrack ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Adding...
+                </span>
+              ) : (
+                "+ Add to Track Goals"
+              )}
             </button>
           </div>
         </div>

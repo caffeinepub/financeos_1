@@ -344,34 +344,30 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
   const wantsPct = income > 0 ? (totalWants / income) * 100 : 0;
   const savingsPct = income > 0 ? (totalSavings / income) * 100 : 0;
 
-  const handleApplyAutofill = () => {
-    if (!autofillData) return;
-    setIncome(autofillData.income || 50000);
-    // Distribute needs proportionally
-    if (autofillData.needs > 0) {
+  const applyAutofillData = (data: typeof autofillData) => {
+    if (!data) return;
+    setIncome(data.income || 50000);
+    if (data.needs > 0) {
       const ratio =
-        autofillData.needs /
-        NEEDS_CATEGORIES.reduce((s, c) => s + c.default, 0);
+        data.needs / NEEDS_CATEGORIES.reduce((s, c) => s + c.default, 0);
       setNeeds(
         Object.fromEntries(
           NEEDS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
         ),
       );
     }
-    if (autofillData.wants > 0) {
+    if (data.wants > 0) {
       const ratio =
-        autofillData.wants /
-        WANTS_CATEGORIES.reduce((s, c) => s + c.default, 0);
+        data.wants / WANTS_CATEGORIES.reduce((s, c) => s + c.default, 0);
       setWants(
         Object.fromEntries(
           WANTS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
         ),
       );
     }
-    if (autofillData.savings > 0) {
+    if (data.savings > 0) {
       const ratio =
-        autofillData.savings /
-        SAVINGS_CATEGORIES.reduce((s, c) => s + c.default, 0);
+        data.savings / SAVINGS_CATEGORIES.reduce((s, c) => s + c.default, 0);
       setSavings(
         Object.fromEntries(
           SAVINGS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
@@ -381,20 +377,30 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
     setApplied(true);
   };
 
+  const _handleApplyAutofill = () => {
+    applyAutofillData(autofillData);
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: auto-apply when data changes
+  useEffect(() => {
+    if (autofillData && !applied) {
+      applyAutofillData(autofillData);
+    }
+  }, [autofillData]);
+
   return (
     <div className="space-y-4">
-      {autofillData && !applied && (
-        <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
-          <span className="text-xs text-blue-700 font-medium flex-1">
-            Autofill data loaded. Click "Apply to Scenario" to populate fields
-            with actual values.
+      {autofillData && applied && (
+        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+          <span className="text-xs text-green-700 font-medium flex-1">
+            ✓ Autofill applied from tracker data. Values updated.
           </span>
           <button
             type="button"
-            onClick={handleApplyAutofill}
-            className="h-8 px-3 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
+            onClick={() => setApplied(false)}
+            className="h-8 px-3 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors"
           >
-            Apply to Scenario
+            Reset to Sample
           </button>
         </div>
       )}
@@ -783,11 +789,13 @@ export default function BudgetingPage() {
   const [saving, setSaving] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [showAllPlanIncome, setShowAllPlanIncome] = useState(false);
+  const _lastMonthDate = new Date();
+  _lastMonthDate.setMonth(_lastMonthDate.getMonth() - 1);
   const [autofillMonth, setAutofillMonth] = useState<number>(
-    new Date().getMonth(),
+    _lastMonthDate.getMonth(),
   );
   const [autofillYear, setAutofillYear] = useState<number>(
-    new Date().getFullYear(),
+    _lastMonthDate.getFullYear(),
   );
   const [autofillData, setAutofillData] = useState<{
     income: number;

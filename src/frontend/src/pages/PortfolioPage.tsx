@@ -1766,7 +1766,7 @@ function PortfolioOverview({
               <div className="flex items-center gap-3">
                 <div
                   className="flex-shrink-0"
-                  style={{ width: 160, height: 200 }}
+                  style={{ width: 140, height: 200 }}
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -1774,8 +1774,8 @@ function PortfolioOverview({
                         data={equityCapData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={55}
-                        outerRadius={90}
+                        innerRadius={45}
+                        outerRadius={75}
                         dataKey="value"
                         labelLine={false}
                       >
@@ -1856,7 +1856,7 @@ function PortfolioOverview({
               <div className="flex items-center gap-3">
                 <div
                   className="flex-shrink-0"
-                  style={{ width: 160, height: 200 }}
+                  style={{ width: 140, height: 200 }}
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -1864,8 +1864,8 @@ function PortfolioOverview({
                         data={mfCapData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={55}
-                        outerRadius={90}
+                        innerRadius={45}
+                        outerRadius={75}
                         dataKey="value"
                         labelLine={false}
                       >
@@ -2053,10 +2053,13 @@ function PortfolioOverview({
           });
           const sym = ovCountry.symbol;
           // Line chart data: total portfolio value per year
-          const forecastLineData = forecast.slice(0, 21).map((row) => ({
-            year: String(row.year),
-            total: activeTypes.reduce((s, t) => s + Number(row[t] ?? 0), 0),
-          }));
+          const forecastLineData = forecast.slice(0, 21).map((row) => {
+            const r: Record<string, number | string> = {
+              year: String(row.year),
+            };
+            for (const t of activeTypes) r[t] = Number(row[t] ?? 0);
+            return r;
+          });
           return (
             <>
               {/* Line Chart - placed in the 2-col row */}
@@ -2087,23 +2090,28 @@ function PortfolioOverview({
                         width={56}
                       />
                       <Tooltip
-                        formatter={(v: number) => [
-                          shortNum(v, sym),
-                          "Portfolio Value",
-                        ]}
+                        formatter={(v: number, name: string) => {
+                          const cfg = PFCFG[name];
+                          return [shortNum(v, sym), cfg?.shortLabel ?? name];
+                        }}
                         contentStyle={{
                           fontSize: "11px",
                           borderRadius: "8px",
                         }}
                       />
-                      <Line
-                        type="monotone"
-                        dataKey="total"
-                        stroke="#6366f1"
-                        strokeWidth={2.5}
-                        dot={false}
-                        activeDot={{ r: 5, fill: "#6366f1" }}
-                      />
+                      <Legend wrapperStyle={{ fontSize: "10px" }} />
+                      {activeTypes.map((t) => (
+                        <Line
+                          key={t}
+                          type="monotone"
+                          dataKey={t}
+                          name={PFCFG[t].shortLabel}
+                          stroke={PFCFG[t].color}
+                          strokeWidth={2}
+                          dot={false}
+                          activeDot={{ r: 4, fill: PFCFG[t].color }}
+                        />
+                      ))}
                     </LineChart>
                   </ResponsiveContainer>
                 </CardContent>

@@ -879,45 +879,6 @@ export default function TradeJournalPage() {
 
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Equity Curve */}
-              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
-                  Equity Curve
-                </h3>
-                {equityCurve.length === 0 ? (
-                  <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
-                    No closed trades yet
-                  </div>
-                ) : (
-                  <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={equityCurve}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                      <XAxis
-                        dataKey="date"
-                        tick={{ fill: "#94a3b8", fontSize: 10 }}
-                      />
-                      <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} />
-                      <ReTooltip
-                        contentStyle={{
-                          background: "#1e293b",
-                          border: "1px solid #334155",
-                          borderRadius: 8,
-                        }}
-                        labelStyle={{ color: "#94a3b8" }}
-                        formatter={(v: number) => [fmtCurrency(v), "Cum. P&L"]}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="pnl"
-                        stroke="#10b981"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-
               {/* Win/Loss Distribution - Donut Charts */}
               <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
@@ -1006,6 +967,44 @@ export default function TradeJournalPage() {
                 </div>
               </div>
 
+              {/* Equity Curve */}
+              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                  Equity Curve
+                </h3>
+                {equityCurve.length === 0 ? (
+                  <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
+                    No closed trades yet
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart data={equityCurve}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fill: "#94a3b8", fontSize: 10 }}
+                      />
+                      <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                      <ReTooltip
+                        contentStyle={{
+                          background: "#1e293b",
+                          border: "1px solid #334155",
+                          borderRadius: 8,
+                        }}
+                        labelStyle={{ color: "#94a3b8" }}
+                        formatter={(v: number) => [fmtCurrency(v), "Cum. P&L"]}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="pnl"
+                        stroke="#10b981"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
               {/* P&L by Strategy */}
               <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
@@ -1097,6 +1096,14 @@ export default function TradeJournalPage() {
 
             {/* Scatter + Heatmap */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Monthly Heatmap */}
+              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                  Monthly Performance Heatmap
+                </h3>
+                <MonthlyHeatmap trades={filteredByTime} />
+              </div>
+
               {/* Risk/Reward Scatter */}
               <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
@@ -1114,6 +1121,7 @@ export default function TradeJournalPage() {
                         dataKey="risk"
                         name="Risk"
                         tick={{ fill: "#94a3b8", fontSize: 10 }}
+                        tickFormatter={(v: number) => v.toFixed(2)}
                         label={{
                           value: "Risk",
                           fill: "#64748b",
@@ -1146,14 +1154,6 @@ export default function TradeJournalPage() {
                     </ScatterChart>
                   </ResponsiveContainer>
                 )}
-              </div>
-
-              {/* Monthly Heatmap */}
-              <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-slate-600 p-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
-                  Monthly Performance Heatmap
-                </h3>
-                <MonthlyHeatmap trades={filteredByTime} />
               </div>
             </div>
           </div>
@@ -2252,6 +2252,10 @@ function MonthlyHeatmap({ trades }: { trades: TradeEntry[] }) {
   const now = new Date();
   const [navYear, setNavYear] = useState(now.getFullYear());
   const [navMonth, setNavMonth] = useState(now.getMonth());
+  const [mobileTooltip, setMobileTooltip] = useState<{
+    day: number;
+    pnl: number;
+  } | null>(null);
   const year = navYear;
   const month = navMonth;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -2392,23 +2396,64 @@ function MonthlyHeatmap({ trades }: { trades: TradeEntry[] }) {
                     ? "bg-red-600"
                     : "bg-red-900";
             return (
-              <div
+              <button
                 key={`day-${day}`}
+                type="button"
                 title={
                   pnl !== null
-                    ? `Day ${day}: ${fmtCurrency(pnl)}`
+                    ? `${MONTH_NAMES[month]} ${day}: ${fmtCurrency(pnl)}`
                     : `Day ${day}`
                 }
-                className={`h-8 rounded flex items-center justify-center text-xs font-medium cursor-default ${bg} ${
+                onClick={() => {
+                  if (pnl !== null) {
+                    setMobileTooltip(
+                      mobileTooltip?.day === day ? null : { day, pnl },
+                    );
+                  }
+                }}
+                className={`h-8 rounded flex items-center justify-center text-xs font-medium ${pnl !== null ? "cursor-pointer" : "cursor-default"} ${bg} ${
                   pnl !== null ? "text-white" : "text-slate-400"
                 }`}
               >
                 {day}
-              </div>
+              </button>
             );
           })}
         </div>
       ))}
+      {/* Total Monthly P&L */}
+      {Object.keys(dayPnL).length > 0 &&
+        (() => {
+          const totalMonthPnL = Object.values(dayPnL).reduce(
+            (s, v) => s + v,
+            0,
+          );
+          return (
+            <div className="flex justify-end mt-2">
+              <div
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg ${totalMonthPnL >= 0 ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}
+              >
+                Monthly P&L: {totalMonthPnL >= 0 ? "+" : ""}
+                {fmtCurrency(totalMonthPnL)}
+              </div>
+            </div>
+          );
+        })()}
+      {/* Mobile touch tooltip */}
+      {mobileTooltip && (
+        <button
+          type="button"
+          className="w-full mt-2 text-xs font-medium px-3 py-2 rounded-xl bg-slate-800 text-white text-center"
+          onClick={() => setMobileTooltip(null)}
+        >
+          {MONTH_NAMES[month]} {mobileTooltip.day}:{" "}
+          {mobileTooltip.pnl >= 0 ? "+" : ""}
+          {fmtCurrency(mobileTooltip.pnl)}
+          <span className="ml-2 text-slate-400 text-[10px]">
+            (tap to dismiss)
+          </span>
+        </button>
+      )}
       <div className="flex items-center gap-2 mt-3 text-xs text-slate-400">
         <div className="w-3 h-3 rounded bg-red-600" /> Loss
         <div className="w-3 h-3 rounded bg-card" /> No trades

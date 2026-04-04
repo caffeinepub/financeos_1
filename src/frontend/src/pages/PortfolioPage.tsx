@@ -308,7 +308,7 @@ export default function PortfolioPage() {
   }, [rawFiltered, sortCol, sortDir, totalValue]);
 
   // Pie data with pct
-  const pieData = rawFiltered.map((h, idx) => ({
+  const _pieData = rawFiltered.map((h, idx) => ({
     name: h.name,
     value: h.currentValue,
     color: SLICE_COLORS[idx % SLICE_COLORS.length],
@@ -316,7 +316,7 @@ export default function PortfolioPage() {
       totalValue > 0 ? ((h.currentValue / totalValue) * 100).toFixed(1) : "0",
   }));
 
-  const renderPieLabel = ({
+  const _renderPieLabel = ({
     pct,
     cx,
     cy,
@@ -1006,151 +1006,6 @@ export default function PortfolioPage() {
                   </div>
                 </div>
               )}
-
-              {/* Holdings Distribution + Invested vs Current row */}
-              {rawFiltered.length > 0 && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* Holdings Distribution Pie */}
-                  <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-                    <CardHeader className="pb-2 pt-4 px-5">
-                      <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                        {currentType} Holdings Distribution
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-5 pb-5">
-                      <ResponsiveContainer width="100%" height={260}>
-                        <PieChart>
-                          <Pie
-                            data={pieData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={50}
-                            outerRadius={100}
-                            dataKey="value"
-                            strokeWidth={2}
-                            stroke="#fff"
-                            labelLine={false}
-                            label={renderPieLabel}
-                          >
-                            {pieData.map((entry) => (
-                              <Cell key={entry.name} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip
-                            formatter={(
-                              v: number,
-                              _name: string,
-                              props: {
-                                payload?: { name: string; pct: string };
-                              },
-                            ) => [
-                              `${fmt(v)} (${props.payload?.pct ?? "0"}%)`,
-                              props.payload?.name ?? "",
-                            ]}
-                            contentStyle={{
-                              fontSize: "11px",
-                              borderRadius: "10px",
-                              border: "1px solid #e2e8f0",
-                              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                            }}
-                          />
-                          <Legend
-                            wrapperStyle={{ fontSize: "11px" }}
-                            formatter={(value: string) => (
-                              <span className="text-slate-600">{value}</span>
-                            )}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-                  {/* 10-Year Growth Forecast Line Chart */}
-                  <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-                    <CardHeader className="pb-2 pt-4 px-5">
-                      <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-                        10-Year Growth Forecast
-                      </CardTitle>
-                      <CardDescription className="text-xs text-slate-400">
-                        Projected corpus vs invested amount
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="px-2 pb-4">
-                      {(() => {
-                        const assetReturnRates: Record<string, number> = {
-                          [AssetType.Retirement]: 0.08,
-                          [AssetType.MutualFund]: 0.12,
-                          [AssetType.ETF]: 0.14,
-                          [AssetType.Crypto]: 0.2,
-                          [AssetType.Commodity]: 0.08,
-                          [AssetType.RealEstate]: 0.1,
-                          [AssetType.FixedIncome]: 0.07,
-                          [AssetType.Other]: 0.1,
-                        };
-                        const rate = assetReturnRates[currentType] ?? 0.1;
-                        const tabInvested = rawFiltered.reduce(
-                          (s, h) => s + h.costBasis * h.quantity,
-                          0,
-                        );
-                        const forecastData = Array.from(
-                          { length: 10 },
-                          (_, i) => ({
-                            year: `Y${i + 1}`,
-                            Projected: Math.round(
-                              tabInvested * (1 + rate) ** (i + 1),
-                            ),
-                            Invested: Math.round(tabInvested),
-                          }),
-                        );
-                        return (
-                          <ResponsiveContainer width="100%" height={240}>
-                            <LineChart
-                              data={forecastData}
-                              margin={{ top: 4, right: 20, left: 0, bottom: 5 }}
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="#f1f5f9"
-                              />
-                              <XAxis dataKey="year" tick={{ fontSize: 10 }} />
-                              <YAxis
-                                tick={{ fontSize: 10 }}
-                                tickFormatter={(v) => fmt(v)}
-                                width={56}
-                              />
-                              <Tooltip
-                                formatter={(v: number, name: string) => [
-                                  fmt(v),
-                                  name,
-                                ]}
-                                contentStyle={{
-                                  fontSize: "11px",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                              <Legend wrapperStyle={{ fontSize: "10px" }} />
-                              <Line
-                                type="monotone"
-                                dataKey="Projected"
-                                stroke="#10b981"
-                                strokeWidth={2}
-                                dot={false}
-                              />
-                              <Line
-                                type="monotone"
-                                dataKey="Invested"
-                                stroke="#60a5fa"
-                                strokeWidth={2}
-                                strokeDasharray="5 5"
-                                dot={false}
-                              />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        );
-                      })()}
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
             </>
           )}
         </>
@@ -1835,57 +1690,67 @@ function PortfolioOverview({
                   </div>
                 );
               return (
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart>
-                    <Pie
-                      data={donutData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={80}
-                      dataKey="value"
-                      strokeWidth={2}
-                      stroke="#fff"
-                      labelLine={false}
-                      label={({
-                        cx: lx,
-                        cy: ly,
-                        midAngle,
-                        innerRadius: ir,
-                        outerRadius: or,
-                        value,
-                      }) => {
-                        if (value < 5) return null;
-                        const R = Math.PI / 180;
-                        const radius = ir + (or - ir) * 0.5;
-                        const x = lx + radius * Math.cos(-midAngle * R);
-                        const y = ly + radius * Math.sin(-midAngle * R);
-                        return (
-                          <text
-                            x={x}
-                            y={y}
-                            fill="white"
-                            textAnchor="middle"
-                            dominantBaseline="central"
-                            fontSize={9}
-                            fontWeight={600}
-                          >
-                            {value}%
-                          </text>
-                        );
-                      }}
-                    >
-                      {donutData.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(v: number, n: string) => [`${v}%`, n]}
-                      contentStyle={{ fontSize: "11px", borderRadius: "8px" }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: "10px" }} />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex-shrink-0"
+                    style={{ width: 180, height: 220 }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={donutData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={55}
+                          outerRadius={90}
+                          dataKey="value"
+                          strokeWidth={2}
+                          stroke="#fff"
+                          labelLine={false}
+                        >
+                          {donutData.map((entry) => (
+                            <Cell key={entry.name} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(v: number, n: string) => [`${v}%`, n]}
+                          contentStyle={{
+                            fontSize: "11px",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                    {donutData.map((entry) => {
+                      const total = donutData.reduce((s, d) => s + d.value, 0);
+                      const pct =
+                        total > 0
+                          ? ((entry.value / total) * 100).toFixed(1)
+                          : "0";
+                      return (
+                        <div
+                          key={entry.name}
+                          className="flex items-center justify-between gap-2"
+                        >
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <div
+                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                              style={{ background: entry.color }}
+                            />
+                            <span className="text-[11px] text-slate-600 truncate">
+                              {entry.name}
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
+                            {pct}%
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               );
             })()}
           </CardContent>
@@ -1965,7 +1830,7 @@ function PortfolioOverview({
         </Card>
       </div>
 
-      {/* Cap Distribution Pie Charts */}
+      {/* Cap Distribution Pie Charts - 3-column row with right-side legends */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
           <CardHeader className="pb-2 pt-4 px-5">
@@ -1975,70 +1840,79 @@ function PortfolioOverview({
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {equityCapData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <PieChart>
-                  <Pie
-                    data={equityCapData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({
-                      cx,
-                      cy,
-                      midAngle,
-                      innerRadius,
-                      outerRadius,
-                      percent,
-                    }) => {
-                      if (percent < 0.04) return null;
-                      const RADIAN = Math.PI / 180;
-                      const radius =
-                        innerRadius + (outerRadius - innerRadius) * 0.5;
-                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                      return (
-                        <text
-                          x={x}
-                          y={y}
-                          fill="white"
-                          textAnchor="middle"
-                          dominantBaseline="central"
-                          fontSize={9}
-                          fontWeight={600}
-                        >
-                          {`${(percent * 100).toFixed(0)}%`}
-                        </text>
-                      );
-                    }}
-                    innerRadius={50}
-                    outerRadius={80}
-                    dataKey="value"
-                  >
-                    {equityCapData.map((entry) => (
-                      <Cell
-                        key={entry.name}
-                        fill={CAP_COLORS[entry.name] ?? "#94a3b8"}
-                        stroke="#fff"
-                        strokeWidth={2}
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex-shrink-0"
+                  style={{ width: 160, height: 200 }}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={equityCapData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={90}
+                        dataKey="value"
+                        labelLine={false}
+                      >
+                        {equityCapData.map((entry) => (
+                          <Cell
+                            key={entry.name}
+                            fill={CAP_COLORS[entry.name] ?? "#94a3b8"}
+                            stroke="#fff"
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(
+                          v: number,
+                          _n: string,
+                          p: { payload?: { pct?: string } },
+                        ) => [
+                          `${fmt(v)} (${p.payload?.pct ?? "0"}%)`,
+                          "Current Value",
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
                       />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(
-                      v: number,
-                      _n: string,
-                      p: { payload?: { pct?: string } },
-                    ) => [
-                      `${fmt(v)} (${p.payload?.pct ?? "0"}%)`,
-                      "Current Value",
-                    ]}
-                    contentStyle={{ fontSize: "11px", borderRadius: "10px" }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: "11px" }} />
-                </PieChart>
-              </ResponsiveContainer>
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                  {equityCapData.map((entry) => {
+                    const tot = equityCapData.reduce((s, d) => s + d.value, 0);
+                    const pct =
+                      tot > 0 ? ((entry.value / tot) * 100).toFixed(1) : "0";
+                    return (
+                      <div
+                        key={entry.name}
+                        className="flex items-center justify-between gap-2"
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                            style={{
+                              background: CAP_COLORS[entry.name] ?? "#94a3b8",
+                            }}
+                          />
+                          <span className="text-[11px] text-slate-600 truncate">
+                            {entry.name}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
+                          {pct}%
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             ) : (
-              <div className="h-[240px] flex items-center justify-center text-slate-300 text-sm">
+              <div className="h-[200px] flex items-center justify-center text-slate-300 text-sm">
                 No equity holdings yet
               </div>
             )}
@@ -2056,70 +1930,79 @@ function PortfolioOverview({
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {mfCapData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <PieChart>
-                  <Pie
-                    data={mfCapData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({
-                      cx,
-                      cy,
-                      midAngle,
-                      innerRadius,
-                      outerRadius,
-                      percent,
-                    }) => {
-                      if (percent < 0.04) return null;
-                      const RADIAN = Math.PI / 180;
-                      const radius =
-                        innerRadius + (outerRadius - innerRadius) * 0.5;
-                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                      return (
-                        <text
-                          x={x}
-                          y={y}
-                          fill="white"
-                          textAnchor="middle"
-                          dominantBaseline="central"
-                          fontSize={9}
-                          fontWeight={600}
-                        >
-                          {`${(percent * 100).toFixed(0)}%`}
-                        </text>
-                      );
-                    }}
-                    innerRadius={50}
-                    outerRadius={80}
-                    dataKey="value"
-                  >
-                    {mfCapData.map((entry) => (
-                      <Cell
-                        key={entry.name}
-                        fill={CAP_COLORS[entry.name] ?? "#94a3b8"}
-                        stroke="#fff"
-                        strokeWidth={2}
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex-shrink-0"
+                  style={{ width: 160, height: 200 }}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={mfCapData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={90}
+                        dataKey="value"
+                        labelLine={false}
+                      >
+                        {mfCapData.map((entry) => (
+                          <Cell
+                            key={entry.name}
+                            fill={CAP_COLORS[entry.name] ?? "#94a3b8"}
+                            stroke="#fff"
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(
+                          v: number,
+                          _n: string,
+                          p: { payload?: { pct?: string } },
+                        ) => [
+                          `${fmt(v)} (${p.payload?.pct ?? "0"}%)`,
+                          "Current Value",
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
                       />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(
-                      v: number,
-                      _n: string,
-                      p: { payload?: { pct?: string } },
-                    ) => [
-                      `${fmt(v)} (${p.payload?.pct ?? "0"}%)`,
-                      "Current Value",
-                    ]}
-                    contentStyle={{ fontSize: "11px", borderRadius: "10px" }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: "11px" }} />
-                </PieChart>
-              </ResponsiveContainer>
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                  {mfCapData.map((entry) => {
+                    const tot = mfCapData.reduce((s, d) => s + d.value, 0);
+                    const pct =
+                      tot > 0 ? ((entry.value / tot) * 100).toFixed(1) : "0";
+                    return (
+                      <div
+                        key={entry.name}
+                        className="flex items-center justify-between gap-2"
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                            style={{
+                              background: CAP_COLORS[entry.name] ?? "#94a3b8",
+                            }}
+                          />
+                          <span className="text-[11px] text-slate-600 truncate">
+                            {entry.name}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
+                          {pct}%
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             ) : (
-              <div className="h-[240px] flex items-center justify-center text-slate-300 text-sm">
+              <div className="h-[200px] flex items-center justify-center text-slate-300 text-sm">
                 No mutual fund holdings yet
               </div>
             )}

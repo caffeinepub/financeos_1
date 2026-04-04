@@ -1647,10 +1647,10 @@ export default function TradeJournalPage() {
                   </div>
                   {pnlByStrategy.length > 0 ? (
                     <>
-                      <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                      <div className="text-lg font-bold text-green-700 dark:text-green-400">
                         {pnlByStrategy[0].name}
                       </div>
-                      <div className="text-sm text-emerald-400">
+                      <div className="text-sm text-green-600 dark:text-green-400">
                         {fmtCurrency(pnlByStrategy[0].pnl)}
                       </div>
                     </>
@@ -1669,10 +1669,10 @@ export default function TradeJournalPage() {
                   </div>
                   {pnlByTicker.length > 0 ? (
                     <>
-                      <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                      <div className="text-lg font-bold text-green-700 dark:text-green-400">
                         {pnlByTicker[0].name}
                       </div>
-                      <div className="text-sm text-emerald-400">
+                      <div className="text-sm text-green-600 dark:text-green-400">
                         {fmtCurrency(pnlByTicker[0].pnl)}
                       </div>
                     </>
@@ -1695,10 +1695,10 @@ export default function TradeJournalPage() {
                       .sort((a, b) => b.winRate - a.winRate)[0];
                     return best ? (
                       <>
-                        <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                        <div className="text-lg font-bold text-green-700 dark:text-green-400">
                           {best.day}
                         </div>
-                        <div className="text-sm text-emerald-400">
+                        <div className="text-sm text-green-600 dark:text-green-400">
                           {fmtNum(best.winRate)}% win rate
                         </div>
                       </>
@@ -1731,7 +1731,7 @@ export default function TradeJournalPage() {
                       <div className="space-y-1">
                         {top3.map(([s, cnt]) => (
                           <div key={s} className="flex justify-between text-xs">
-                            <span className="text-slate-800 dark:text-slate-100 truncate">
+                            <span className="text-slate-700 dark:text-slate-200 truncate">
                               {s}
                             </span>
                             <span className="text-red-400 ml-2">
@@ -1817,10 +1817,10 @@ export default function TradeJournalPage() {
                               : "hover:bg-red-900/10"
                         }`}
                       >
-                        <TableCell className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                        <TableCell className="text-sm font-medium text-slate-700 dark:text-slate-200">
                           {d.day}
                         </TableCell>
-                        <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                        <TableCell className="text-sm text-slate-600 dark:text-slate-300">
                           {d.trades}
                         </TableCell>
                         <TableCell>

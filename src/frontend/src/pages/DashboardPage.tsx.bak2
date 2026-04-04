@@ -287,20 +287,23 @@ function GoalsProgressList({
 // ─── Risk-o-Meter Component ───────────────────────────────────────────────────
 function RiskOMeter({ score }: { score: number }) {
   const LEVELS = [
-    { label: "Low Risk", color: "#08A04B", min: 0, max: 25 },
-    { label: "Low-Moderate", color: "#7FFF00", min: 25, max: 35 },
-    { label: "Moderate", color: "#FFFF33", min: 35, max: 45 },
-    { label: "Mod. High", color: "#C68E17", min: 45, max: 60 },
-    { label: "High Risk", color: "#FF8C00", min: 60, max: 75 },
-    { label: "Very High", color: "#F70D1A", min: 75, max: 100 },
+    { label: "Low Risk", color: "#08A04B", max: 25 },
+    { label: "Low-Moderate", color: "#7FFF00", max: 35 },
+    { label: "Moderate", color: "#FFFF33", max: 45 },
+    { label: "Mod. High", color: "#C68E17", max: 60 },
+    { label: "High Risk", color: "#FF8C00", max: 75 },
+    { label: "Very High", color: "#F70D1A", max: 100 },
   ];
 
-  const W = 340;
-  const H = 200;
-  const cx = 170;
-  const cy = 175;
-  const outerR = 130;
-  const innerR = 85;
+  const currentLevel = LEVELS.find((l) => score <= l.max) ?? LEVELS[5];
+  const clampedScore = Math.min(Math.max(score, 0), 100);
+
+  const W = 320;
+  const H = 220;
+  const cx = 160;
+  const cy = 185;
+  const outerR = 120;
+  const innerR = 80;
 
   function polarToCartesian(
     px: number,
@@ -312,42 +315,33 @@ function RiskOMeter({ score }: { score: number }) {
     return { x: px + r * Math.cos(rad), y: py + r * Math.sin(rad) };
   }
 
-  // Map score range 0–100 → angle range 180°–0° (left to right, clockwise in SVG)
-  function scoreToAngle(s: number) {
-    return 180 - (s / 100) * 180;
-  }
+  const segmentDeg = 30;
 
-  const segments = LEVELS.map((level) => {
-    const startAngle = scoreToAngle(level.min); // e.g. 180° for min=0
-    const endAngle = scoreToAngle(level.max); // e.g. 135° for max=25
-    const outerStart = polarToCartesian(cx, cy, outerR, startAngle);
-    const outerEnd = polarToCartesian(cx, cy, outerR, endAngle);
-    const innerStart = polarToCartesian(cx, cy, innerR, startAngle);
-    const innerEnd = polarToCartesian(cx, cy, innerR, endAngle);
-    // sweep-flag=1: clockwise outer arc; sweep-flag=0: counter-clockwise inner arc
-    const d = [
-      `M ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
-      `A ${outerR} ${outerR} 0 0 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
-      `L ${innerEnd.x.toFixed(2)} ${innerEnd.y.toFixed(2)}`,
-      `A ${innerR} ${innerR} 0 0 0 ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
-      "Z",
-    ].join(" ");
+  const segments = LEVELS.map((level, i) => {
+    const startDeg = 180 - i * segmentDeg;
+    const endDeg = 180 - (i + 1) * segmentDeg;
+    const outerStart = polarToCartesian(cx, cy, outerR, startDeg);
+    const outerEnd = polarToCartesian(cx, cy, outerR, endDeg);
+    const innerStart = polarToCartesian(cx, cy, innerR, startDeg);
+    const innerEnd = polarToCartesian(cx, cy, innerR, endDeg);
+    const d = `M ${outerStart.x} ${outerStart.y} A ${outerR} ${outerR} 0 0 0 ${outerEnd.x} ${outerEnd.y} L ${innerEnd.x} ${innerEnd.y} A ${innerR} ${innerR} 0 0 1 ${innerStart.x} ${innerStart.y} Z`;
+    const isActive = level.label === currentLevel.label;
     return (
       <path
         key={level.label}
         d={d}
         fill={level.color}
         stroke="white"
-        strokeWidth="1.5"
+        strokeWidth={isActive ? "3" : "1.5"}
+        opacity={isActive ? 1 : 0.85}
       />
     );
   });
 
-  const segLabels = LEVELS.map((level) => {
-    const midScore = (level.min + level.max) / 2;
-    const midAngle = scoreToAngle(midScore);
+  const segLabels = LEVELS.map((level, i) => {
+    const midDeg = 180 - (i + 0.5) * segmentDeg;
     const labelR = (outerR + innerR) / 2;
-    const pos = polarToCartesian(cx, cy, labelR, midAngle);
+    const pos = polarToCartesian(cx, cy, labelR, midDeg);
     const textColor = ["#7FFF00", "#FFFF33"].includes(level.color)
       ? "#374151"
       : "white";
@@ -359,16 +353,16 @@ function RiskOMeter({ score }: { score: number }) {
         y={pos.y}
         textAnchor="middle"
         dominantBaseline="middle"
-        fontSize="7"
+        fontSize="7.5"
         fontWeight="700"
         fill={textColor}
         style={{ pointerEvents: "none" }}
       >
         {words.map((word, wi) => (
           <tspan
-            key={`${level.label}-${wi}`}
+            key={`${level.label}-${word}-${wi}`}
             x={pos.x}
-            dy={wi === 0 ? `-${(words.length - 1) * 4}` : "8"}
+            dy={wi === 0 ? `-${(words.length - 1) * 4.5}` : "9"}
           >
             {word}
           </tspan>
@@ -377,14 +371,23 @@ function RiskOMeter({ score }: { score: number }) {
     );
   });
 
-  const clampedScore = Math.min(Math.max(score, 0), 100);
-  const needleAngle = scoreToAngle(clampedScore);
-  const needleLength = innerR - 8;
-  const needleTip = polarToCartesian(cx, cy, needleLength, needleAngle);
-  const needleBase1 = polarToCartesian(cx, cy, 8, needleAngle + 90);
-  const needleBase2 = polarToCartesian(cx, cy, 8, needleAngle - 90);
+  const needleAngleDeg = 180 - (clampedScore / 100) * 180;
+  const needleTipR = innerR - 6;
+  const needleBaseW = 7;
+  const needleTip = polarToCartesian(cx, cy, needleTipR, needleAngleDeg);
+  const needleBase1 = polarToCartesian(
+    cx,
+    cy,
+    needleBaseW,
+    needleAngleDeg + 90,
+  );
+  const needleBase2 = polarToCartesian(
+    cx,
+    cy,
+    needleBaseW,
+    needleAngleDeg - 90,
+  );
 
-  const currentLevel = LEVELS.find((l) => score <= l.max) ?? LEVELS[5];
   const textColor = ["#7FFF00", "#FFFF33"].includes(currentLevel.color)
     ? "#374151"
     : currentLevel.color;
@@ -400,7 +403,7 @@ function RiskOMeter({ score }: { score: number }) {
         {segments}
         {segLabels}
         <polygon
-          points={`${needleTip.x.toFixed(2)},${needleTip.y.toFixed(2)} ${needleBase1.x.toFixed(2)},${needleBase1.y.toFixed(2)} ${needleBase2.x.toFixed(2)},${needleBase2.y.toFixed(2)}`}
+          points={`${needleTip.x},${needleTip.y} ${needleBase1.x},${needleBase1.y} ${needleBase2.x},${needleBase2.y}`}
           fill="#1e293b"
           stroke="white"
           strokeWidth="1"
@@ -416,9 +419,9 @@ function RiskOMeter({ score }: { score: number }) {
         <circle cx={cx} cy={cy} r="4" fill="white" />
         <text
           x={cx}
-          y={cy + 18}
+          y={cy + 20}
           textAnchor="middle"
-          fontSize="12"
+          fontSize="13"
           fontWeight="800"
           fill={textColor}
         >
@@ -536,8 +539,7 @@ export default function DashboardPage() {
     const invMap = new Map<string, number>();
     for (const inv of allInvestments)
       invMap.set(String(inv.id), inv.currentValue);
-
-    const allGoalsWithProgress = goals.map((g) => {
+    return goals.slice(0, 5).map((g) => {
       const cur = g.linkedInvestments.reduce(
         (s, id) => s + (invMap.get(String(id)) ?? 0),
         0,
@@ -558,31 +560,8 @@ export default function DashboardPage() {
         month: "short",
         year: "numeric",
       });
-      return {
-        ...g,
-        currentAmount: cur,
-        pct,
-        goalDateStr,
-        sipEstimate,
-        deadlineMs,
-      };
+      return { ...g, currentAmount: cur, pct, goalDateStr, sipEstimate };
     });
-
-    // If total goals < 4, show all
-    if (allGoalsWithProgress.length < 4) return allGoalsWithProgress;
-
-    // Otherwise show max 3 on-track + max 3 need-attention, sorted by nearest goal date
-    const onTrack = allGoalsWithProgress
-      .filter((g) => g.pct >= 75 && g.pct < 100)
-      .sort((a, b) => a.deadlineMs - b.deadlineMs)
-      .slice(0, 3);
-    const needAttention = allGoalsWithProgress
-      .filter((g) => g.pct < 75)
-      .sort((a, b) => a.deadlineMs - b.deadlineMs)
-      .slice(0, 3);
-    const achieved = allGoalsWithProgress.filter((g) => g.pct >= 100);
-
-    return [...onTrack, ...needAttention, ...achieved];
   }, [goals, allInvestments]);
 
   const budgetChart = useMemo(() => {
@@ -815,82 +794,72 @@ export default function DashboardPage() {
                 <p className="text-sm text-slate-400">No portfolio data yet</p>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
-                <div
-                  className="flex-shrink-0"
-                  style={{ width: 180, height: 220 }}
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={allocationPie}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={55}
-                        outerRadius={90}
-                        dataKey="value"
-                        labelLine={false}
-                      >
-                        {allocationPie.map((entry) => (
-                          <Cell
-                            key={entry.name}
-                            fill={entry.color}
-                            stroke="#fff"
-                            strokeWidth={2}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(
-                          v: number,
-                          _n: string,
-                          props: { payload?: { name: string; pct: string } },
-                        ) => [
-                          `${formatCurrency(v)} (${props.payload?.pct ?? "0"}%)`,
-                          props.payload?.name ?? "",
-                        ]}
-                        contentStyle={{
-                          fontSize: "11px",
-                          borderRadius: "10px",
-                          border: "1px solid #e2e8f0",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                  {allocationPie.map((entry) => {
-                    const total = allocationPie.reduce(
-                      (s, d) => s + d.value,
-                      0,
-                    );
-                    const pct =
-                      total > 0
-                        ? ((entry.value / total) * 100).toFixed(1)
-                        : "0";
-                    return (
-                      <div
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={allocationPie}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={90}
+                    dataKey="value"
+                    labelLine={false}
+                    label={({
+                      cx,
+                      cy,
+                      midAngle,
+                      innerRadius,
+                      outerRadius,
+                      percent,
+                    }) => {
+                      const RADIAN = Math.PI / 180;
+                      const radius =
+                        innerRadius + (outerRadius - innerRadius) * 0.5;
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      return percent > 0.04 ? (
+                        <text
+                          x={x}
+                          y={y}
+                          fill="white"
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fontSize={11}
+                          fontWeight={600}
+                        >
+                          {`${(percent * 100).toFixed(0)}%`}
+                        </text>
+                      ) : null;
+                    }}
+                  >
+                    {allocationPie.map((entry) => (
+                      <Cell
                         key={entry.name}
-                        className="flex items-center justify-between gap-2"
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <div
-                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                            style={{ background: entry.color }}
-                          />
-                          <span className="text-[11px] text-slate-600 truncate">
-                            {entry.name}
-                          </span>
-                        </div>
-                        <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
-                          {pct}%
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+                        fill={entry.color}
+                        stroke="#fff"
+                        strokeWidth={2}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(
+                      v: number,
+                      _n: string,
+                      props: { payload?: { name: string; pct: string } },
+                    ) => [
+                      `${formatCurrency(v)} (${props.payload?.pct ?? "0"}%)`,
+                      props.payload?.name ?? "",
+                    ]}
+                    contentStyle={{
+                      fontSize: "11px",
+                      borderRadius: "10px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                </PieChart>
+              </ResponsiveContainer>
             )}
           </CardContent>
         </Card>
@@ -1043,77 +1012,93 @@ export default function DashboardPage() {
                   </div>
                 );
               }
-              const avslTotal = pieData.reduce((s, d) => s + d.value, 0);
               return (
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex-shrink-0"
-                    style={{ width: 160, height: 180 }}
-                  >
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={pieData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={55}
-                          outerRadius={90}
-                          dataKey="value"
-                          labelLine={false}
-                        >
-                          {pieData.map((entry) => (
-                            <Cell
-                              key={entry.name}
-                              fill={entry.color}
-                              stroke="#fff"
-                              strokeWidth={2}
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          formatter={(v: number, name: string) => [
-                            formatCurrency(v),
-                            name,
-                          ]}
-                          contentStyle={{
-                            fontSize: "11px",
-                            borderRadius: "10px",
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="flex flex-col gap-2 flex-1 min-w-0">
-                    {pieData.map((d) => {
-                      const pct =
-                        avslTotal > 0
-                          ? ((d.value / avslTotal) * 100).toFixed(1)
-                          : "0";
-                      return (
-                        <div
-                          key={d.name}
-                          className="flex items-center justify-between gap-2"
-                        >
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <div
-                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                              style={{ background: d.color }}
-                            />
-                            <div className="min-w-0">
-                              <span className="text-[11px] text-slate-600 block truncate">
-                                {d.name}
-                              </span>
-                              <span className="text-xs font-bold text-slate-800">
-                                {formatCurrency(d.value)}
-                              </span>
-                            </div>
-                          </div>
-                          <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
-                            {pct}%
+                <div className="flex items-center gap-4">
+                  <ResponsiveContainer width="50%" height={180}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={75}
+                        dataKey="value"
+                        labelLine={false}
+                        label={({
+                          cx: pcx,
+                          cy: pcy,
+                          midAngle,
+                          innerRadius: ir,
+                          outerRadius: or,
+                          percent,
+                        }: {
+                          cx: number;
+                          cy: number;
+                          midAngle: number;
+                          innerRadius: number;
+                          outerRadius: number;
+                          percent: number;
+                        }) => {
+                          if (percent < 0.05) return null;
+                          const RADIAN = Math.PI / 180;
+                          const radius = ir + (or - ir) * 0.5;
+                          const lx =
+                            pcx + radius * Math.cos(-midAngle * RADIAN);
+                          const ly =
+                            pcy + radius * Math.sin(-midAngle * RADIAN);
+                          return (
+                            <text
+                              x={lx}
+                              y={ly}
+                              fill="#fff"
+                              textAnchor="middle"
+                              dominantBaseline="central"
+                              fontSize={11}
+                              fontWeight={700}
+                            >
+                              {`${(percent * 100).toFixed(1)}%`}
+                            </text>
+                          );
+                        }}
+                      >
+                        {pieData.map((entry) => (
+                          <Cell
+                            key={entry.name}
+                            fill={entry.color}
+                            stroke="#fff"
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(v: number, name: string) => [
+                          formatCurrency(v),
+                          name,
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="flex-1 space-y-3">
+                    {pieData.map((d) => (
+                      <div key={d.name}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                            style={{ background: d.color }}
+                          />
+                          <span className="text-xs text-slate-500">
+                            {d.name}
                           </span>
                         </div>
-                      );
-                    })}
+                        <p className="text-sm font-bold text-slate-800 ml-4">
+                          {formatCurrency(d.value)}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               );

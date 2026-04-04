@@ -14,7 +14,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useCurrency } from "../../contexts/CurrencyContext";
 
 const fmt = (n: number) => Math.round(n).toLocaleString("en-IN");
@@ -469,7 +469,7 @@ export function ModelBudgetingTab({
   };
 
   // Apply autofill data if provided
-  const applyAutofill = () => {
+  const applyAutofill = useCallback(() => {
     if (!autofillData) return;
     setInputs((prev) => ({
       ...prev,
@@ -506,7 +506,14 @@ export function ModelBudgetingTab({
     setResult(null);
     setError("");
     if (view === "menu") setView("detail");
-  };
+  }, [autofillData, view]);
+
+  // Auto-apply when autofillData changes
+  useEffect(() => {
+    if (autofillData) {
+      applyAutofill();
+    }
+  }, [autofillData, applyAutofill]);
 
   const handleAnalyze = () => {
     setLoading(true);

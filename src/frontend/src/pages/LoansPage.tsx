@@ -793,7 +793,7 @@ export default function LoansPage() {
                       </div>
                       {/* Repayment progress */}
                       <div className="space-y-1 mb-3">
-                        <div className="flex justify-between text-[10px] text-muted-foreground">
+                        <div className="flex justify-between text-[10px] text-slate-500">
                           <span>Repaid</span>
                           <span>{progress.toFixed(0)}%</span>
                         </div>

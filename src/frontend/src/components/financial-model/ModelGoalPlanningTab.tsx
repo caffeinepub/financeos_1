@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label";
 import {
   AlertCircle,
   ArrowRight,
-  ChevronLeft,
   ChevronRight,
   Plus,
   Sparkles,
@@ -13,6 +12,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useActor } from "../../hooks/useActor";
 
 const fmt = (n: number) => Math.round(n).toLocaleString("en-IN");
 const fmtC = (n: number) => `₹${fmt(n)}`;
@@ -108,6 +109,7 @@ type GoalEntry = {
   name: string;
   targetToday: number;
   years: number;
+  availableToday?: number;
 };
 
 const SCENARIOS: {
@@ -184,6 +186,8 @@ type GoalResult = {
   returnRate: number;
   sipRequired: number;
   sipNoReturn: number;
+  availableToday: number;
+  fvAvailable: number;
   instrument: { name: string; reason: string };
 };
 
@@ -208,8 +212,8 @@ function analyzeGoals(
   goals: GoalEntry[],
   monthlyAvailable: number,
   currentAge: number,
-  retirementAge: number,
 ): { result: GoalAnalysis | null; error: string } {
+  const retirementAge = 65;
   const valid = goals.filter((g) => g.targetToday > 0 && g.years > 0);
   if (valid.length === 0)
     return {
@@ -231,18 +235,20 @@ function analyzeGoals(
       result: null,
       error: "Please enter a valid current age between 1 and 80.",
     };
-  if (retirementAge <= currentAge)
-    return {
-      result: null,
-      error: `Retirement age (${retirementAge}) must be greater than current age (${currentAge}).`,
-    };
+  if (retirementAge <= currentAge) {
+    // Use a safe fallback - retirement age defaults to 65
+  }
 
   const goalResults: GoalResult[] = valid.map((g) => {
     const inflated = g.targetToday * (1 + INFLATION_RATE) ** g.years;
     const rate = getReturnRate(g.years);
-    const sip = sipRequired(inflated, rate, g.years);
+    const fvAvailable = (g.availableToday ?? 0) * (1 + rate / 100) ** g.years;
+    const adjustedTarget = Math.max(0, inflated - fvAvailable);
+    const sip = sipRequired(adjustedTarget, rate, g.years);
     const sipNR =
-      g.years > 0 ? Math.round(inflated / (g.years * 12)) : inflated;
+      g.years > 0
+        ? Math.round(adjustedTarget / (g.years * 12))
+        : adjustedTarget;
     return {
       name: g.name,
       emoji: getGoalEmoji(g.name),
@@ -252,6 +258,8 @@ function analyzeGoals(
       returnRate: rate,
       sipRequired: sip,
       sipNoReturn: sipNR,
+      availableToday: g.availableToday ?? 0,
+      fvAvailable: Math.round(fvAvailable),
       instrument: getInstrument(g.years),
     };
   });
@@ -324,31 +332,35 @@ let nextId = 1;
 export function ModelGoalPlanningTab({
   initialScenario,
 }: { initialScenario?: string } = {}) {
+  const { actor } = useActor();
+  const [planMode, setPlanMode] = useState<"single" | "multi">("single");
   const initScenario =
-    SCENARIOS.find((s) => s.id === initialScenario) ?? SCENARIOS[0];
+    SCENARIOS.find((s) => s.id === (initialScenario ?? "single")) ??
+    SCENARIOS[0];
   const [goals, setGoals] = useState<GoalEntry[]>(
-    initScenario.goals.map((g) => ({ ...g, id: nextId++ })),
+    initScenario.goals.map((g) => ({ ...g, id: nextId++, availableToday: 0 })),
   );
   const [monthlyAvailable, setMonthlyAvailable] = useState(
     initScenario.monthlyAvailable,
   );
-  const [currentAge, setCurrentAge] = useState(initScenario.currentAge);
-  const [retirementAge, setRetirementAge] = useState(
-    initScenario.retirementAge,
-  );
+  const [currentAge, setCurrentAge] = useState<number>(() => {
+    const dob = localStorage.getItem("gff_dob");
+    if (dob) {
+      const age = Math.floor(
+        (Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000),
+      );
+      if (age > 0 && age < 100) return age;
+    }
+    return initScenario.currentAge;
+  });
   const [result, setResult] = useState<GoalAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [_activeScenario, setActiveScenario] = useState(initScenario.id);
-  const [view, setView] = useState<"menu" | "detail">(
-    initialScenario ? "detail" : "menu",
-  );
 
   const loadScenario = (s: (typeof SCENARIOS)[0]) => {
-    setGoals(s.goals.map((g) => ({ ...g, id: nextId++ })));
+    setGoals(s.goals.map((g) => ({ ...g, id: nextId++, availableToday: 0 })));
     setMonthlyAvailable(s.monthlyAvailable);
-    setCurrentAge(s.currentAge);
-    setRetirementAge(s.retirementAge);
     setActiveScenario(s.id);
     setResult(null);
     setError("");
@@ -373,7 +385,13 @@ export function ModelGoalPlanningTab({
   const addGoal = () =>
     setGoals((prev) => [
       ...prev,
-      { id: nextId++, name: "New Goal", targetToday: 500000, years: 5 },
+      {
+        id: nextId++,
+        name: "New Goal",
+        targetToday: 500000,
+        years: 5,
+        availableToday: 0,
+      },
     ]);
   const removeGoal = (id: number) =>
     setGoals((prev) => prev.filter((g) => g.id !== id));
@@ -386,7 +404,6 @@ export function ModelGoalPlanningTab({
         goals,
         monthlyAvailable,
         currentAge,
-        retirementAge,
       );
       if (r) setResult(r);
       else setError(e);
@@ -396,82 +413,59 @@ export function ModelGoalPlanningTab({
 
   const res = result;
 
-  if (view === "menu") {
-    const SCENARIO_COLORS_GOAL = [
-      "#10b981",
-      "#3b82f6",
-      "#f59e0b",
-      "#a855f7",
-      "#f43f5e",
-    ];
-    return (
-      <div className="space-y-3 animate-fade-in">
-        <div className="flex items-center gap-3 px-1 mb-4">
-          <Target className="w-5 h-5 text-violet-600 dark:text-violet-400 shrink-0" />
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-              Goal Planning Model
-            </h3>
-          </div>
-        </div>
-        {SCENARIOS.map((s, idx) => {
-          const accentColor =
-            SCENARIO_COLORS_GOAL[idx % SCENARIO_COLORS_GOAL.length];
-          return (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => {
-                loadScenario(s);
-                setView("detail");
-              }}
-              className="w-full text-left bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl overflow-hidden transition-all duration-200 group shadow-sm hover:shadow-md"
-              style={{ borderLeftColor: accentColor, borderLeftWidth: 4 }}
-            >
-              <div className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                    style={{ backgroundColor: accentColor }}
-                  >
-                    {idx + 1}
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-slate-100 truncate">
-                    {s.title}
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 group-hover:translate-x-0.5 transition-transform shrink-0 ml-2" />
-              </div>
-              <div className="px-4 pb-3">
-                <p className="text-xs text-gray-500 dark:text-slate-400">
-                  {s.desc}
-                </p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4 animate-fade-in">
-      {/* Back to Menu */}
-      <button
-        type="button"
-        onClick={() => setView("menu")}
-        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2 font-medium"
-      >
-        <ChevronLeft className="w-4 h-4" />
-        Back to Menu
-      </button>
+      {/* Planning Mode Radio Buttons */}
+      <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
+        <span className="text-xs font-semibold text-slate-600">
+          Planning Mode:
+        </span>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="radio"
+            name="planMode"
+            value="single"
+            checked={planMode === "single"}
+            onChange={() => {
+              setPlanMode("single");
+              const s = SCENARIOS.find((sc) => sc.id === "single");
+              if (s) {
+                loadScenario(s);
+              }
+              setResult(null);
+            }}
+            className="accent-green-600"
+          />
+          <span className="text-xs font-medium text-slate-700">
+            Single Goal
+          </span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="radio"
+            name="planMode"
+            value="multi"
+            checked={planMode === "multi"}
+            onChange={() => {
+              setPlanMode("multi");
+              const s = SCENARIOS.find((sc) => sc.id === "raise");
+              if (s) {
+                loadScenario(s);
+              }
+              setResult(null);
+            }}
+            className="accent-green-600"
+          />
+          <span className="text-xs font-medium text-slate-700">Multi Goal</span>
+        </label>
+      </div>
 
       {/* Inputs */}
       <div className="bg-white border border-slate-100 rounded-xl p-4 space-y-3">
         <p className="text-xs font-bold text-slate-600 uppercase tracking-wide">
           Your Profile
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <Label className="text-xs font-semibold text-slate-600">
               Current Age
@@ -482,19 +476,6 @@ export function ModelGoalPlanningTab({
               max={80}
               value={currentAge || ""}
               onChange={(e) => setCurrentAge(Number(e.target.value) || 0)}
-              className="h-8 text-sm"
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold text-slate-600">
-              Target Retirement Age
-            </Label>
-            <Input
-              type="number"
-              min={40}
-              max={80}
-              value={retirementAge || ""}
-              onChange={(e) => setRetirementAge(Number(e.target.value) || 0)}
               className="h-8 text-sm"
             />
           </div>
@@ -541,6 +522,9 @@ export function ModelGoalPlanningTab({
                   Target Today (₹)
                 </th>
                 <th className="text-right py-1.5 px-2 font-semibold text-slate-500">
+                  Available Today (₹)
+                </th>
+                <th className="text-right py-1.5 px-2 font-semibold text-slate-500">
                   Years to Goal
                 </th>
                 <th className="py-1.5" />
@@ -563,6 +547,18 @@ export function ModelGoalPlanningTab({
                       value={g.targetToday || ""}
                       onChange={(e) =>
                         updateGoal(g.id, "targetToday", e.target.value)
+                      }
+                      className="h-7 text-xs text-right min-w-[110px]"
+                      placeholder="0"
+                    />
+                  </td>
+                  <td className="py-1.5 px-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={(g.availableToday ?? 0) || ""}
+                      onChange={(e) =>
+                        updateGoal(g.id, "availableToday", e.target.value)
                       }
                       className="h-7 text-xs text-right min-w-[110px]"
                       placeholder="0"
@@ -695,10 +691,15 @@ export function ModelGoalPlanningTab({
                       <p className="font-bold text-orange-700 mt-0.5">
                         {fmtC(g.targetInflated)}
                       </p>
+                      {g.availableToday > 0 && (
+                        <p className="text-orange-300 text-[10px]">
+                          Available FV: {fmtC(g.fvAvailable)}
+                        </p>
+                      )}
                     </div>
                     <div className="bg-green-50 rounded-lg p-2">
                       <p className="text-green-400">
-                        Monthly SIP (@{g.returnRate}%)
+                        SIP Required (@{g.returnRate}%)
                       </p>
                       <p className="font-bold text-green-700 mt-0.5">
                         {fmtC(g.sipRequired)}
@@ -871,6 +872,53 @@ export function ModelGoalPlanningTab({
                 starting matters more than the amount.
               </p>
             </div>
+          </div>
+
+          {/* Add to Track Goals */}
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={async () => {
+                if (!actor) return;
+                try {
+                  const dob = localStorage.getItem("gff_dob");
+                  for (const g of res.goals) {
+                    const goalDateMs = dob
+                      ? new Date(dob).getTime() +
+                        g.years * 365.25 * 24 * 3600 * 1000
+                      : Date.now() + g.years * 365 * 24 * 3600 * 1000;
+                    const targetDate =
+                      BigInt(Math.round(goalDateMs)) * BigInt(1_000_000);
+                    const deadline = new Date(goalDateMs)
+                      .toISOString()
+                      .split("T")[0];
+                    const notes = JSON.stringify({
+                      targetDate: targetDate.toString(),
+                      priority: "1",
+                      inflationRate: 6,
+                      linkedInvestments: [],
+                      investmentAllocations: {},
+                    });
+                    await actor.createGoal({
+                      id: crypto.randomUUID(),
+                      name: g.name,
+                      targetAmount: g.targetInflated,
+                      currentAmount: 0,
+                      deadline,
+                      notes,
+                      category: "",
+                    });
+                  }
+                  toast.success("Goals added to Track Goals!");
+                } catch {
+                  toast.error("Failed to add goals. Please try again.");
+                }
+              }}
+              className="w-full py-2.5 px-4 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors"
+              data-ocid="goal_planning.add_to_track_button"
+            >
+              + Add to Track Goals
+            </button>
           </div>
         </div>
       )}

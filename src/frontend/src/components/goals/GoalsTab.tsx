@@ -418,61 +418,67 @@ export function GoalsTab({
                 </CardHeader>
                 <CardContent className="px-3 pb-3">
                   {analyticsData.achievementQuality.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={220}>
-                      <RechartsPieChart>
-                        <Pie
-                          data={analyticsData.achievementQuality}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({
-                            cx,
-                            cy,
-                            midAngle,
-                            innerRadius,
-                            outerRadius,
-                            value,
-                          }) => {
-                            const RADIAN = Math.PI / 180;
-                            const radius =
-                              innerRadius + (outerRadius - innerRadius) * 0.5;
-                            const x =
-                              (cx as number) +
-                              radius * Math.cos(-midAngle * RADIAN);
-                            const y =
-                              (cy as number) +
-                              radius * Math.sin(-midAngle * RADIAN);
-                            return (
-                              <text
-                                x={x}
-                                y={y}
-                                fill="white"
-                                textAnchor="middle"
-                                dominantBaseline="central"
-                                fontSize={10}
-                                fontWeight="bold"
-                              >
-                                {value}
-                              </text>
-                            );
-                          }}
-                          innerRadius={52}
-                          outerRadius={70}
-                          dataKey="value"
-                        >
-                          {analyticsData.achievementQuality.map((entry) => (
-                            <Cell
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex-shrink-0"
+                        style={{ width: 140, height: 180 }}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsPieChart>
+                            <Pie
+                              data={analyticsData.achievementQuality}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={55}
+                              outerRadius={90}
+                              dataKey="value"
+                              labelLine={false}
+                            >
+                              {analyticsData.achievementQuality.map((entry) => (
+                                <Cell
+                                  key={entry.name}
+                                  fill={entry.color}
+                                  stroke="#fff"
+                                  strokeWidth={2}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip contentStyle={{ fontSize: "11px" }} />
+                          </RechartsPieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                        {analyticsData.achievementQuality.map((entry) => {
+                          const total = analyticsData.achievementQuality.reduce(
+                            (s, d) => s + d.value,
+                            0,
+                          );
+                          const pct =
+                            total > 0
+                              ? ((entry.value / total) * 100).toFixed(1)
+                              : "0";
+                          return (
+                            <div
                               key={entry.name}
-                              fill={entry.color}
-                              stroke="#fff"
-                              strokeWidth={2}
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip contentStyle={{ fontSize: "11px" }} />
-                        <Legend wrapperStyle={{ fontSize: "11px" }} />
-                      </RechartsPieChart>
-                    </ResponsiveContainer>
+                              className="flex items-center justify-between gap-2"
+                            >
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <div
+                                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                                  style={{ background: entry.color }}
+                                />
+                                <span className="text-[11px] text-slate-600 truncate">
+                                  {entry.name}
+                                </span>
+                              </div>
+                              <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
+                                {pct}%
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   ) : (
                     <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
                       No data
@@ -493,61 +499,70 @@ export function GoalsTab({
                 </CardHeader>
                 <CardContent className="px-3 pb-3">
                   {analyticsData.goalDiversification.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={220}>
-                      <RechartsPieChart>
-                        <Pie
-                          data={analyticsData.goalDiversification}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({
-                            cx,
-                            cy,
-                            midAngle,
-                            innerRadius,
-                            outerRadius,
-                            value,
-                          }) => {
-                            const RADIAN = Math.PI / 180;
-                            const radius =
-                              innerRadius + (outerRadius - innerRadius) * 0.5;
-                            const x =
-                              (cx as number) +
-                              radius * Math.cos(-midAngle * RADIAN);
-                            const y =
-                              (cy as number) +
-                              radius * Math.sin(-midAngle * RADIAN);
-                            return (
-                              <text
-                                x={x}
-                                y={y}
-                                fill="white"
-                                textAnchor="middle"
-                                dominantBaseline="central"
-                                fontSize={10}
-                                fontWeight="bold"
-                              >
-                                {value}
-                              </text>
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex-shrink-0"
+                        style={{ width: 140, height: 180 }}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsPieChart>
+                            <Pie
+                              data={analyticsData.goalDiversification}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={55}
+                              outerRadius={90}
+                              dataKey="value"
+                              labelLine={false}
+                            >
+                              {analyticsData.goalDiversification.map(
+                                (entry) => (
+                                  <Cell
+                                    key={entry.name}
+                                    fill={entry.color}
+                                    stroke="#fff"
+                                    strokeWidth={2}
+                                  />
+                                ),
+                              )}
+                            </Pie>
+                            <Tooltip contentStyle={{ fontSize: "11px" }} />
+                          </RechartsPieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                        {analyticsData.goalDiversification.map((entry) => {
+                          const total =
+                            analyticsData.goalDiversification.reduce(
+                              (s, d) => s + d.value,
+                              0,
                             );
-                          }}
-                          innerRadius={52}
-                          outerRadius={70}
-                          dataKey="value"
-                        >
-                          {analyticsData.goalDiversification.map((entry) => (
-                            <Cell
+                          const pct =
+                            total > 0
+                              ? ((entry.value / total) * 100).toFixed(1)
+                              : "0";
+                          return (
+                            <div
                               key={entry.name}
-                              fill={entry.color}
-                              stroke="#fff"
-                              strokeWidth={2}
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip contentStyle={{ fontSize: "11px" }} />
-                        <Legend wrapperStyle={{ fontSize: "11px" }} />
-                      </RechartsPieChart>
-                    </ResponsiveContainer>
+                              className="flex items-center justify-between gap-2"
+                            >
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <div
+                                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                                  style={{ background: entry.color }}
+                                />
+                                <span className="text-[11px] text-slate-600 truncate">
+                                  {entry.name}
+                                </span>
+                              </div>
+                              <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
+                                {pct}%
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   ) : (
                     <div className="h-[220px] flex items-center justify-center text-slate-300 text-xs">
                       No data

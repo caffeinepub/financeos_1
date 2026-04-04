@@ -1622,6 +1622,93 @@ export function MonthlyTrackerTab() {
               })()}
             </CardContent>
           </Card>
+
+          {/* Budgeting (6 Months) */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Budgeting (6 Months)</CardTitle>
+              <p className="text-xs text-slate-400">
+                Planned budget vs actual expenses
+              </p>
+            </CardHeader>
+            <CardContent>
+              {(() => {
+                const now = new Date();
+                const totalPlanned = categories
+                  .filter((c) => c.categoryType === TransactionType.Expense)
+                  .reduce((s, c) => s + c.monthlyLimit, 0);
+                const data = Array.from({ length: 6 }, (_, i) => {
+                  const d = new Date(
+                    now.getFullYear(),
+                    now.getMonth() - 5 + i,
+                    1,
+                  );
+                  const yr = d.getFullYear();
+                  const mo = d.getMonth();
+                  const label = d.toLocaleDateString("en-IN", {
+                    month: "short",
+                    year: "2-digit",
+                  });
+                  const actual = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Expense
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  return {
+                    month: label,
+                    Planned: totalPlanned,
+                    Actual: actual,
+                  };
+                });
+                return (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart
+                      data={data}
+                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        opacity={0.15}
+                        vertical={false}
+                      />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                      <YAxis
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(v) => formatCurrency(v)}
+                        width={52}
+                      />
+                      <Tooltip
+                        formatter={(v: number, name: string) => [
+                          formatCurrency(v),
+                          name,
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: "11px" }} />
+                      <Bar
+                        dataKey="Planned"
+                        fill="#10b981"
+                        radius={[4, 4, 0, 0]}
+                      />
+                      <Bar
+                        dataKey="Actual"
+                        fill="#f43f5e"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                );
+              })()}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

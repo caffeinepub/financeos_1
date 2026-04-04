@@ -9,6 +9,12 @@ import { ModelBudgetingTab } from "../components/financial-model/ModelBudgetingT
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -31,6 +37,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
 
 const _NEEDS_KEYWORDS = [
@@ -278,6 +285,493 @@ const STANDARD_CATEGORIES: Array<{
     color: "#94a3b8",
   },
 ];
+
+// ─── ImproveBudgetContent ────────────────────────────────────────────────────
+interface ImproveBudgetProps {
+  autofillData: {
+    income: number;
+    needs: number;
+    wants: number;
+    savings: number;
+  } | null;
+}
+
+const NEEDS_CATEGORIES = [
+  { key: "housing", label: "Housing & Rent", default: 15000 },
+  { key: "groceries", label: "Groceries & Food", default: 8000 },
+  { key: "utilities", label: "Utilities & Bills", default: 3000 },
+  { key: "transport", label: "Transportation", default: 5000 },
+  { key: "healthcare", label: "Healthcare & Medical", default: 2000 },
+  { key: "insurance", label: "Insurance Premiums", default: 2000 },
+  { key: "education", label: "Education", default: 3000 },
+  { key: "emi", label: "Debt Payments & EMI", default: 5000 },
+];
+const WANTS_CATEGORIES = [
+  { key: "dining", label: "Dining & Restaurants", default: 4000 },
+  { key: "entertainment", label: "Entertainment & Leisure", default: 2000 },
+  { key: "personalcare", label: "Personal Care & Wellness", default: 1500 },
+  { key: "clothing", label: "Clothing & Apparel", default: 2000 },
+  { key: "subscriptions", label: "Subscriptions & Software", default: 1000 },
+  { key: "travel", label: "Travel & Vacation", default: 1500 },
+];
+const SAVINGS_CATEGORIES = [
+  { key: "investments", label: "Savings & Investments", default: 5000 },
+  { key: "emergency", label: "Emergency Fund", default: 2000 },
+  { key: "retirement", label: "Retirement / NPS / PPF", default: 1000 },
+];
+
+function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
+  const { formatCurrency } = useCurrency();
+  const [income, setIncome] = useState(50000);
+  const [needs, setNeeds] = useState<Record<string, number>>(
+    Object.fromEntries(NEEDS_CATEGORIES.map((c) => [c.key, c.default])),
+  );
+  const [wants, setWants] = useState<Record<string, number>>(
+    Object.fromEntries(WANTS_CATEGORIES.map((c) => [c.key, c.default])),
+  );
+  const [savings, setSavings] = useState<Record<string, number>>(
+    Object.fromEntries(SAVINGS_CATEGORIES.map((c) => [c.key, c.default])),
+  );
+  const [applied, setApplied] = useState(false);
+
+  const totalNeeds = Object.values(needs).reduce((s, v) => s + v, 0);
+  const totalWants = Object.values(wants).reduce((s, v) => s + v, 0);
+  const totalSavings = Object.values(savings).reduce((s, v) => s + v, 0);
+  const totalExpenses = totalNeeds + totalWants + totalSavings;
+  const surplus = income - totalExpenses;
+
+  const needsPct = income > 0 ? (totalNeeds / income) * 100 : 0;
+  const wantsPct = income > 0 ? (totalWants / income) * 100 : 0;
+  const savingsPct = income > 0 ? (totalSavings / income) * 100 : 0;
+
+  const handleApplyAutofill = () => {
+    if (!autofillData) return;
+    setIncome(autofillData.income || 50000);
+    // Distribute needs proportionally
+    if (autofillData.needs > 0) {
+      const ratio =
+        autofillData.needs /
+        NEEDS_CATEGORIES.reduce((s, c) => s + c.default, 0);
+      setNeeds(
+        Object.fromEntries(
+          NEEDS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
+        ),
+      );
+    }
+    if (autofillData.wants > 0) {
+      const ratio =
+        autofillData.wants /
+        WANTS_CATEGORIES.reduce((s, c) => s + c.default, 0);
+      setWants(
+        Object.fromEntries(
+          WANTS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
+        ),
+      );
+    }
+    if (autofillData.savings > 0) {
+      const ratio =
+        autofillData.savings /
+        SAVINGS_CATEGORIES.reduce((s, c) => s + c.default, 0);
+      setSavings(
+        Object.fromEntries(
+          SAVINGS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
+        ),
+      );
+    }
+    setApplied(true);
+  };
+
+  return (
+    <div className="space-y-4">
+      {autofillData && !applied && (
+        <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+          <span className="text-xs text-blue-700 font-medium flex-1">
+            Autofill data loaded. Click "Apply to Scenario" to populate fields
+            with actual values.
+          </span>
+          <button
+            type="button"
+            onClick={handleApplyAutofill}
+            className="h-8 px-3 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Apply to Scenario
+          </button>
+        </div>
+      )}
+      {applied && (
+        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2">
+          <span className="text-xs text-emerald-700 font-medium">
+            ✓ Actual data applied. Adjust values as needed.
+          </span>
+          <button
+            type="button"
+            onClick={() => setApplied(false)}
+            className="ml-auto text-xs text-slate-400 hover:text-slate-600 underline"
+          >
+            Reset
+          </button>
+        </div>
+      )}
+
+      {/* Income Section */}
+      <Card className="rounded-2xl border border-slate-100 shadow-sm">
+        <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-emerald-50 to-green-50 rounded-t-2xl">
+          <CardTitle className="text-sm font-bold text-emerald-800">
+            💰 Income
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-5 pb-4 pt-3">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <label
+                htmlFor="improve-income"
+                className="text-xs font-medium text-slate-600 block mb-1"
+              >
+                Monthly Income (consolidated)
+              </label>
+              <input
+                id="improve-income"
+                type="number"
+                value={income}
+                onChange={(e) => setIncome(Number(e.target.value) || 0)}
+                className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+              />
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-slate-400 mb-0.5">
+                Total Monthly Income
+              </p>
+              <p className="text-lg font-bold text-emerald-700">
+                {formatCurrency(income)}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Needs Section */}
+      <Card className="rounded-2xl border border-slate-100 shadow-sm">
+        <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-bold text-blue-800">
+              🏠 Needs (Target: 50%)
+            </CardTitle>
+            <span
+              className={`text-xs font-semibold px-2 py-0.5 rounded-full ${needsPct <= 50 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+            >
+              {needsPct.toFixed(1)}% of income
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent className="px-5 pb-4 pt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {NEEDS_CATEGORIES.map((cat) => (
+              <div key={cat.key} className="flex items-center gap-2">
+                <span className="text-xs text-slate-600 min-w-[140px] flex-shrink-0">
+                  {cat.label}
+                </span>
+                <input
+                  type="number"
+                  value={needs[cat.key] ?? cat.default}
+                  onChange={(e) =>
+                    setNeeds((prev) => ({
+                      ...prev,
+                      [cat.key]: Number(e.target.value) || 0,
+                    }))
+                  }
+                  className="flex-1 h-8 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-800 text-right focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center">
+            <span className="text-xs font-semibold text-slate-600">
+              Total Needs
+            </span>
+            <span className="text-sm font-bold text-blue-700">
+              {formatCurrency(totalNeeds)}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Wants Section */}
+      <Card className="rounded-2xl border border-slate-100 shadow-sm">
+        <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-t-2xl">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-bold text-amber-800">
+              🎉 Wants (Target: 30%)
+            </CardTitle>
+            <span
+              className={`text-xs font-semibold px-2 py-0.5 rounded-full ${wantsPct <= 30 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+            >
+              {wantsPct.toFixed(1)}% of income
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent className="px-5 pb-4 pt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {WANTS_CATEGORIES.map((cat) => (
+              <div key={cat.key} className="flex items-center gap-2">
+                <span className="text-xs text-slate-600 min-w-[140px] flex-shrink-0">
+                  {cat.label}
+                </span>
+                <input
+                  type="number"
+                  value={wants[cat.key] ?? cat.default}
+                  onChange={(e) =>
+                    setWants((prev) => ({
+                      ...prev,
+                      [cat.key]: Number(e.target.value) || 0,
+                    }))
+                  }
+                  className="flex-1 h-8 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-800 text-right focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center">
+            <span className="text-xs font-semibold text-slate-600">
+              Total Wants
+            </span>
+            <span className="text-sm font-bold text-amber-700">
+              {formatCurrency(totalWants)}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Savings Section */}
+      <Card className="rounded-2xl border border-slate-100 shadow-sm">
+        <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-t-2xl">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-bold text-emerald-800">
+              💎 Savings (Target: 20%)
+            </CardTitle>
+            <span
+              className={`text-xs font-semibold px-2 py-0.5 rounded-full ${savingsPct >= 20 ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}
+            >
+              {savingsPct.toFixed(1)}% of income
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent className="px-5 pb-4 pt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {SAVINGS_CATEGORIES.map((cat) => (
+              <div key={cat.key} className="flex items-center gap-2">
+                <span className="text-xs text-slate-600 min-w-[140px] flex-shrink-0">
+                  {cat.label}
+                </span>
+                <input
+                  type="number"
+                  value={savings[cat.key] ?? cat.default}
+                  onChange={(e) =>
+                    setSavings((prev) => ({
+                      ...prev,
+                      [cat.key]: Number(e.target.value) || 0,
+                    }))
+                  }
+                  className="flex-1 h-8 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-800 text-right focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center">
+            <span className="text-xs font-semibold text-slate-600">
+              Total Savings
+            </span>
+            <span className="text-sm font-bold text-emerald-700">
+              {formatCurrency(totalSavings)}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Summary */}
+      <Card className="rounded-2xl border border-slate-100 shadow-sm">
+        <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-slate-50 to-slate-100 rounded-t-2xl">
+          <CardTitle className="text-sm font-bold text-slate-800">
+            📊 50/30/20 Analysis Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-5 pb-5 pt-3 space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5 text-center shadow-sm">
+              <p className="text-[11px] text-slate-400 font-medium mb-0.5">
+                Income
+              </p>
+              <p className="text-sm font-bold text-emerald-700">
+                {formatCurrency(income)}
+              </p>
+            </div>
+            <div
+              className={`rounded-xl border px-3 py-2.5 text-center shadow-sm ${needsPct <= 50 ? "border-blue-100 bg-blue-50" : "border-red-100 bg-red-50"}`}
+            >
+              <p className="text-[11px] text-slate-400 font-medium mb-0.5">
+                Needs
+              </p>
+              <p
+                className={`text-sm font-bold ${needsPct <= 50 ? "text-blue-700" : "text-red-600"}`}
+              >
+                {needsPct.toFixed(1)}%{" "}
+                <span className="text-xs font-normal">(target 50%)</span>
+              </p>
+            </div>
+            <div
+              className={`rounded-xl border px-3 py-2.5 text-center shadow-sm ${wantsPct <= 30 ? "border-amber-100 bg-amber-50" : "border-red-100 bg-red-50"}`}
+            >
+              <p className="text-[11px] text-slate-400 font-medium mb-0.5">
+                Wants
+              </p>
+              <p
+                className={`text-sm font-bold ${wantsPct <= 30 ? "text-amber-700" : "text-red-600"}`}
+              >
+                {wantsPct.toFixed(1)}%{" "}
+                <span className="text-xs font-normal">(target 30%)</span>
+              </p>
+            </div>
+            <div
+              className={`rounded-xl border px-3 py-2.5 text-center shadow-sm ${savingsPct >= 20 ? "border-emerald-100 bg-emerald-50" : "border-amber-100 bg-amber-50"}`}
+            >
+              <p className="text-[11px] text-slate-400 font-medium mb-0.5">
+                Savings
+              </p>
+              <p
+                className={`text-sm font-bold ${savingsPct >= 20 ? "text-emerald-700" : "text-amber-600"}`}
+              >
+                {savingsPct.toFixed(1)}%{" "}
+                <span className="text-xs font-normal">(target 20%)</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Ideal vs Actual */}
+          <div className="overflow-x-auto rounded-xl border border-slate-100">
+            <table className="w-full text-xs">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="text-left p-2.5 font-semibold text-slate-600">
+                    Category
+                  </th>
+                  <th className="text-right p-2.5 font-semibold text-slate-600">
+                    Ideal %
+                  </th>
+                  <th className="text-right p-2.5 font-semibold text-slate-600">
+                    Actual %
+                  </th>
+                  <th className="text-right p-2.5 font-semibold text-slate-600">
+                    Ideal Amount
+                  </th>
+                  <th className="text-right p-2.5 font-semibold text-slate-600">
+                    Actual Amount
+                  </th>
+                  <th className="text-right p-2.5 font-semibold text-slate-600">
+                    Variance
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  {
+                    name: "Needs",
+                    ideal: 50,
+                    actual: needsPct,
+                    actualAmt: totalNeeds,
+                  },
+                  {
+                    name: "Wants",
+                    ideal: 30,
+                    actual: wantsPct,
+                    actualAmt: totalWants,
+                  },
+                  {
+                    name: "Savings",
+                    ideal: 20,
+                    actual: savingsPct,
+                    actualAmt: totalSavings,
+                  },
+                ].map((row) => {
+                  const idealAmt = (income * row.ideal) / 100;
+                  const variance = row.actualAmt - idealAmt;
+                  return (
+                    <tr key={row.name} className="border-t border-slate-50">
+                      <td className="p-2.5 font-medium text-slate-700">
+                        {row.name}
+                      </td>
+                      <td className="p-2.5 text-right text-slate-500">
+                        {row.ideal}%
+                      </td>
+                      <td
+                        className={`p-2.5 text-right font-semibold ${Math.abs(row.actual - row.ideal) <= 5 ? "text-emerald-600" : "text-amber-600"}`}
+                      >
+                        {row.actual.toFixed(1)}%
+                      </td>
+                      <td className="p-2.5 text-right text-slate-600">
+                        {formatCurrency(idealAmt)}
+                      </td>
+                      <td className="p-2.5 text-right text-slate-700 font-medium">
+                        {formatCurrency(row.actualAmt)}
+                      </td>
+                      <td
+                        className={`p-2.5 text-right font-semibold ${variance <= 0 ? "text-emerald-600" : "text-red-500"}`}
+                      >
+                        {variance > 0 ? "+" : ""}
+                        {formatCurrency(variance)}
+                      </td>
+                    </tr>
+                  );
+                })}
+                <tr className="border-t-2 border-slate-200 bg-slate-50">
+                  <td className="p-2.5 font-bold text-slate-800">Total</td>
+                  <td className="p-2.5 text-right text-slate-500">100%</td>
+                  <td className="p-2.5 text-right font-bold text-slate-700">
+                    {(needsPct + wantsPct + savingsPct).toFixed(1)}%
+                  </td>
+                  <td className="p-2.5 text-right text-slate-600">
+                    {formatCurrency(income)}
+                  </td>
+                  <td className="p-2.5 text-right font-bold text-slate-800">
+                    {formatCurrency(totalExpenses)}
+                  </td>
+                  <td
+                    className={`p-2.5 text-right font-bold ${surplus >= 0 ? "text-emerald-600" : "text-red-600"}`}
+                  >
+                    {surplus >= 0 ? "Surplus " : "Deficit "}
+                    {formatCurrency(Math.abs(surplus))}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {surplus < 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+              <p className="text-xs font-semibold text-red-800">
+                ⚠️ Budget Deficit of {formatCurrency(Math.abs(surplus))}
+              </p>
+              <p className="text-xs text-red-600 mt-0.5">
+                Your expenses exceed income. Consider reducing Wants categories
+                or finding additional income sources.
+              </p>
+            </div>
+          )}
+          {surplus >= 0 && savingsPct >= 20 && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+              <p className="text-xs font-semibold text-emerald-800">
+                ✅ On Track with 50/30/20 Rule
+              </p>
+              <p className="text-xs text-emerald-700 mt-0.5">
+                You have a surplus of {formatCurrency(surplus)} and are saving{" "}
+                {savingsPct.toFixed(1)}% of income. Consider investing the
+                surplus for wealth creation.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default function BudgetingPage() {
   const { actor } = useActor();
@@ -842,7 +1336,7 @@ export default function BudgetingPage() {
                 </button>
               )}
             </div>
-            <ModelBudgetingTab autofillData={autofillData} />
+            <ImproveBudgetContent autofillData={autofillData} />
           </div>
         </TabsContent>
       </Tabs>

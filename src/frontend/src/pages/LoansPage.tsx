@@ -166,7 +166,7 @@ function healthLabel(score: number) {
       label: "Healthy",
       color: "#10b981",
       bg: "bg-card",
-      text: "text-emerald-700 dark:text-emerald-300",
+      text: "text-emerald-700 dark:text-green-700",
     };
   if (score >= 40)
     return {
@@ -187,7 +187,7 @@ function debtBurdenLabel(pct: number) {
   if (pct < 30)
     return {
       label: "Safe",
-      color: "text-emerald-600 dark:text-emerald-400",
+      color: "text-emerald-600 dark:text-green-600",
       icon: BadgeCheck,
     };
   if (pct < 50)
@@ -894,7 +894,7 @@ export default function LoansPage() {
                       </Card>
                       <Card className="bg-card border-border">
                         <CardContent className="p-4 space-y-3">
-                          <p className="text-xs font-bold text-emerald-300 uppercase tracking-wide">
+                          <p className="text-xs font-bold text-green-700 uppercase tracking-wide">
                             With Extra {fmt(extraPayment)}/mo
                           </p>
                           <div className="space-y-2">
@@ -902,7 +902,7 @@ export default function LoansPage() {
                               <span className="text-muted-foreground">
                                 Tenure
                               </span>
-                              <span className="text-emerald-200 font-semibold">
+                              <span className="text-green-700 font-semibold">
                                 {prepaySim.newMonths} months
                               </span>
                             </div>
@@ -910,7 +910,7 @@ export default function LoansPage() {
                               <span className="text-muted-foreground">
                                 Total Interest
                               </span>
-                              <span className="text-emerald-300 font-semibold">
+                              <span className="text-green-700 font-semibold">
                                 {fmt(prepaySim.newTotalInterest)}
                               </span>
                             </div>
@@ -918,7 +918,7 @@ export default function LoansPage() {
                               <span className="text-muted-foreground">
                                 Debt-Free Date
                               </span>
-                              <span className="text-emerald-200 font-semibold">
+                              <span className="text-green-700 font-semibold">
                                 {prepaySim.newDate}
                               </span>
                             </div>
@@ -940,7 +940,7 @@ export default function LoansPage() {
                               <p className="text-xs text-muted-foreground">
                                 Interest Saved
                               </p>
-                              <p className="text-2xl font-bold text-emerald-300">
+                              <p className="text-2xl font-bold text-green-700">
                                 {fmt(prepaySim.interestSaved)}
                               </p>
                             </div>
@@ -960,8 +960,8 @@ export default function LoansPage() {
           <Card className="bg-card border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2 text-foreground">
-                <TrendingUp className="w-4 h-4 text-emerald-400" /> Loan vs
-                Invest Dilemma
+                <TrendingUp className="w-4 h-4 text-green-600" /> Loan vs Invest
+                Dilemma
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -1013,12 +1013,12 @@ export default function LoansPage() {
                     {recommend ? (
                       <TrendingDown className="w-4 h-4 text-blue-300" />
                     ) : (
-                      <TrendingUp className="w-4 h-4 text-emerald-300" />
+                      <TrendingUp className="w-4 h-4 text-green-700" />
                     )}
                   </div>
                   <div>
                     <p
-                      className={`text-sm font-bold ${recommend ? "text-blue-200" : "text-emerald-200"}`}
+                      className={`text-sm font-bold ${recommend ? "text-blue-200" : "text-green-700"}`}
                     >
                       {recommend
                         ? `✅ Prepay Your Loan — You save ${(lviLoanRate - lviInvestRate).toFixed(1)}% more than investing`
@@ -1045,7 +1045,7 @@ export default function LoansPage() {
                       <th className="py-2 text-left text-muted-foreground">
                         Year
                       </th>
-                      <th className="py-2 text-right text-emerald-400">
+                      <th className="py-2 text-right text-green-600">
                         Invest Corpus
                       </th>
                       <th className="py-2 text-right text-blue-400">
@@ -1062,7 +1062,7 @@ export default function LoansPage() {
                         <td className="py-2 text-muted-foreground">
                           {row.year}
                         </td>
-                        <td className="py-2 text-right font-semibold text-emerald-300">
+                        <td className="py-2 text-right font-semibold text-green-700">
                           {fmt(row.invested)}
                         </td>
                         <td className="py-2 text-right font-semibold text-blue-300">
@@ -1141,7 +1141,7 @@ export default function LoansPage() {
                     Available Headroom
                   </p>
                   <p
-                    className={`text-sm font-bold ${available > 0 ? "text-emerald-300" : "text-red-300"}`}
+                    className={`text-sm font-bold ${available > 0 ? "text-green-700" : "text-red-300"}`}
                   >
                     {fmt(available)}
                   </p>
@@ -1225,7 +1225,7 @@ export default function LoansPage() {
                         <p className="text-xs text-muted-foreground">
                           With Extra {fmt(dfExtra)}/mo
                         </p>
-                        <p className="text-sm font-bold text-emerald-300 mt-1">
+                        <p className="text-sm font-bold text-green-700 mt-1">
                           {debtTimeline.withPrepayDate}
                         </p>
                       </div>

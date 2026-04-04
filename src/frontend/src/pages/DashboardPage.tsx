@@ -288,104 +288,108 @@ function GoalsProgressList({
 function RiskOMeter({ score }: { score: number }) {
   const LEVELS = [
     { label: "Low Risk", color: "#08A04B", min: 0, max: 25 },
-    { label: "Low-Moderate", color: "#7FFF00", min: 25, max: 35 },
+    { label: "Low-Mod", color: "#7FFF00", min: 25, max: 35 },
     { label: "Moderate", color: "#FFFF33", min: 35, max: 45 },
-    { label: "Mod. High", color: "#C68E17", min: 45, max: 60 },
+    { label: "Mod.High", color: "#C68E17", min: 45, max: 60 },
     { label: "High Risk", color: "#FF8C00", min: 60, max: 75 },
     { label: "Very High", color: "#F70D1A", min: 75, max: 100 },
   ];
 
-  const W = 340;
+  const W = 320;
   const H = 200;
-  const cx = 170;
-  const cy = 175;
-  const outerR = 130;
-  const innerR = 85;
+  const cx = 160;
+  const cy = 185;
+  const R_OUT = 120;
+  const R_IN = 80;
 
-  function polarToCartesian(
-    px: number,
-    py: number,
-    r: number,
-    angleDeg: number,
-  ) {
-    const rad = (angleDeg * Math.PI) / 180;
-    return { x: px + r * Math.cos(rad), y: py + r * Math.sin(rad) };
-  }
+  // score 0 → left (180°), score 100 → right (0°)
+  const toRad = (s: number) => Math.PI - (s / 100) * Math.PI;
 
-  // Map score range 0–100 → angle range 180°–0° (left to right, clockwise in SVG)
-  function scoreToAngle(s: number) {
-    return 180 - (s / 100) * 180;
-  }
+  const ptOuter = (s: number) => ({
+    x: cx + R_OUT * Math.cos(toRad(s)),
+    y: cy - R_OUT * Math.sin(toRad(s)),
+  });
+  const ptInner = (s: number) => ({
+    x: cx + R_IN * Math.cos(toRad(s)),
+    y: cy - R_IN * Math.sin(toRad(s)),
+  });
 
-  const segments = LEVELS.map((level) => {
-    const startAngle = scoreToAngle(level.min); // e.g. 180° for min=0
-    const endAngle = scoreToAngle(level.max); // e.g. 135° for max=25
-    const outerStart = polarToCartesian(cx, cy, outerR, startAngle);
-    const outerEnd = polarToCartesian(cx, cy, outerR, endAngle);
-    const innerStart = polarToCartesian(cx, cy, innerR, startAngle);
-    const innerEnd = polarToCartesian(cx, cy, innerR, endAngle);
-    // sweep-flag=1: clockwise outer arc; sweep-flag=0: counter-clockwise inner arc
+  const segments = LEVELS.map((lvl) => {
+    const o1 = ptOuter(lvl.min);
+    const o2 = ptOuter(lvl.max);
+    const i1 = ptInner(lvl.min);
+    const i2 = ptInner(lvl.max);
+    const large = lvl.max - lvl.min > 50 ? 1 : 0;
     const d = [
-      `M ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
-      `A ${outerR} ${outerR} 0 0 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
-      `L ${innerEnd.x.toFixed(2)} ${innerEnd.y.toFixed(2)}`,
-      `A ${innerR} ${innerR} 0 0 0 ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
+      `M ${o1.x.toFixed(2)} ${o1.y.toFixed(2)}`,
+      `A ${R_OUT} ${R_OUT} 0 ${large} 1 ${o2.x.toFixed(2)} ${o2.y.toFixed(2)}`,
+      `L ${i2.x.toFixed(2)} ${i2.y.toFixed(2)}`,
+      `A ${R_IN} ${R_IN} 0 ${large} 0 ${i1.x.toFixed(2)} ${i1.y.toFixed(2)}`,
       "Z",
     ].join(" ");
     return (
       <path
-        key={level.label}
+        key={lvl.label}
         d={d}
-        fill={level.color}
+        fill={lvl.color}
         stroke="white"
         strokeWidth="1.5"
       />
     );
   });
 
-  const segLabels = LEVELS.map((level) => {
-    const midScore = (level.min + level.max) / 2;
-    const midAngle = scoreToAngle(midScore);
-    const labelR = (outerR + innerR) / 2;
-    const pos = polarToCartesian(cx, cy, labelR, midAngle);
-    const textColor = ["#7FFF00", "#FFFF33"].includes(level.color)
-      ? "#374151"
-      : "white";
-    const words = level.label.split(" ");
+  const segLabels = LEVELS.map((lvl) => {
+    const mid = (lvl.min + lvl.max) / 2;
+    const midR = (R_OUT + R_IN) / 2;
+    const p = {
+      x: cx + midR * Math.cos(toRad(mid)),
+      y: cy - midR * Math.sin(toRad(mid)),
+    };
+    const isDark = ["#7FFF00", "#FFFF33"].includes(lvl.color);
+    const textFill = isDark ? "#374151" : "white";
+    const words = lvl.label.split(" ");
     return (
       <text
-        key={`lbl-${level.label}`}
-        x={pos.x}
-        y={pos.y}
+        key={`lbl-${lvl.label}`}
+        x={p.x}
+        y={p.y}
         textAnchor="middle"
         dominantBaseline="middle"
-        fontSize="7"
+        fontSize="7.5"
         fontWeight="700"
-        fill={textColor}
-        style={{ pointerEvents: "none" }}
+        fill={textFill}
       >
-        {words.map((word, wi) => (
+        {words.map((w, wi) => (
           <tspan
-            key={`${level.label}-${wi}`}
-            x={pos.x}
-            dy={wi === 0 ? `-${(words.length - 1) * 4}` : "8"}
+            key={`${lvl.label}-${w}`}
+            x={p.x}
+            dy={wi === 0 ? `${-(words.length - 1) * 4}` : "9"}
           >
-            {word}
+            {w}
           </tspan>
         ))}
       </text>
     );
   });
 
-  const clampedScore = Math.min(Math.max(score, 0), 100);
-  const needleAngle = scoreToAngle(clampedScore);
-  const needleLength = innerR - 8;
-  const needleTip = polarToCartesian(cx, cy, needleLength, needleAngle);
-  const needleBase1 = polarToCartesian(cx, cy, 8, needleAngle + 90);
-  const needleBase2 = polarToCartesian(cx, cy, 8, needleAngle - 90);
+  const clamp = Math.min(Math.max(score, 0), 100);
+  const needleAngle = toRad(clamp);
+  const needleLen = R_IN - 8;
+  const tip = {
+    x: cx + needleLen * Math.cos(needleAngle),
+    y: cy - needleLen * Math.sin(needleAngle),
+  };
+  const base1 = {
+    x: cx + 8 * Math.cos(needleAngle + Math.PI / 2),
+    y: cy - 8 * Math.sin(needleAngle + Math.PI / 2),
+  };
+  const base2 = {
+    x: cx + 8 * Math.cos(needleAngle - Math.PI / 2),
+    y: cy - 8 * Math.sin(needleAngle - Math.PI / 2),
+  };
 
   const currentLevel = LEVELS.find((l) => score <= l.max) ?? LEVELS[5];
-  const textColor = ["#7FFF00", "#FFFF33"].includes(currentLevel.color)
+  const labelColor = ["#7FFF00", "#FFFF33"].includes(currentLevel.color)
     ? "#374151"
     : currentLevel.color;
 
@@ -393,14 +397,14 @@ function RiskOMeter({ score }: { score: number }) {
     <div className="flex flex-col items-center w-full">
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        className="w-full max-w-[300px]"
+        className="w-full max-w-[280px]"
         role="img"
         aria-label="Portfolio Risk-o-meter"
       >
         {segments}
         {segLabels}
         <polygon
-          points={`${needleTip.x.toFixed(2)},${needleTip.y.toFixed(2)} ${needleBase1.x.toFixed(2)},${needleBase1.y.toFixed(2)} ${needleBase2.x.toFixed(2)},${needleBase2.y.toFixed(2)}`}
+          points={`${tip.x.toFixed(2)},${tip.y.toFixed(2)} ${base1.x.toFixed(2)},${base1.y.toFixed(2)} ${base2.x.toFixed(2)},${base2.y.toFixed(2)}`}
           fill="#1e293b"
           stroke="white"
           strokeWidth="1"
@@ -414,25 +418,14 @@ function RiskOMeter({ score }: { score: number }) {
           strokeWidth="2"
         />
         <circle cx={cx} cy={cy} r="4" fill="white" />
-        <text
-          x={cx}
-          y={cy + 18}
-          textAnchor="middle"
-          fontSize="12"
-          fontWeight="800"
-          fill={textColor}
-        >
-          {score.toFixed(0)}%
-        </text>
       </svg>
-      <p className="text-xs font-semibold mt-1" style={{ color: textColor }}>
-        Risk Level: {currentLevel.label}
+      <p className="text-xs font-semibold mt-1" style={{ color: labelColor }}>
+        Risk Level: {currentLevel.label} ({score.toFixed(0)}%)
       </p>
     </div>
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { actor, isFetching } = useActor();
   const { formatCurrency, country } = useCurrency();
@@ -584,33 +577,6 @@ export default function DashboardPage() {
 
     return [...onTrack, ...needAttention, ...achieved];
   }, [goals, allInvestments]);
-
-  const budgetChart = useMemo(() => {
-    const now = new Date();
-    const totalPlanned = budgetCats
-      .filter((c) => getKey(c.categoryType) === "Expense")
-      .reduce((s, c) => s + c.monthlyLimit, 0);
-    return Array.from({ length: 6 }, (_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
-      const yr = d.getFullYear();
-      const mo = d.getMonth();
-      const label = d.toLocaleDateString("en-IN", {
-        month: "short",
-        year: "2-digit",
-      });
-      const actual = transactions
-        .filter((t) => {
-          const td = new Date(t.date);
-          return (
-            td.getFullYear() === yr &&
-            td.getMonth() === mo &&
-            getKey(t.transactionType) === "Expense"
-          );
-        })
-        .reduce((s, t) => s + t.amount, 0);
-      return { month: label, Planned: totalPlanned, Actual: actual };
-    });
-  }, [transactions, budgetCats]);
 
   const _riskReturn = useMemo(
     () =>
@@ -1048,7 +1014,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <div
                     className="flex-shrink-0"
-                    style={{ width: 160, height: 180 }}
+                    style={{ width: 140, height: 160 }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -1099,18 +1065,18 @@ export default function DashboardPage() {
                               className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                               style={{ background: d.color }}
                             />
-                            <div className="min-w-0">
-                              <span className="text-[11px] text-slate-600 block truncate">
-                                {d.name}
-                              </span>
-                              <span className="text-xs font-bold text-slate-800">
-                                {formatCurrency(d.value)}
-                              </span>
-                            </div>
+                            <span className="text-[11px] text-slate-600 truncate">
+                              {d.name}
+                            </span>
                           </div>
-                          <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
-                            {pct}%
-                          </span>
+                          <div className="text-right flex-shrink-0">
+                            <span className="text-[11px] font-bold text-slate-800 block tabular-nums">
+                              {formatCurrency(d.value)}
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              {pct}%
+                            </span>
+                          </div>
                         </div>
                       );
                     })}
@@ -1487,10 +1453,49 @@ export default function DashboardPage() {
                     );
                   })
                   .reduce((s, t) => s + t.amount, 0) || 1;
+              const SAVINGS_KEYS = [
+                "savings",
+                "investment",
+                "sip",
+                "ppf",
+                "nps",
+                "fd",
+                "emergency",
+                "mutual fund",
+                "retirement",
+                "stocks",
+                "retiral",
+              ];
+              const WANTS_KEYS = [
+                "dining",
+                "eating out",
+                "restaurant",
+                "entertainment",
+                "streaming",
+                "netflix",
+                "subscription",
+                "shopping",
+                "clothing",
+                "travel",
+                "vacation",
+                "gym",
+                "fitness",
+                "hobbies",
+                "personal care",
+                "beauty",
+                "salon",
+                "electronics",
+                "games",
+                "leisure",
+              ];
               const catTypeMap: Record<string, string> = {};
               for (const bc of budgetCats) {
-                catTypeMap[bc.id] =
-                  (bc as { budgetType?: string }).budgetType ?? "Needs";
+                const lc = bc.name.toLowerCase();
+                if (SAVINGS_KEYS.some((k) => lc.includes(k)))
+                  catTypeMap[bc.id] = "Savings";
+                else if (WANTS_KEYS.some((k) => lc.includes(k)))
+                  catTypeMap[bc.id] = "Wants";
+                else catTypeMap[bc.id] = "Needs";
               }
               const needsTotal = currentMonthExpenses
                 .filter(
@@ -1647,7 +1652,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <Card
           data-ocid="dashboard.goals.card"
           className="rounded-2xl shadow-sm border border-slate-100 bg-white"
@@ -1677,70 +1682,6 @@ export default function DashboardPage() {
                 formatCurrency={formatCurrency}
               />
             )}
-          </CardContent>
-        </Card>
-
-        {/* ── Section 4: Budget 6M ── */}
-        <Card
-          data-ocid="dashboard.budget.card"
-          className="rounded-2xl shadow-sm border border-slate-100 bg-white"
-        >
-          <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-              Budgeting (6 Months)
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
-              Planned budget vs actual expenses per month
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-5 pb-5">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={budgetChart}
-                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  opacity={0.15}
-                  vertical={false}
-                />
-                <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                <YAxis
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(v: number) => shortNum(v, sym, country.code)}
-                  width={52}
-                />
-                <Tooltip
-                  formatter={(v: number, name: string) => [
-                    formatCurrency(v),
-                    name,
-                  ]}
-                  contentStyle={{
-                    fontSize: "11px",
-                    borderRadius: "10px",
-                    border: "1px solid #e2e8f0",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: "12px" }} />
-                <Bar dataKey="Planned" fill="#10b981" radius={[4, 4, 0, 0]}>
-                  <LabelList
-                    dataKey="Planned"
-                    position="top"
-                    formatter={(v: number) => shortNum(v, sym, country.code)}
-                    style={{ fontSize: "9px", fill: "#374151" }}
-                  />
-                </Bar>
-                <Bar dataKey="Actual" fill="#f43f5e" radius={[4, 4, 0, 0]}>
-                  <LabelList
-                    dataKey="Actual"
-                    position="top"
-                    formatter={(v: number) => shortNum(v, sym, country.code)}
-                    style={{ fontSize: "9px", fill: "#374151" }}
-                  />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>

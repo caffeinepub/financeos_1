@@ -448,7 +448,7 @@ export function ModelGoalPlanningTab({
             checked={planMode === "multi"}
             onChange={() => {
               setPlanMode("multi");
-              const s = SCENARIOS.find((sc) => sc.id === "raise");
+              const s = SCENARIOS.find((sc) => sc.id === "multi");
               if (s) {
                 loadScenario(s);
               }
@@ -522,10 +522,10 @@ export function ModelGoalPlanningTab({
                   Target Today (₹)
                 </th>
                 <th className="text-right py-1.5 px-2 font-semibold text-slate-500">
-                  Available Today (₹)
+                  Years to Goal
                 </th>
                 <th className="text-right py-1.5 px-2 font-semibold text-slate-500">
-                  Years to Goal
+                  Available Today (₹)
                 </th>
                 <th className="py-1.5" />
               </tr>
@@ -555,18 +555,6 @@ export function ModelGoalPlanningTab({
                   <td className="py-1.5 px-2">
                     <Input
                       type="number"
-                      min={0}
-                      value={(g.availableToday ?? 0) || ""}
-                      onChange={(e) =>
-                        updateGoal(g.id, "availableToday", e.target.value)
-                      }
-                      className="h-7 text-xs text-right min-w-[110px]"
-                      placeholder="0"
-                    />
-                  </td>
-                  <td className="py-1.5 px-2">
-                    <Input
-                      type="number"
                       min={1}
                       max={50}
                       value={g.years || ""}
@@ -575,6 +563,18 @@ export function ModelGoalPlanningTab({
                       }
                       className="h-7 text-xs text-right min-w-[60px]"
                       placeholder="5"
+                    />
+                  </td>
+                  <td className="py-1.5 px-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={(g.availableToday ?? 0) || ""}
+                      onChange={(e) =>
+                        updateGoal(g.id, "availableToday", e.target.value)
+                      }
+                      className="h-7 text-xs text-right min-w-[110px]"
+                      placeholder="0"
                     />
                   </td>
                   <td className="py-1.5 pl-1">
@@ -881,12 +881,9 @@ export function ModelGoalPlanningTab({
               onClick={async () => {
                 if (!actor) return;
                 try {
-                  const dob = localStorage.getItem("gff_dob");
                   for (const g of res.goals) {
-                    const goalDateMs = dob
-                      ? new Date(dob).getTime() +
-                        g.years * 365.25 * 24 * 3600 * 1000
-                      : Date.now() + g.years * 365 * 24 * 3600 * 1000;
+                    const goalDateMs =
+                      Date.now() + g.years * 365 * 24 * 3600 * 1000;
                     const targetDate =
                       BigInt(Math.round(goalDateMs)) * BigInt(1_000_000);
                     const deadline = new Date(goalDateMs)
@@ -898,6 +895,7 @@ export function ModelGoalPlanningTab({
                       inflationRate: 6,
                       linkedInvestments: [],
                       investmentAllocations: {},
+                      plannedSip: Math.round(g.sipRequired),
                     });
                     await actor.createGoal({
                       id: crypto.randomUUID(),

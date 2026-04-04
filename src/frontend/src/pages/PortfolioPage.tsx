@@ -1656,9 +1656,8 @@ function PortfolioOverview({
         </Card>
       )}
 
-      {/* Allocation Donut + Bar Chart row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* % Allocation Donut */}
+      {/* 3 Donut Charts in one row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
           <CardHeader className="pb-2 pt-4 px-5">
             <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
@@ -1756,82 +1755,6 @@ function PortfolioOverview({
           </CardContent>
         </Card>
 
-        {/* Horizontal Bar Chart: Invested vs Current */}
-        <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-          <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
-              Invested vs Current Value — All Asset Types
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
-              Horizontal comparison across modules
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-4 pb-4">
-            {barData.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-slate-300 text-sm">
-                No holdings yet
-              </div>
-            ) : (
-              <ResponsiveContainer
-                width="100%"
-                height={Math.max(200, barData.length * 52)}
-              >
-                <BarChart
-                  data={barData}
-                  layout="vertical"
-                  margin={{ top: 5, right: 40, left: 10, bottom: 5 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#f1f5f9"
-                    horizontal={false}
-                  />
-                  <XAxis
-                    type="number"
-                    tick={{ fontSize: 10, fill: "#94a3b8" }}
-                    tickFormatter={(v) => fmt(v)}
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={{ fontSize: 11, fill: "#475569" }}
-                    width={80}
-                  />
-                  <Tooltip
-                    formatter={(value: number, name: string) => [
-                      fmt(value),
-                      name,
-                    ]}
-                    contentStyle={{
-                      fontSize: "11px",
-                      borderRadius: "10px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: "11px" }} />
-                  <Bar
-                    dataKey="Invested"
-                    name="Invested"
-                    fill="#3b82f6"
-                    radius={[0, 4, 4, 0]}
-                    barSize={16}
-                  />
-                  <Bar
-                    dataKey="Current"
-                    name="Current Value"
-                    fill="#10b981"
-                    radius={[0, 4, 4, 0]}
-                    barSize={16}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Cap Distribution Pie Charts - 3-column row with right-side legends */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
           <CardHeader className="pb-2 pt-4 px-5">
             <CardTitle className="text-sm font-semibold text-slate-700">
@@ -2010,9 +1933,189 @@ function PortfolioOverview({
         </Card>
       </div>
 
-      {/* ── 20-Year Portfolio Forecast ── */}
+      {/* Invested vs Current + 20-Year Forecast row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-slate-700 tracking-tight">
+              Invested vs Current Value — All Asset Types
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-400">
+              Horizontal comparison across modules
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            {barData.length === 0 ? (
+              <div className="h-48 flex items-center justify-center text-slate-300 text-sm">
+                No holdings yet
+              </div>
+            ) : (
+              <ResponsiveContainer
+                width="100%"
+                height={Math.max(200, barData.length * 52)}
+              >
+                <BarChart
+                  data={barData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 40, left: 10, bottom: 5 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#f1f5f9"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 10, fill: "#94a3b8" }}
+                    tickFormatter={(v) => fmt(v)}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: "#475569" }}
+                    width={80}
+                  />
+                  <Tooltip
+                    formatter={(value: number, name: string) => [
+                      fmt(value),
+                      name,
+                    ]}
+                    contentStyle={{
+                      fontSize: "11px",
+                      borderRadius: "10px",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                  <Bar
+                    dataKey="Invested"
+                    name="Invested"
+                    fill="#3b82f6"
+                    radius={[0, 4, 4, 0]}
+                    barSize={16}
+                  />
+                  <Bar
+                    dataKey="Current"
+                    name="Current Value"
+                    fill="#10b981"
+                    radius={[0, 4, 4, 0]}
+                    barSize={16}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ── 20-Year Portfolio Forecast ── */}
+        {(() => {
+          const PFCFG: Record<
+            string,
+            { shortLabel: string; color: string; cagr: number }
+          > = {
+            Retirement: { shortLabel: "Retiral", color: "#8b5cf6", cagr: 0.08 },
+            ETF: { shortLabel: "Equity", color: "#3b82f6", cagr: 0.12 },
+            MutualFund: {
+              shortLabel: "Mutual Fund",
+              color: "#10b981",
+              cagr: 0.12,
+            },
+            FixedIncome: { shortLabel: "FDs", color: "#f59e0b", cagr: 0.07 },
+            Crypto: { shortLabel: "Crypto", color: "#ef4444", cagr: 0.2 },
+            Commodity: {
+              shortLabel: "Commodity",
+              color: "#f97316",
+              cagr: 0.08,
+            },
+            RealEstate: {
+              shortLabel: "Real Estate",
+              color: "#06b6d4",
+              cagr: 0.1,
+            },
+            Other: { shortLabel: "Other", color: "#6b7280", cagr: 0.08 },
+          };
+          const PTYPES = Object.keys(PFCFG);
+          const pByType: Record<string, number> = {};
+          for (const t of PTYPES) {
+            pByType[t] = holdings
+              .filter((h) => h.assetType === t)
+              .reduce((s, h) => s + h.currentValue, 0);
+          }
+          const activeTypes = PTYPES.filter((t) => (pByType[t] ?? 0) > 0);
+          if (activeTypes.length === 0) return null;
+          const yr = new Date().getFullYear();
+          const forecast = Array.from({ length: 21 }, (_, i) => {
+            const row: Record<string, number | string> = { year: yr + i };
+            for (const t of activeTypes) {
+              row[t] = Math.round((pByType[t] ?? 0) * (1 + PFCFG[t].cagr) ** i);
+            }
+            return row;
+          });
+          const sym = ovCountry.symbol;
+          // Line chart data: total portfolio value per year
+          const forecastLineData = forecast.slice(0, 21).map((row) => ({
+            year: String(row.year),
+            total: activeTypes.reduce((s, t) => s + Number(row[t] ?? 0), 0),
+          }));
+          return (
+            <>
+              {/* Line Chart - placed in the 2-col row */}
+              <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+                <CardHeader className="pb-2 pt-4 px-5">
+                  <CardTitle className="text-sm font-semibold text-slate-700">
+                    20-Year Portfolio Forecast
+                  </CardTitle>
+                  <p className="text-xs text-slate-400">
+                    Total portfolio growth projection
+                  </p>
+                </CardHeader>
+                <CardContent className="px-2 pb-4">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <LineChart
+                      data={forecastLineData}
+                      margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis
+                        dataKey="year"
+                        tick={{ fontSize: 9 }}
+                        interval={4}
+                      />
+                      <YAxis
+                        tickFormatter={(v) => shortNum(Number(v), sym)}
+                        tick={{ fontSize: 10 }}
+                        width={56}
+                      />
+                      <Tooltip
+                        formatter={(v: number) => [
+                          shortNum(v, sym),
+                          "Portfolio Value",
+                        ]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="total"
+                        stroke="#6366f1"
+                        strokeWidth={2.5}
+                        dot={false}
+                        activeDot={{ r: 5, fill: "#6366f1" }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </>
+          );
+        })()}
+      </div>
+
+      {/* ── 20-Year Forecast Table ── */}
       {(() => {
-        const PFCFG: Record<
+        const PFCFG2: Record<
           string,
           { shortLabel: string; color: string; cagr: number }
         > = {
@@ -2033,167 +2136,109 @@ function PortfolioOverview({
           },
           Other: { shortLabel: "Other", color: "#6b7280", cagr: 0.08 },
         };
-        const PTYPES = Object.keys(PFCFG);
-        const pByType: Record<string, number> = {};
-        for (const t of PTYPES) {
-          pByType[t] = holdings
+        const PTYPES2 = Object.keys(PFCFG2);
+        const pByType2: Record<string, number> = {};
+        for (const t of PTYPES2) {
+          pByType2[t] = holdings
             .filter((h) => h.assetType === t)
             .reduce((s, h) => s + h.currentValue, 0);
         }
-        const activeTypes = PTYPES.filter((t) => (pByType[t] ?? 0) > 0);
-        if (activeTypes.length === 0) return null;
-        const yr = new Date().getFullYear();
-        const forecast = Array.from({ length: 21 }, (_, i) => {
-          const row: Record<string, number | string> = { year: yr + i };
-          for (const t of activeTypes) {
-            row[t] = Math.round((pByType[t] ?? 0) * (1 + PFCFG[t].cagr) ** i);
+        const activeTypes2 = PTYPES2.filter((t) => (pByType2[t] ?? 0) > 0);
+        if (activeTypes2.length === 0) return null;
+        const yr2 = new Date().getFullYear();
+        const forecast2 = Array.from({ length: 21 }, (_, i) => {
+          const row: Record<string, number | string> = { year: yr2 + i };
+          for (const t of activeTypes2) {
+            row[t] = Math.round((pByType2[t] ?? 0) * (1 + PFCFG2[t].cagr) ** i);
           }
           return row;
         });
-        const sym = ovCountry.symbol;
+        const sym2 = ovCountry.symbol;
         return (
-          <>
-            {/* Bar Chart */}
-            <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-              <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-slate-700">
-                  20-Year Portfolio Forecast
-                </CardTitle>
-                <p className="text-xs text-slate-400">
-                  Year-by-year projection using asset-specific CAGR rates
-                </p>
-              </CardHeader>
-              <CardContent className="px-2 pb-4">
-                <div style={{ overflowX: "auto" }}>
-                  <div style={{ minWidth: 600 }}>
-                    <ResponsiveContainer width="100%" height={260}>
-                      <BarChart
-                        data={forecast.slice(0, 20)}
-                        margin={{ top: 4, right: 8, left: 0, bottom: 4 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                        <XAxis dataKey="year" tick={{ fontSize: 10 }} />
-                        <YAxis
-                          tickFormatter={(v) => shortNum(Number(v), sym)}
-                          tick={{ fontSize: 10 }}
-                          width={56}
-                        />
-                        <Tooltip
-                          formatter={(v: number, name: string) => [
-                            shortNum(v, sym),
-                            PFCFG[name]?.shortLabel ?? name,
-                          ]}
-                          contentStyle={{
-                            fontSize: "11px",
-                            borderRadius: "8px",
-                          }}
-                        />
-                        <Legend
-                          wrapperStyle={{ fontSize: "11px" }}
-                          formatter={(name) => PFCFG[name]?.shortLabel ?? name}
-                        />
-                        {activeTypes.map((t) => (
-                          <Bar
+          <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-slate-700">
+                20-Year Forecast Table
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 pb-0">
+              <div
+                style={
+                  {
+                    transform: "rotateX(180deg)",
+                    overflowX: "auto",
+                  } as React.CSSProperties
+                }
+              >
+                <div style={{ transform: "rotateX(180deg)", minWidth: 600 }}>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
+                          Year
+                        </TableHead>
+                        <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
+                          Age
+                        </TableHead>
+                        {activeTypes2.map((t) => (
+                          <TableHead
                             key={t}
-                            dataKey={t}
-                            fill={PFCFG[t].color}
-                            stackId="a"
-                            radius={[0, 0, 0, 0]}
-                          />
+                            className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right"
+                          >
+                            {PFCFG2[t].shortLabel}
+                          </TableHead>
                         ))}
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+                        <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right">
+                          Total
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {forecast2.map((row, idx) => {
+                        const total = activeTypes2.reduce(
+                          (s, t) => s + Number(row[t] ?? 0),
+                          0,
+                        );
+                        return (
+                          <TableRow
+                            key={String(row.year)}
+                            className={`hover:bg-slate-50/80 ${idx % 5 === 0 ? "bg-blue-50/30" : ""}`}
+                          >
+                            <TableCell className="text-xs font-semibold text-slate-700 tabular-nums">
+                              {String(row.year)}
+                            </TableCell>
+                            <TableCell className="text-xs font-semibold text-blue-600 tabular-nums">
+                              {(() => {
+                                const dob = localStorage.getItem("gff_dob");
+                                const base = dob
+                                  ? Math.floor(
+                                      (Date.now() - new Date(dob).getTime()) /
+                                        (365.25 * 24 * 3600 * 1000),
+                                    )
+                                  : 30;
+                                return base + idx;
+                              })()}
+                            </TableCell>
+                            {activeTypes2.map((t) => (
+                              <TableCell
+                                key={t}
+                                className="text-xs text-right text-slate-600 tabular-nums"
+                              >
+                                {shortNum(Number(row[t] ?? 0), sym2)}
+                              </TableCell>
+                            ))}
+                            <TableCell className="text-xs text-right font-bold text-emerald-700 tabular-nums">
+                              {shortNum(total, sym2)}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Forecast Table */}
-            <Card className="rounded-2xl border border-slate-100 shadow-sm bg-white">
-              <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-slate-700">
-                  20-Year Forecast Table
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-0 pb-0">
-                <div
-                  style={
-                    {
-                      transform: "rotateX(180deg)",
-                      overflowX: "auto",
-                    } as React.CSSProperties
-                  }
-                >
-                  <div style={{ transform: "rotateX(180deg)", minWidth: 600 }}>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
-                            Year
-                          </TableHead>
-                          <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide w-16">
-                            Age
-                          </TableHead>
-                          {activeTypes.map((t) => (
-                            <TableHead
-                              key={t}
-                              className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right"
-                            >
-                              {PFCFG[t].shortLabel}
-                            </TableHead>
-                          ))}
-                          <TableHead className="bg-slate-700 text-white text-[11px] font-medium uppercase tracking-wide text-right">
-                            Total
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {forecast.map((row, idx) => {
-                          const total = activeTypes.reduce(
-                            (s, t) => s + Number(row[t] ?? 0),
-                            0,
-                          );
-                          return (
-                            <TableRow
-                              key={String(row.year)}
-                              className={`hover:bg-slate-50/80 ${idx % 5 === 0 ? "bg-blue-50/30" : ""}`}
-                            >
-                              <TableCell className="text-xs font-semibold text-slate-700 tabular-nums">
-                                {String(row.year)}
-                              </TableCell>
-                              <TableCell className="text-xs font-semibold text-blue-600 tabular-nums">
-                                {(() => {
-                                  const dob = localStorage.getItem("gff_dob");
-                                  const base = dob
-                                    ? Math.floor(
-                                        (Date.now() - new Date(dob).getTime()) /
-                                          (365.25 * 24 * 3600 * 1000),
-                                      )
-                                    : 30;
-                                  return base + idx;
-                                })()}
-                              </TableCell>
-                              {activeTypes.map((t) => (
-                                <TableCell
-                                  key={t}
-                                  className="text-xs text-right text-slate-600 tabular-nums"
-                                >
-                                  {shortNum(Number(row[t] ?? 0), sym)}
-                                </TableCell>
-                              ))}
-                              <TableCell className="text-xs text-right font-bold text-emerald-700 tabular-nums">
-                                {shortNum(total, sym)}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </>
+              </div>
+            </CardContent>
+          </Card>
         );
       })()}
     </div>

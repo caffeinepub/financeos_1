@@ -421,7 +421,7 @@ export function GoalsTab({
                     <div className="flex items-center gap-3">
                       <div
                         className="flex-shrink-0"
-                        style={{ width: 140, height: 180 }}
+                        style={{ width: 160, height: 200 }}
                       >
                         <ResponsiveContainer width="100%" height="100%">
                           <RechartsPieChart>
@@ -502,7 +502,7 @@ export function GoalsTab({
                     <div className="flex items-center gap-3">
                       <div
                         className="flex-shrink-0"
-                        style={{ width: 140, height: 180 }}
+                        style={{ width: 160, height: 200 }}
                       >
                         <ResponsiveContainer width="100%" height="100%">
                           <RechartsPieChart>

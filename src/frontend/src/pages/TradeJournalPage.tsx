@@ -817,7 +817,7 @@ export default function TradeJournalPage() {
                 sub={`${metrics.wins}W / ${metrics.losses}L`}
                 icon={Target}
                 color={
-                  metrics.winRate >= 50 ? "text-emerald-400" : "text-red-400"
+                  metrics.winRate >= 50 ? "text-green-700" : "text-red-400"
                 }
               />
               <MetricCard
@@ -826,7 +826,7 @@ export default function TradeJournalPage() {
                 icon={TrendingUp}
                 color={
                   metrics.profitFactor >= 1.5
-                    ? "text-emerald-400"
+                    ? "text-green-700"
                     : "text-amber-400"
                 }
               />
@@ -835,14 +835,14 @@ export default function TradeJournalPage() {
                 value={fmtCurrency(metrics.totalPnL)}
                 icon={metrics.totalPnL >= 0 ? TrendingUp : TrendingDown}
                 color={
-                  metrics.totalPnL >= 0 ? "text-emerald-400" : "text-red-400"
+                  metrics.totalPnL >= 0 ? "text-green-700" : "text-red-400"
                 }
               />
               <MetricCard
                 label="Avg Win"
                 value={fmtCurrency(metrics.avgWin)}
                 icon={TrendingUp}
-                color="text-emerald-400"
+                color="text-green-700"
               />
               <MetricCard
                 label="Avg Loss"
@@ -859,7 +859,7 @@ export default function TradeJournalPage() {
                     : ""
                 }
                 icon={Award}
-                color="text-emerald-400"
+                color="text-green-700"
               />
               <MetricCard
                 label="Current Streak"
@@ -871,7 +871,7 @@ export default function TradeJournalPage() {
                 icon={Activity}
                 color={
                   metrics.streakType === "Win"
-                    ? "text-emerald-400"
+                    ? "text-green-700"
                     : "text-red-400"
                 }
               />
@@ -957,7 +957,7 @@ export default function TradeJournalPage() {
                       Wins
                     </span>
                     {metrics.total > 0 && (
-                      <span className="text-xs text-emerald-600 font-semibold">
+                      <span className="text-xs font-semibold text-green-700">
                         {((metrics.wins / metrics.total) * 100).toFixed(0)}%
                       </span>
                     )}
@@ -1329,10 +1329,10 @@ export default function TradeJournalPage() {
                                 {t.positionType === "Long" ? "L" : "S"}
                               </span>
                             </TableCell>
-                            <TableCell className="text-xs text-slate-700 dark:text-slate-300 font-mono">
+                            <TableCell className="text-xs text-slate-800 dark:text-slate-200 font-mono">
                               {t.entryPrice}
                             </TableCell>
-                            <TableCell className="text-xs text-slate-700 dark:text-slate-300 font-mono">
+                            <TableCell className="text-xs text-slate-800 dark:text-slate-200 font-mono">
                               {t.isOpen ? "-" : t.exitPrice}
                             </TableCell>
                             <TableCell className="text-xs text-slate-600 dark:text-slate-400">
@@ -1767,7 +1767,7 @@ export default function TradeJournalPage() {
                           />
                         </div>
                         <span
-                          className={`text-xs font-semibold w-12 text-right ${s.winRate >= 50 ? "text-emerald-400" : "text-red-400"}`}
+                          className={`text-xs font-semibold w-12 text-right ${s.winRate >= 50 ? "text-green-700" : "text-red-400"}`}
                         >
                           {fmtNum(s.winRate)}%
                         </span>
@@ -1825,21 +1825,21 @@ export default function TradeJournalPage() {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`text-sm font-semibold ${d.trades === 0 ? "text-slate-400" : d.winRate >= 50 ? "text-emerald-400" : "text-red-400"}`}
+                            className={`text-sm font-semibold ${d.trades === 0 ? "text-slate-400" : d.winRate >= 50 ? "text-green-700" : "text-red-400"}`}
                           >
                             {d.trades === 0 ? "-" : `${fmtNum(d.winRate)}%`}
                           </span>
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`text-sm ${d.avgPnL >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                            className={`text-sm ${d.avgPnL >= 0 ? "text-green-700" : "text-red-400"}`}
                           >
                             {d.trades === 0 ? "-" : fmtCurrency(d.avgPnL)}
                           </span>
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`text-sm font-semibold ${d.totalPnL >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                            className={`text-sm font-semibold ${d.totalPnL >= 0 ? "text-green-700" : "text-red-400"}`}
                           >
                             {d.trades === 0 ? "-" : fmtCurrency(d.totalPnL)}
                           </span>
@@ -2193,7 +2193,7 @@ export default function TradeJournalPage() {
                   <div>
                     <p className="text-xs text-slate-400">P&L</p>
                     <p
-                      className={`text-sm font-semibold ${formPnL.pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                      className={`text-sm font-semibold ${formPnL.pnl >= 0 ? "text-green-700" : "text-red-400"}`}
                     >
                       {fmtCurrency(formPnL.pnl)}
                     </p>
@@ -2201,7 +2201,7 @@ export default function TradeJournalPage() {
                   <div>
                     <p className="text-xs text-slate-400">P&L %</p>
                     <p
-                      className={`text-sm font-semibold ${formPnL.pct >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                      className={`text-sm font-semibold ${formPnL.pct >= 0 ? "text-green-700" : "text-red-400"}`}
                     >
                       {fmtNum(formPnL.pct)}%
                     </p>

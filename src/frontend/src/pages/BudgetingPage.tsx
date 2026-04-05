@@ -290,10 +290,9 @@ const STANDARD_CATEGORIES: Array<{
 interface ImproveBudgetProps {
   autofillData: {
     income: number;
-    needs: number;
-    wants: number;
-    savings: number;
+    perCategory: Record<string, number>;
   } | null;
+  onClear: () => void;
 }
 
 const NEEDS_CATEGORIES = [
@@ -320,7 +319,7 @@ const SAVINGS_CATEGORIES = [
   { key: "retirement", label: "Retirement / NPS / PPF", default: 1000 },
 ];
 
-function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
+function ImproveBudgetContent({ autofillData, onClear }: ImproveBudgetProps) {
   const { formatCurrency } = useCurrency();
   const [income, setIncome] = useState(50000);
   const [needs, setNeeds] = useState<Record<string, number>>(
@@ -333,6 +332,10 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
     Object.fromEntries(SAVINGS_CATEGORIES.map((c) => [c.key, c.default])),
   );
   const [applied, setApplied] = useState(false);
+  const [monthlyReductionTarget, setMonthlyReductionTarget] =
+    useState<number>(0);
+  const [isFreelancer, setIsFreelancer] = useState(false);
+  const [showAnalysis, setShowAnalysis] = useState(false);
 
   const totalNeeds = Object.values(needs).reduce((s, v) => s + v, 0);
   const totalWants = Object.values(wants).reduce((s, v) => s + v, 0);
@@ -344,77 +347,78 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
   const wantsPct = income > 0 ? (totalWants / income) * 100 : 0;
   const savingsPct = income > 0 ? (totalSavings / income) * 100 : 0;
 
+  const resetToSample = () => {
+    setIncome(50000);
+    setNeeds(
+      Object.fromEntries(NEEDS_CATEGORIES.map((c) => [c.key, c.default])),
+    );
+    setWants(
+      Object.fromEntries(WANTS_CATEGORIES.map((c) => [c.key, c.default])),
+    );
+    setSavings(
+      Object.fromEntries(SAVINGS_CATEGORIES.map((c) => [c.key, c.default])),
+    );
+    setApplied(false);
+    setShowAnalysis(false);
+    onClear();
+  };
+
   const applyAutofillData = (data: typeof autofillData) => {
     if (!data) return;
     setIncome(data.income || 50000);
-    if (data.needs > 0) {
-      const ratio =
-        data.needs / NEEDS_CATEGORIES.reduce((s, c) => s + c.default, 0);
-      setNeeds(
-        Object.fromEntries(
-          NEEDS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
-        ),
-      );
-    }
-    if (data.wants > 0) {
-      const ratio =
-        data.wants / WANTS_CATEGORIES.reduce((s, c) => s + c.default, 0);
-      setWants(
-        Object.fromEntries(
-          WANTS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
-        ),
-      );
-    }
-    if (data.savings > 0) {
-      const ratio =
-        data.savings / SAVINGS_CATEGORIES.reduce((s, c) => s + c.default, 0);
-      setSavings(
-        Object.fromEntries(
-          SAVINGS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
-        ),
-      );
-    }
-    setApplied(true);
-  };
 
-  const _handleApplyAutofill = () => {
-    applyAutofillData(autofillData);
+    const matchCat = (label: string): number => {
+      const key = label.toLowerCase();
+      if (data.perCategory[key] !== undefined) return data.perCategory[key];
+      for (const [catName, val] of Object.entries(data.perCategory)) {
+        if (
+          catName.includes(key.split(" ")[0]) ||
+          key.includes(catName.split(" ")[0])
+        ) {
+          return val;
+        }
+      }
+      return 0;
+    };
+
+    setNeeds(
+      Object.fromEntries(
+        NEEDS_CATEGORIES.map((c) => [c.key, matchCat(c.label) || c.default]),
+      ),
+    );
+    setWants(
+      Object.fromEntries(
+        WANTS_CATEGORIES.map((c) => [c.key, matchCat(c.label) || c.default]),
+      ),
+    );
+    setSavings(
+      Object.fromEntries(
+        SAVINGS_CATEGORIES.map((c) => [c.key, matchCat(c.label) || c.default]),
+      ),
+    );
+    setApplied(true);
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: auto-apply when data changes
   useEffect(() => {
-    if (autofillData && !applied) {
+    if (autofillData) {
       applyAutofillData(autofillData);
     }
   }, [autofillData]);
 
   return (
     <div className="space-y-4">
-      {autofillData && applied && (
+      {applied && (
         <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
           <span className="text-xs text-green-700 font-medium flex-1">
             ✓ Autofill applied from tracker data. Values updated.
           </span>
           <button
             type="button"
-            onClick={() => setApplied(false)}
+            onClick={resetToSample}
             className="h-8 px-3 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors"
           >
-            Reset to Sample
-          </button>
-        </div>
-      )}
-      {applied && (
-        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2">
-          <span className="text-xs text-emerald-700 font-medium">
-            ✓ Actual data applied. Adjust values as needed.
-          </span>
-          <button
-            type="button"
-            onClick={() => setApplied(false)}
-            className="ml-auto text-xs text-slate-400 hover:text-slate-600 underline"
-          >
-            Reset
+            Clear
           </button>
         </div>
       )}
@@ -775,6 +779,166 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Goals (Optional) */}
+      <Card className="rounded-2xl border border-slate-100 shadow-sm">
+        <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-purple-50 to-violet-50 rounded-t-2xl">
+          <CardTitle className="text-sm font-bold text-purple-800">
+            🎯 Goals (Optional)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-5 pb-4 pt-3 space-y-3">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="monthly-reduction"
+              className="text-xs text-slate-600 min-w-[200px]"
+            >
+              Monthly Reduction Target
+            </label>
+            <input
+              id="monthly-reduction"
+              type="number"
+              value={monthlyReductionTarget}
+              onChange={(e) =>
+                setMonthlyReductionTarget(Number(e.target.value) || 0)
+              }
+              className="flex-1 h-8 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-800 text-right focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="freelancer-check"
+              checked={isFreelancer}
+              onChange={(e) => setIsFreelancer(e.target.checked)}
+              className="accent-purple-600"
+            />
+            <label
+              htmlFor="freelancer-check"
+              className="text-xs text-slate-600"
+            >
+              I am a freelancer / have variable income
+            </label>
+          </div>
+          {isFreelancer && (
+            <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 space-y-2">
+              <p className="text-xs font-bold text-purple-800">
+                📋 Freelancer-Specific Budget Rules
+              </p>
+              <ul className="text-xs text-purple-700 space-y-1">
+                <li>
+                  • Set aside 30% of every payment for taxes before spending
+                </li>
+                <li>• Build a 6-month emergency fund (minimum 3 months)</li>
+                <li>
+                  • Use the 50/30/20 rule on your average monthly income
+                  (3-month average)
+                </li>
+                <li>• Separate business and personal accounts strictly</li>
+                <li>
+                  • Budget from your lowest expected monthly income, not average
+                </li>
+                <li>
+                  • Create a "feast or famine" buffer — in high-income months,
+                  top up your buffer first
+                </li>
+              </ul>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <button
+        type="button"
+        onClick={() => setShowAnalysis(true)}
+        className="w-full py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all"
+        data-ocid="improve_budget.analyse_button"
+      >
+        📊 Analyse Budget
+      </button>
+
+      {showAnalysis && (
+        <>
+          {/* Top Money Leakage Areas */}
+          <Card className="rounded-2xl border border-red-100 shadow-sm">
+            <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-red-50 to-rose-50 rounded-t-2xl">
+              <CardTitle className="text-sm font-bold text-red-800">
+                🔍 Top Money Leakage Areas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-4 pt-3 space-y-2">
+              {Object.entries(wants)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([key, val], i) => {
+                  const cat = WANTS_CATEGORIES.find((c) => c.key === key);
+                  const pct =
+                    income > 0 ? ((val / income) * 100).toFixed(1) : "0";
+                  return val > 0 ? (
+                    <div key={key} className="flex items-center gap-3">
+                      <span className="w-5 h-5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                        {i + 1}
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <span className="text-xs font-medium text-slate-700">
+                            {cat?.label}
+                          </span>
+                          <span className="text-xs font-bold text-red-600">
+                            {formatCurrency(val)} ({pct}%)
+                          </span>
+                        </div>
+                        <div className="h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-red-400"
+                            style={{ width: `${Math.min(Number(pct), 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : null;
+                })}
+              {monthlyReductionTarget > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2">
+                  <p className="text-xs text-amber-800">
+                    🎯 Monthly Reduction Target:{" "}
+                    <strong>{formatCurrency(monthlyReductionTarget)}</strong>
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Your Quick Win */}
+          <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl flex-shrink-0">⚡</span>
+              <div>
+                <p className="text-sm font-bold text-violet-800">
+                  Your Quick Win — Do This Today
+                </p>
+                <p className="text-xs text-violet-700 mt-1 leading-relaxed">
+                  {(() => {
+                    const topWant = Object.entries(wants).sort(
+                      (a, b) => b[1] - a[1],
+                    )[0];
+                    const topWantCat = WANTS_CATEGORIES.find(
+                      (c) => c.key === topWant?.[0],
+                    );
+                    if (totalNeeds > income * 0.5)
+                      return `Your Needs are ${needsPct.toFixed(0)}% of income (target 50%). Review fixed costs — can you refinance, downsize, or renegotiate?`;
+                    if (topWant && topWant[1] > income * 0.1)
+                      return `"${topWantCat?.label}" is ${((topWant[1] / income) * 100).toFixed(0)}% of income. Cutting it by 25% this month saves ${formatCurrency(Math.round(topWant[1] * 0.25))}.`;
+                    if (totalSavings < income * 0.2)
+                      return `You're saving ${savingsPct.toFixed(0)}% — below the 20% target. Move ${formatCurrency(Math.round(income * 0.2 - totalSavings))} from Wants to Savings to hit the goal.`;
+                    return `Great discipline! You're meeting the 50/30/20 rule. Invest the ${formatCurrency(Math.max(0, income - totalNeeds - totalWants - totalSavings))} surplus in an index fund SIP today.`;
+                  })()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -799,9 +963,7 @@ export default function BudgetingPage() {
   );
   const [autofillData, setAutofillData] = useState<{
     income: number;
-    needs: number;
-    wants: number;
-    savings: number;
+    perCategory: Record<string, number>;
   } | null>(null);
   const [transactions, setTransactions] = useState<
     Array<{
@@ -905,56 +1067,18 @@ export default function BudgetingPage() {
     const income = monthTx
       .filter((t) => Object.keys(t.transactionType)[0] === "Income")
       .reduce((s, t) => s + t.amount, 0);
-    const expenses = monthTx.filter(
+    // Build per-category totals
+    const catTotals: Record<string, number> = {};
+    for (const tx of monthTx.filter(
       (t) => Object.keys(t.transactionType)[0] === "Expense",
-    );
-    // Build category type map
-    const catTypeMap: Record<string, string> = {};
-    for (const c of categories) {
-      const lc = c.name.toLowerCase();
-      if (
-        [
-          "savings",
-          "investment",
-          "sip",
-          "ppf",
-          "nps",
-          "fd",
-          "emergency",
-          "mutual fund",
-          "retirement",
-        ].some((k) => lc.includes(k))
-      ) {
-        catTypeMap[c.id] = "Savings";
-      } else if (
-        [
-          "dining",
-          "eating out",
-          "entertainment",
-          "streaming",
-          "subscription",
-          "shopping",
-          "clothing",
-          "travel",
-          "gym",
-          "leisure",
-        ].some((k) => lc.includes(k))
-      ) {
-        catTypeMap[c.id] = "Wants";
-      } else {
-        catTypeMap[c.id] = "Needs";
+    )) {
+      const cat = categories.find((c) => c.id === tx.categoryId);
+      if (cat) {
+        catTotals[cat.name.toLowerCase()] =
+          (catTotals[cat.name.toLowerCase()] || 0) + tx.amount;
       }
     }
-    const needs = expenses
-      .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Needs")
-      .reduce((s, t) => s + t.amount, 0);
-    const wants = expenses
-      .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Wants")
-      .reduce((s, t) => s + t.amount, 0);
-    const savings = expenses
-      .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Savings")
-      .reduce((s, t) => s + t.amount, 0);
-    setAutofillData({ income, needs, wants, savings });
+    setAutofillData({ income, perCategory: catTotals });
     toast.success("Data autofilled from tracker");
   };
 
@@ -1344,7 +1468,10 @@ export default function BudgetingPage() {
                 </button>
               )}
             </div>
-            <ImproveBudgetContent autofillData={autofillData} />
+            <ImproveBudgetContent
+              autofillData={autofillData}
+              onClear={() => setAutofillData(null)}
+            />
           </div>
         </TabsContent>
       </Tabs>

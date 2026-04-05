@@ -1427,223 +1427,162 @@ export default function DashboardPage() {
               Current month: Needs vs Wants vs Savings vs ideal allocation
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-5 pb-5">
+          <CardContent className="px-5 pb-5 space-y-4">
             {(() => {
               const currentDate = new Date();
               const currentMonth = currentDate.getMonth();
               const currentYear = currentDate.getFullYear();
-              const currentMonthExpenses = transactions.filter((tx) => {
+              const currentMonthTx = transactions.filter((tx) => {
                 const d = new Date(tx.date);
                 return (
                   d.getMonth() === currentMonth &&
-                  d.getFullYear() === currentYear &&
-                  getKey(tx.transactionType) === "Expense"
+                  d.getFullYear() === currentYear
                 );
               });
-              const currentMonthInc =
-                transactions
-                  .filter((tx) => {
-                    const d = new Date(tx.date);
-                    return (
-                      d.getMonth() === currentMonth &&
-                      d.getFullYear() === currentYear &&
-                      getKey(tx.transactionType) === "Income"
-                    );
-                  })
-                  .reduce((s, t) => s + t.amount, 0) || 1;
-              const SAVINGS_KEYS = [
-                "savings",
-                "investment",
-                "sip",
-                "ppf",
-                "nps",
-                "fd",
-                "emergency",
-                "mutual fund",
-                "retirement",
-                "stocks",
-                "retiral",
-              ];
-              const WANTS_KEYS = [
-                "dining",
-                "eating out",
-                "restaurant",
-                "entertainment",
-                "streaming",
-                "netflix",
-                "subscription",
-                "shopping",
-                "clothing",
-                "travel",
-                "vacation",
-                "gym",
-                "fitness",
-                "hobbies",
-                "personal care",
-                "beauty",
-                "salon",
-                "electronics",
-                "games",
-                "leisure",
-              ];
-              const catTypeMap: Record<string, string> = {};
-              for (const bc of budgetCats) {
-                const lc = bc.name.toLowerCase();
-                if (SAVINGS_KEYS.some((k) => lc.includes(k)))
-                  catTypeMap[bc.id] = "Savings";
-                else if (WANTS_KEYS.some((k) => lc.includes(k)))
-                  catTypeMap[bc.id] = "Wants";
-                else catTypeMap[bc.id] = "Needs";
-              }
-              const needsTotal = currentMonthExpenses
-                .filter(
-                  (t) =>
-                    (catTypeMap[
-                      (t as { categoryId?: string }).categoryId ?? ""
-                    ] ?? "Needs") === "Needs",
-                )
+              const analyticsIncome = currentMonthTx
+                .filter((t) => getKey(t.transactionType) === "Income")
                 .reduce((s, t) => s + t.amount, 0);
-              const wantsTotal = currentMonthExpenses
-                .filter(
-                  (t) =>
-                    (catTypeMap[
-                      (t as { categoryId?: string }).categoryId ?? ""
-                    ] ?? "Needs") === "Wants",
-                )
+              const analyticsExpenses = currentMonthTx
+                .filter((t) => getKey(t.transactionType) === "Expense")
                 .reduce((s, t) => s + t.amount, 0);
-              const savingsTotal = currentMonthExpenses
-                .filter(
-                  (t) =>
-                    (catTypeMap[
-                      (t as { categoryId?: string }).categoryId ?? ""
-                    ] ?? "Needs") === "Savings",
-                )
-                .reduce((s, t) => s + t.amount, 0);
-              const rule5030Data = [
-                {
-                  name: "Needs",
-                  actual: Number(
-                    ((needsTotal / currentMonthInc) * 100).toFixed(1),
-                  ),
-                  ideal: 50,
-                  color: "#3b82f6",
-                },
-                {
-                  name: "Wants",
-                  actual: Number(
-                    ((wantsTotal / currentMonthInc) * 100).toFixed(1),
-                  ),
-                  ideal: 30,
-                  color: "#f59e0b",
-                },
-                {
-                  name: "Savings",
-                  actual: Number(
-                    ((savingsTotal / currentMonthInc) * 100).toFixed(1),
-                  ),
-                  ideal: 20,
-                  color: "#10b981",
-                },
-              ];
-              if (currentMonthExpenses.length === 0 && currentMonthInc <= 1) {
+              const analyticsSavings = Math.max(
+                0,
+                analyticsIncome - analyticsExpenses,
+              );
+              const analyticsNeeds50 = analyticsIncome * 0.5;
+              const analyticsWants30 = analyticsIncome * 0.3;
+              const analyticsSavings20 = analyticsIncome * 0.2;
+              const analyticsSavingsRate =
+                analyticsIncome > 0
+                  ? (analyticsSavings / analyticsIncome) * 100
+                  : 0;
+
+              if (analyticsIncome === 0) {
                 return (
                   <div className="h-48 flex flex-col items-center justify-center gap-2">
                     <span className="text-3xl">💰</span>
                     <p className="text-sm text-slate-400">
-                      No transaction data for current month
+                      No income data for current month
                     </p>
                   </div>
                 );
               }
               return (
-                <div className="space-y-4">
-                  <ResponsiveContainer width="100%" height={160}>
-                    <BarChart
-                      data={rule5030Data}
-                      layout="vertical"
-                      margin={{ top: 5, right: 60, left: 60, bottom: 5 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        opacity={0.15}
-                        horizontal={false}
-                      />
-                      <XAxis
-                        type="number"
-                        tick={{ fontSize: 10 }}
-                        tickFormatter={(v: number) => `${v}%`}
-                        domain={[0, 60]}
-                      />
-                      <YAxis
-                        type="category"
-                        dataKey="name"
-                        tick={{ fontSize: 11 }}
-                        width={55}
-                      />
-                      <Tooltip
-                        formatter={(v: number, name: string) => [`${v}%`, name]}
-                        contentStyle={{
-                          fontSize: "11px",
-                          borderRadius: "10px",
-                          border: "1px solid #e2e8f0",
-                        }}
-                      />
-                      <Legend wrapperStyle={{ fontSize: "11px" }} />
-                      <Bar
-                        dataKey="actual"
-                        name="Actual %"
-                        radius={[0, 4, 4, 0]}
+                <>
+                  <div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-700">
+                        🏠 Needs (50%)
+                      </span>
+                      <Badge
+                        className={`text-[9px] ${analyticsExpenses > analyticsNeeds50 ? "bg-red-50 text-red-600 border border-red-200" : "bg-green-50 text-green-600 border border-green-200"}`}
                       >
-                        {rule5030Data.map((entry) => (
-                          <Cell key={entry.name} fill={entry.color} />
-                        ))}
-                        <LabelList
-                          dataKey="actual"
-                          position="right"
-                          formatter={(v: number) => `${v}%`}
+                        {analyticsExpenses > analyticsNeeds50
+                          ? "Over budget"
+                          : "On track"}
+                      </Badge>
+                    </div>
+                    <div className="mt-1">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
                           style={{
-                            fontSize: "10px",
-                            fill: "#64748b",
-                            fontWeight: 600,
+                            width: `${Math.min(analyticsIncome > 0 ? (Math.min(analyticsExpenses, analyticsNeeds50) / analyticsNeeds50) * 100 : 0, 100)}%`,
+                            background:
+                              analyticsExpenses > analyticsNeeds50
+                                ? "#ef4444"
+                                : "#6366f1",
                           }}
                         />
-                      </Bar>
-                      <Bar
-                        dataKey="ideal"
-                        name="Ideal %"
-                        fill="#e2e8f0"
-                        radius={[0, 4, 4, 0]}
-                      >
-                        <LabelList
-                          dataKey="ideal"
-                          position="right"
-                          formatter={(v: number) => `${v}%`}
-                          style={{ fontSize: "10px", fill: "#94a3b8" }}
-                        />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                  <div className="flex flex-wrap gap-3 justify-center text-xs text-slate-500">
-                    {rule5030Data.map((d) => (
-                      <div key={d.name} className="flex items-center gap-1.5">
-                        <div
-                          className="w-2.5 h-2.5 rounded-full"
-                          style={{ background: d.color }}
-                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
                         <span>
-                          {d.name}:{" "}
-                          <span
-                            className="font-semibold"
-                            style={{ color: d.color }}
-                          >
-                            {d.actual}%
-                          </span>{" "}
-                          (ideal {d.ideal}%)
+                          Actual:{" "}
+                          {formatCurrency(
+                            Math.min(analyticsExpenses, analyticsNeeds50),
+                          )}
+                        </span>
+                        <span>Target: {formatCurrency(analyticsNeeds50)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-700">
+                        🎭 Wants (30%)
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        Target: {formatCurrency(analyticsWants30)}
+                      </span>
+                    </div>
+                    <div className="mt-1">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${Math.min(analyticsIncome > 0 ? (Math.max(0, analyticsExpenses - analyticsNeeds50) / analyticsWants30) * 100 : 0, 100)}%`,
+                            background: "#f59e0b",
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                        <span>
+                          Actual:{" "}
+                          {formatCurrency(
+                            Math.max(0, analyticsExpenses - analyticsNeeds50),
+                          )}
+                        </span>
+                        <span>Target: {formatCurrency(analyticsWants30)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-700">
+                        💰 Savings (20%)
+                      </span>
+                      <Badge
+                        className={`text-[9px] ${analyticsSavings >= analyticsSavings20 ? "bg-green-50 text-green-600 border border-green-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}
+                      >
+                        {analyticsSavings >= analyticsSavings20
+                          ? "✓ Achieved"
+                          : "Below target"}
+                      </Badge>
+                    </div>
+                    <div className="mt-1">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${Math.min(analyticsSavings20 > 0 ? (analyticsSavings / analyticsSavings20) * 100 : 0, 100)}%`,
+                            background: "#10b981",
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                        <span>Actual: {formatCurrency(analyticsSavings)}</span>
+                        <span>
+                          Target: {formatCurrency(analyticsSavings20)}
                         </span>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
+                  <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
+                    Savings Rate:{" "}
+                    <strong
+                      className={
+                        analyticsSavingsRate >= 20
+                          ? "text-green-700"
+                          : analyticsSavingsRate >= 10
+                            ? "text-amber-700"
+                            : "text-red-700"
+                      }
+                    >
+                      {analyticsSavingsRate.toFixed(1)}%
+                    </strong>{" "}
+                    (target: 20%)
+                  </div>
+                </>
               );
             })()}
           </CardContent>

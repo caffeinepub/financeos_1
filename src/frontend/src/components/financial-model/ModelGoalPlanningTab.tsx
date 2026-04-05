@@ -277,8 +277,12 @@ function analyzeGoals(
   // Cost of delay for primary goal
   const primary = goalResults[0];
   const sipNow = primary.sipRequired;
+  const adjustedTargetDelay = Math.max(
+    0,
+    primary.targetInflated - primary.fvAvailable,
+  );
   const sipDelay2 = sipRequired(
-    primary.targetInflated,
+    adjustedTargetDelay,
     primary.returnRate,
     Math.max(1, primary.years - 2),
   );

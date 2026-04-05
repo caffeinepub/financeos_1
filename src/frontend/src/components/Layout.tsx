@@ -215,7 +215,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   data-ocid="nav.portfolio.toggle"
                   onClick={() => {
                     if (!isPortfolioActive) {
-                      navigate({ to: "/portfolio/overview" });
+                      navigate("/portfolio/overview");
                       setPortfolioOpen(true);
                     } else {
                       setPortfolioOpen((prev) => !prev);
@@ -244,7 +244,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         type="button"
                         data-ocid={`nav.portfolio.${sub.label.toLowerCase().replace(/[^a-z0-9]/g, "")}.link`}
                         onClick={() => {
-                          navigate({ to: sub.path });
+                          navigate(sub.path);
                           if (isMobile) setSidebarOpen(false);
                         }}
                         className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors ${
@@ -269,7 +269,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               data-ocid={`nav.${item.label.toLowerCase().replace(/[^a-z0-9]/g, "")}.link`}
               onClick={() => {
                 setPortfolioOpen(false);
-                navigate({ to: item.path });
+                navigate(item.path);
                 if (isMobile) setSidebarOpen(false);
               }}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -337,7 +337,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             data-ocid="blocked.signout.button"
             onClick={() => {
               clear();
-              navigate({ to: "/" });
+              navigate("/");
             }}
           >
             <LogOut className="w-4 h-4 mr-2" />
@@ -412,7 +412,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {isAdmin && (
             <button
               type="button"
-              onClick={() => navigate({ to: "/admin" })}
+              onClick={() => navigate("/admin")}
               data-ocid="header.admin.button"
               className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white hover:opacity-90 transition-opacity flex-shrink-0"
               title="Admin Panel"
@@ -422,7 +422,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           )}
           <button
             type="button"
-            onClick={() => navigate({ to: "/help" })}
+            onClick={() => navigate("/help")}
             data-ocid="header.help.button"
             className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white hover:opacity-90 transition-opacity flex-shrink-0"
             title="Help & Guide"
@@ -435,7 +435,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             data-ocid="header.logout.button"
             onClick={() => {
               clear();
-              navigate({ to: "/" });
+              navigate("/");
             }}
             className="text-slate-300 hover:text-red-400 hover:bg-red-900/30 gap-1.5 text-xs px-2 h-8"
           >
@@ -460,7 +460,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   key={item.label}
                   type="button"
                   data-ocid={`nav.collapsed.${item.label.toLowerCase().replace(/[^a-z0-9]/g, "")}.link`}
-                  onClick={() => navigate({ to: item.path })}
+                  onClick={() => navigate(item.path)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap flex-shrink-0 transition-colors ${
                     isActive
                       ? "text-white"

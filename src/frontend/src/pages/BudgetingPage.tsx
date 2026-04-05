@@ -290,9 +290,12 @@ const STANDARD_CATEGORIES: Array<{
 interface ImproveBudgetProps {
   autofillData: {
     income: number;
-    perCategory: Record<string, number>;
+    needs: number;
+    wants: number;
+    savings: number;
+    // Per-category amounts mapped by keyword
+    categoryAmounts?: Record<string, number>;
   } | null;
-  onClear: () => void;
 }
 
 const NEEDS_CATEGORIES = [
@@ -319,7 +322,7 @@ const SAVINGS_CATEGORIES = [
   { key: "retirement", label: "Retirement / NPS / PPF", default: 1000 },
 ];
 
-function ImproveBudgetContent({ autofillData, onClear }: ImproveBudgetProps) {
+function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
   const { formatCurrency } = useCurrency();
   const [income, setIncome] = useState(50000);
   const [needs, setNeeds] = useState<Record<string, number>>(
@@ -332,10 +335,11 @@ function ImproveBudgetContent({ autofillData, onClear }: ImproveBudgetProps) {
     Object.fromEntries(SAVINGS_CATEGORIES.map((c) => [c.key, c.default])),
   );
   const [applied, setApplied] = useState(false);
-  const [monthlyReductionTarget, setMonthlyReductionTarget] =
-    useState<number>(0);
+  const [analysed, setAnalysed] = useState(false);
+  const [monthlyReductionTarget, setMonthlyReductionTarget] = useState(0);
   const [isFreelancer, setIsFreelancer] = useState(false);
-  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [minIncome, setMinIncome] = useState(0);
+  const [maxIncome, setMaxIncome] = useState(0);
 
   const totalNeeds = Object.values(needs).reduce((s, v) => s + v, 0);
   const totalWants = Object.values(wants).reduce((s, v) => s + v, 0);
@@ -347,61 +351,80 @@ function ImproveBudgetContent({ autofillData, onClear }: ImproveBudgetProps) {
   const wantsPct = income > 0 ? (totalWants / income) * 100 : 0;
   const savingsPct = income > 0 ? (totalSavings / income) * 100 : 0;
 
-  const resetToSample = () => {
-    setIncome(50000);
-    setNeeds(
-      Object.fromEntries(NEEDS_CATEGORIES.map((c) => [c.key, c.default])),
-    );
-    setWants(
-      Object.fromEntries(WANTS_CATEGORIES.map((c) => [c.key, c.default])),
-    );
-    setSavings(
-      Object.fromEntries(SAVINGS_CATEGORIES.map((c) => [c.key, c.default])),
-    );
-    setApplied(false);
-    setShowAnalysis(false);
-    onClear();
-  };
-
   const applyAutofillData = (data: typeof autofillData) => {
     if (!data) return;
     setIncome(data.income || 50000);
 
-    const matchCat = (label: string): number => {
-      const key = label.toLowerCase();
-      if (data.perCategory[key] !== undefined) return data.perCategory[key];
-      for (const [catName, val] of Object.entries(data.perCategory)) {
-        if (
-          catName.includes(key.split(" ")[0]) ||
-          key.includes(catName.split(" ")[0])
-        ) {
-          return val;
-        }
+    if (data.categoryAmounts && Object.keys(data.categoryAmounts).length > 0) {
+      // Use per-category amounts directly
+      const catAmts = data.categoryAmounts;
+      setNeeds(
+        Object.fromEntries(
+          NEEDS_CATEGORIES.map((c) => [
+            c.key,
+            catAmts[c.key] !== undefined ? catAmts[c.key] : c.default,
+          ]),
+        ),
+      );
+      setWants(
+        Object.fromEntries(
+          WANTS_CATEGORIES.map((c) => [
+            c.key,
+            catAmts[c.key] !== undefined ? catAmts[c.key] : c.default,
+          ]),
+        ),
+      );
+      setSavings(
+        Object.fromEntries(
+          SAVINGS_CATEGORIES.map((c) => [
+            c.key,
+            catAmts[c.key] !== undefined ? catAmts[c.key] : c.default,
+          ]),
+        ),
+      );
+    } else {
+      // Fallback: distribute proportionally
+      if (data.needs > 0) {
+        const ratio =
+          data.needs / NEEDS_CATEGORIES.reduce((s, c) => s + c.default, 0);
+        setNeeds(
+          Object.fromEntries(
+            NEEDS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
+          ),
+        );
       }
-      return 0;
-    };
-
-    setNeeds(
-      Object.fromEntries(
-        NEEDS_CATEGORIES.map((c) => [c.key, matchCat(c.label) || c.default]),
-      ),
-    );
-    setWants(
-      Object.fromEntries(
-        WANTS_CATEGORIES.map((c) => [c.key, matchCat(c.label) || c.default]),
-      ),
-    );
-    setSavings(
-      Object.fromEntries(
-        SAVINGS_CATEGORIES.map((c) => [c.key, matchCat(c.label) || c.default]),
-      ),
-    );
+      if (data.wants > 0) {
+        const ratio =
+          data.wants / WANTS_CATEGORIES.reduce((s, c) => s + c.default, 0);
+        setWants(
+          Object.fromEntries(
+            WANTS_CATEGORIES.map((c) => [c.key, Math.round(c.default * ratio)]),
+          ),
+        );
+      }
+      if (data.savings > 0) {
+        const ratio =
+          data.savings / SAVINGS_CATEGORIES.reduce((s, c) => s + c.default, 0);
+        setSavings(
+          Object.fromEntries(
+            SAVINGS_CATEGORIES.map((c) => [
+              c.key,
+              Math.round(c.default * ratio),
+            ]),
+          ),
+        );
+      }
+    }
     setApplied(true);
+  };
+
+  const _handleApplyAutofill = () => {
+    applyAutofillData(autofillData);
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: auto-apply when data changes
   useEffect(() => {
-    if (autofillData) {
+    if (autofillData && !applied) {
       applyAutofillData(autofillData);
     }
   }, [autofillData]);
@@ -409,14 +432,33 @@ function ImproveBudgetContent({ autofillData, onClear }: ImproveBudgetProps) {
   return (
     <div className="space-y-4">
       {applied && (
-        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-          <span className="text-xs text-green-700 font-medium flex-1">
-            ✓ Autofill applied from tracker data. Values updated.
+        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2">
+          <span className="text-xs text-emerald-700 font-medium flex-1">
+            ✓ Actual data applied for selected month. Adjust values as needed,
+            then click Analyse Budget.
           </span>
           <button
             type="button"
-            onClick={resetToSample}
-            className="h-8 px-3 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors"
+            onClick={() => {
+              setApplied(false);
+              setNeeds(
+                Object.fromEntries(
+                  NEEDS_CATEGORIES.map((c) => [c.key, c.default]),
+                ),
+              );
+              setWants(
+                Object.fromEntries(
+                  WANTS_CATEGORIES.map((c) => [c.key, c.default]),
+                ),
+              );
+              setSavings(
+                Object.fromEntries(
+                  SAVINGS_CATEGORIES.map((c) => [c.key, c.default]),
+                ),
+              );
+              setIncome(50000);
+            }}
+            className="h-7 px-3 rounded-lg bg-white border border-slate-300 text-slate-600 text-xs font-semibold hover:bg-slate-100 transition-colors flex-shrink-0"
           >
             Clear
           </button>
@@ -780,69 +822,81 @@ function ImproveBudgetContent({ autofillData, onClear }: ImproveBudgetProps) {
         </CardContent>
       </Card>
 
-      {/* Goals (Optional) */}
+      {/* Optional Goals Section */}
       <Card className="rounded-2xl border border-slate-100 shadow-sm">
-        <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-purple-50 to-violet-50 rounded-t-2xl">
+        <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-t-2xl">
           <CardTitle className="text-sm font-bold text-purple-800">
-            🎯 Goals (Optional)
+            🎯 Optional Goals & Settings
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-5 pb-4 pt-3 space-y-3">
-          <div className="flex items-center gap-2">
-            <label
-              htmlFor="monthly-reduction"
-              className="text-xs text-slate-600 min-w-[200px]"
-            >
-              Monthly Reduction Target
-            </label>
-            <input
-              id="monthly-reduction"
-              type="number"
-              value={monthlyReductionTarget}
-              onChange={(e) =>
-                setMonthlyReductionTarget(Number(e.target.value) || 0)
-              }
-              className="flex-1 h-8 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-800 text-right focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
+        <CardContent className="px-5 pb-4 pt-3 space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <label
+                htmlFor="monthly-reduction"
+                className="text-xs font-medium text-slate-600 block mb-1"
+              >
+                Monthly Savings Target ({formatCurrency(0).replace("0", "")}0)
+              </label>
+              <input
+                id="monthly-reduction"
+                type="number"
+                value={monthlyReductionTarget}
+                onChange={(e) =>
+                  setMonthlyReductionTarget(Number(e.target.value) || 0)
+                }
+                className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                placeholder="0"
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <input
-              type="checkbox"
               id="freelancer-check"
+              type="checkbox"
               checked={isFreelancer}
               onChange={(e) => setIsFreelancer(e.target.checked)}
-              className="accent-purple-600"
+              className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-400"
             />
             <label
               htmlFor="freelancer-check"
-              className="text-xs text-slate-600"
+              className="text-xs font-medium text-slate-700"
             >
               I am a freelancer / have variable income
             </label>
           </div>
           {isFreelancer && (
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 space-y-2">
-              <p className="text-xs font-bold text-purple-800">
-                📋 Freelancer-Specific Budget Rules
-              </p>
-              <ul className="text-xs text-purple-700 space-y-1">
-                <li>
-                  • Set aside 30% of every payment for taxes before spending
-                </li>
-                <li>• Build a 6-month emergency fund (minimum 3 months)</li>
-                <li>
-                  • Use the 50/30/20 rule on your average monthly income
-                  (3-month average)
-                </li>
-                <li>• Separate business and personal accounts strictly</li>
-                <li>
-                  • Budget from your lowest expected monthly income, not average
-                </li>
-                <li>
-                  • Create a "feast or famine" buffer — in high-income months,
-                  top up your buffer first
-                </li>
-              </ul>
+            <div className="grid grid-cols-2 gap-3 pl-7">
+              <div>
+                <label
+                  htmlFor="min-income"
+                  className="text-xs font-medium text-slate-600 block mb-1"
+                >
+                  Min Monthly Income
+                </label>
+                <input
+                  id="min-income"
+                  type="number"
+                  value={minIncome}
+                  onChange={(e) => setMinIncome(Number(e.target.value) || 0)}
+                  className="w-full h-8 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="max-income"
+                  className="text-xs font-medium text-slate-600 block mb-1"
+                >
+                  Max Monthly Income
+                </label>
+                <input
+                  id="max-income"
+                  type="number"
+                  value={maxIncome}
+                  onChange={(e) => setMaxIncome(Number(e.target.value) || 0)}
+                  className="w-full h-8 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                />
+              </div>
             </div>
           )}
         </CardContent>
@@ -850,94 +904,305 @@ function ImproveBudgetContent({ autofillData, onClear }: ImproveBudgetProps) {
 
       <button
         type="button"
-        onClick={() => setShowAnalysis(true)}
-        className="w-full py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all"
-        data-ocid="improve_budget.analyse_button"
+        onClick={() => setAnalysed(true)}
+        className="w-full h-11 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-bold hover:from-purple-700 hover:to-indigo-700 transition-all shadow-sm"
+        data-ocid="improve_budget.submit_button"
       >
-        📊 Analyse Budget
+        🔍 Analyse Budget
       </button>
 
-      {showAnalysis && (
-        <>
+      {analysed && (
+        <div className="space-y-4">
           {/* Top Money Leakage Areas */}
           <Card className="rounded-2xl border border-red-100 shadow-sm">
-            <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-red-50 to-rose-50 rounded-t-2xl">
+            <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-red-50 to-orange-50 rounded-t-2xl">
               <CardTitle className="text-sm font-bold text-red-800">
-                🔍 Top Money Leakage Areas
+                🚨 Top Money Leakage Areas
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-5 pb-4 pt-3 space-y-2">
-              {Object.entries(wants)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 3)
-                .map(([key, val], i) => {
-                  const cat = WANTS_CATEGORIES.find((c) => c.key === key);
-                  const pct =
-                    income > 0 ? ((val / income) * 100).toFixed(1) : "0";
-                  return val > 0 ? (
-                    <div key={key} className="flex items-center gap-3">
-                      <span className="w-5 h-5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                        {i + 1}
-                      </span>
-                      <div className="flex-1">
-                        <div className="flex justify-between">
-                          <span className="text-xs font-medium text-slate-700">
-                            {cat?.label}
-                          </span>
-                          <span className="text-xs font-bold text-red-600">
-                            {formatCurrency(val)} ({pct}%)
-                          </span>
-                        </div>
-                        <div className="h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-red-400"
-                            style={{ width: `${Math.min(Number(pct), 100)}%` }}
-                          />
+            <CardContent className="px-5 pb-4 pt-3">
+              {(() => {
+                const leaks: Array<{
+                  area: string;
+                  message: string;
+                  saving: number;
+                }> = [];
+                const {
+                  dining: d = 0,
+                  entertainment: ent = 0,
+                  subscriptions: sub = 0,
+                  clothing = 0,
+                } = wants;
+                const { housing: rent = 0, emi = 0 } = needs;
+                if (income > 0 && d + ent > income * 0.07) {
+                  const excess = Math.max(0, d + ent - income * 0.07);
+                  leaks.push({
+                    area: "Dining & Entertainment",
+                    message: `Spending ${(((d + ent) / income) * 100).toFixed(1)}% on dining & entertainment (ideal ≤7%)`,
+                    saving: Math.round(excess),
+                  });
+                }
+                if (income > 0 && sub > income * 0.025) {
+                  const excess = Math.max(0, sub - income * 0.025);
+                  leaks.push({
+                    area: "Subscriptions",
+                    message: `Subscriptions at ${((sub / income) * 100).toFixed(1)}% of income (ideal ≤2.5%)`,
+                    saving: Math.round(excess),
+                  });
+                }
+                if (income > 0 && rent > income * 0.3) {
+                  const excess = Math.max(0, rent - income * 0.3);
+                  leaks.push({
+                    area: "Housing & Rent",
+                    message: `Rent is ${((rent / income) * 100).toFixed(1)}% of income (ideal ≤30%)`,
+                    saving: Math.round(excess),
+                  });
+                }
+                if (income > 0 && emi > income * 0.35) {
+                  const excess = Math.max(0, emi - income * 0.35);
+                  leaks.push({
+                    area: "EMIs & Loan Payments",
+                    message: `Debt payments at ${((emi / income) * 100).toFixed(1)}% of income (ideal ≤35%)`,
+                    saving: Math.round(excess),
+                  });
+                }
+                if (income > 0 && clothing > income * 0.05) {
+                  const excess = Math.max(0, clothing - income * 0.05);
+                  leaks.push({
+                    area: "Clothing & Shopping",
+                    message: `Clothing at ${((clothing / income) * 100).toFixed(1)}% of income (ideal ≤5%)`,
+                    saving: Math.round(excess),
+                  });
+                }
+                if (leaks.length === 0) {
+                  return (
+                    <div className="text-xs text-emerald-700 font-medium py-2">
+                      ✅ No major leakage areas detected. Your budget looks
+                      well-controlled!
+                    </div>
+                  );
+                }
+                return (
+                  <div className="space-y-3">
+                    {leaks.slice(0, 3).map((leak, i) => (
+                      <div key={leak.area} className="flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-red-100 text-red-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                          {i + 1}
+                        </span>
+                        <div>
+                          <p className="text-xs font-semibold text-red-700">
+                            {leak.area}
+                          </p>
+                          <p className="text-[11px] text-slate-600 mt-0.5">
+                            {leak.message}
+                          </p>
+                          <p className="text-[10px] text-emerald-600 mt-0.5 font-medium">
+                            Potential savings: {formatCurrency(leak.saving)}/mo
+                          </p>
                         </div>
                       </div>
-                    </div>
-                  ) : null;
-                })}
-              {monthlyReductionTarget > 0 && (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2">
-                  <p className="text-xs text-amber-800">
-                    🎯 Monthly Reduction Target:{" "}
-                    <strong>{formatCurrency(monthlyReductionTarget)}</strong>
-                  </p>
-                </div>
-              )}
+                    ))}
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
 
           {/* Your Quick Win */}
-          <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl flex-shrink-0">⚡</span>
-              <div>
-                <p className="text-sm font-bold text-violet-800">
-                  Your Quick Win — Do This Today
-                </p>
-                <p className="text-xs text-violet-700 mt-1 leading-relaxed">
-                  {(() => {
-                    const topWant = Object.entries(wants).sort(
-                      (a, b) => b[1] - a[1],
-                    )[0];
-                    const topWantCat = WANTS_CATEGORIES.find(
-                      (c) => c.key === topWant?.[0],
+          <Card className="rounded-2xl border border-emerald-100 shadow-sm">
+            <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-t-2xl">
+              <CardTitle className="text-sm font-bold text-emerald-800">
+                ⚡ Your Quick Win — Do This Today
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-4 pt-3">
+              {(() => {
+                const {
+                  dining: d = 0,
+                  entertainment: ent = 0,
+                  subscriptions: sub = 0,
+                } = wants;
+                const { housing: rent = 0 } = needs;
+                if (income > 0 && sub > income * 0.025) {
+                  return (
+                    <p className="text-xs text-slate-700">
+                      📱 <strong>Cancel or downgrade 1–2 subscriptions.</strong>{" "}
+                      You&apos;re spending {formatCurrency(sub)}/mo on
+                      subscriptions. Cutting unused ones can save{" "}
+                      {formatCurrency(
+                        Math.max(0, sub - Math.round(income * 0.025)),
+                      )}
+                      /mo immediately.
+                    </p>
+                  );
+                }
+                if (income > 0 && d + ent > income * 0.07) {
+                  return (
+                    <p className="text-xs text-slate-700">
+                      🍽️ <strong>Cut dining out by 30% this month.</strong> At{" "}
+                      {formatCurrency(d + ent)}/mo, reducing by 30% saves{" "}
+                      {formatCurrency(Math.round((d + ent) * 0.3))}/mo with no
+                      major lifestyle change.
+                    </p>
+                  );
+                }
+                if (savingsPct < 10 && income > 0) {
+                  return (
+                    <p className="text-xs text-slate-700">
+                      💰{" "}
+                      <strong>
+                        Set up a {formatCurrency(Math.round(income * 0.05))}{" "}
+                        auto-SIP today.
+                      </strong>{" "}
+                      Even saving 5% (
+                      {formatCurrency(Math.round(income * 0.05))}/mo) compounds
+                      to {formatCurrency(Math.round(income * 0.05 * 12 * 1.12))}{" "}
+                      in 1 year.
+                    </p>
+                  );
+                }
+                if (rent > income * 0.3) {
+                  return (
+                    <p className="text-xs text-slate-700">
+                      🏠{" "}
+                      <strong>
+                        Consider downsizing or finding a flatmate.
+                      </strong>{" "}
+                      Housing at {((rent / income) * 100).toFixed(0)}% of income
+                      is high. Reducing by{" "}
+                      {formatCurrency(Math.round(rent * 0.1))}/mo frees up
+                      significant cash flow.
+                    </p>
+                  );
+                }
+                return (
+                  <p className="text-xs text-slate-700">
+                    📊{" "}
+                    <strong>
+                      Increase your SIP by{" "}
+                      {formatCurrency(Math.round(income * 0.02))}/mo.
+                    </strong>{" "}
+                    You&apos;re in a good position. Adding just 2% more to
+                    investments accelerates wealth creation significantly.
+                  </p>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* Freelancer-Specific Budget Rules */}
+          {isFreelancer && (
+            <Card className="rounded-2xl border border-blue-100 shadow-sm">
+              <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-t-2xl">
+                <CardTitle className="text-sm font-bold text-blue-800">
+                  💼 Freelancer Budget Rules
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-5 pb-4 pt-3 space-y-2">
+                {[
+                  {
+                    tip: "Build a 6-month emergency fund (≥6×monthly expenses) before investing aggressively.",
+                    icon: "🛡️",
+                  },
+                  {
+                    tip: `Plan around your min income (${formatCurrency(minIncome)}). Treat extra income as a bonus to invest.`,
+                    icon: "📉",
+                  },
+                  {
+                    tip: "Set aside 30% of every payment for taxes immediately. Keep it in a separate account.",
+                    icon: "💸",
+                  },
+                  {
+                    tip: "Use the variable income range to plan for worst-case budgeting. Your buffer needs = Max-Min gap.",
+                    icon: "📊",
+                  },
+                  {
+                    tip: "Automate savings on good months. Invest the surplus from high-income months systematically.",
+                    icon: "⚡",
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.tip.slice(0, 20)}
+                    className="flex items-start gap-2"
+                  >
+                    <span className="text-base flex-shrink-0">{item.icon}</span>
+                    <p className="text-xs text-slate-700">{item.tip}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Monthly Reduction Suggestions */}
+          {monthlyReductionTarget > 0 && (
+            <Card className="rounded-2xl border border-amber-100 shadow-sm">
+              <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-t-2xl">
+                <CardTitle className="text-sm font-bold text-amber-800">
+                  📉 Reduction Suggestions to Hit{" "}
+                  {formatCurrency(monthlyReductionTarget)}/mo Target
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-5 pb-4 pt-3 space-y-2">
+                {(() => {
+                  const currentSavings = Math.max(0, income - totalExpenses);
+                  const gap = Math.max(
+                    0,
+                    monthlyReductionTarget - currentSavings,
+                  );
+                  if (gap <= 0)
+                    return (
+                      <p className="text-xs text-emerald-700 font-medium">
+                        ✅ Your current savings (
+                        {formatCurrency(currentSavings)}/mo) already meets your
+                        target!
+                      </p>
                     );
-                    if (totalNeeds > income * 0.5)
-                      return `Your Needs are ${needsPct.toFixed(0)}% of income (target 50%). Review fixed costs — can you refinance, downsize, or renegotiate?`;
-                    if (topWant && topWant[1] > income * 0.1)
-                      return `"${topWantCat?.label}" is ${((topWant[1] / income) * 100).toFixed(0)}% of income. Cutting it by 25% this month saves ${formatCurrency(Math.round(topWant[1] * 0.25))}.`;
-                    if (totalSavings < income * 0.2)
-                      return `You're saving ${savingsPct.toFixed(0)}% — below the 20% target. Move ${formatCurrency(Math.round(income * 0.2 - totalSavings))} from Wants to Savings to hit the goal.`;
-                    return `Great discipline! You're meeting the 50/30/20 rule. Invest the ${formatCurrency(Math.max(0, income - totalNeeds - totalWants - totalSavings))} surplus in an index fund SIP today.`;
-                  })()}
-                </p>
-              </div>
-            </div>
-          </div>
-        </>
+                  const suggestions: string[] = [];
+                  const {
+                    dining: d = 0,
+                    entertainment: ent = 0,
+                    subscriptions: sub = 0,
+                    clothing = 0,
+                  } = wants;
+                  if (d + ent > 0)
+                    suggestions.push(
+                      `Reduce dining & entertainment by ${formatCurrency(Math.min(Math.round((d + ent) * 0.25), gap))}/mo`,
+                    );
+                  if (sub > 500)
+                    suggestions.push(
+                      `Review subscriptions — save ${formatCurrency(Math.min(Math.round(sub * 0.4), gap))}/mo`,
+                    );
+                  if (clothing > 0)
+                    suggestions.push(
+                      `Pause clothing spending for 1-2 months — save ${formatCurrency(Math.min(clothing, gap))}/mo`,
+                    );
+                  if (suggestions.length === 0)
+                    suggestions.push(
+                      "Focus on reducing wants categories to bridge the gap.",
+                    );
+                  return (
+                    <div>
+                      <p className="text-xs text-amber-700 mb-2">
+                        You need {formatCurrency(gap)}/mo more in savings:
+                      </p>
+                      {suggestions.map((s) => (
+                        <p
+                          key={s.slice(0, 20)}
+                          className="text-xs text-slate-700 flex items-start gap-1.5"
+                        >
+                          <span className="text-amber-500 flex-shrink-0">
+                            →
+                          </span>
+                          {s}
+                        </p>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
     </div>
   );
@@ -963,7 +1228,10 @@ export default function BudgetingPage() {
   );
   const [autofillData, setAutofillData] = useState<{
     income: number;
-    perCategory: Record<string, number>;
+    needs: number;
+    wants: number;
+    savings: number;
+    categoryAmounts?: Record<string, number>;
   } | null>(null);
   const [transactions, setTransactions] = useState<
     Array<{
@@ -1067,19 +1335,106 @@ export default function BudgetingPage() {
     const income = monthTx
       .filter((t) => Object.keys(t.transactionType)[0] === "Income")
       .reduce((s, t) => s + t.amount, 0);
-    // Build per-category totals
-    const catTotals: Record<string, number> = {};
-    for (const tx of monthTx.filter(
+    const expenses = monthTx.filter(
       (t) => Object.keys(t.transactionType)[0] === "Expense",
-    )) {
-      const cat = categories.find((c) => c.id === tx.categoryId);
-      if (cat) {
-        catTotals[cat.name.toLowerCase()] =
-          (catTotals[cat.name.toLowerCase()] || 0) + tx.amount;
+    );
+    // Build category type map
+    const catTypeMap: Record<string, string> = {};
+    for (const c of categories) {
+      const lc = c.name.toLowerCase();
+      if (
+        [
+          "savings",
+          "investment",
+          "sip",
+          "ppf",
+          "nps",
+          "fd",
+          "emergency",
+          "mutual fund",
+          "retirement",
+        ].some((k) => lc.includes(k))
+      ) {
+        catTypeMap[c.id] = "Savings";
+      } else if (
+        [
+          "dining",
+          "eating out",
+          "entertainment",
+          "streaming",
+          "subscription",
+          "shopping",
+          "clothing",
+          "travel",
+          "gym",
+          "leisure",
+        ].some((k) => lc.includes(k))
+      ) {
+        catTypeMap[c.id] = "Wants";
+      } else {
+        catTypeMap[c.id] = "Needs";
       }
     }
-    setAutofillData({ income, perCategory: catTotals });
-    toast.success("Data autofilled from tracker");
+    const needs = expenses
+      .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Needs")
+      .reduce((s, t) => s + t.amount, 0);
+    const wants = expenses
+      .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Wants")
+      .reduce((s, t) => s + t.amount, 0);
+    const savings = expenses
+      .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Savings")
+      .reduce((s, t) => s + t.amount, 0);
+    // Build per-category amounts using NEEDS/WANTS category keywords
+    const categoryAmounts: Record<string, number> = {};
+
+    // Map expense amounts to improve budget category keys
+    const KEY_MAP: Record<string, string[]> = {
+      housing: ["housing", "rent", "mortgage"],
+      groceries: ["groceries", "food", "grocery"],
+      utilities: ["utilities", "water", "electricity", "gas", "bill"],
+      transport: ["transport", "commute", "petrol", "fuel", "metro", "cab"],
+      healthcare: ["healthcare", "medical", "health", "pharmacy"],
+      insurance: ["insurance", "premium"],
+      education: ["education", "school", "college", "tuition", "childcare"],
+      emi: ["emi", "loan payment", "debt payment"],
+      dining: [
+        "dining",
+        "eating out",
+        "restaurant",
+        "takeout",
+        "zomato",
+        "swiggy",
+      ],
+      entertainment: ["entertainment", "leisure", "games", "cinema", "movie"],
+      personalcare: ["personal care", "salon", "beauty", "grooming"],
+      clothing: ["clothing", "shopping", "apparel", "fashion"],
+      subscriptions: [
+        "subscription",
+        "streaming",
+        "netflix",
+        "spotify",
+        "amazon prime",
+      ],
+      travel: ["travel", "vacation", "holiday", "trip"],
+      investments: ["savings", "investment", "sip", "mutual fund", "stocks"],
+      emergency: ["emergency fund", "emergency"],
+      retirement: ["retirement", "nps", "ppf", "pension"],
+    };
+
+    for (const exp of expenses) {
+      const cat = categories.find((c) => c.id === exp.categoryId);
+      const catName = cat?.name?.toLowerCase() ?? "";
+      for (const [budgetKey, keywords] of Object.entries(KEY_MAP)) {
+        if (keywords.some((k) => catName.includes(k))) {
+          categoryAmounts[budgetKey] =
+            (categoryAmounts[budgetKey] ?? 0) + exp.amount;
+          break;
+        }
+      }
+    }
+
+    setAutofillData({ income, needs, wants, savings, categoryAmounts });
+    // Data flows silently into form fields
   };
 
   const totalIncome = categories
@@ -1437,28 +1792,6 @@ export default function BudgetingPage() {
                 Autofill from Tracker
               </button>
               {autofillData && (
-                <span className="text-xs text-emerald-600 font-medium">
-                  ✓ Data loaded for{" "}
-                  {
-                    [
-                      "Jan",
-                      "Feb",
-                      "Mar",
-                      "Apr",
-                      "May",
-                      "Jun",
-                      "Jul",
-                      "Aug",
-                      "Sep",
-                      "Oct",
-                      "Nov",
-                      "Dec",
-                    ][autofillMonth]
-                  }{" "}
-                  {autofillYear}
-                </span>
-              )}
-              {autofillData && (
                 <button
                   type="button"
                   onClick={() => setAutofillData(null)}
@@ -1468,10 +1801,7 @@ export default function BudgetingPage() {
                 </button>
               )}
             </div>
-            <ImproveBudgetContent
-              autofillData={autofillData}
-              onClear={() => setAutofillData(null)}
-            />
+            <ImproveBudgetContent autofillData={autofillData} />
           </div>
         </TabsContent>
       </Tabs>

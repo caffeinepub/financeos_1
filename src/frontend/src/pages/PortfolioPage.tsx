@@ -215,7 +215,7 @@ function SortIcon({
 }
 
 export default function PortfolioPage() {
-  const { assetType } = useParams({ strict: false }) as { assetType?: string };
+  const { assetType } = useParams<{ assetType: string }>();
   const navigate = useNavigate();
   const { actor } = useActor();
   const { formatCurrency: fmt } = useCurrency();
@@ -558,7 +558,7 @@ export default function PortfolioPage() {
             <button
               type="button"
               data-ocid="portfolio.overview.tab"
-              onClick={() => navigate({ to: "/portfolio/overview" })}
+              onClick={() => navigate("/portfolio/overview")}
               className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${isOverview ? "bg-slate-800 text-white border-slate-800" : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"}`}
             >
               Overview
@@ -570,7 +570,7 @@ export default function PortfolioPage() {
                   key={at.value}
                   type="button"
                   data-ocid={`portfolio.${at.value.toLowerCase()}.tab`}
-                  onClick={() => navigate({ to: `/portfolio/${at.value}` })}
+                  onClick={() => navigate(`/portfolio/${at.value}`)}
                   className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
                   style={
                     isActive
@@ -1764,19 +1764,19 @@ function PortfolioOverview({
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {equityCapData.length > 0 ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <div
                   className="flex-shrink-0"
-                  style={{ width: 110, height: 190 }}
+                  style={{ width: 180, height: 220 }}
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={equityCapData}
-                        cx="50%"
+                        cx="40%"
                         cy="50%"
-                        innerRadius={38}
-                        outerRadius={60}
+                        innerRadius={55}
+                        outerRadius={90}
                         dataKey="value"
                         labelLine={false}
                       >
@@ -1806,7 +1806,7 @@ function PortfolioOverview({
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="flex flex-col gap-1 flex-1 min-w-0">
+                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                   {equityCapData.map((entry) => {
                     const tot = equityCapData.reduce((s, d) => s + d.value, 0);
                     const pct =
@@ -1814,7 +1814,7 @@ function PortfolioOverview({
                     return (
                       <div
                         key={entry.name}
-                        className="flex items-center justify-between gap-1"
+                        className="flex items-center justify-between gap-2"
                       >
                         <div className="flex items-center gap-1.5 min-w-0">
                           <div
@@ -1854,19 +1854,19 @@ function PortfolioOverview({
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {mfCapData.length > 0 ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <div
                   className="flex-shrink-0"
-                  style={{ width: 110, height: 190 }}
+                  style={{ width: 180, height: 220 }}
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={mfCapData}
-                        cx="50%"
+                        cx="40%"
                         cy="50%"
-                        innerRadius={38}
-                        outerRadius={60}
+                        innerRadius={55}
+                        outerRadius={90}
                         dataKey="value"
                         labelLine={false}
                       >
@@ -1896,7 +1896,7 @@ function PortfolioOverview({
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="flex flex-col gap-1 flex-1 min-w-0">
+                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                   {mfCapData.map((entry) => {
                     const tot = mfCapData.reduce((s, d) => s + d.value, 0);
                     const pct =
@@ -1904,7 +1904,7 @@ function PortfolioOverview({
                     return (
                       <div
                         key={entry.name}
-                        className="flex items-center justify-between gap-1"
+                        className="flex items-center justify-between gap-2"
                       >
                         <div className="flex items-center gap-1.5 min-w-0">
                           <div
@@ -1958,7 +1958,7 @@ function PortfolioOverview({
                 <BarChart
                   data={barData}
                   layout="vertical"
-                  margin={{ top: 5, right: 90, left: 10, bottom: 5 }}
+                  margin={{ top: 5, right: 40, left: 10, bottom: 5 }}
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
@@ -2001,7 +2001,7 @@ function PortfolioOverview({
                       formatter={(v: number) => shortNum(v, ovCountry.symbol)}
                       style={{
                         fontSize: "9px",
-                        fill: "#64748b",
+                        fill: "#3b82f6",
                         fontWeight: 600,
                       }}
                     />
@@ -2019,7 +2019,7 @@ function PortfolioOverview({
                       formatter={(v: number) => shortNum(v, ovCountry.symbol)}
                       style={{
                         fontSize: "9px",
-                        fill: "#64748b",
+                        fill: "#10b981",
                         fontWeight: 600,
                       }}
                     />
@@ -2096,7 +2096,7 @@ function PortfolioOverview({
                   </p>
                 </CardHeader>
                 <CardContent className="px-2 pb-4">
-                  <ResponsiveContainer width="100%" height={320}>
+                  <ResponsiveContainer width="100%" height={380}>
                     <LineChart
                       data={forecastLineData}
                       margin={{ top: 10, right: 20, left: 0, bottom: 5 }}

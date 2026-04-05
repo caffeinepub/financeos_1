@@ -211,7 +211,7 @@ export default function LandingPage() {
     if (adminPassword === "288nitK!") {
       setShowAdminModal(false);
       setAdminPassword("");
-      navigate({ to: "/admin" });
+      navigate("/admin");
     } else {
       setAdminError("Incorrect password");
     }
@@ -225,7 +225,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (identity && !identity.getPrincipal().isAnonymous()) {
-      navigate({ to: "/dashboard" });
+      navigate("/dashboard");
     }
   }, [identity, navigate]);
 

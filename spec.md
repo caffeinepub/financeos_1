@@ -1,57 +1,55 @@
 # Growfinfire Global — Focused UI Fixes (Version 142)
 
 ## Current State
-
-The app is a full-stack finance application (React + Motoko). Key modules: Dashboard, Goals, Portfolio, Budgeting, Financial Model, Financial Planner, Learn Finance, Loans, Trade Journal.
-
-Recent builds (v139–v141) introduced:
-- Goals Analytics donut charts with legends on right, sized at width:140/height:200
-- Portfolio Overview with 3 donut charts in a row + Invested vs Current bar chart + 20-Year line chart
-- Budgeting Budget Insights (MonthlyTrackerTab) with chart ordering
-- Improve Budget with autofill from tracker (currently broken — populates needs/wants/savings buckets via ratio instead of per-category)
-- Financial Model: ModelRetirementTab (flat, no sub-cards), ModelGoalPlanningTab (has radio for Single/Multi + scenarios), ModelDebtTab (has Back to Menu, scenario cards)
-- FinancialModelingTab: renders ModelDebtTab via scenario cards → full-page view with its own Back to Menu → causes double Back to Menu pattern
+- Dashboard shows a self-contained 50/30/20 chart that re-computes from raw transactions, diverging from Budget Insights' pre-computed chart
+- Goals Analytics donut charts (Achievement Quality, Goal Diversification) have legend/count misaligned and diameter clipped
+- Goals Plan Goals: 'If You Wait 2 Years' SIP ignores the `availableToday` value; 'If You Start TODAY' SIP may also be wrong
+- Portfolio Overview: Equity & MF donut charts don't match Allocation% chart diameter/legend alignment; bar chart lacks value labels; 20-Year Forecast height too small
+- Budget Insights: Month-over-Month Trend and Monthly Overview charts are in wrong order; Top Spending shows more than 5 categories; Budgeting (6 Months) and Savings Rate Trend are swapped
+- Improve Budget: Autofill reads from raw transactions instead of Budget Insights pre-computed summaries; missing Monthly Reduction Target field, freelancer checkbox, and Top Leakage / Quick Win output after Analyse
+- Financial Model > Model Retirement: shows only a single flat Retirement Planner — no sub-cards for FIRE, 3-Bucket, 2-Bucket, Retirement Readiness
+- Financial Model > Goal Planning: still shows scenario cards, not the direct Single/Multi goal radio UI from Goals > Plan Goals
+- Financial Model > Loan Management and Repayment (debtmodel): internally renders ModelDebtTab which has its own Back-to-Menu, but the FinancialModelingTab wrapper adds another Back button, causing double navigation
 
 ## Requested Changes (Diff)
 
 ### Add
-- Financial Model → Model Retirement: Add sub-cards for FIRE Planner, 3-Bucket Planner, 2-Bucket Planner, Retirement Readiness Score — each renders the corresponding Financial Planner calculator component (FIRECalculator, ThreeBucketCalculator, TwoBucketCalculator, RetirementReadinessCalculator). Retirement Planner itself becomes a sub-card too.
-- Improve Budget: Add "Monthly Reduction Target" optional field; add "I am a freelancer / have variable income" checkbox. When checked, show Freelancer-Specific Budget Rules section (same as in ModelBudgetingTab freelancer scenario). When user clicks "Analyse Budget", show "Top Money Leakage Areas" and "Your Quick Win — Do This Today" sections (same logic as ModelBudgetingTab output).
+- `ImproveBudgetContent`: add `monthlyReductionTarget` (number input, optional) and `isFreelancer` (checkbox) fields under an "Optional Goals" section
+- `ImproveBudgetContent`: when freelancer checkbox checked, show Freelancer-Specific Budget Rules section (same as ModelBudgetingTab freelancer rules)
+- `ImproveBudgetContent`: after "Analyse Budget" button click, show "Top Money Leakage Areas" and "Your Quick Win — Do This Today" sections (same logic as ModelBudgetingTab output cards)
+- `ModelRetirementTab`: add 4 collapsible sub-cards: FIRE Planner, 3-Bucket Planner, 2-Bucket Planner, Retirement Readiness Score — each embeds the exact same component used in FinancialPlannerPage (FIRECalculator, ThreeBucketCalculator, TwoBucketCalculator, RetirementReadinessCalculator from `../../components/financial-planner/calculators/`)
 
 ### Modify
-- **Dashboard → 50/30/20 Budget Rule Analysis chart**: Replace current implementation with the exact same component used in BudgetingPage Budget Insights tab (MonthlyTrackerTab). Extract a shared `BudgetRule5030Chart` component or directly call the same logic/UI from MonthlyTrackerTab. The chart must show the same bar-based analysis with actual transaction data.
-- **Goals → Analytics → Achievement Quality & Goal Diversification charts**: Reduce the donut container width from 140px to 100px; move legend + count values into a tighter layout so legend label and count are on the same line, right-aligned, without gap. Ensure full donut arc is visible (no clipping). Container height: 180px.
-- **Goals → Analytics → Savings Adequacy chart**: Add LabelList on top of each bar showing value formatted as Cr/L/K or M/B/K per selected currency using `shortNum()`.
-- **Goals → Plan Goals → Cost of Delay calculation**: Fix "If You Wait 2 Years" card — it must deduct `availableToday` future value from the inflated target BEFORE calculating `sipDelay2yrs`. Currently `sipDelay2` uses `primary.targetInflated` without subtracting `fvAvailable`. Fix: `adjustedTargetDelay = Math.max(0, primary.targetInflated - primary.fvAvailable)` then `sipDelay2 = sipRequired(adjustedTargetDelay, primary.returnRate, Math.max(1, primary.years - 2))`. Also verify "If You Start TODAY" correctly uses `adjustedTarget` (it does — no change needed there).
-- **Portfolio Overview → Equity Allocation% & Mutual Fund Allocation% charts**: Change container from `width:140, height:200` flex layout to match the main Allocation% chart pattern — narrower legend text, label and % on same line, tighter gap between them, smaller donut (innerRadius 40, outerRadius 65) so full diameter is visible.
-- **Portfolio Overview → Invested vs Current Value bar chart**: Add `LabelList` to each bar with values formatted using `shortNum(value, sym, country.code)`, positioned "right" or "insideRight" for clarity.
-- **Portfolio Overview → 20-Year Portfolio Forecast chart**: Increase ResponsiveContainer height from current to 320px.
-- **Budget Insights (MonthlyTrackerTab) → Chart order**: 
-  - Swap positions of "Monthly Overview — Income vs Expenses" and "Month-over-Month Trend" (Month-over-Month comes first, Monthly Overview comes second)
-  - Top Spending Categories: filter to show only top 5 (change `analyticsTop5` slice from current limit to 5 max)
-  - Swap positions of "Budgeting (6 Months)" and "Savings Rate Trend (%)" charts (Savings Rate first, Budgeting 6 Months second)
-- **Improve Budget (BudgetingPage) → Autofill from Tracker**: Completely rewrite `handleAutofill` and `ImproveBudgetContent`/`applyAutofillData` to pass per-category actual values (not aggregated needs/wants/savings). Each NEEDS_CATEGORIES key maps to matching transaction categories by name. Pass `{ income, perCategory: Record<string, number> }` and apply per-field. Remove the "Autofill applied" message card; instead update a "Clear" button that resets to sample data.
-- **Financial Model → Goal Planning**: Remove all scenario cards. The `goalmodel` section in `FinancialModelingTab` should NOT be in `MODEL_IDS` set (remove "goalmodel" from MODEL_IDS). Instead, when `activeSectionId === 'goalmodel'`, directly render `<ModelGoalPlanningTab />` without scenario navigation (same as `modelretirement`, `modelinsurance` etc.).
-- **Financial Model → Loan Management & Repayment (debtmodel)**: Remove the scenario cards layer. Same fix as Goal Planning — remove "debtmodel" from `MODEL_IDS`. When `activeSectionId === 'debtmodel'`, directly render `<ModelDebtTab />` without the intermediate scenario list, so there is only ONE Back to Menu (from FinancialModelingTab's `backBtn`). The ModelDebtTab's internal "Back to Menu" button should be removed or hidden.
-- **Financial Model → Model Retirement**: Convert from flat rendering to a sub-card accordion pattern (similar to how MODEL_IDS sections show scenario cards). Show 5 sub-cards: 1) Retirement Planner (existing ModelRetirementTab content), 2) FIRE Planner, 3) 3-Bucket Planner, 4) 2-Bucket Planner, 5) Retirement Readiness Score. Each card expands in place (not full-page navigation) to show the respective calculator. Use collapsible/accordion UI.
+- **Dashboard 50/30/20 chart**: Replace the self-computed version with a reuse of the same `BudgetRuleChart` logic extracted from `MonthlyTrackerTab`. Import and share the chart component so both Dashboard and Budget Insights show identical data/style. Use current month's data via the pre-computed `analyticsIncome`, `analyticsExpenses`, `analyticsNeeds50`, `analyticsWants30`, `analyticsSavings`, `analyticsSavings20` pattern from MonthlyTrackerTab. Simplest approach: extract a `Budget5030Chart` pure component accepting these 6 values as props, use it in both files.
+- **Goals Analytics — Achievement Quality & Goal Diversification donuts**: reduce chart container width, move label+count to tight right-side legend (no gap between label and count), use smaller `outerRadius`/`innerRadius` so the full arc is visible without clipping
+- **Goals Analytics — Savings Adequacy bar chart**: add `LabelList` on top of each bar formatted in Cr/L/K or M/B/K per currency
+- **Plan Goals — Cost of Delay calculation** (`ModelGoalPlanningTab.tsx`): Fix `sipDelay2` to deduct the future value of `availableToday` compounded over `years - 2` years (not zero). Also verify 'If You Start TODAY' uses `fvAvailable` correctly. Correct formula: `fvAvailableDelay = availableToday * (1 + rate/100)^(years-2)`, `adjustedDelayTarget = max(0, inflated - fvAvailableDelay)`, `sipDelay2 = sipRequired(adjustedDelayTarget, rate, years-2)`
+- **Portfolio Overview — Equity Allocation% and Mutual Fund Allocation% donuts**: match `outerRadius`, `innerRadius`, container size, and legend layout exactly to the main `Allocation%` donut (currently ~outerRadius=90, innerRadius=55, right-side legend with % values)
+- **Portfolio Overview — Invested vs Current Value bar chart**: add `LabelList` on each bar formatted in Cr/L/K or M/B/K
+- **Portfolio Overview — 20-Year Portfolio Forecast chart**: increase container `height` from current value to at least `380`
+- **Budget Insights — chart order**: swap so Month-over-Month Trend appears BEFORE Monthly Overview — Income vs Expenses
+- **Budget Insights — Top Spending Categories**: cap at 5 categories (`.slice(0, 5)`)
+- **Budget Insights — Budgeting (6 Months) and Savings Rate Trend**: swap their positions so Savings Rate Trend appears before Budgeting (6 Months)
+- **Improve Budget — Autofill**: change `handleAutofill` in `BudgetingPage.tsx` to read from Budget Insights' pre-computed category summaries (`analyticsFiltered` transactions grouped by category type using the same `inferBudgetType` keyword logic from `MonthlyTrackerTab`) rather than raw transaction lookup. This gives the same categorization as shown in Budget Insights.
+- **Financial Model — Goal Planning (goalmodel section)**: instead of showing scenario cards, render `ModelGoalPlanningTab` directly (same as Goals > Plan Goals page) — no extra navigation layer, no scenario cards
+- **Financial Model — Loan Management / debtmodel full-page view**: When `activeSectionId === 'debtmodel'` and no `activeScenarioId` is set (i.e., the scenario-list view), skip the scenario card list and instead render `<ModelDebtTab />` directly with its own internal navigation — remove the outer Back button wrapper for debtmodel so there is only one Back-to-Menu (the internal one inside ModelDebtTab)
+- **ModelRetirementTab**: wrap the existing Retirement Planner content in a collapsible card, then add 4 more collapsible cards for FIRE, 3-Bucket, 2-Bucket, Retirement Readiness
 
 ### Remove
-- Remove internal "Back to Menu" button inside `ModelDebtTab` (since FinancialModelingTab now provides the single Back to Menu).
-- Remove the `applied` state message cards (green banners) from `ImproveBudgetContent` — replace with just a "Clear" button.
-- Scan and delete all unused files after changes: orphaned .bak files, unused components, unreferenced images.
+- Remove the duplicated/extra Back-to-Menu button in FinancialModelingTab's debtmodel scenario wrapper
+- Remove message cards in ImproveBudget autofill (replace with just Clear/Reset button)
 
 ## Implementation Plan
-
-1. **Extract shared 50/30/20 chart logic**: Create a `BudgetRule5030Chart` component (or inline function) shared between DashboardPage and MonthlyTrackerTab. Dashboard calls it with current month transaction data.
-2. **Fix Goals Analytics donut layout**: Update GoalsTab.tsx — reduce donut container to 100px wide, tighten legend, ensure arcs not clipped.
-3. **Fix Savings Adequacy LabelList**: Add `<LabelList>` to GoalsTab.tsx bar chart with shortNum formatting.
-4. **Fix Plan Goals cost-of-delay calc**: Update `analyzeGoals` in ModelGoalPlanningTab.tsx to compute adjustedTargetDelay correctly.
-5. **Fix Portfolio Equity/MF donut charts**: Reduce diameter in PortfolioPage.tsx to prevent clipping, tighten legend layout.
-6. **Add LabelList to Invested vs Current bar chart**: PortfolioPage.tsx.
-7. **Increase 20-Year forecast chart height**: PortfolioPage.tsx.
-8. **Swap Budget Insights chart order + Top 5 spending**: MonthlyTrackerTab.tsx.
-9. **Fix Improve Budget autofill**: BudgetingPage.tsx — rewrite `handleAutofill` to pass per-category data; rewrite `ImproveBudgetContent` to apply per-field matching; add freelancer checkbox + Monthly Reduction Target field; add Analyse Budget output with leakage areas and quick win; replace message card with Clear button.
-10. **Simplify Financial Model Goal Planning**: Remove goalmodel from MODEL_IDS in FinancialModelingTab.tsx, render ModelGoalPlanningTab directly.
-11. **Simplify Financial Model Debt/Loan section**: Remove debtmodel from MODEL_IDS in FinancialModelingTab.tsx, render ModelDebtTab directly, remove ModelDebtTab internal Back to Menu.
-12. **Convert Model Retirement to sub-cards**: Update FinancialModelingTab.tsx and/or ModelRetirementTab.tsx to show 5 collapsible sub-cards including FIRE, 3-Bucket, 2-Bucket, Readiness Score.
-13. **Unused file scan and cleanup**.
+1. Extract `Budget5030Chart` component (pure, props-based) from DashboardPage and BudgetingPage — use in both
+2. Fix Goals Analytics donut container sizing and legend alignment
+3. Fix Goals Analytics Savings Adequacy — add LabelList with currency formatting
+4. Fix ModelGoalPlanningTab cost-of-delay calculation to account for availableToday in delay scenario
+5. Fix Portfolio Overview Equity/MF donut charts to match Allocation% chart sizing
+6. Add LabelList to Portfolio Overview Invested vs Current Value bar chart
+7. Increase Portfolio Overview 20-Year Forecast chart height
+8. Reorder Budget Insights charts (Month-over-Month before Monthly Overview; Savings Rate before Budgeting 6 Months)
+9. Cap Top Spending at 5
+10. Fix Improve Budget autofill to use same category mapping as Budget Insights
+11. Add Monthly Reduction Target field + freelancer checkbox + Top Leakage / Quick Win output to ImproveBudgetContent
+12. Update FinancialModelingTab: goalmodel renders ModelGoalPlanningTab directly; debtmodel renders ModelDebtTab directly (no scenario card list, no double back button)
+13. Rebuild ModelRetirementTab with 5 collapsible sub-cards (existing Retirement Planner + 4 from FinancialPlanner)

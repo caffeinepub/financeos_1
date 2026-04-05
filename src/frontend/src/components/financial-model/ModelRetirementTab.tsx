@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PiggyBank, Shield, TrendingUp } from "lucide-react";
+import { ChevronDown, PiggyBank, Shield, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import {
   CartesianGrid,
@@ -30,6 +30,10 @@ import {
   YAxis,
 } from "recharts";
 import { useCurrency } from "../../contexts/CurrencyContext";
+import { FIRECalculator } from "../financial-planner/calculators/FIRECalculator";
+import { RetirementReadinessCalculator } from "../financial-planner/calculators/RetirementReadinessCalculator";
+import { ThreeBucketCalculator } from "../financial-planner/calculators/ThreeBucketCalculator";
+import { TwoBucketCalculator } from "../financial-planner/calculators/TwoBucketCalculator";
 
 type RetirementRiskProfile = "conservative" | "moderate" | "aggressive";
 
@@ -79,7 +83,7 @@ const allocationModels: Record<RetirementRiskProfile, AllocationModel> = {
   },
 };
 
-export function ModelRetirementTab() {
+function RetirementPlannerContent() {
   const { formatCurrency, country } = useCurrency();
   const [selectedProfile, setSelectedProfile] =
     useState<RetirementRiskProfile>("moderate");
@@ -388,6 +392,80 @@ export function ModelRetirementTab() {
           does not guarantee future results.
         </AlertDescription>
       </Alert>
+    </div>
+  );
+}
+
+export function ModelRetirementTab() {
+  const [open, setOpen] = useState<string | null>("retirement");
+
+  const toggle = (id: string) => setOpen((p) => (p === id ? null : id));
+
+  const subCards = [
+    {
+      id: "retirement",
+      title: "Retirement Planner",
+      emoji: "🌅",
+      content: <RetirementPlannerContent />,
+    },
+    {
+      id: "fire",
+      title: "FIRE Planner",
+      emoji: "🔥",
+      content: <FIRECalculator />,
+    },
+    {
+      id: "threebucket",
+      title: "3-Bucket Planner",
+      emoji: "🪣",
+      content: <ThreeBucketCalculator />,
+    },
+    {
+      id: "twobucket",
+      title: "2-Bucket Planner",
+      emoji: "💼",
+      content: <TwoBucketCalculator />,
+    },
+    {
+      id: "readiness",
+      title: "Retirement Readiness Score",
+      emoji: "✅",
+      content: <RetirementReadinessCalculator />,
+    },
+  ];
+
+  return (
+    <div className="space-y-3">
+      {subCards.map((card) => (
+        <div
+          key={card.id}
+          className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+          style={{ borderLeft: "4px solid #14b8a6" }}
+        >
+          <button
+            type="button"
+            onClick={() => toggle(card.id)}
+            className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-base">{card.emoji}</span>
+              <span className="text-sm font-semibold text-slate-800">
+                {card.title}
+              </span>
+            </div>
+            <ChevronDown
+              className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                open === card.id ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          {open === card.id && (
+            <div className="px-4 pb-4 border-t border-slate-50">
+              {card.content}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

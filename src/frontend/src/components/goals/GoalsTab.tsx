@@ -47,19 +47,6 @@ import {
 import { GoalList } from "./GoalList";
 import { AddGoalDialog } from "./dialogs/AddGoalDialog";
 
-function shortNum(n: number, sym: string, code = "INR"): string {
-  if (code !== "INR") {
-    if (n >= 1_000_000_000) return `${sym}${(n / 1_000_000_000).toFixed(1)}B`;
-    if (n >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(1)}M`;
-    if (n >= 1_000) return `${sym}${(n / 1_000).toFixed(1)}K`;
-    return `${sym}${Math.round(n)}`;
-  }
-  if (n >= 10_000_000) return `${sym}${(n / 10_000_000).toFixed(1)}Cr`;
-  if (n >= 100_000) return `${sym}${(n / 100_000).toFixed(1)}L`;
-  if (n >= 1_000) return `${sym}${(n / 1_000).toFixed(1)}K`;
-  return `${sym}${Math.round(n)}`;
-}
-
 interface GoalsTabProps {
   externalAddOpen?: boolean;
   onExternalAddOpenChange?: (open: boolean) => void;
@@ -81,7 +68,7 @@ export function GoalsTab({
     _setInternalAddOpen(v);
     if (onExternalAddOpenChange) onExternalAddOpenChange(v);
   };
-  const { formatCurrency, country } = useCurrency();
+  const { formatCurrency } = useCurrency();
 
   const { data: retirals = [] } = useGetAllRetirals();
   const { data: equityStocks = [] } = useGetAllETFStocks();
@@ -412,9 +399,7 @@ export function GoalsTab({
                       />
                       <YAxis
                         tick={{ fontSize: 9 }}
-                        tickFormatter={(v) =>
-                          shortNum(v, country.symbol, country.code)
-                        }
+                        tickFormatter={(v) => formatCurrency(v)}
                       />
                       <Tooltip
                         formatter={(v: number) => formatCurrency(v)}
@@ -433,10 +418,12 @@ export function GoalsTab({
                         <LabelList
                           dataKey="target"
                           position="top"
-                          formatter={(v: number) =>
-                            shortNum(v, country.symbol, country.code)
-                          }
-                          style={{ fontSize: "9px", fill: "#64748b" }}
+                          formatter={(v: number) => formatCurrency(v)}
+                          style={{
+                            fontSize: "9px",
+                            fill: "#3b82f6",
+                            fontWeight: 600,
+                          }}
                         />
                       </Bar>
                       <Bar
@@ -448,10 +435,12 @@ export function GoalsTab({
                         <LabelList
                           dataKey="current"
                           position="top"
-                          formatter={(v: number) =>
-                            shortNum(v, country.symbol, country.code)
-                          }
-                          style={{ fontSize: "9px", fill: "#64748b" }}
+                          formatter={(v: number) => formatCurrency(v)}
+                          style={{
+                            fontSize: "9px",
+                            fill: "#10b981",
+                            fontWeight: 600,
+                          }}
                         />
                       </Bar>
                     </BarChart>
@@ -476,19 +465,19 @@ export function GoalsTab({
               </CardHeader>
               <CardContent className="px-3 pb-3">
                 {analyticsData.achievementQuality.length > 0 ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <div
                       className="flex-shrink-0"
-                      style={{ width: 100, height: 180 }}
+                      style={{ width: 160, height: 160 }}
                     >
                       <ResponsiveContainer width="100%" height="100%">
                         <RechartsPieChart>
                           <Pie
                             data={analyticsData.achievementQuality}
-                            cx="50%"
+                            cx="40%"
                             cy="50%"
-                            innerRadius={38}
-                            outerRadius={60}
+                            innerRadius={44}
+                            outerRadius={70}
                             dataKey="value"
                             labelLine={false}
                           >
@@ -582,19 +571,19 @@ export function GoalsTab({
               </CardHeader>
               <CardContent className="px-3 pb-3">
                 {analyticsData.goalDiversification.length > 0 ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <div
                       className="flex-shrink-0"
-                      style={{ width: 100, height: 180 }}
+                      style={{ width: 160, height: 160 }}
                     >
                       <ResponsiveContainer width="100%" height="100%">
                         <RechartsPieChart>
                           <Pie
                             data={analyticsData.goalDiversification}
-                            cx="50%"
+                            cx="40%"
                             cy="50%"
-                            innerRadius={38}
-                            outerRadius={60}
+                            innerRadius={44}
+                            outerRadius={70}
                             dataKey="value"
                             labelLine={false}
                           >

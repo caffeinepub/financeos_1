@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useActor } from "@/hooks/useActor";
-import { ChevronRight, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   Cell,
@@ -20,10 +20,6 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { FIRECalculator } from "../financial-planner/calculators/FIRECalculator";
-import { RetirementReadinessCalculator } from "../financial-planner/calculators/RetirementReadinessCalculator";
-import { ThreeBucketCalculator } from "../financial-planner/calculators/ThreeBucketCalculator";
-import { TwoBucketCalculator } from "../financial-planner/calculators/TwoBucketCalculator";
 import { ModelBudgetingTab } from "./ModelBudgetingTab";
 import { ModelCryptoPortfolioTab } from "./ModelCryptoPortfolioTab";
 import { ModelDebtTab } from "./ModelDebtTab";
@@ -236,6 +232,14 @@ function FinancialModelingTab() {
             initialScenario={activeScenarioId.split("::")[1]}
           />
         )}
+        {activeSectionId === "debtmodel" && (
+          <ModelDebtTab initialScenario={activeScenarioId.split("::")[1]} />
+        )}
+        {activeSectionId === "goalmodel" && (
+          <ModelGoalPlanningTab
+            initialScenario={activeScenarioId.split("::")[1]}
+          />
+        )}
       </div>
     );
   }
@@ -268,7 +272,7 @@ function FinancialModelingTab() {
             {section.id === "modelinsurance" && <ModelInsuranceTab />}
             {section.id === "assetallocation" && <AssetAllocationTab />}
             {section.id === "modelportfolio" && <ModelPortfolioTab />}
-            {section.id === "modelretirement" && <ModelRetirementSubCards />}
+            {section.id === "modelretirement" && <ModelRetirementTab />}
             {section.id === "modelcrypto" && <ModelCryptoPortfolioTab />}
             {section.id === "goalmodel" && <ModelGoalPlanningTab />}
             {section.id === "debtmodel" && <ModelDebtTab />}
@@ -828,79 +832,6 @@ function AssetAllocationTab() {
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function ModelRetirementSubCards() {
-  const [openCard, setOpenCard] = useState<string | null>(null);
-
-  const subCards = [
-    {
-      id: "retirement",
-      title: "Retirement Planner",
-      emoji: "🌅",
-      desc: "Project your retirement corpus with SIP + lumpsum",
-      component: <ModelRetirementTab />,
-    },
-    {
-      id: "fire",
-      title: "FIRE Planner",
-      emoji: "🔥",
-      desc: "Financial Independence, Retire Early — FAT, Lean, Barista FIRE",
-      component: <FIRECalculator />,
-    },
-    {
-      id: "threebucket",
-      title: "3-Bucket Planner",
-      emoji: "🪣",
-      desc: "Bucket strategy for retirement income distribution",
-      component: <ThreeBucketCalculator />,
-    },
-    {
-      id: "twobucket",
-      title: "2-Bucket Planner",
-      emoji: "🪣",
-      desc: "Simplified 2-bucket approach for retirement",
-      component: <TwoBucketCalculator />,
-    },
-    {
-      id: "readiness",
-      title: "Retirement Readiness Score",
-      emoji: "📊",
-      desc: "Score your retirement preparedness",
-      component: <RetirementReadinessCalculator />,
-    },
-  ];
-
-  return (
-    <div className="space-y-3">
-      {subCards.map((card) => (
-        <div
-          key={card.id}
-          className="rounded-xl border border-slate-100 overflow-hidden"
-        >
-          <button
-            type="button"
-            onClick={() => setOpenCard(openCard === card.id ? null : card.id)}
-            className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-teal-50 hover:border-teal-200 transition-all flex items-center gap-3"
-          >
-            <span className="text-lg">{card.emoji}</span>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-slate-800">{card.title}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{card.desc}</p>
-            </div>
-            <ChevronRight
-              className={`w-4 h-4 text-slate-400 transition-transform ${openCard === card.id ? "rotate-90" : ""}`}
-            />
-          </button>
-          {openCard === card.id && (
-            <div className="px-4 py-4 border-t border-slate-100 bg-white">
-              {card.component}
-            </div>
-          )}
-        </div>
-      ))}
     </div>
   );
 }

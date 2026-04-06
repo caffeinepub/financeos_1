@@ -1,5 +1,12 @@
 [
   {
+    "match": ".well-known",
+    "ignore": false,
+    "headers": {
+      "Content-Type": "text/plain"
+    }
+  },
+  {
     "match": ".well-known/ic-domains",
     "ignore": false,
     "headers": {
@@ -14,6 +21,12 @@
     "headers": {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*"
+    }
+  },
+  {
+    "match": "**",
+    "cache": {
+      "max_age": 31536000
     }
   }
 ]

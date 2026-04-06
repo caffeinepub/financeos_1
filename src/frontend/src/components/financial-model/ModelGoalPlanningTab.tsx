@@ -2,9 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   AlertCircle,
   ArrowRight,
   ChevronRight,
+  Info,
   Plus,
   Sparkles,
   Star,
@@ -13,10 +20,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useCurrency } from "../../contexts/CurrencyContext";
 import { useActor } from "../../hooks/useActor";
 
-const fmt = (n: number) => Math.round(n).toLocaleString("en-IN");
-const fmtC = (n: number) => `₹${fmt(n)}`;
+const _fmt = (n: number) => Math.round(n).toLocaleString("en-IN");
+// Module-level formatter (used in analyzeGoals for text notes)
+const fmtModuleLevel = (n: number, sym = "₹") => `${sym}${_fmt(n)}`;
 
 const INFLATION_RATE = 0.06;
 
@@ -303,12 +312,12 @@ function analyzeGoals(
   );
   const retirementNote =
     hasRetirement && retirementGoal
-      ? `Retirement Planning: To generate ${fmtC(Math.round(retirementGoal.targetToday / 12 / 25))} per month in today's value at age ${retirementAge}, you need a corpus of ${fmtC(retirementGoal.targetToday)} today — or ${fmtC(retirementGoal.targetInflated)} at retirement after ${INFLATION_RATE * 100}% annual inflation over ${retirementGoal.years} years. At ${retirementGoal.returnRate}% equity returns, your required SIP is ${fmtC(retirementGoal.sipRequired)} per month. Starting at age ${currentAge} gives you ${retirementGoal.years * 12} months of compounding. Every year delayed raises your required SIP by approximately ${fmtC(Math.round(sipRequired(retirementGoal.targetInflated, retirementGoal.returnRate, retirementGoal.years - 1) - retirementGoal.sipRequired))} per month.`
+      ? `Retirement Planning: To generate ${fmtModuleLevel(Math.round(retirementGoal.targetToday / 12 / 25))} per month in today's value at age ${retirementAge}, you need a corpus of ${fmtModuleLevel(retirementGoal.targetToday)} today — or ${fmtModuleLevel(retirementGoal.targetInflated)} at retirement after ${INFLATION_RATE * 100}% annual inflation over ${retirementGoal.years} years. At ${retirementGoal.returnRate}% equity returns, your required SIP is ${fmtModuleLevel(retirementGoal.sipRequired)} per month. Starting at age ${currentAge} gives you ${retirementGoal.years * 12} months of compounding. Every year delayed raises your required SIP by approximately ${fmtModuleLevel(Math.round(sipRequired(retirementGoal.targetInflated, retirementGoal.returnRate, retirementGoal.years - 1) - retirementGoal.sipRequired))} per month.`
       : "";
 
   const insufficientNote =
     surplus < 0
-      ? `You need ${fmtC(totalSIPRequired)} per month for all your goals but have ${fmtC(monthlyAvailable)} available — a shortfall of ${fmtC(Math.abs(surplus))} per month. Options: (1) Extend timelines for lower-priority goals. (2) Reduce target amounts on flexible goals like vacation. (3) Increase income or reduce expenses. (4) Start with your top-priority goal only and add others as income grows.`
+      ? `You need ${fmtModuleLevel(totalSIPRequired)} per month for all your goals but have ${fmtModuleLevel(monthlyAvailable)} available — a shortfall of ${fmtModuleLevel(Math.abs(surplus))} per month. Options: (1) Extend timelines for lower-priority goals. (2) Reduce target amounts on flexible goals like vacation. (3) Increase income or reduce expenses. (4) Start with your top-priority goal only and add others as income grows.`
       : "";
 
   return {
@@ -338,6 +347,8 @@ export function ModelGoalPlanningTab({
   initialScenario,
 }: { initialScenario?: string } = {}) {
   const { actor } = useActor();
+  const { formatCurrency } = useCurrency();
+  const fmtC = (n: number) => formatCurrency(n);
   const [planMode, setPlanMode] = useState<"single" | "multi">("single");
   const initScenario =
     SCENARIOS.find((s) => s.id === (initialScenario ?? "single")) ??
@@ -486,9 +497,23 @@ export function ModelGoalPlanningTab({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs font-semibold text-slate-600">
-              Monthly Savings Available (₹)
-            </Label>
+            <div className="flex items-center gap-1">
+              <Label className="text-xs font-semibold text-slate-600">
+                Monthly Savings Available
+              </Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">
+                      Total you can invest each month across all goals
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Input
               type="number"
               min={0}
@@ -497,9 +522,6 @@ export function ModelGoalPlanningTab({
               className="h-8 text-sm"
               placeholder="0"
             />
-            <p className="text-xs text-slate-400">
-              Total you can invest each month across all goals
-            </p>
           </div>
         </div>
 
@@ -525,13 +547,13 @@ export function ModelGoalPlanningTab({
                   Goal Name
                 </th>
                 <th className="text-right py-1.5 px-2 font-semibold text-slate-500">
-                  Target Today (₹)
+                  Target Today
                 </th>
                 <th className="text-right py-1.5 px-2 font-semibold text-slate-500">
                   Years to Goal
                 </th>
                 <th className="text-right py-1.5 px-2 font-semibold text-slate-500">
-                  Available Today (₹)
+                  Available Today
                 </th>
                 <th className="py-1.5" />
               </tr>

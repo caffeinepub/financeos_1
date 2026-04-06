@@ -465,19 +465,21 @@ export function GoalsTab({
               </CardHeader>
               <CardContent className="px-3 pb-3">
                 {analyticsData.achievementQuality.length > 0 ? (
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 overflow-visible">
                     <div
-                      className="flex-shrink-0"
-                      style={{ width: 160, height: 160 }}
+                      className="flex-shrink-0 overflow-visible"
+                      style={{ width: 150, height: 150 }}
                     >
                       <ResponsiveContainer width="100%" height="100%">
-                        <RechartsPieChart>
+                        <RechartsPieChart
+                          margin={{ top: 0, right: 0, bottom: 0, left: 4 }}
+                        >
                           <Pie
                             data={analyticsData.achievementQuality}
-                            cx="40%"
+                            cx="50%"
                             cy="50%"
                             innerRadius={44}
-                            outerRadius={70}
+                            outerRadius={68}
                             dataKey="value"
                             labelLine={false}
                           >
@@ -529,23 +531,21 @@ export function GoalsTab({
                         </RechartsPieChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                    <div className="flex flex-col gap-1 flex-1 min-w-0">
                       {analyticsData.achievementQuality.map((entry) => (
                         <div
                           key={entry.name}
-                          className="flex items-center justify-between gap-1"
+                          className="flex items-center gap-1"
                         >
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <div
-                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                              style={{ background: entry.color }}
-                            />
-                            <span className="text-[11px] text-slate-600 truncate">
-                              {entry.name}
-                            </span>
-                          </div>
-                          <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
-                            {entry.value} goal{entry.value !== 1 ? "s" : ""}
+                          <div
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{ background: entry.color }}
+                          />
+                          <span className="text-[10px] text-slate-600 truncate flex-1 min-w-0">
+                            {entry.name}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-700 flex-shrink-0 ml-1">
+                            {entry.value}
                           </span>
                         </div>
                       ))}
@@ -571,19 +571,21 @@ export function GoalsTab({
               </CardHeader>
               <CardContent className="px-3 pb-3">
                 {analyticsData.goalDiversification.length > 0 ? (
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 overflow-visible">
                     <div
-                      className="flex-shrink-0"
-                      style={{ width: 160, height: 160 }}
+                      className="flex-shrink-0 overflow-visible"
+                      style={{ width: 150, height: 150 }}
                     >
                       <ResponsiveContainer width="100%" height="100%">
-                        <RechartsPieChart>
+                        <RechartsPieChart
+                          margin={{ top: 0, right: 0, bottom: 0, left: 4 }}
+                        >
                           <Pie
                             data={analyticsData.goalDiversification}
-                            cx="40%"
+                            cx="50%"
                             cy="50%"
                             innerRadius={44}
-                            outerRadius={70}
+                            outerRadius={68}
                             dataKey="value"
                             labelLine={false}
                           >
@@ -635,23 +637,21 @@ export function GoalsTab({
                         </RechartsPieChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                    <div className="flex flex-col gap-1 flex-1 min-w-0">
                       {analyticsData.goalDiversification.map((entry) => (
                         <div
                           key={entry.name}
-                          className="flex items-center justify-between gap-1"
+                          className="flex items-center gap-1"
                         >
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <div
-                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                              style={{ background: entry.color }}
-                            />
-                            <span className="text-[11px] text-slate-600 truncate">
-                              {entry.name}
-                            </span>
-                          </div>
-                          <span className="text-[11px] font-semibold text-slate-700 flex-shrink-0">
-                            {entry.value} goal{entry.value !== 1 ? "s" : ""}
+                          <div
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{ background: entry.color }}
+                          />
+                          <span className="text-[10px] text-slate-600 truncate flex-1 min-w-0">
+                            {entry.name}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-700 flex-shrink-0 ml-1">
+                            {entry.value}
                           </span>
                         </div>
                       ))}

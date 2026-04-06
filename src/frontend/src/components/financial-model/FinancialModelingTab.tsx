@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useActor } from "@/hooks/useActor";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -193,6 +194,7 @@ function FinancialModelingTab() {
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   // activeScenarioId: for model tabs with sub-scenarios
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
+  const _isMobile = useIsMobile();
 
   const MODEL_IDS = new Set(["budgetingmodel"]);
 
@@ -225,7 +227,10 @@ function FinancialModelingTab() {
       <div className="space-y-4 animate-fade-in">
         {backBtn(() => {
           setActiveScenarioId(null);
-          setActiveSectionId(null);
+          // For model tabs, go back to the scenario list; otherwise go to main menu
+          if (!MODEL_IDS.has(activeSectionId ?? "")) {
+            setActiveSectionId(null);
+          }
         })}
         {activeSectionId === "budgetingmodel" && (
           <ModelBudgetingTab

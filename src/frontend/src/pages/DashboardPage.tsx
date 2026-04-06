@@ -892,81 +892,161 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="px-5 pb-5">
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart
-                data={(() => {
-                  const totalLiabilities = loans.reduce(
-                    (s, l) => s + l.currentBalance,
-                    0,
-                  );
-                  const now = new Date();
-                  const currentYear = now.getFullYear();
-                  const rateMap: Record<string, number> = {
-                    Retirement: 0.08,
-                    ETF: 0.12,
-                    MutualFund: 0.12,
-                    FixedIncome: 0.07,
-                    Commodity: 0.09,
-                    Crypto: 0.15,
-                    RealEstate: 0.06,
-                    Other: 0.08,
-                  };
-                  return Array.from({ length: 10 }, (_, i) => {
-                    const year = i + 1;
-                    const projectedAssets = ASSET_TYPES.reduce((sum, t) => {
-                      const val = byType[t] ?? 0;
-                      const rate = rateMap[t] ?? 0.08;
-                      return sum + val * (1 + rate) ** year;
-                    }, 0);
-                    return {
-                      year: `${currentYear + year}`,
-                      "Net Worth": Math.round(
-                        projectedAssets - totalLiabilities,
-                      ),
-                    };
-                  });
-                })()}
-                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  opacity={0.15}
-                  vertical={false}
-                />
-                <XAxis dataKey="year" tick={{ fontSize: 10 }} />
-                <YAxis
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(v: number) => shortNum(v, sym, country.code)}
-                  width={52}
-                />
-                <Tooltip
-                  formatter={(v: number) => [
-                    formatCurrency(v),
-                    "Projected Net Worth",
-                  ]}
-                  contentStyle={{
-                    fontSize: "11px",
-                    borderRadius: "10px",
-                    border: "1px solid #e2e8f0",
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="Net Worth"
-                  stroke="#6366f1"
-                  strokeWidth={2.5}
-                  dot={{ fill: "#6366f1", r: 3 }}
-                  activeDot={{ r: 6 }}
-                >
-                  <LabelList
-                    dataKey="Net Worth"
-                    position="top"
-                    style={{ fontSize: "9px", fill: "#6366f1" }}
-                    formatter={(v: number) => shortNum(v, sym, country.code)}
-                  />
-                </Line>
-              </LineChart>
-            </ResponsiveContainer>
+            {(() => {
+              const totalLiabilities = loans.reduce(
+                (s, l) => s + l.currentBalance,
+                0,
+              );
+              const now = new Date();
+              const currentYear = now.getFullYear();
+              const rateMap: Record<string, number> = {
+                Retirement: 0.08,
+                ETF: 0.12,
+                MutualFund: 0.12,
+                FixedIncome: 0.07,
+                Commodity: 0.09,
+                Crypto: 0.15,
+                RealEstate: 0.06,
+                Other: 0.08,
+              };
+              const networthData = Array.from({ length: 10 }, (_, i) => {
+                const year = i + 1;
+                const row: Record<string, number | string> = {
+                  year: `${currentYear + year}`,
+                };
+                let projectedAssets = 0;
+                for (const t of ASSET_TYPES) {
+                  const val = byType[t] ?? 0;
+                  if (val > 0) {
+                    const projected = Math.round(
+                      val * (1 + (rateMap[t] ?? 0.08)) ** year,
+                    );
+                    row[ASSET_CONFIG[t].shortLabel] = projected;
+                    projectedAssets += projected;
+                  }
+                }
+                row["Net Worth"] = Math.round(
+                  projectedAssets - totalLiabilities,
+                );
+                return row;
+              });
+              const activeAssets = ASSET_TYPES.filter(
+                (t) => (byType[t] ?? 0) > 0,
+              );
+              return (
+                <ResponsiveContainer width="100%" height={280}>
+                  <LineChart
+                    data={networthData}
+                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      opacity={0.15}
+                      vertical={false}
+                    />
+                    <XAxis dataKey="year" tick={{ fontSize: 10 }} />
+                    <YAxis
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v: number) =>
+                        shortNum(v, sym, country.code)
+                      }
+                      width={52}
+                    />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (!active || !payload || payload.length === 0)
+                          return null;
+                        const nwEntry = payload.find(
+                          (p) => p.dataKey === "Net Worth",
+                        );
+                        return (
+                          <div className="bg-white border border-slate-200 rounded-xl shadow-lg p-3 text-xs min-w-[180px]">
+                            <p className="font-bold text-slate-700 mb-2">
+                              {label}
+                            </p>
+                            <div className="space-y-1">
+                              {activeAssets.map((t) => {
+                                const entry = payload.find(
+                                  (p) =>
+                                    p.dataKey === ASSET_CONFIG[t].shortLabel,
+                                );
+                                if (!entry) return null;
+                                return (
+                                  <div
+                                    key={t}
+                                    className="flex justify-between gap-3"
+                                  >
+                                    <span
+                                      className="flex items-center gap-1"
+                                      style={{ color: ASSET_CONFIG[t].color }}
+                                    >
+                                      <span
+                                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                        style={{
+                                          background: ASSET_CONFIG[t].color,
+                                        }}
+                                      />
+                                      {ASSET_CONFIG[t].shortLabel}
+                                    </span>
+                                    <span className="font-semibold text-slate-700">
+                                      {shortNum(
+                                        Number(entry.value ?? 0),
+                                        sym,
+                                        country.code,
+                                      )}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                              <div className="border-t border-slate-100 mt-1.5 pt-1.5 flex justify-between gap-3">
+                                <span className="font-bold text-indigo-700">
+                                  Net Worth
+                                </span>
+                                <span className="font-bold text-indigo-700">
+                                  {shortNum(
+                                    Number(nwEntry?.value ?? 0),
+                                    sym,
+                                    country.code,
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    />
+                    {activeAssets.map((t) => (
+                      <Line
+                        key={t}
+                        type="monotone"
+                        dataKey={ASSET_CONFIG[t].shortLabel}
+                        stroke={ASSET_CONFIG[t].color}
+                        strokeWidth={1.5}
+                        strokeDasharray="4 2"
+                        dot={false}
+                      />
+                    ))}
+                    <Line
+                      type="monotone"
+                      dataKey="Net Worth"
+                      stroke="#6366f1"
+                      strokeWidth={2.5}
+                      dot={{ fill: "#6366f1", r: 3 }}
+                      activeDot={{ r: 6 }}
+                    >
+                      <LabelList
+                        dataKey="Net Worth"
+                        position="top"
+                        style={{ fontSize: "9px", fill: "#6366f1" }}
+                        formatter={(v: number) =>
+                          shortNum(v, sym, country.code)
+                        }
+                      />
+                    </Line>
+                  </LineChart>
+                </ResponsiveContainer>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
@@ -1057,25 +1137,22 @@ export default function DashboardPage() {
                           ? ((d.value / avslTotal) * 100).toFixed(1)
                           : "0";
                       return (
-                        <div
-                          key={d.name}
-                          className="flex items-center justify-between gap-1"
-                        >
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <div
-                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                              style={{ background: d.color }}
-                            />
-                            <span className="text-[11px] text-slate-600 truncate">
+                        <div key={d.name} className="flex items-start gap-1.5">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5"
+                            style={{ background: d.color }}
+                          />
+                          <div className="min-w-0">
+                            <span className="text-[11px] text-slate-600 block truncate">
                               {d.name}
                             </span>
-                            <span className="text-[10px] text-slate-500 flex-shrink-0">
+                            <span className="text-[11px] font-bold text-slate-800 tabular-nums">
+                              {formatCurrency(d.value)}
+                            </span>
+                            <span className="text-[10px] text-slate-500 ml-1">
                               {pct}%
                             </span>
                           </div>
-                          <span className="text-[11px] font-bold text-slate-800 flex-shrink-0 tabular-nums">
-                            {formatCurrency(d.value)}
-                          </span>
                         </div>
                       );
                     })}

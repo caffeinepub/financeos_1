@@ -73,10 +73,22 @@ import {
 import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
 
-function shortNum(n: number, sym: string): string {
-  if (n >= 10_000_000) return `${sym}${(n / 10_000_000).toFixed(2)} Cr`;
-  if (n >= 100_000) return `${sym}${(n / 100_000).toFixed(2)}L`;
-  return `${sym}${Math.round(n).toLocaleString("en-IN")}`;
+function shortNum(n: number, sym: string, code = "INR"): string {
+  const abs = Math.abs(n);
+  const sign = n < 0 ? "-" : "";
+  if (code !== "INR") {
+    if (abs >= 1_000_000_000)
+      return `${sign}${sym}${(abs / 1_000_000_000).toFixed(2)}B`;
+    if (abs >= 1_000_000)
+      return `${sign}${sym}${(abs / 1_000_000).toFixed(2)}M`;
+    if (abs >= 1_000) return `${sign}${sym}${(abs / 1_000).toFixed(1)}K`;
+    return `${sign}${sym}${Math.round(abs).toLocaleString()}`;
+  }
+  if (abs >= 10_000_000)
+    return `${sign}${sym}${(abs / 10_000_000).toFixed(2)} Cr`;
+  if (abs >= 100_000) return `${sign}${sym}${(abs / 100_000).toFixed(2)}L`;
+  if (abs >= 1_000) return `${sign}${sym}${(abs / 1_000).toFixed(1)}K`;
+  return `${sign}${sym}${Math.round(abs).toLocaleString("en-IN")}`;
 }
 
 const SLICE_COLORS = [
@@ -182,7 +194,7 @@ const emptyForm = {
   ticker: "",
   assetType: AssetType.Retirement,
   category: "",
-  quantity: 0,
+  quantity: 1,
   buyPrice: 0,
   invested: 0,
   marketPrice: 0,
@@ -1075,6 +1087,7 @@ export default function PortfolioPage() {
                 type="number"
                 value={form.quantity}
                 onChange={(e) => handleQuantityChange(Number(e.target.value))}
+                autoFocus={!!editing}
               />
             </div>
             <div>

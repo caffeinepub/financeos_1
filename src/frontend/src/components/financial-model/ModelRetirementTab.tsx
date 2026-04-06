@@ -397,7 +397,7 @@ function RetirementPlannerContent() {
 }
 
 export function ModelRetirementTab() {
-  const [open, setOpen] = useState<string | null>("retirement");
+  const [open, setOpen] = useState<string | null>(null);
 
   const toggle = (id: string) => setOpen((p) => (p === id ? null : id));
 

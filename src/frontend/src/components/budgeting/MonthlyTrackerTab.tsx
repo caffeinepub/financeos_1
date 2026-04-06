@@ -1144,6 +1144,27 @@ export function MonthlyTrackerTab() {
             </CardContent>
           </Card>
 
+          {analyticsIncome > 0 && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                  📐 50/30/20 Budget Rule Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-5 pb-5">
+                <Budget5030Chart
+                  income={analyticsIncome}
+                  expenses={analyticsExpenses}
+                  needs50={analyticsNeeds50}
+                  wants30={analyticsWants30}
+                  savings20={analyticsSavings20}
+                  savings={analyticsSavings}
+                  savingsRate={analyticsSavingsRate}
+                  formatCurrency={formatCurrency}
+                />
+              </CardContent>
+            </Card>
+          )}
           {/* 1. Monthly Overview — Income vs Expenses */}
           {/* 4. Monthly Overview — Income vs Expenses (Horizontal) */}
           <Card>
@@ -1190,27 +1211,6 @@ export function MonthlyTrackerTab() {
             </CardContent>
           </Card>
 
-          {analyticsIncome > 0 && (
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                  📐 50/30/20 Budget Rule Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-5 pb-5">
-                <Budget5030Chart
-                  income={analyticsIncome}
-                  expenses={analyticsExpenses}
-                  needs50={analyticsNeeds50}
-                  wants30={analyticsWants30}
-                  savings20={analyticsSavings20}
-                  savings={analyticsSavings}
-                  savingsRate={analyticsSavingsRate}
-                  formatCurrency={formatCurrency}
-                />
-              </CardContent>
-            </Card>
-          )}
           {analyticsIncome > 0 && (
             <>
               {/* Monthly Budget Snapshot */}
@@ -1601,100 +1601,98 @@ export function MonthlyTrackerTab() {
               })()}
             </CardContent>
           </Card>
-        </div>
-        {/* 7. Savings Rate Trend */}
-        {/* 3. Savings Rate Trend */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Savings Rate Trend (%)</CardTitle>
-          </CardHeader>
-          <CardContent data-ocid="budgeting.savings_rate.chart">
-            {(() => {
-              const now = new Date();
-              const data = Array.from({ length: 6 }, (_, i) => {
-                const d = new Date(
-                  now.getFullYear(),
-                  now.getMonth() - 5 + i,
-                  1,
-                );
-                const yr = d.getFullYear();
-                const mo = d.getMonth();
-                const label = d.toLocaleDateString("en-IN", {
-                  month: "short",
-                  year: "2-digit",
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Savings Rate Trend (%)</CardTitle>
+            </CardHeader>
+            <CardContent data-ocid="budgeting.savings_rate.chart">
+              {(() => {
+                const now = new Date();
+                const data = Array.from({ length: 6 }, (_, i) => {
+                  const d = new Date(
+                    now.getFullYear(),
+                    now.getMonth() - 5 + i,
+                    1,
+                  );
+                  const yr = d.getFullYear();
+                  const mo = d.getMonth();
+                  const label = d.toLocaleDateString("en-IN", {
+                    month: "short",
+                    year: "2-digit",
+                  });
+                  const income = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Income
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  const expense = transactions
+                    .filter((t) => {
+                      const td = new Date(t.date);
+                      return (
+                        td.getFullYear() === yr &&
+                        td.getMonth() === mo &&
+                        t.transactionType === TransactionType.Expense
+                      );
+                    })
+                    .reduce((s, t) => s + t.amount, 0);
+                  const rate =
+                    income > 0
+                      ? Math.round(((income - expense) / income) * 100)
+                      : 0;
+                  return { month: label, "Savings Rate": rate };
                 });
-                const income = transactions
-                  .filter((t) => {
-                    const td = new Date(t.date);
-                    return (
-                      td.getFullYear() === yr &&
-                      td.getMonth() === mo &&
-                      t.transactionType === TransactionType.Income
-                    );
-                  })
-                  .reduce((s, t) => s + t.amount, 0);
-                const expense = transactions
-                  .filter((t) => {
-                    const td = new Date(t.date);
-                    return (
-                      td.getFullYear() === yr &&
-                      td.getMonth() === mo &&
-                      t.transactionType === TransactionType.Expense
-                    );
-                  })
-                  .reduce((s, t) => s + t.amount, 0);
-                const rate =
-                  income > 0
-                    ? Math.round(((income - expense) / income) * 100)
-                    : 0;
-                return { month: label, "Savings Rate": rate };
-              });
-              return (
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart
-                    data={data}
-                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      opacity={0.15}
-                      vertical={false}
-                    />
-                    <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                    <YAxis
-                      tick={{ fontSize: 10 }}
-                      tickFormatter={(v) => `${v}%`}
-                      width={40}
-                      domain={["auto", "auto"]}
-                    />
-                    <Tooltip
-                      formatter={(v: number) => [`${v}%`, "Savings Rate"]}
-                      contentStyle={{
-                        fontSize: "11px",
-                        borderRadius: "10px",
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="Savings Rate"
-                      stroke="#6366f1"
-                      strokeWidth={2.5}
-                      dot={{ fill: "#6366f1", r: 4 }}
-                      activeDot={{ r: 6 }}
+                return (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <LineChart
+                      data={data}
+                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                     >
-                      <LabelList
-                        dataKey="Savings Rate"
-                        position="top"
-                        style={{ fontSize: "9px", fill: "#6366f1" }}
-                        formatter={(v: number) => `${v}%`}
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        opacity={0.15}
+                        vertical={false}
                       />
-                    </Line>
-                  </LineChart>
-                </ResponsiveContainer>
-              );
-            })()}
-          </CardContent>
-        </Card>
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                      <YAxis
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(v) => `${v}%`}
+                        width={40}
+                        domain={["auto", "auto"]}
+                      />
+                      <Tooltip
+                        formatter={(v: number) => [`${v}%`, "Savings Rate"]}
+                        contentStyle={{
+                          fontSize: "11px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="Savings Rate"
+                        stroke="#6366f1"
+                        strokeWidth={2.5}
+                        dot={{ fill: "#6366f1", r: 4 }}
+                        activeDot={{ r: 6 }}
+                      >
+                        <LabelList
+                          dataKey="Savings Rate"
+                          position="top"
+                          style={{ fontSize: "9px", fill: "#6366f1" }}
+                          formatter={(v: number) => `${v}%`}
+                        />
+                      </Line>
+                    </LineChart>
+                  </ResponsiveContainer>
+                );
+              })()}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

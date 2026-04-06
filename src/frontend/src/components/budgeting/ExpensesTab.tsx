@@ -158,12 +158,21 @@ export function ExpensesTab() {
     setSaving(true);
     try {
       if (editing) {
-        await actor.updateTransaction(editing.id, { id: editing.id, ...form });
+        const updated = { id: editing.id, ...form };
+        await actor.updateTransaction(editing.id, updated);
+        // Optimistic update: replace in local state without refetch
+        setTransactions((prev) =>
+          prev.map((t) => (t.id === editing.id ? updated : t)),
+        );
       } else {
-        await actor.createTransaction({ id: crypto.randomUUID(), ...form });
+        const newTx = { id: crypto.randomUUID(), ...form };
+        await actor.createTransaction(newTx);
+        // Optimistic update: prepend to local state (newest first) without refetch
+        setTransactions((prev) =>
+          [newTx, ...prev].sort((a, b) => b.date.localeCompare(a.date)),
+        );
       }
       setOpen(false);
-      load();
     } finally {
       setSaving(false);
     }
@@ -171,8 +180,9 @@ export function ExpensesTab() {
 
   const del = async (id: string) => {
     if (!actor) return;
+    // Optimistic update: remove from local state without refetch
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
     await actor.deleteTransaction(id);
-    load();
   };
 
   const filtered = transactions.filter((t) => {

@@ -319,14 +319,6 @@ export function ModelDebtTab({
     ];
     return (
       <div className="space-y-3 animate-fade-in">
-        <div className="flex items-center gap-3 px-1 mb-4">
-          <TrendingDown className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-              Debt Management &amp; Repayment Model
-            </h3>
-          </div>
-        </div>
         {SCENARIOS.map((s, idx) => {
           const accentColor =
             SCENARIO_COLORS_DEBT[idx % SCENARIO_COLORS_DEBT.length];

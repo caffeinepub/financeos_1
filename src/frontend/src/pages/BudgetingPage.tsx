@@ -515,8 +515,8 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="px-5 pb-4 pt-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <CardContent className="px-5 pb-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {NEEDS_CATEGORIES.map((cat) => (
               <div key={cat.key} className="flex items-center gap-2">
                 <span className="text-xs text-slate-600 min-w-[140px] flex-shrink-0">
@@ -561,8 +561,8 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="px-5 pb-4 pt-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <CardContent className="px-5 pb-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {WANTS_CATEGORIES.map((cat) => (
               <div key={cat.key} className="flex items-center gap-2">
                 <span className="text-xs text-slate-600 min-w-[140px] flex-shrink-0">
@@ -607,8 +607,8 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="px-5 pb-4 pt-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <CardContent className="px-5 pb-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {SAVINGS_CATEGORIES.map((cat) => (
               <div key={cat.key} className="flex items-center gap-2">
                 <span className="text-xs text-slate-600 min-w-[140px] flex-shrink-0">
@@ -636,189 +636,6 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
               {formatCurrency(totalSavings)}
             </span>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Summary */}
-      <Card className="rounded-2xl border border-slate-100 shadow-sm">
-        <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-slate-50 to-slate-100 rounded-t-2xl">
-          <CardTitle className="text-sm font-bold text-slate-800">
-            📊 50/30/20 Analysis Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="px-5 pb-5 pt-3 space-y-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5 text-center shadow-sm">
-              <p className="text-[11px] text-slate-400 font-medium mb-0.5">
-                Income
-              </p>
-              <p className="text-sm font-bold text-emerald-700">
-                {formatCurrency(income)}
-              </p>
-            </div>
-            <div
-              className={`rounded-xl border px-3 py-2.5 text-center shadow-sm ${needsPct <= 50 ? "border-blue-100 bg-blue-50" : "border-red-100 bg-red-50"}`}
-            >
-              <p className="text-[11px] text-slate-400 font-medium mb-0.5">
-                Needs
-              </p>
-              <p
-                className={`text-sm font-bold ${needsPct <= 50 ? "text-blue-700" : "text-red-600"}`}
-              >
-                {needsPct.toFixed(1)}%{" "}
-                <span className="text-xs font-normal">(target 50%)</span>
-              </p>
-            </div>
-            <div
-              className={`rounded-xl border px-3 py-2.5 text-center shadow-sm ${wantsPct <= 30 ? "border-amber-100 bg-amber-50" : "border-red-100 bg-red-50"}`}
-            >
-              <p className="text-[11px] text-slate-400 font-medium mb-0.5">
-                Wants
-              </p>
-              <p
-                className={`text-sm font-bold ${wantsPct <= 30 ? "text-amber-700" : "text-red-600"}`}
-              >
-                {wantsPct.toFixed(1)}%{" "}
-                <span className="text-xs font-normal">(target 30%)</span>
-              </p>
-            </div>
-            <div
-              className={`rounded-xl border px-3 py-2.5 text-center shadow-sm ${savingsPct >= 20 ? "border-emerald-100 bg-emerald-50" : "border-amber-100 bg-amber-50"}`}
-            >
-              <p className="text-[11px] text-slate-400 font-medium mb-0.5">
-                Savings
-              </p>
-              <p
-                className={`text-sm font-bold ${savingsPct >= 20 ? "text-emerald-700" : "text-amber-600"}`}
-              >
-                {savingsPct.toFixed(1)}%{" "}
-                <span className="text-xs font-normal">(target 20%)</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Ideal vs Actual */}
-          <div className="overflow-x-auto rounded-xl border border-slate-100">
-            <table className="w-full text-xs">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="text-left p-2.5 font-semibold text-slate-600">
-                    Category
-                  </th>
-                  <th className="text-right p-2.5 font-semibold text-slate-600">
-                    Ideal %
-                  </th>
-                  <th className="text-right p-2.5 font-semibold text-slate-600">
-                    Actual %
-                  </th>
-                  <th className="text-right p-2.5 font-semibold text-slate-600">
-                    Ideal Amount
-                  </th>
-                  <th className="text-right p-2.5 font-semibold text-slate-600">
-                    Actual Amount
-                  </th>
-                  <th className="text-right p-2.5 font-semibold text-slate-600">
-                    Variance
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  {
-                    name: "Needs",
-                    ideal: 50,
-                    actual: needsPct,
-                    actualAmt: totalNeeds,
-                  },
-                  {
-                    name: "Wants",
-                    ideal: 30,
-                    actual: wantsPct,
-                    actualAmt: totalWants,
-                  },
-                  {
-                    name: "Savings",
-                    ideal: 20,
-                    actual: savingsPct,
-                    actualAmt: totalSavings,
-                  },
-                ].map((row) => {
-                  const idealAmt = (income * row.ideal) / 100;
-                  const variance = row.actualAmt - idealAmt;
-                  return (
-                    <tr key={row.name} className="border-t border-slate-50">
-                      <td className="p-2.5 font-medium text-slate-700">
-                        {row.name}
-                      </td>
-                      <td className="p-2.5 text-right text-slate-500">
-                        {row.ideal}%
-                      </td>
-                      <td
-                        className={`p-2.5 text-right font-semibold ${Math.abs(row.actual - row.ideal) <= 5 ? "text-emerald-600" : "text-amber-600"}`}
-                      >
-                        {row.actual.toFixed(1)}%
-                      </td>
-                      <td className="p-2.5 text-right text-slate-600">
-                        {formatCurrency(idealAmt)}
-                      </td>
-                      <td className="p-2.5 text-right text-slate-700 font-medium">
-                        {formatCurrency(row.actualAmt)}
-                      </td>
-                      <td
-                        className={`p-2.5 text-right font-semibold ${variance <= 0 ? "text-emerald-600" : "text-red-500"}`}
-                      >
-                        {variance > 0 ? "+" : ""}
-                        {formatCurrency(variance)}
-                      </td>
-                    </tr>
-                  );
-                })}
-                <tr className="border-t-2 border-slate-200 bg-slate-50">
-                  <td className="p-2.5 font-bold text-slate-800">Total</td>
-                  <td className="p-2.5 text-right text-slate-500">100%</td>
-                  <td className="p-2.5 text-right font-bold text-slate-700">
-                    {(needsPct + wantsPct + savingsPct).toFixed(1)}%
-                  </td>
-                  <td className="p-2.5 text-right text-slate-600">
-                    {formatCurrency(income)}
-                  </td>
-                  <td className="p-2.5 text-right font-bold text-slate-800">
-                    {formatCurrency(totalExpenses)}
-                  </td>
-                  <td
-                    className={`p-2.5 text-right font-bold ${surplus >= 0 ? "text-emerald-600" : "text-red-600"}`}
-                  >
-                    {surplus >= 0 ? "Surplus " : "Deficit "}
-                    {formatCurrency(Math.abs(surplus))}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {surplus < 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-              <p className="text-xs font-semibold text-red-800">
-                ⚠️ Budget Deficit of {formatCurrency(Math.abs(surplus))}
-              </p>
-              <p className="text-xs text-red-600 mt-0.5">
-                Your expenses exceed income. Consider reducing Wants categories
-                or finding additional income sources.
-              </p>
-            </div>
-          )}
-          {surplus >= 0 && savingsPct >= 20 && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
-              <p className="text-xs font-semibold text-emerald-800">
-                ✅ On Track with 50/30/20 Rule
-              </p>
-              <p className="text-xs text-emerald-700 mt-0.5">
-                You have a surplus of {formatCurrency(surplus)} and are saving{" "}
-                {savingsPct.toFixed(1)}% of income. Consider investing the
-                surplus for wealth creation.
-              </p>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -913,6 +730,246 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
 
       {analysed && (
         <div className="space-y-4">
+          {/* 4 Summary Metric Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="rounded-xl bg-white border border-slate-200 border-l-4 border-l-emerald-500 px-3 py-2.5 shadow-sm">
+              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">
+                Monthly Income
+              </p>
+              <p className="text-sm font-bold text-emerald-700">
+                {formatCurrency(income)}
+              </p>
+              <p className="text-[9px] text-slate-400 mt-0.5">Actual</p>
+            </div>
+            <div
+              className={`rounded-xl bg-white border border-l-4 px-3 py-2.5 shadow-sm ${needsPct <= 50 ? "border-blue-200 border-l-blue-500" : "border-red-200 border-l-red-500"}`}
+            >
+              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">
+                Needs (50% ideal)
+              </p>
+              <p
+                className={`text-sm font-bold ${needsPct <= 50 ? "text-blue-700" : "text-red-600"}`}
+              >
+                {formatCurrency(totalNeeds)}
+              </p>
+              <p className="text-[9px] text-slate-400 mt-0.5">
+                Ideal: {formatCurrency(income * 0.5)}
+              </p>
+            </div>
+            <div
+              className={`rounded-xl bg-white border border-l-4 px-3 py-2.5 shadow-sm ${wantsPct <= 30 ? "border-amber-200 border-l-amber-500" : "border-red-200 border-l-red-500"}`}
+            >
+              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">
+                Wants (30% ideal)
+              </p>
+              <p
+                className={`text-sm font-bold ${wantsPct <= 30 ? "text-amber-700" : "text-red-600"}`}
+              >
+                {formatCurrency(totalWants)}
+              </p>
+              <p className="text-[9px] text-slate-400 mt-0.5">
+                Ideal: {formatCurrency(income * 0.3)}
+              </p>
+            </div>
+            <div
+              className={`rounded-xl bg-white border border-l-4 px-3 py-2.5 shadow-sm ${savingsPct >= 20 ? "border-violet-200 border-l-violet-500" : "border-amber-200 border-l-amber-500"}`}
+            >
+              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wide mb-0.5">
+                Savings Rate
+              </p>
+              <p
+                className={`text-sm font-bold ${savingsPct >= 20 ? "text-violet-700" : "text-amber-600"}`}
+              >
+                {savingsPct.toFixed(1)}%
+              </p>
+              <p className="text-[9px] text-slate-400 mt-0.5">Ideal: 20%</p>
+            </div>
+          </div>
+
+          {/* 50/30/20 Summary Table */}
+          {/* Summary */}
+          <Card className="rounded-2xl border border-slate-100 shadow-sm">
+            <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-slate-50 to-slate-100 rounded-t-2xl">
+              <CardTitle className="text-sm font-bold text-slate-800">
+                📊 50/30/20 Analysis Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-5 pt-3 space-y-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="rounded-xl border border-slate-100 bg-white px-3 py-2.5 text-center shadow-sm">
+                  <p className="text-[11px] text-slate-400 font-medium mb-0.5">
+                    Income
+                  </p>
+                  <p className="text-sm font-bold text-emerald-700">
+                    {formatCurrency(income)}
+                  </p>
+                </div>
+                <div
+                  className={`rounded-xl border px-3 py-2.5 text-center shadow-sm ${needsPct <= 50 ? "border-blue-100 bg-blue-50" : "border-red-100 bg-red-50"}`}
+                >
+                  <p className="text-[11px] text-slate-400 font-medium mb-0.5">
+                    Needs
+                  </p>
+                  <p
+                    className={`text-sm font-bold ${needsPct <= 50 ? "text-blue-700" : "text-red-600"}`}
+                  >
+                    {needsPct.toFixed(1)}%{" "}
+                    <span className="text-xs font-normal">(target 50%)</span>
+                  </p>
+                </div>
+                <div
+                  className={`rounded-xl border px-3 py-2.5 text-center shadow-sm ${wantsPct <= 30 ? "border-amber-100 bg-amber-50" : "border-red-100 bg-red-50"}`}
+                >
+                  <p className="text-[11px] text-slate-400 font-medium mb-0.5">
+                    Wants
+                  </p>
+                  <p
+                    className={`text-sm font-bold ${wantsPct <= 30 ? "text-amber-700" : "text-red-600"}`}
+                  >
+                    {wantsPct.toFixed(1)}%{" "}
+                    <span className="text-xs font-normal">(target 30%)</span>
+                  </p>
+                </div>
+                <div
+                  className={`rounded-xl border px-3 py-2.5 text-center shadow-sm ${savingsPct >= 20 ? "border-emerald-100 bg-emerald-50" : "border-amber-100 bg-amber-50"}`}
+                >
+                  <p className="text-[11px] text-slate-400 font-medium mb-0.5">
+                    Savings
+                  </p>
+                  <p
+                    className={`text-sm font-bold ${savingsPct >= 20 ? "text-emerald-700" : "text-amber-600"}`}
+                  >
+                    {savingsPct.toFixed(1)}%{" "}
+                    <span className="text-xs font-normal">(target 20%)</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Ideal vs Actual */}
+              <div className="overflow-x-auto rounded-xl border border-slate-100">
+                <table className="w-full text-xs">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="text-left p-2.5 font-semibold text-slate-600">
+                        Category
+                      </th>
+                      <th className="text-right p-2.5 font-semibold text-slate-600">
+                        Ideal %
+                      </th>
+                      <th className="text-right p-2.5 font-semibold text-slate-600">
+                        Actual %
+                      </th>
+                      <th className="text-right p-2.5 font-semibold text-slate-600">
+                        Ideal Amount
+                      </th>
+                      <th className="text-right p-2.5 font-semibold text-slate-600">
+                        Actual Amount
+                      </th>
+                      <th className="text-right p-2.5 font-semibold text-slate-600">
+                        Variance
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      {
+                        name: "Needs",
+                        ideal: 50,
+                        actual: needsPct,
+                        actualAmt: totalNeeds,
+                      },
+                      {
+                        name: "Wants",
+                        ideal: 30,
+                        actual: wantsPct,
+                        actualAmt: totalWants,
+                      },
+                      {
+                        name: "Savings",
+                        ideal: 20,
+                        actual: savingsPct,
+                        actualAmt: totalSavings,
+                      },
+                    ].map((row) => {
+                      const idealAmt = (income * row.ideal) / 100;
+                      const variance = row.actualAmt - idealAmt;
+                      return (
+                        <tr key={row.name} className="border-t border-slate-50">
+                          <td className="p-2.5 font-medium text-slate-700">
+                            {row.name}
+                          </td>
+                          <td className="p-2.5 text-right text-slate-500">
+                            {row.ideal}%
+                          </td>
+                          <td
+                            className={`p-2.5 text-right font-semibold ${Math.abs(row.actual - row.ideal) <= 5 ? "text-emerald-600" : "text-amber-600"}`}
+                          >
+                            {row.actual.toFixed(1)}%
+                          </td>
+                          <td className="p-2.5 text-right text-slate-600">
+                            {formatCurrency(idealAmt)}
+                          </td>
+                          <td className="p-2.5 text-right text-slate-700 font-medium">
+                            {formatCurrency(row.actualAmt)}
+                          </td>
+                          <td
+                            className={`p-2.5 text-right font-semibold ${variance <= 0 ? "text-emerald-600" : "text-red-500"}`}
+                          >
+                            {variance > 0 ? "+" : ""}
+                            {formatCurrency(variance)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    <tr className="border-t-2 border-slate-200 bg-slate-50">
+                      <td className="p-2.5 font-bold text-slate-800">Total</td>
+                      <td className="p-2.5 text-right text-slate-500">100%</td>
+                      <td className="p-2.5 text-right font-bold text-slate-700">
+                        {(needsPct + wantsPct + savingsPct).toFixed(1)}%
+                      </td>
+                      <td className="p-2.5 text-right text-slate-600">
+                        {formatCurrency(income)}
+                      </td>
+                      <td className="p-2.5 text-right font-bold text-slate-800">
+                        {formatCurrency(totalExpenses)}
+                      </td>
+                      <td
+                        className={`p-2.5 text-right font-bold ${surplus >= 0 ? "text-emerald-600" : "text-red-600"}`}
+                      >
+                        {surplus >= 0 ? "Surplus " : "Deficit "}
+                        {formatCurrency(Math.abs(surplus))}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {surplus < 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+                  <p className="text-xs font-semibold text-red-800">
+                    ⚠️ Budget Deficit of {formatCurrency(Math.abs(surplus))}
+                  </p>
+                  <p className="text-xs text-red-600 mt-0.5">
+                    Your expenses exceed income. Consider reducing Wants
+                    categories or finding additional income sources.
+                  </p>
+                </div>
+              )}
+              {surplus >= 0 && savingsPct >= 20 && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+                  <p className="text-xs font-semibold text-emerald-800">
+                    ✅ On Track with 50/30/20 Rule
+                  </p>
+                  <p className="text-xs text-emerald-700 mt-0.5">
+                    You have a surplus of {formatCurrency(surplus)} and are
+                    saving {savingsPct.toFixed(1)}% of income. Consider
+                    investing the surplus for wealth creation.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Top Money Leakage Areas */}
           <Card className="rounded-2xl border border-red-100 shadow-sm">
             <CardHeader className="pb-2 pt-4 px-5 bg-gradient-to-r from-red-50 to-orange-50 rounded-t-2xl">
@@ -983,23 +1040,25 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
                   );
                 }
                 return (
-                  <div className="space-y-3">
-                    {leaks.slice(0, 3).map((leak, i) => (
-                      <div key={leak.area} className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-full bg-red-100 text-red-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                          {i + 1}
-                        </span>
-                        <div>
-                          <p className="text-xs font-semibold text-red-700">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {leaks.slice(0, 4).map((leak) => (
+                      <div
+                        key={leak.area}
+                        className="rounded-xl border border-red-200 bg-red-50 p-3"
+                      >
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-base">🚨</span>
+                          <p className="text-xs font-bold text-red-800">
                             {leak.area}
                           </p>
-                          <p className="text-[11px] text-slate-600 mt-0.5">
-                            {leak.message}
-                          </p>
-                          <p className="text-[10px] text-emerald-600 mt-0.5 font-medium">
-                            Potential savings: {formatCurrency(leak.saving)}/mo
-                          </p>
                         </div>
+                        <p className="text-[11px] text-red-700">
+                          {leak.message}
+                        </p>
+                        <p className="text-[10px] text-emerald-700 mt-1.5 font-semibold">
+                          💡 Save {formatCurrency(leak.saving)}/mo by reducing
+                          this
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -1743,7 +1802,7 @@ export default function BudgetingPage() {
             {/* Autofill bar */}
             <div className="flex flex-wrap items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm">
               <span className="text-xs font-semibold text-slate-600 mr-1">
-                Autofill from Tracker:
+                Select Month/Year:
               </span>
               <select
                 className="h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
@@ -1789,17 +1848,15 @@ export default function BudgetingPage() {
                 onClick={handleAutofill}
                 className="h-8 px-3 rounded-md bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
               >
-                Autofill from Tracker
+                Load Income and Expense
               </button>
-              {autofillData && (
-                <button
-                  type="button"
-                  onClick={() => setAutofillData(null)}
-                  className="text-xs text-slate-400 hover:text-slate-600 underline"
-                >
-                  Clear
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setAutofillData(null)}
+                className="text-xs text-blue-500 hover:text-blue-700 underline ml-1"
+              >
+                Clear
+              </button>
             </div>
             <ImproveBudgetContent autofillData={autofillData} />
           </div>

@@ -1,5 +1,11 @@
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import Layout from "./components/Layout";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -45,12 +51,31 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * WellKnownGuard — rendered for any path matching /.well-known/*
+ * It does nothing in React and lets the IC asset canister serve the
+ * file directly. If JavaScript somehow reaches here (e.g. client-side
+ * navigation), we redirect to the raw URL so the browser fetches it
+ * as a plain HTTP request, bypassing the SPA entirely.
+ */
+function WellKnownPassthrough() {
+  const { pathname } = useLocation();
+  // Force a hard browser navigation so the asset canister serves the file
+  window.location.replace(pathname);
+  return null;
+}
+
 export default function App() {
   return (
     <ThemeProvider>
       <CurrencyProvider>
         <BrowserRouter>
           <Routes>
+            {/* Explicit exclusion: /.well-known/* must never be handled by React Router.
+                The IC asset canister serves these files directly from the public directory.
+                This route exists only as a safety net for client-side navigations. */}
+            <Route path="/.well-known/*" element={<WellKnownPassthrough />} />
+
             {/* Public routes — always loaded, no lazy */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />

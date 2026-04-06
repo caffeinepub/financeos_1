@@ -1,4 +1,19 @@
 [
-  {"match": ".well-known/ic-domains", "ignore": false, "headers": {"Content-Type": "text/plain", "Access-Control-Allow-Origin": "*"}},
-  {"match": ".well-known/ii-alternative-origins", "ignore": false, "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}}
+  {
+    "match": ".well-known/ic-domains",
+    "ignore": false,
+    "headers": {
+      "Content-Type": "text/plain",
+      "Cache-Control": "public, max-age=3600",
+      "Access-Control-Allow-Origin": "*"
+    }
+  },
+  {
+    "match": ".well-known/ii-alternative-origins",
+    "ignore": false,
+    "headers": {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*"
+    }
+  }
 ]

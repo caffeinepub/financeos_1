@@ -155,9 +155,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       if (p) setProfile(p);
       setBlockedStatus(blocked as { blocked: boolean; reason: string });
     });
-    // Bootstrap admin then check - sequential to ensure admin is seeded first
+    // Bootstrap admin (seeds principal on first login) then confirm via isCallerAdmin
     actor
       .bootstrapAdmin()
+      .catch(() => false)
+      .then(() => actor.isCallerAdmin())
       .then((a) => setIsAdmin(!!a))
       .catch(() => setIsAdmin(false));
   }, [actor, isFetching]);

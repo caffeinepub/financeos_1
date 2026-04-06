@@ -1,21 +1,32 @@
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
-import AdminPage from "./pages/AdminPage";
-import BudgetingPage from "./pages/BudgetingPage";
-import DashboardPage from "./pages/DashboardPage";
-import FinancialModelPage from "./pages/FinancialModelPage";
-import FinancialPlannerPage from "./pages/FinancialPlannerPage";
-import FinancialRulesPage from "./pages/FinancialRulesPage";
-import GoalsPage from "./pages/GoalsPage";
-import HelpPage from "./pages/HelpPage";
 import LandingPage from "./pages/LandingPage";
-import LoansPage from "./pages/LoansPage";
 import LoginPage from "./pages/LoginPage";
-import PortfolioPage from "./pages/PortfolioPage";
-import TradeJournalPage from "./pages/TradeJournalPage";
+
+// Lazy-load all page-level modules so their code is only downloaded when needed
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const GoalsPage = lazy(() => import("./pages/GoalsPage"));
+const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
+const BudgetingPage = lazy(() => import("./pages/BudgetingPage"));
+const FinancialModelPage = lazy(() => import("./pages/FinancialModelPage"));
+const FinancialPlannerPage = lazy(() => import("./pages/FinancialPlannerPage"));
+const FinancialRulesPage = lazy(() => import("./pages/FinancialRulesPage"));
+const LoansPage = lazy(() => import("./pages/LoansPage"));
+const TradeJournalPage = lazy(() => import("./pages/TradeJournalPage"));
+const HelpPage = lazy(() => import("./pages/HelpPage"));
+const AdminPage = lazy(() => import("./pages/AdminPage"));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+    </div>
+  );
+}
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { identity, isInitializing } = useInternetIdentity();
@@ -40,54 +51,56 @@ export default function App() {
       <CurrencyProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
+            {/* Public routes — always loaded, no lazy */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
 
-            {/* Protected app routes */}
+            {/* Protected app routes — lazy-loaded per module */}
             <Route
               path="*"
               element={
                 <AuthGuard>
                   <Layout>
-                    <Routes>
-                      <Route path="/dashboard" element={<DashboardPage />} />
-                      <Route path="/goals" element={<GoalsPage />} />
-                      <Route
-                        path="/portfolio"
-                        element={
-                          <Navigate to="/portfolio/Retirement" replace />
-                        }
-                      />
-                      <Route
-                        path="/portfolio/:assetType"
-                        element={<PortfolioPage />}
-                      />
-                      <Route path="/budgeting" element={<BudgetingPage />} />
-                      <Route
-                        path="/financial-model"
-                        element={<FinancialModelPage />}
-                      />
-                      <Route
-                        path="/financial-planner"
-                        element={<FinancialPlannerPage />}
-                      />
-                      <Route
-                        path="/financial-rules"
-                        element={<FinancialRulesPage />}
-                      />
-                      <Route path="/loans" element={<LoansPage />} />
-                      <Route
-                        path="/trade-journal"
-                        element={<TradeJournalPage />}
-                      />
-                      <Route path="/help" element={<HelpPage />} />
-                      <Route path="/admin" element={<AdminPage />} />
-                      <Route
-                        path="*"
-                        element={<Navigate to="/dashboard" replace />}
-                      />
-                    </Routes>
+                    <Suspense fallback={<PageLoader />}>
+                      <Routes>
+                        <Route path="/dashboard" element={<DashboardPage />} />
+                        <Route path="/goals" element={<GoalsPage />} />
+                        <Route
+                          path="/portfolio"
+                          element={
+                            <Navigate to="/portfolio/Retirement" replace />
+                          }
+                        />
+                        <Route
+                          path="/portfolio/:assetType"
+                          element={<PortfolioPage />}
+                        />
+                        <Route path="/budgeting" element={<BudgetingPage />} />
+                        <Route
+                          path="/financial-model"
+                          element={<FinancialModelPage />}
+                        />
+                        <Route
+                          path="/financial-planner"
+                          element={<FinancialPlannerPage />}
+                        />
+                        <Route
+                          path="/financial-rules"
+                          element={<FinancialRulesPage />}
+                        />
+                        <Route path="/loans" element={<LoansPage />} />
+                        <Route
+                          path="/trade-journal"
+                          element={<TradeJournalPage />}
+                        />
+                        <Route path="/help" element={<HelpPage />} />
+                        <Route path="/admin" element={<AdminPage />} />
+                        <Route
+                          path="*"
+                          element={<Navigate to="/dashboard" replace />}
+                        />
+                      </Routes>
+                    </Suspense>
                   </Layout>
                 </AuthGuard>
               }

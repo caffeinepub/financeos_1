@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, LayoutDashboard } from "lucide-react";
 import type React from "react";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -230,7 +230,7 @@ function GoalCard({
   );
 }
 
-function GoalsProgressList({
+const GoalsProgressList = memo(function GoalsProgressList({
   goals,
   formatCurrency,
 }: { goals: any[]; formatCurrency: (n: number) => string }) {
@@ -283,10 +283,10 @@ function GoalsProgressList({
       )}
     </div>
   );
-}
+});
 
 // ─── Risk-o-Meter Component ───────────────────────────────────────────────────
-function RiskOMeter({ score }: { score: number }) {
+const RiskOMeter = memo(function RiskOMeter({ score }: { score: number }) {
   const LEVELS = [
     { label: "Low Risk", color: "#08A04B", min: 0, max: 25 },
     { label: "Low-Mod", color: "#7FFF00", min: 25, max: 35 },
@@ -425,7 +425,7 @@ function RiskOMeter({ score }: { score: number }) {
       </p>
     </div>
   );
-}
+});
 
 export default function DashboardPage() {
   const { actor, isFetching } = useActor();
@@ -435,7 +435,8 @@ export default function DashboardPage() {
   const { data: holdings = [], isLoading: hLoad } = useQuery<
     PortfolioHolding[]
   >({
-    queryKey: ["dashboard", "holdings"],
+    queryKey: ["portfolio", "all"],
+    staleTime: 90_000,
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllPortfolioHoldings();
@@ -445,7 +446,8 @@ export default function DashboardPage() {
 
   const { data: transactions = [], isLoading: tLoad } = useQuery<Transaction[]>(
     {
-      queryKey: ["dashboard", "transactions"],
+      queryKey: ["transactions"],
+      staleTime: 90_000,
       queryFn: async () => {
         if (!actor) return [];
         return actor.getAllTransactions();
@@ -457,7 +459,8 @@ export default function DashboardPage() {
   const { data: budgetCats = [], isLoading: bLoad } = useQuery<
     BudgetCategory[]
   >({
-    queryKey: ["dashboard", "budgetCats"],
+    queryKey: ["budgetCategories"],
+    staleTime: 90_000,
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllBudgetCategories();
@@ -469,7 +472,8 @@ export default function DashboardPage() {
   const { data: allInvestments = [] } = useGetAllInvestmentsByCategory();
 
   const { data: loans = [] } = useQuery<Loan[]>({
-    queryKey: ["dashboard", "loans"],
+    queryKey: ["loans"],
+    staleTime: 90_000,
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllLoans();

@@ -182,10 +182,13 @@ export function useDeleteGoal() {
 
 // ---- Investment hooks (from Portfolio) ----
 
+// All usePortfolioByType hooks share the same base query key ["portfolio", "all"]
+// so only ONE backend call is made regardless of how many asset types are rendered.
+// Each hook filters client-side from the shared cache.
 function usePortfolioByType(assetType: AssetType) {
   const { actor } = useActor();
   return useQuery<Investment[]>({
-    queryKey: ["portfolio", assetType],
+    queryKey: ["portfolio", "all", assetType],
     queryFn: async () => {
       if (!actor) throw new Error("No actor");
       const holdings = await actor.getAllPortfolioHoldings();

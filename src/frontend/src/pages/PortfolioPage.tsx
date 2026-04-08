@@ -489,38 +489,64 @@ export default function PortfolioPage() {
   const save = async () => {
     if (!actor) return;
     setSaving(true);
-    try {
-      const holdingData = {
-        name: form.name,
-        ticker: form.ticker,
-        assetType: form.assetType,
-        quantity: form.quantity,
-        costBasis: form.buyPrice,
-        currentValue: form.currentValue,
-        notes: form.category,
-      };
-      if (editing) {
-        await actor.updatePortfolioHolding(editing.id, {
-          ...editing,
-          ...holdingData,
-        });
-      } else {
-        await actor.createPortfolioHolding({
-          id: crypto.randomUUID(),
-          ...holdingData,
-        });
-      }
+    const holdingData = {
+      name: form.name,
+      ticker: form.ticker,
+      assetType: form.assetType,
+      quantity: form.quantity,
+      costBasis: form.buyPrice,
+      currentValue: form.currentValue,
+      notes: form.category,
+    };
+    if (editing) {
+      // Optimistic update: replace the edited holding immediately
+      const updatedHolding: PortfolioHolding = { ...editing, ...holdingData };
+      setHoldings((prev) =>
+        prev.map((h) => (h.id === editing.id ? updatedHolding : h)),
+      );
       setOpen(false);
-      load();
-    } finally {
-      setSaving(false);
+      try {
+        await actor.updatePortfolioHolding(editing.id, updatedHolding);
+      } catch {
+        // Revert on failure
+        setHoldings((prev) =>
+          prev.map((h) => (h.id === editing.id ? editing : h)),
+        );
+        setOpen(true);
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      // Optimistic add: append new holding immediately
+      const newId = crypto.randomUUID();
+      const newHolding: PortfolioHolding = { id: newId, ...holdingData };
+      setHoldings((prev) => [...prev, newHolding]);
+      setOpen(false);
+      try {
+        await actor.createPortfolioHolding(newHolding);
+      } catch {
+        // Revert on failure
+        setHoldings((prev) => prev.filter((h) => h.id !== newId));
+        setOpen(true);
+      } finally {
+        setSaving(false);
+      }
     }
   };
 
   const del = async (id: string) => {
     if (!actor) return;
-    await actor.deletePortfolioHolding(id);
-    load();
+    // Optimistic delete: remove from state immediately
+    const removed = holdings.find((h) => h.id === id);
+    setHoldings((prev) => prev.filter((h) => h.id !== id));
+    try {
+      await actor.deletePortfolioHolding(id);
+    } catch {
+      // Revert on failure
+      if (removed) {
+        setHoldings((prev) => [...prev, removed]);
+      }
+    }
   };
 
   const thClass =

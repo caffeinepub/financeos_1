@@ -6,7 +6,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -151,7 +151,23 @@ const emptyTx: Omit<Transaction, "id"> = {
   amount: 0,
 };
 
-export function MonthlyTrackerTab() {
+interface MonthlyTrackerTabProps {
+  categories: BudgetCategory[];
+  transactions: Transaction[];
+  loading: boolean;
+  onAddTransaction: (tx: Transaction) => void;
+  onUpdateTransaction: (tx: Transaction) => void;
+  onDeleteTransaction: (id: string) => void;
+}
+
+export function MonthlyTrackerTab({
+  categories,
+  transactions,
+  loading,
+  onAddTransaction,
+  onUpdateTransaction,
+  onDeleteTransaction,
+}: MonthlyTrackerTabProps) {
   const { country, formatCurrency } = useCurrency();
   const sym = country.symbol;
   const { actor } = useActor();
@@ -163,10 +179,6 @@ export function MonthlyTrackerTab() {
     now.getFullYear(),
   );
   const [showAllBudget, setShowAllBudget] = useState(false);
-
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<BudgetCategory[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
@@ -229,20 +241,6 @@ export function MonthlyTrackerTab() {
   // Recompute when month/year changes (trigger re-render by accessing monthKey in render)
   const [, forceUpdate] = useState(0);
   const refreshPlanned = () => forceUpdate((n) => n + 1);
-
-  const load = () => {
-    if (!actor) return;
-    setLoading(true);
-    Promise.all([actor.getAllTransactions(), actor.getAllBudgetCategories()])
-      .then(([txns, cats]) => {
-        setTransactions(txns);
-        setCategories(cats);
-      })
-      .finally(() => setLoading(false));
-  };
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: load is stable
-  useEffect(load, [actor]);
 
   const monthTxns = useMemo(() => {
     return transactions.filter((t) => {
@@ -440,13 +438,11 @@ export function MonthlyTrackerTab() {
       if (editingTx) {
         const updated = { ...editingTx, ...form };
         await actor.updateTransaction(editingTx.id, updated);
-        setTransactions((prev) =>
-          prev.map((t) => (t.id === editingTx.id ? updated : t)),
-        );
+        onUpdateTransaction(updated);
       } else {
         const newTx = { id: crypto.randomUUID(), ...form };
         await actor.createTransaction(newTx);
-        setTransactions((prev) => [...prev, newTx]);
+        onAddTransaction(newTx);
       }
       setDialogOpen(false);
     } finally {
@@ -456,8 +452,8 @@ export function MonthlyTrackerTab() {
 
   const _del = async (id: string) => {
     if (!actor) return;
+    onDeleteTransaction(id);
     await actor.deleteTransaction(id);
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
 
   const yearRange = Array.from(

@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useCurrency } from "../../contexts/CurrencyContext";
-import { useActor } from "../../hooks/useActor";
 import {
   type BudgetCategory,
   type Transaction,
@@ -10,16 +9,22 @@ import { Badge } from "../ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 
-export function AnalyseTab() {
-  const { actor } = useActor();
+interface AnalyseTabProps {
+  categories: BudgetCategory[];
+  transactions: Transaction[];
+  loading: boolean;
+}
+
+export function AnalyseTab({
+  categories,
+  transactions,
+  loading,
+}: AnalyseTabProps) {
   const { country } = useCurrency();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<BudgetCategory[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const now = new Date();
-  const [filterMonth] = useState<number>(now.getMonth());
-  const [filterYear] = useState<number>(now.getFullYear());
+  const filterMonth = now.getMonth();
+  const filterYear = now.getFullYear();
 
   function fmt(n: number) {
     return new Intl.NumberFormat("en-IN", {
@@ -28,17 +33,6 @@ export function AnalyseTab() {
       maximumFractionDigits: 0,
     }).format(n);
   }
-
-  useEffect(() => {
-    if (!actor) return;
-    setLoading(true);
-    Promise.all([actor.getAllTransactions(), actor.getAllBudgetCategories()])
-      .then(([txns, cats]) => {
-        setTransactions([...txns]);
-        setCategories(cats);
-      })
-      .finally(() => setLoading(false));
-  }, [actor]);
 
   const analysis = useMemo(() => {
     // Filter to current month

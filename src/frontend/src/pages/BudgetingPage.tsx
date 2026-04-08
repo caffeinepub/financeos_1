@@ -1,11 +1,8 @@
 import { BookOpen, Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { AnalyseTab } from "../components/budgeting/AnalyseTab";
 import { ExpensesTab } from "../components/budgeting/ExpensesTab";
 import { MonthlyTrackerTab } from "../components/budgeting/MonthlyTrackerTab";
-import { ModelBudgetingTab } from "../components/financial-model/ModelBudgetingTab";
-import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -38,7 +35,11 @@ import {
 } from "../components/ui/tabs";
 import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
-import { type BudgetCategory, TransactionType } from "../types";
+import {
+  type BudgetCategory,
+  type Transaction,
+  TransactionType,
+} from "../types";
 
 const _NEEDS_KEYWORDS = [
   "rent",
@@ -1275,14 +1276,20 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
 
 export default function BudgetingPage() {
   const { actor } = useActor();
+  // ── Shared data state — loaded ONCE, passed down as props ──────────────────
   const [categories, setCategories] = useState<BudgetCategory[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Category dialog state (Plan Budget tab only — lives here)
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<BudgetCategory | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [showAllPlanIncome, setShowAllPlanIncome] = useState(false);
+
+  // Improve Budget autofill state
   const _lastMonthDate = new Date();
   _lastMonthDate.setMonth(_lastMonthDate.getMonth() - 1);
   const [autofillMonth, setAutofillMonth] = useState<number>(
@@ -1298,31 +1305,38 @@ export default function BudgetingPage() {
     savings: number;
     categoryAmounts?: Record<string, number>;
   } | null>(null);
-  const [transactions, setTransactions] = useState<
-    Array<{
-      amount: number;
-      transactionType: { Income?: null; Expense?: null };
-      categoryId: string;
-      date: string;
-    }>
-  >([]);
 
+  // ── Initial load — runs ONCE when actor is ready ───────────────────────────
   const load = () => {
     if (!actor) return;
     setLoading(true);
     Promise.all([
       actor.getAllBudgetCategories(),
-      actor.getAllTransactions().catch(() => []),
+      actor.getAllTransactions().catch(() => [] as Transaction[]),
     ])
       .then(([cats, txns]) => {
         setCategories(cats);
-        setTransactions(txns as typeof transactions);
+        setTransactions(txns as Transaction[]);
       })
       .finally(() => setLoading(false));
   };
-  // biome-ignore lint/correctness/useExhaustiveDependencies: load is stable
+  // biome-ignore lint/correctness/useExhaustiveDependencies: load once on actor ready
   useEffect(load, [actor]);
 
+  // ── Transaction mutation callbacks — passed to child tabs ─────────────────
+  const onAddTransaction = (tx: Transaction) => {
+    setTransactions((prev) =>
+      [tx, ...prev].sort((a, b) => b.date.localeCompare(a.date)),
+    );
+  };
+  const onUpdateTransaction = (tx: Transaction) => {
+    setTransactions((prev) => prev.map((t) => (t.id === tx.id ? tx : t)));
+  };
+  const onDeleteTransaction = (id: string) => {
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // ── Category CRUD (Plan Budget tab) ──────────────────────────────────────
   const openAdd = () => {
     setEditing(null);
     setForm(emptyForm);
@@ -1377,12 +1391,13 @@ export default function BudgetingPage() {
       const toCreate = STANDARD_CATEGORIES.filter(
         (sc) => !existingNames.has(sc.name.toLowerCase()),
       );
-      await Promise.all(
-        toCreate.map((sc) =>
-          actor.createBudgetCategory({ id: crypto.randomUUID(), ...sc }),
-        ),
-      );
-      load();
+      const newCats = toCreate.map((sc) => ({
+        id: crypto.randomUUID(),
+        ...sc,
+      }));
+      await Promise.all(newCats.map((nc) => actor.createBudgetCategory(nc)));
+      // Optimistic: append new cats without full reload
+      setCategories((prev) => [...prev, ...newCats]);
     } finally {
       setSeeding(false);
     }
@@ -1446,7 +1461,7 @@ export default function BudgetingPage() {
     const wants = expenses
       .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Wants")
       .reduce((s, t) => s + t.amount, 0);
-    const savings = expenses
+    const savingsAmt = expenses
       .filter((t) => (catTypeMap[t.categoryId] ?? "Needs") === "Savings")
       .reduce((s, t) => s + t.amount, 0);
     // Build per-category amounts using NEEDS/WANTS category keywords
@@ -1498,16 +1513,29 @@ export default function BudgetingPage() {
       }
     }
 
-    setAutofillData({ income, needs, wants, savings, categoryAmounts });
-    // Data flows silently into form fields
+    setAutofillData({
+      income,
+      needs,
+      wants,
+      savings: savingsAmt,
+      categoryAmounts,
+    });
   };
 
-  const totalIncome = categories
-    .filter((c) => c.categoryType === TransactionType.Income)
-    .reduce((s, c) => s + c.monthlyLimit, 0);
-  const totalExpense = categories
-    .filter((c) => c.categoryType === TransactionType.Expense)
-    .reduce((s, c) => s + c.monthlyLimit, 0);
+  const totalIncome = useMemo(
+    () =>
+      categories
+        .filter((c) => c.categoryType === TransactionType.Income)
+        .reduce((s, c) => s + c.monthlyLimit, 0),
+    [categories],
+  );
+  const totalExpense = useMemo(
+    () =>
+      categories
+        .filter((c) => c.categoryType === TransactionType.Expense)
+        .reduce((s, c) => s + c.monthlyLimit, 0),
+    [categories],
+  );
 
   return (
     <div data-ocid="budgeting.page" className="space-y-6">
@@ -1796,13 +1824,30 @@ export default function BudgetingPage() {
           )}
         </TabsContent>
 
+        {/* ── Track Income Vs Expense tab — uses shared data ──────────────── */}
         <TabsContent value="expenses" className="mt-4">
-          <ExpensesTab />
+          <ExpensesTab
+            categories={categories}
+            transactions={transactions}
+            loading={loading}
+            onAddTransaction={onAddTransaction}
+            onUpdateTransaction={onUpdateTransaction}
+            onDeleteTransaction={onDeleteTransaction}
+          />
         </TabsContent>
 
+        {/* ── Budget Insights tab — uses shared data ──────────────────────── */}
         <TabsContent value="tracker" className="mt-4">
-          <MonthlyTrackerTab />
+          <MonthlyTrackerTab
+            categories={categories}
+            transactions={transactions}
+            loading={loading}
+            onAddTransaction={onAddTransaction}
+            onUpdateTransaction={onUpdateTransaction}
+            onDeleteTransaction={onDeleteTransaction}
+          />
         </TabsContent>
+
         <TabsContent value="improve" className="mt-4">
           <div className="space-y-4">
             {/* Autofill bar */}

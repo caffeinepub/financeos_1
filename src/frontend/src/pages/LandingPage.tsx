@@ -7,6 +7,7 @@ import {
   ChevronDown,
   CreditCard,
   LayoutDashboard,
+  LineChart,
   Moon,
   PiggyBank,
   Shield,
@@ -27,73 +28,110 @@ const MODULE_CONFIGS = [
   {
     icon: LayoutDashboard,
     name: "Dashboard",
+    tagline: "Your complete financial health at a glance",
     desc: "Net worth, Risk-o-meter, 10+ charts & 20-year forecast",
     accent: "#60a5fa",
-    glow: "rgba(96,165,250,0.15)",
+    glow: "rgba(96,165,250,0.18)",
+    gradientFrom: "#1e40af",
+    gradientTo: "#3b82f6",
   },
   {
     icon: Target,
     name: "Goals",
+    tagline: "Turn life dreams into actionable saving plans",
     desc: "Track & plan every financial milestone with SIP guidance",
     accent: "#34d399",
-    glow: "rgba(52,211,153,0.15)",
+    glow: "rgba(52,211,153,0.18)",
+    gradientFrom: "#065f46",
+    gradientTo: "#10b981",
   },
   {
     icon: TrendingUp,
     name: "Portfolio",
-    desc: "8 asset classes — Equity, MF, Gold, Retiral, Crypto & more",
+    tagline: "Track all your investments — equity, MFs, gold, crypto and more",
+    desc: "8 asset classes with real-time P&L and allocation analysis",
     accent: "#38bdf8",
-    glow: "rgba(56,189,248,0.15)",
+    glow: "rgba(56,189,248,0.18)",
+    gradientFrom: "#0c4a6e",
+    gradientTo: "#0ea5e9",
   },
   {
     icon: PiggyBank,
     name: "Budgeting",
-    desc: "50/30/20 rule, income vs expense tracker & insights",
+    tagline: "Understand where your money goes with 50/30/20 intelligence",
+    desc: "Income vs expense tracker, insights & improvement plans",
     accent: "#a78bfa",
-    glow: "rgba(167,139,250,0.15)",
+    glow: "rgba(167,139,250,0.18)",
+    gradientFrom: "#4c1d95",
+    gradientTo: "#8b5cf6",
   },
   {
     icon: BarChart3,
     name: "Financial Model",
+    tagline: "Run institutional-grade scenarios on your own finances",
     desc: "8 models: Asset Allocation, Goal Planning, Debt, Retirement",
     accent: "#f87171",
-    glow: "rgba(248,113,113,0.15)",
+    glow: "rgba(248,113,113,0.18)",
+    gradientFrom: "#7f1d1d",
+    gradientTo: "#ef4444",
   },
   {
     icon: CalendarDays,
     name: "Financial Planner",
-    desc: "35+ calculators — SIP, FIRE, EMI, Tax, Retirement & more",
+    tagline: "35+ calculators built for the Indian investor",
+    desc: "SIP, FIRE, EMI, Tax, Retirement — all in one place",
     accent: "#fbbf24",
-    glow: "rgba(251,191,36,0.15)",
+    glow: "rgba(251,191,36,0.18)",
+    gradientFrom: "#78350f",
+    gradientTo: "#f59e0b",
   },
   {
     icon: Shield,
     name: "Learn Finance",
-    desc: "Rules, 50 Mistakes, Intelligent Investor models & AI picks",
+    tagline: "25 chapters, 50 mistake maps, and AI-guided rules",
+    desc: "Tier-by-tier learning from basics to advanced investing",
     accent: "#2dd4bf",
-    glow: "rgba(45,212,191,0.15)",
+    glow: "rgba(45,212,191,0.18)",
+    gradientFrom: "#134e4a",
+    gradientTo: "#14b8a6",
   },
   {
     icon: CreditCard,
     name: "Loans",
-    desc: "Loan tracker, prepayment simulator & debt-free timeline",
+    tagline: "Track debt, simulate prepayments, and plan your debt-free date",
+    desc: "Loan health dashboard, affordability check & repayment model",
     accent: "#c084fc",
-    glow: "rgba(192,132,252,0.15)",
+    glow: "rgba(192,132,252,0.18)",
+    gradientFrom: "#581c87",
+    gradientTo: "#a855f7",
   },
   {
     icon: BookOpen,
     name: "Trade Journal",
-    desc: "Log trades, live P&L, analytics & monthly heatmap",
+    tagline: "Log, analyze, and improve every trade you make",
+    desc: "Live P&L, analytics, strategy breakdown & monthly heatmap",
     accent: "#fb923c",
-    glow: "rgba(251,146,60,0.15)",
+    glow: "rgba(251,146,60,0.18)",
+    gradientFrom: "#7c2d12",
+    gradientTo: "#f97316",
   },
 ];
 
 const STATS = [
-  { value: "35+", label: "Calculators" },
-  { value: "10", label: "Modules" },
-  { value: "50", label: "Mistake Guides" },
-  { value: "8", label: "Asset Classes" },
+  { value: "35+", label: "Calculators", color: "#818cf8" },
+  { value: "10", label: "Modules", color: "#34d399" },
+  { value: "50", label: "Mistake Guides", color: "#fbbf24" },
+  { value: "8", label: "Asset Classes", color: "#f87171" },
+  { value: "25", label: "Learn Chapters", color: "#38bdf8" },
+];
+
+const FEATURE_PILLS = [
+  { icon: "⚡", text: "Instant Calculations" },
+  { icon: "📱", text: "Mobile-First Design" },
+  { icon: "🔒", text: "Blockchain Security" },
+  { icon: "🌍", text: "20+ Currencies" },
+  { icon: "🧠", text: "AI-Guided Insights" },
+  { icon: "📊", text: "Institutional Models" },
 ];
 
 function CurrencyDropdown({
@@ -130,7 +168,9 @@ function CurrencyDropdown({
       >
         <span className="flex items-center gap-1.5">
           <span className="text-white/90 font-medium">{selected.country}</span>
-          <span className="font-bold text-indigo-300">{selected.symbol}</span>
+          <span className="font-bold" style={{ color: "#a5b4fc" }}>
+            {selected.symbol}
+          </span>
         </span>
         <ChevronDown
           className="w-3.5 h-3.5 text-white/60 transition-transform flex-shrink-0"
@@ -139,7 +179,13 @@ function CurrencyDropdown({
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-60 rounded-xl border border-white/20 shadow-2xl bg-slate-900/95 backdrop-blur-xl z-50 overflow-hidden">
+        <div
+          className="absolute right-0 mt-1 w-60 rounded-xl border border-white/20 shadow-2xl z-50 overflow-hidden"
+          style={{
+            background: "rgba(15,23,42,0.98)",
+            backdropFilter: "blur(24px)",
+          }}
+        >
           <div className="max-h-72 overflow-y-auto">
             {SUPPORTED_CURRENCIES.map((c) => (
               <button
@@ -150,17 +196,26 @@ function CurrencyDropdown({
                   onSelect(c);
                   setOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-indigo-500/20 ${
+                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
                   selected.code === c.code
-                    ? "bg-indigo-500/30 text-indigo-300 font-semibold"
-                    : "text-slate-300"
+                    ? "bg-indigo-500/30 font-semibold"
+                    : "hover:bg-white/8"
                 }`}
+                style={{
+                  color:
+                    selected.code === c.code
+                      ? "#a5b4fc"
+                      : "rgba(203,213,225,0.9)",
+                }}
               >
                 <span className="flex items-center gap-2">
                   <span>{c.flag}</span>
                   <span>{c.country}</span>
                 </span>
-                <span className="font-bold text-indigo-400 ml-2">
+                <span
+                  className="font-bold"
+                  style={{ color: "#818cf8", marginLeft: 8 }}
+                >
                   {c.symbol}
                 </span>
               </button>
@@ -238,7 +293,7 @@ export default function LandingPage() {
       className="min-h-screen"
       style={{
         background:
-          "linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 70%, #0c1a2e 100%)",
+          "linear-gradient(160deg, #070d1f 0%, #0d1535 20%, #160b2e 45%, #071220 70%, #050e20 100%)",
       }}
     >
       {/* Decorative ambient glows */}
@@ -247,52 +302,72 @@ export default function LandingPage() {
         aria-hidden
       >
         <div
-          className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full opacity-20"
+          className="absolute -top-60 -left-60 w-[700px] h-[700px] rounded-full"
           style={{
-            background: "radial-gradient(circle, #4f46e5 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(79,70,229,0.22) 0%, transparent 65%)",
           }}
         />
         <div
-          className="absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full opacity-15"
+          className="absolute top-1/3 right-[-10%] w-[500px] h-[500px] rounded-full"
           style={{
-            background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 65%)",
           }}
         />
         <div
-          className="absolute bottom-0 left-1/3 w-[500px] h-[500px] rounded-full opacity-10"
+          className="absolute bottom-0 left-1/4 w-[600px] h-[400px] rounded-full"
           style={{
-            background: "radial-gradient(circle, #2563eb 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 65%)",
+          }}
+        />
+        <div
+          className="absolute top-2/3 left-[-5%] w-[400px] h-[400px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(37,99,235,0.14) 0%, transparent 65%)",
           }}
         />
         {/* Grid overlay */}
         <div
-          className="absolute inset-0 opacity-5"
+          className="absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
+              "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
           }}
         />
       </div>
 
       {/* Top Nav */}
-      <header className="sticky top-0 z-40 border-b border-white/10 backdrop-blur-xl bg-slate-900/60">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+      <header
+        className="sticky top-0 z-40 border-b border-white/8 backdrop-blur-2xl"
+        style={{ background: "rgba(7,13,31,0.75)" }}
+      >
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg"
+              className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
               style={{
                 background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+                boxShadow: "0 4px 20px rgba(79,70,229,0.5)",
               }}
             >
-              <TrendingUp className="w-4 h-4 text-white" />
+              <LineChart
+                className="w-4.5 h-4.5 text-white"
+                style={{ width: 18, height: 18 }}
+              />
             </div>
             <div>
               <p className="font-extrabold text-sm text-white leading-none tracking-tight">
                 Growfinfire Global
               </p>
-              <p className="text-[10px] text-indigo-300 leading-none mt-0.5 hidden sm:block">
+              <p
+                className="text-[10px] leading-none mt-0.5 hidden sm:block"
+                style={{ color: "#a5b4fc" }}
+              >
                 Learn Finance. Grow Wealth. Achieve Freedom.
               </p>
             </div>
@@ -304,7 +379,8 @@ export default function LandingPage() {
               type="button"
               onClick={toggleTheme}
               data-ocid="landing.theme.toggle"
-              className="p-2 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="p-2 rounded-lg border border-white/15 bg-white/8 hover:bg-white/15 text-white transition-colors"
+              style={{ background: "rgba(255,255,255,0.07)" }}
               title={
                 theme === "dark"
                   ? "Switch to light mode"
@@ -322,10 +398,10 @@ export default function LandingPage() {
               onClick={handleLogin}
               disabled={isLoggingIn}
               data-ocid="landing.login.primary_button"
-              className="text-sm font-semibold px-5 h-9 rounded-lg shadow-lg border-0"
+              className="text-sm font-bold px-5 h-9 rounded-xl shadow-lg border-0 transition-all duration-200 hover:scale-[1.03]"
               style={{
                 background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-                boxShadow: "0 4px 15px rgba(79,70,229,0.4)",
+                boxShadow: "0 4px 18px rgba(79,70,229,0.45)",
               }}
             >
               {isLoggingIn ? "Signing in..." : "Login"}
@@ -334,294 +410,451 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-6xl mx-auto px-4 pb-16">
-        {/* Hero Section */}
-        <section className="py-16 sm:py-24 text-center">
+      <main className="relative z-10 max-w-6xl mx-auto px-4 pb-20">
+        {/* ── Hero Section ── */}
+        <section className="pt-20 pb-16 sm:pt-28 sm:pb-20 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="space-y-6"
+            transition={{ duration: 0.75, ease: "easeOut" }}
+            className="space-y-7"
           >
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-indigo-500/40 bg-indigo-500/10 text-indigo-300 text-xs font-semibold">
+            {/* Badge */}
+            <div
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-semibold"
+              style={{
+                borderColor: "rgba(99,102,241,0.5)",
+                background: "rgba(79,70,229,0.12)",
+                color: "#a5b4fc",
+              }}
+            >
               <Sparkles className="w-3 h-3" />
-              AI-powered financial operating system
+              AI-powered financial operating system for India &amp; beyond
             </div>
 
-            <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.1]">
+            {/* Main headline */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.08] text-white">
               Learn Finance.{" "}
               <span
                 className="text-transparent bg-clip-text"
                 style={{
                   backgroundImage:
-                    "linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #60a5fa 100%)",
+                    "linear-gradient(100deg, #00C9FF 0%, #43e97b 45%, #f8c030 80%, #00C9FF 100%)",
+                  backgroundSize: "200% auto",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
                 }}
               >
                 Grow Wealth.
               </span>
               <br />
-              Achieve Freedom.
+              <span className="text-white">Achieve Freedom.</span>
             </h1>
 
-            <p className="text-slate-400 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
-              Your complete financial companion — 10 professional modules to
-              track, plan, and grow your wealth with institutional-grade tools.
+            {/* Sub-headline — the WHY */}
+            <p
+              className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium"
+              style={{ color: "rgba(148,163,184,0.95)" }}
+            >
+              One platform for every financial decision —{" "}
+              <span style={{ color: "#93c5fd" }}>invest smarter</span>,{" "}
+              <span style={{ color: "#6ee7b7" }}>budget better</span>,{" "}
+              <span style={{ color: "#fde68a" }}>retire free</span>.
             </p>
 
+            {/* CTA row */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Button
                 onClick={handleLogin}
                 disabled={isLoggingIn}
                 data-ocid="landing.hero.primary_button"
-                className="font-bold px-8 h-12 rounded-xl text-sm border-0 relative overflow-hidden"
+                className="font-bold px-8 h-12 rounded-xl text-sm border-0 relative overflow-hidden transition-all duration-200 hover:scale-[1.04] hover:brightness-110 active:scale-[0.98]"
                 style={{
                   background:
-                    "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-                  boxShadow: "0 8px 25px rgba(79,70,229,0.45)",
+                    "linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #4f46e5 100%)",
+                  boxShadow:
+                    "0 8px 30px rgba(79,70,229,0.5), 0 2px 8px rgba(0,0,0,0.3)",
+                  minWidth: 200,
                 }}
               >
-                {isLoggingIn ? "Signing in..." : "Get Started \u2014 Free"}
+                <Zap className="w-4 h-4 mr-2" />
+                {isLoggingIn ? "Signing in..." : "Start for Free"}
               </Button>
               <button
                 type="button"
                 onClick={handleLogin}
                 disabled={isLoggingIn}
-                className="text-sm text-indigo-400 font-semibold hover:text-indigo-300 transition-colors"
+                className="flex items-center gap-1.5 text-sm font-semibold transition-colors"
+                style={{ color: "#818cf8" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "#c4b5fd";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "#818cf8";
+                }}
               >
-                Login to existing account &rarr;
+                Login to existing account
+                <span aria-hidden>→</span>
               </button>
             </div>
           </motion.div>
 
           {/* Stats strip */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
-            className="mt-14 inline-flex items-center gap-6 sm:gap-10 px-8 py-4 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm"
+            transition={{ duration: 0.7, delay: 0.35, ease: "easeOut" }}
+            className="mt-16 inline-flex flex-wrap justify-center items-center gap-0 rounded-2xl border overflow-hidden"
+            style={{
+              borderColor: "rgba(255,255,255,0.1)",
+              background: "rgba(255,255,255,0.04)",
+              backdropFilter: "blur(12px)",
+            }}
           >
             {STATS.map((s, i) => (
-              <div key={s.label} className="text-center">
+              <div
+                key={s.label}
+                className="flex flex-col items-center px-6 sm:px-8 py-4 text-center relative"
+                style={{
+                  borderRight:
+                    i < STATS.length - 1
+                      ? "1px solid rgba(255,255,255,0.08)"
+                      : "none",
+                }}
+              >
                 <div
-                  className="text-2xl font-extrabold text-transparent bg-clip-text"
-                  style={{
-                    backgroundImage: `linear-gradient(135deg, ${["#818cf8", "#34d399", "#fbbf24", "#f87171"][i % 4]} 0%, white 100%)`,
-                  }}
+                  className="text-3xl font-black tracking-tight leading-none"
+                  style={{ color: s.color }}
                 >
                   {s.value}
                 </div>
-                <div className="text-xs text-slate-500 font-medium mt-0.5">
+                <div
+                  className="text-[11px] font-medium mt-1 uppercase tracking-wider"
+                  style={{ color: "rgba(148,163,184,0.7)" }}
+                >
                   {s.label}
                 </div>
               </div>
             ))}
           </motion.div>
-        </section>
 
-        {/* Module Cards */}
-        <section className="mb-10">
+          {/* Feature pills */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-center mb-8"
+            transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
+            className="mt-7 flex flex-wrap justify-center gap-2"
           >
-            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-              Everything you need in one place
+            {FEATURE_PILLS.map((f) => (
+              <div
+                key={f.text}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium border"
+                style={{
+                  borderColor: "rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.06)",
+                  color: "rgba(203,213,225,0.8)",
+                }}
+              >
+                <span>{f.icon}</span>
+                <span>{f.text}</span>
+              </div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* ── Module Cards Section ── */}
+        <section className="mb-14">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
+              Everything you need in one platform
             </h2>
-            <p className="text-sm text-slate-500">
-              10 powerful modules covering every aspect of personal finance
+            <p
+              className="text-sm sm:text-base max-w-xl mx-auto"
+              style={{ color: "rgba(100,116,139,1)" }}
+            >
+              9 purpose-built modules covering every aspect of personal finance
+              — from daily budgets to 20-year retirement projections.
             </p>
           </motion.div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {MODULE_CONFIGS.map((mod, i) => {
               const Icon = mod.icon;
               return (
                 <motion.div
                   key={mod.name}
                   data-ocid={`landing.module_card.item.${i + 1}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
                   transition={{
                     duration: 0.5,
-                    delay: 0.5 + i * 0.07,
+                    delay: i * 0.06,
                     ease: "easeOut",
                   }}
-                  className="group rounded-2xl border border-white/10 p-4 cursor-default hover:-translate-y-1 transition-all duration-300 overflow-hidden relative"
+                  className="group rounded-2xl border relative overflow-hidden cursor-default transition-all duration-300 hover:-translate-y-1.5"
                   style={{
-                    background:
-                      "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%)",
-                    backdropFilter: "blur(12px)",
-                    boxShadow: `0 0 0 0 ${mod.glow}`,
+                    borderColor: "rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.04)",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow =
-                      `0 8px 30px ${mod.glow}, 0 0 0 1px ${mod.accent}30`;
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = `${mod.accent}50`;
+                    el.style.boxShadow = `0 12px 40px ${mod.glow}, 0 0 0 1px ${mod.accent}20`;
+                    el.style.background = "rgba(255,255,255,0.065)";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow =
-                      `0 0 0 0 ${mod.glow}`;
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = "rgba(255,255,255,0.08)";
+                    el.style.boxShadow = "none";
+                    el.style.background = "rgba(255,255,255,0.04)";
                   }}
                 >
-                  {/* Accent line top */}
+                  {/* Colored top accent bar */}
                   <div
-                    className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ background: mod.accent }}
+                    className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{
+                      background: `linear-gradient(90deg, ${mod.gradientFrom}, ${mod.accent})`,
+                    }}
                   />
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
-                    style={{ background: `${mod.accent}20` }}
-                  >
-                    <Icon className="w-5 h-5" style={{ color: mod.accent }} />
+
+                  <div className="p-5 pt-6">
+                    {/* Icon */}
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
+                      style={{
+                        background: `linear-gradient(135deg, ${mod.gradientFrom}60 0%, ${mod.gradientTo}30 100%)`,
+                        border: `1px solid ${mod.accent}25`,
+                      }}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: mod.accent }} />
+                    </div>
+
+                    {/* Module name */}
+                    <h3 className="text-sm font-extrabold text-white leading-tight mb-1">
+                      {mod.name}
+                    </h3>
+
+                    {/* Tagline — the WHY */}
+                    <p
+                      className="text-[11px] font-semibold mb-2 leading-snug"
+                      style={{ color: mod.accent }}
+                    >
+                      {mod.tagline}
+                    </p>
+
+                    {/* Description */}
+                    <p
+                      className="text-[12px] leading-relaxed"
+                      style={{ color: "rgba(100,116,139,1)" }}
+                    >
+                      {mod.desc}
+                    </p>
                   </div>
-                  <h3 className="text-sm font-bold text-white leading-tight mb-1">
-                    {mod.name}
-                  </h3>
-                  <p className="text-xs text-slate-400 leading-snug">
-                    {mod.desc}
-                  </p>
                 </motion.div>
               );
             })}
           </div>
         </section>
 
-        {/* Feature Highlights Strip */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.0, ease: "easeOut" }}
-          className="flex flex-wrap justify-center gap-3 mb-10"
-        >
-          {[
-            { icon: "\u26a1", text: "Instant Calculations" },
-            { icon: "\ud83d\udcf1", text: "Mobile-First Design" },
-            { icon: "\ud83d\udd12", text: "Blockchain Security" },
-            { icon: "\ud83c\udf0d", text: "Multi-Currency" },
-          ].map((f) => (
-            <div
-              key={f.text}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/15 bg-white/8 text-white/80 text-xs font-medium backdrop-blur-sm"
-              style={{ background: "rgba(255,255,255,0.08)" }}
-            >
-              <span>{f.icon}</span>
-              <span>{f.text}</span>
-            </div>
-          ))}
-        </motion.div>
-
-        {/* AI Assistant Callout */}
+        {/* ── AI Assistant Section ── */}
         <motion.section
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.1, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-2xl mb-10 border border-indigo-500/30"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative overflow-hidden rounded-2xl mb-14 border"
           style={{
+            borderColor: "rgba(99,102,241,0.35)",
             background:
-              "linear-gradient(135deg, rgba(79,70,229,0.3) 0%, rgba(124,58,237,0.25) 50%, rgba(37,99,235,0.2) 100%)",
-            backdropFilter: "blur(20px)",
+              "linear-gradient(135deg, rgba(55,48,163,0.4) 0%, rgba(109,40,217,0.3) 50%, rgba(30,64,175,0.25) 100%)",
           }}
         >
+          {/* Subtle dot pattern */}
           <div
-            className="absolute inset-0 pointer-events-none opacity-10"
+            className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
-                "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
+                "radial-gradient(circle, rgba(165,180,252,0.08) 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
             }}
           />
-          <div className="relative z-10 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          {/* Glow accent */}
+          <div
+            className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 65%)",
+            }}
+          />
+
+          <div className="relative z-10 p-7 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            {/* Bot icon */}
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 border border-white/20"
-              style={{ background: "rgba(79,70,229,0.4)" }}
+              className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 border"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(79,70,229,0.6) 0%, rgba(124,58,237,0.5) 100%)",
+                borderColor: "rgba(165,180,252,0.3)",
+                boxShadow: "0 8px 24px rgba(79,70,229,0.35)",
+              }}
             >
-              <Bot className="w-7 h-7 text-white" />
+              <Bot className="w-8 h-8 text-white" />
             </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-white text-base">
+
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <h3 className="font-extrabold text-white text-lg">
                   Growfinfire AI Assistant
                 </h3>
-                <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold uppercase tracking-wide">
-                  Included
+                <span
+                  className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border"
+                  style={{
+                    background: "rgba(165,180,252,0.15)",
+                    borderColor: "rgba(165,180,252,0.3)",
+                    color: "#a5b4fc",
+                  }}
+                >
+                  Included Free
                 </span>
               </div>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Ask anything about your finances — SIP, FIRE, portfolio design,
-                tax, retirement, and more. Trained on all 10 modules, 35+
-                calculators &amp; 50 financial mistakes.
+              <p
+                className="text-sm leading-relaxed mb-1"
+                style={{ color: "rgba(203,213,225,0.75)" }}
+              >
+                Your personal CFO in your pocket. Ask about SIPs, FIRE goals,
+                portfolio design, tax-saving strategies, and more — trained on
+                all 10 modules, 35+ calculators, 50 financial mistake maps, and
+                real Indian market data.
+              </p>
+              <p className="text-xs font-medium" style={{ color: "#818cf8" }}>
+                Available on every page after you log in.
               </p>
             </div>
+
             <Button
               onClick={handleLogin}
               disabled={isLoggingIn}
               data-ocid="landing.ai.primary_button"
-              className="bg-white text-indigo-700 hover:bg-white/90 font-bold text-sm px-5 h-10 rounded-xl flex-shrink-0 border-0"
-              style={{ boxShadow: "0 4px 15px rgba(0,0,0,0.2)" }}
+              className="font-bold text-sm px-6 h-11 rounded-xl flex-shrink-0 border-0 transition-all duration-200 hover:scale-[1.04] hover:brightness-110"
+              style={{
+                background: "linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%)",
+                color: "#4338ca",
+                boxShadow: "0 4px 18px rgba(0,0,0,0.25)",
+              }}
             >
-              <Zap className="w-3.5 h-3.5 mr-1.5" />
+              <Sparkles className="w-4 h-4 mr-1.5" />
               Try it free
             </Button>
           </div>
         </motion.section>
 
-        {/* Feature highlights strip */}
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        {/* ── Value Proposition Cards ── */}
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4"
+        >
           {[
             {
               icon: Shield,
               color: "#34d399",
+              glow: "rgba(52,211,153,0.15)",
               title: "Secure & Private",
-              desc: "Powered by Internet Identity \u2014 no passwords, no leaks.",
+              desc: "Powered by Internet Identity — no passwords, no data leaks, no third-party access.",
             },
             {
               icon: TrendingUp,
               color: "#60a5fa",
-              title: "20 Currencies",
-              desc: "Manage wealth in INR, USD, GBP, EUR and 16 more.",
+              glow: "rgba(96,165,250,0.15)",
+              title: "20+ Currencies",
+              desc: "Manage wealth in INR, USD, GBP, EUR and 16 more with smart Cr/L/K or M/B formatting.",
             },
             {
               icon: BarChart3,
               color: "#a78bfa",
+              glow: "rgba(167,139,250,0.15)",
               title: "Institutional Models",
-              desc: "Insurance, retirement, crypto & portfolio models built-in.",
+              desc: "Insurance, retirement, crypto & portfolio models — the kind only wealth managers had before.",
             },
           ].map((f) => {
             const Icon = f.icon;
             return (
               <div
                 key={f.title}
-                className="rounded-2xl border border-white/10 p-5 flex items-start gap-3"
+                className="rounded-2xl border p-5 flex items-start gap-4 group transition-all duration-300"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
-                  backdropFilter: "blur(12px)",
+                  borderColor: "rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.04)",
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.borderColor = `${f.color}35`;
+                  el.style.boxShadow = `0 8px 30px ${f.glow}`;
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.borderColor = "rgba(255,255,255,0.08)";
+                  el.style.boxShadow = "none";
                 }}
               >
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: `${f.color}20` }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: `${f.color}18`,
+                    border: `1px solid ${f.color}25`,
+                  }}
                 >
-                  <Icon className="w-4 h-4" style={{ color: f.color }} />
+                  <Icon
+                    className="w-4.5 h-4.5"
+                    style={{ width: 18, height: 18, color: f.color }}
+                  />
                 </div>
                 <div>
-                  <p className="font-bold text-sm text-white">{f.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{f.desc}</p>
+                  <p className="font-bold text-sm text-white mb-1">{f.title}</p>
+                  <p
+                    className="text-xs leading-relaxed"
+                    style={{ color: "rgba(100,116,139,1)" }}
+                  >
+                    {f.desc}
+                  </p>
                 </div>
               </div>
             );
           })}
-        </section>
+        </motion.section>
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 py-6 text-center text-xs text-slate-600">
+      <footer
+        className="relative z-10 border-t py-6 text-center text-xs"
+        style={{
+          borderColor: "rgba(255,255,255,0.07)",
+          color: "rgba(71,85,105,0.9)",
+        }}
+      >
         &copy; {new Date().getFullYear()}.{" "}
         <a
           href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
           target="_blank"
           rel="noreferrer"
-          className="hover:text-indigo-400 transition-colors"
+          className="transition-colors"
+          style={{ color: "rgba(71,85,105,0.9)" }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.color = "#818cf8";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.color =
+              "rgba(71,85,105,0.9)";
+          }}
         >
           Built with &#10084; using caffeine.ai
         </a>
@@ -638,15 +871,30 @@ export default function LandingPage() {
 
       {/* Admin password modal */}
       {showAdminModal && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-80 shadow-2xl">
-            <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-4">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.65)" }}
+        >
+          <div
+            className="rounded-2xl p-6 w-80 shadow-2xl border"
+            style={{
+              background: "rgba(15,23,42,0.98)",
+              borderColor: "rgba(255,255,255,0.12)",
+              backdropFilter: "blur(24px)",
+            }}
+          >
+            <h2 className="text-base font-semibold text-white mb-4">
               Admin Access
             </h2>
             <input
               type="password"
               placeholder="Enter admin password"
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800"
+              className="w-full rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:ring-2 border"
+              style={{
+                background: "rgba(255,255,255,0.07)",
+                borderColor: "rgba(255,255,255,0.15)",
+                color: "white",
+              }}
               value={adminPassword}
               onChange={(e) => {
                 setAdminPassword(e.target.value);
@@ -655,13 +903,19 @@ export default function LandingPage() {
               onKeyDown={(e) => e.key === "Enter" && handleAdminLogin()}
             />
             {adminError && (
-              <p className="text-xs text-red-500 mb-2">{adminError}</p>
+              <p className="text-xs mb-2" style={{ color: "#f87171" }}>
+                {adminError}
+              </p>
             )}
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={handleAdminLogin}
-                className="flex-1 bg-indigo-600 text-white text-sm py-2 rounded-lg font-medium hover:bg-indigo-700"
+                className="flex-1 text-white text-sm py-2 rounded-lg font-medium transition-colors"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+                }}
               >
                 Login
               </button>
@@ -672,7 +926,11 @@ export default function LandingPage() {
                   setAdminPassword("");
                   setAdminError("");
                 }}
-                className="flex-1 bg-slate-100 text-slate-600 text-sm py-2 rounded-lg font-medium hover:bg-slate-200"
+                className="flex-1 text-sm py-2 rounded-lg font-medium transition-colors"
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  color: "rgba(148,163,184,1)",
+                }}
               >
                 Cancel
               </button>

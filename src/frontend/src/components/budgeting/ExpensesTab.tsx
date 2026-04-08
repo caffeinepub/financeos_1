@@ -8,7 +8,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCurrency } from "../../contexts/CurrencyContext";
 import { useActor } from "../../hooks/useActor";
 import {
@@ -91,7 +91,6 @@ const getEmptyForm = (): {
   transactionType: TransactionType;
   amount: number;
 } => ({
-  // date set dynamically in openAdd
   date: new Date().toISOString().slice(0, 10),
   description: "",
   account: "",
@@ -100,7 +99,23 @@ const getEmptyForm = (): {
   amount: 0,
 });
 
-export function ExpensesTab() {
+interface ExpensesTabProps {
+  categories: BudgetCategory[];
+  transactions: Transaction[];
+  loading: boolean;
+  onAddTransaction: (tx: Transaction) => void;
+  onUpdateTransaction: (tx: Transaction) => void;
+  onDeleteTransaction: (id: string) => void;
+}
+
+export function ExpensesTab({
+  categories,
+  transactions,
+  loading,
+  onAddTransaction,
+  onUpdateTransaction,
+  onDeleteTransaction,
+}: ExpensesTabProps) {
   const { actor } = useActor();
   const { country } = useCurrency();
 
@@ -111,9 +126,6 @@ export function ExpensesTab() {
     }).format(n);
   }
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<BudgetCategory[]>([]);
-  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [form, setForm] = useState(getEmptyForm());
@@ -128,19 +140,6 @@ export function ExpensesTab() {
     _now.getFullYear(),
   );
   const [incomeExpanded, setIncomeExpanded] = useState(false);
-
-  const load = () => {
-    if (!actor) return;
-    setLoading(true);
-    Promise.all([actor.getAllTransactions(), actor.getAllBudgetCategories()])
-      .then(([txns, cats]) => {
-        setTransactions([...txns].sort((a, b) => b.date.localeCompare(a.date)));
-        setCategories(cats);
-      })
-      .finally(() => setLoading(false));
-  };
-  // biome-ignore lint/correctness/useExhaustiveDependencies: load is stable
-  useEffect(load, [actor]);
 
   const openAdd = () => {
     setEditing(null);
@@ -167,17 +166,11 @@ export function ExpensesTab() {
       if (editing) {
         const updated = { id: editing.id, ...form };
         await actor.updateTransaction(editing.id, updated);
-        // Optimistic update: replace in local state without refetch
-        setTransactions((prev) =>
-          prev.map((t) => (t.id === editing.id ? updated : t)),
-        );
+        onUpdateTransaction(updated);
       } else {
         const newTx = { id: crypto.randomUUID(), ...form };
         await actor.createTransaction(newTx);
-        // Optimistic update: prepend to local state (newest first) without refetch
-        setTransactions((prev) =>
-          [newTx, ...prev].sort((a, b) => b.date.localeCompare(a.date)),
-        );
+        onAddTransaction(newTx);
       }
       setOpen(false);
     } finally {
@@ -187,8 +180,8 @@ export function ExpensesTab() {
 
   const del = async (id: string) => {
     if (!actor) return;
-    // Optimistic update: remove from local state without refetch
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
+    // Optimistic: remove from parent state immediately
+    onDeleteTransaction(id);
     await actor.deleteTransaction(id);
   };
 
@@ -638,7 +631,7 @@ export function ExpensesTab() {
             <div className="space-y-2">
               <Label>Amount ({country.symbol})</Label>
               <Input
-                data-ocid="expenses.amount.input"
+                data-ocid="expenses.amount2.input"
                 type="number"
                 value={form.amount}
                 onChange={(e) =>

@@ -1,28 +1,13 @@
 import {
-  Activity,
   AlertTriangle,
-  BarChart,
-  BarChart2,
   BookOpen,
   Brain,
-  Clock,
-  DollarSign,
-  Filter,
   GraduationCap,
-  LayoutGrid,
   Pencil,
-  PieChart,
   Plus,
-  RefreshCw,
-  Scale,
-  Search,
   Shield,
-  Target,
   Trash2,
   TrendingUp,
-  Trophy,
-  Users,
-  Zap,
 } from "lucide-react";
 import React from "react";
 import { useEffect, useState } from "react";
@@ -30,7 +15,6 @@ import { AIRulesAnalysis } from "../components/AIRulesAnalysis";
 import { FinancialRulesSection } from "../components/FinancialRulesSection";
 import type { FinancialRule as FinancialRuleData } from "../components/FinancialRulesSection";
 import { financialRules as ALL_FINANCIAL_RULES } from "../components/FinancialRulesSection";
-import { ModelFundamentalsTab } from "../components/financial-model/ModelFundamentalsTab";
 import ChaptersTab from "../components/learn-finance/ChaptersTab";
 import { QuizTab } from "../components/learn-finance/QuizTab";
 import { Badge } from "../components/ui/badge";
@@ -102,270 +86,6 @@ const _LEVEL_STEPS = [
     color: "#7c3aed",
     bg: "bg-purple-500",
     textColor: "text-purple-700",
-  },
-];
-
-const BASICS_TOPICS = [
-  {
-    id: "compounding",
-    name: "Compounding",
-    desc: "The 8th wonder of the world",
-    Icon: TrendingUp,
-    content: `**Compounding** is the process of earning returns on your returns — often called the 8th wonder of the world by Einstein.
-
-**Formula:** A = P(1 + r/n)^(nt)
-Where P = Principal, r = annual rate, n = compounding frequency, t = years
-
-**Example:** ₹1,00,000 invested at 12% annual return for 20 years = ₹9,64,629 — nearly 10x your money.
-
-**Why start early matters:**
-- Start at 25: ₹5,000/month for 35 years at 12% = ₹3.2 Crore
-- Start at 35: ₹5,000/month for 25 years at 12% = ₹94 Lakh
-- 10 years of delay costs ₹2.3 Crore
-
-**SIPs exploit compounding:** Every SIP payment starts its own compounding journey. The first payment compounds the longest.
-
-**Key rule:** Never interrupt compounding. Even one year of pause can cost you years of growth at the end.`,
-  },
-  {
-    id: "rule-of-72",
-    name: "Rule of 72",
-    desc: "Estimate how fast money doubles",
-    Icon: Clock,
-    content: `**Rule of 72** is the simplest mental math tool in investing — it tells you how fast your money will double.
-
-**Formula:** Years to Double = 72 ÷ Annual Return Rate
-
-**Quick examples:**
-- 6% return (FD): 72 ÷ 6 = 12 years to double
-- 12% return (Equity): 72 ÷ 12 = 6 years to double
-- 18% return (Small Cap): 72 ÷ 18 = 4 years to double
-
-**Inflation version:** At 6% inflation, purchasing power halves in 72 ÷ 6 = 12 years.
-
-**Practical insight:** FD at 7% doubles in ~10 years. Equity at 14% doubles in ~5 years. Over 30 years, equity doubles 6 times vs FD doubling 3 times.
-
-**Used by:** All investment advisors for quick suitability checks and goal planning.`,
-  },
-  {
-    id: "sip-vs-lump",
-    name: "SIP vs Lump Sum",
-    desc: "Which strategy wins?",
-    Icon: BarChart2,
-    content: `**SIP vs Lump Sum** — understanding which strategy wins in which market conditions is crucial for every investor.
-
-**SIP (Systematic Investment Plan):**
-- Invest a fixed amount every month regardless of market level
-- Uses Rupee Cost Averaging — buy more units when markets fall, fewer when they rise
-- Best for: Salaried investors, volatile markets, investors with no market timing ability
-
-**Lump Sum:**
-- Invest the entire amount at once
-- Wins decisively when markets are at a confirmed bottom
-- Loses badly if you invest at a market peak
-- Best for: Large one-time inflows (bonus, inheritance, property sale)
-
-**Data over 10-year rolling periods:** SIP beats lump sum ~60% of the time in volatile markets.
-
-**Verdict:** For salaried investors, SIP wins through discipline. For windfall money, use a Systematic Transfer Plan (STP) — park in liquid funds and transfer monthly.`,
-  },
-  {
-    id: "inflation",
-    name: "Inflation Impact",
-    desc: "Preserve your purchasing power",
-    Icon: Activity,
-    content: `**Inflation** silently erodes your purchasing power every year — the invisible tax on savings.
-
-**India's average inflation:** 5-7% per year (CPI). At 6% inflation, prices double every 12 years.
-
-**The math:**
-- ₹1,00,000 today = ₹74,409 in 5 years
-- ₹1,00,000 today = ₹55,368 in 10 years
-- ₹1,00,000 today = ₹23,305 in 25 years
-
-**Golden rule:** Your investment return must beat Inflation + Tax to create real wealth.
-
-**Asset comparison (real returns after 6% inflation):**
-- FD at 7% → After 30% tax = 4.9% → Real return = -1.1% (negative!)
-- PPF at 7.1% → Tax-free → Real return = +1.1%
-- Equity at 13% → After 10% LTCG = 11.7% → Real return = +5.7%
-
-**Best hedge:** Equity (historically 12-15% vs 6% inflation). Gold also works as partial inflation hedge.`,
-  },
-  {
-    id: "cagr",
-    name: "CAGR",
-    desc: "Measure true investment growth",
-    Icon: Target,
-    content: `**CAGR (Compound Annual Growth Rate)** is the single most important metric for comparing investment performance.
-
-**Formula:** CAGR = (End Value ÷ Start Value)^(1 ÷ Years) − 1
-
-**Example:**
-- Invested ₹1,00,000 in 2019
-- Current value in 2024 = ₹2,50,000 (5 years)
-- CAGR = (2.5)^(1/5) − 1 = 20.1% per year
-
-**Why CAGR beats absolute returns:**
-- Fund A: ₹1L → ₹2L in 4 years = 100% absolute, 18.9% CAGR
-- Fund B: ₹1L → ₹3L in 8 years = 200% absolute, 14.7% CAGR
-- Fund A is the better investment despite lower absolute return!
-
-**CAGR benchmarks (India):**
-- Nifty 50 20-year CAGR: ~13-14%
-- Sensex 30-year CAGR: ~15%
-- FD average CAGR: ~6-7%
-- Gold 20-year CAGR: ~10%
-
-**Rule:** Always compare investments using CAGR. Never trust absolute return claims without knowing the time period.`,
-  },
-  {
-    id: "market-cycles",
-    name: "Market Cycles",
-    desc: "Bull, bear and beyond",
-    Icon: BarChart,
-    content: `**Market Cycles** — all markets move through predictable phases. Understanding them transforms fear into opportunity.
-
-**The 4 Phases:**
-
-1. **Accumulation:** Smart money buys quietly. Markets are flat. News is still negative. P/E ratios are low. Best time to buy.
-
-2. **Markup (Bull Market):** Public starts buying. Prices rise steadily. Optimism spreads. FOMO kicks in near the top.
-
-3. **Distribution:** Smart money sells to retail buyers. Markets plateau. Insiders exit while public is most bullish.
-
-4. **Markdown (Bear Market):** Panic selling. Markets fall 20-50%. Smart money starts accumulating again.
-
-**Historical data:**
-- Average bull market duration: 4-5 years
-- Average bear market duration: 12-18 months
-- Markets have recovered 100% of the time from every crash in history
-
-**Rule:** Never exit quality investments during the bear phase. Bear markets are sales on quality assets.`,
-  },
-  {
-    id: "pe-ratio",
-    name: "P/E Ratio & Valuation",
-    desc: "Is a stock cheap or expensive?",
-    Icon: DollarSign,
-    content: `**P/E Ratio & Valuation** — the most widely used metric to judge whether a stock or market is cheap or expensive.
-
-**Formula:** P/E = Market Price per Share ÷ Earnings per Share (EPS)
-
-**What it means:** P/E of 20 means you pay ₹20 for every ₹1 of annual earnings.
-
-**Nifty 50 historical P/E bands:**
-- Below 16: Severely undervalued — strong buy zone
-- 16-20: Fair value — accumulate
-- 20-25: Slightly expensive — invest selectively
-- Above 25: Expensive — avoid lump sum
-- Above 30: Bubble territory — trim holdings
-
-**P/E alone is insufficient — use PEG ratio:**
-- PEG = P/E ÷ Annual Earnings Growth Rate
-- PEG < 1: Potentially undervalued
-- PEG > 2: Expensive relative to growth
-
-**Graham's rule:** Never pay more than 15× trailing 12-month earnings for a defensive stock.
-
-**Note:** Sector P/E varies — Tech commands 30-50x (high growth), Banks trade at 10-15x (capital intensive). Always compare within the same sector.`,
-  },
-  {
-    id: "diversification",
-    name: "Diversification",
-    desc: "Don't put all eggs in one basket",
-    Icon: BookOpen,
-    content: `**Diversification** is the only free lunch in investing — it reduces risk without reducing expected returns.
-
-**Core principle:** Combining assets with low or negative correlation reduces portfolio volatility.
-
-**Optimal equity diversification:**
-- 15-20 stocks across 5-6 sectors provides ~95% of maximum diversification benefit
-- Beyond 20 stocks: diminishing returns on risk reduction
-- Too few stocks (<8): single-company failure can be devastating
-
-**Asset class diversification:**
-- Equity: Long-term wealth creation (12-15% historical CAGR)
-- Debt/Bonds: Stability and income (6-8%)
-- Gold: Hedge against inflation and currency risk
-- Real Estate: Inflation hedge and passive income
-
-**Index funds:** Inherently diversified — a Nifty 50 index fund gives exposure to 50 companies across 13 sectors in one purchase.
-
-**Graham's recommendation:** Hold 10-30 stocks maximum. Beyond this, you are better off with an index fund.
-
-**Warning:** Diversification into assets you don't understand is called di-worse-ification (Peter Lynch).`,
-  },
-  {
-    id: "margin-of-safety",
-    name: "Margin of Safety",
-    desc: "Buy when Price ≤ ⅔ of intrinsic value",
-    Icon: Scale,
-    content: `**Margin of Safety** is the central concept of value investing, introduced by Benjamin Graham in The Intelligent Investor (Chapter 20).\n\n**Core Rule:** Only buy a stock when its market price is ≤ ⅔ (67%) of its intrinsic value — whether measured by Earnings Power Value (EPV) or Net Asset Value (NAV).\n\n**Why it works:** It protects against valuation errors, unexpected bad news, and market downturns. If you pay 67 cents for something worth ₹1, you have a built-in cushion.\n\n**Real-world use today:**\n- Used by Warren Buffett, Seth Klarman, and most quantitative value funds\n- Basis of screeners that filter for stocks trading below book value or low P/E\n- EPV model (Bruce Greenwald) and Owner Earnings (Buffett) are modern applications\n\n**Example:** If a company's intrinsic value is ₹150, the Margin of Safety price is ₹100. Only buy at or below ₹100.\n\n**Formula:** MoS Price = Intrinsic Value × 0.67`,
-  },
-  {
-    id: "defensive-portfolio",
-    name: "Defensive Investor Portfolio",
-    desc: "60/40 or 50/50 stock-bond allocation",
-    Icon: PieChart,
-    content: `**Defensive Investor Portfolio Allocation** (Chapters 1 & 4 of The Intelligent Investor) is the foundation of modern balanced investing.\n\n**Core Rule:** Allocate between 50% and 75% to stocks, and 25% to 50% to bonds. The classic starting point is 60% stocks / 40% bonds.\n\n**Glide-path model:** As you age, reduce stock allocation and increase bonds. Example: Age 30 → 70/30; Age 50 → 60/40; Age 65 → 40/60.\n\n**Real-world use today:**\n- The "60/40 portfolio" is the industry standard for pension funds and institutional investors\n- Basis of all target-date funds (e.g., 2040 Fund, 2050 Fund)\n- Used by robo-advisors (Betterment, INDmoney, Wealthfront) for automated allocation\n\n**Why it works:** Stocks provide growth; bonds provide stability. The combination reduces volatility without sacrificing long-term returns.\n\n**For Indian investors:** Equivalent in Equity Mutual Funds + Debt Funds / PPF / EPF.`,
-  },
-  {
-    id: "dca",
-    name: "Dollar-Cost Averaging (DCA)",
-    desc: "Invest fixed amounts at regular intervals",
-    Icon: RefreshCw,
-    content:
-      "**Dollar-Cost Averaging (DCA)** (Chapters 1 & 5) is the practice of investing a fixed amount at regular intervals regardless of market price.\n\n**Core Rule:** Invest the same fixed amount every month (or quarter) into an index fund or diversified portfolio — regardless of whether markets are up or down.\n\n**Why it works:**\n- You buy more units when prices are low, fewer when prices are high\n- Eliminates the impossible task of timing the market\n- Builds discipline and removes emotional decision-making\n\n**Real-world use today:**\n- The mathematical foundation of every SIP (Systematic Investment Plan) in India\n- Core mechanism of 401(k) plans in the US and EPFO in India\n- Used by all index-fund accumulation strategies\n\n**Example:** Investing \u20b910,000/month in a Nifty50 index fund for 20 years, regardless of market conditions, consistently outperforms most active strategies.\n\n**Key insight:** Time in the market beats timing the market. DCA enforces this mathematically.",
-  },
-  {
-    id: "mr-market",
-    name: "Mr. Market",
-    desc: "Market is emotional — don't follow its mood",
-    Icon: Users,
-    content: `**Mr. Market** is Benjamin Graham's famous allegory for understanding market behavior and investor psychology.\n\n**The Concept:** Imagine you have a business partner named Mr. Market who offers to buy your shares or sell you his shares every single day. His prices are driven by his mood — euphoric on good days (offers high prices), depressed on bad days (offers low prices).\n\n**Core Lesson:** You are never obligated to trade with Mr. Market. You should only buy from him when he offers irrationally low prices, and sell to him when he offers irrationally high prices.\n\n**Real-world use today:**\n- Underpins all contrarian investing strategies\n- The behavioral finance model behind market-timing avoidance rules\n- Used by quant funds like AQR and Dimensional to exploit momentum and value anomalies\n- Basis of "buy the dip" and "rebalancing during crashes" strategies\n\n**Practical rule:** When markets crash 20-30%, Mr. Market is depressed — that is your opportunity to buy quality assets at a discount, not to panic-sell.\n\n**Key insight:** The market is a voting machine in the short run, but a weighing machine in the long run (Benjamin Graham).`,
-  },
-  {
-    id: "ncav-screen",
-    name: "Net-Net Working Capital (NCAV)",
-    desc: "Buy stocks below liquidation value",
-    Icon: Search,
-    content: `**Net-Net Working Capital (NCAV) Screen** is Benjamin Graham's classic deep-value quantitative model for finding severely undervalued stocks.\n\n**Formula:**\nNCAV = Current Assets − Total Liabilities\nBuy when: Market Cap < 67% of NCAV\n\n**Simplified:** If a company could shut down tomorrow, liquidate current assets, and pay all debts — would the remaining cash exceed what you paid for the stock? If yes, you have a net-net.\n\n**Why it works:** You are essentially buying assets for less than their liquidation value — the ultimate margin of safety.\n\n**Real-world use today:**\n- Classic deep-value quant model still used by Graham-style hedge funds\n- Adapted in Joel Greenblatt's Magic Formula (adds return on capital)\n- Used by screeners on value investing platforms globally\n\n**Example:** If a company has ₹100 Cr in current assets, ₹40 Cr in liabilities → NCAV = ₹60 Cr. If market cap is ₹35 Cr (below 67% of ₹60 Cr = ₹40 Cr), it qualifies.\n\n**Caution:** Net-nets often exist for a reason (declining business). Diversify across 20-30 net-nets to reduce single-stock risk.`,
-  },
-  {
-    id: "enterprising-criteria",
-    name: "Enterprising Investor Criteria",
-    desc: "Multi-factor: size + quality + value + momentum",
-    Icon: Filter,
-    content: `**Enterprising Investor Positive Criteria** is Graham's framework for active investors willing to put in more research to earn superior returns.\n\n**Core Criteria (all must be met):**\n1. Financial condition: Current ratio ≥ 1.5; Debt ≤ 110% of net current assets\n2. Earnings stability: Positive EPS for 5 consecutive years\n3. Dividend record: Some dividends paid\n4. Earnings growth: Current EPS higher than 5 years ago\n5. Price: P/E ≤ 9× last 12-month earnings\n6. Price-to-book: P/B ≤ 1.2×\n\n**Real-world use today:**\n- Direct predecessor of modern multi-factor investing (Fama-French 3-factor model)\n- Combines size + quality + value + momentum filters\n- Used by systematic value strategies at AQR, Dimensional Fund Advisors, and Research Affiliates\n- Basis of "quantitative value" funds worldwide\n\n**Why it works:** Graham's criteria eliminate financial distress risk while ensuring you pay a fair price. The combination of multiple filters has been shown to consistently outperform the market over 20-year periods.`,
-  },
-  {
-    id: "intrinsic-value-epv",
-    name: "Intrinsic Value via Earnings Power",
-    desc: "EPV model and Owner Earnings (Buffett)",
-    Icon: Zap,
-    content: `**Intrinsic Value via Earnings Power** is the most important calculation in value investing — estimating what a business is truly worth.\n\n**Two main approaches:**\n\n**1. Earnings Power Value (EPV) — Bruce Greenwald:**\nEPV = Normalized After-Tax Earnings ÷ Cost of Capital\nExample: If a company earns ₹10 Cr/year consistently and WACC is 10% → EPV = ₹100 Cr\n\n**2. Owner Earnings — Warren Buffett:**\nOwner Earnings = Net Income + Depreciation − Maintenance CapEx − Working Capital Changes\nThis is "real cash" the business generates for its owners.\n\n**Why it matters:**\n- P/E and book value are accounting constructs; Owner Earnings are economic reality\n- Buffett has used this framework to compound at 20%+ for 50 years\n\n**Real-world use today:**\n- EPV model is taught at Columbia Business School (Graham's alma mater)\n- Owner Earnings is the basis of DCF analysis in every investment bank and PE fund\n- Used alongside Margin of Safety: Only buy when Price < 67% of Intrinsic Value\n\n**Key insight:** A business earning ₹10 Cr/year reliably is worth far more than one earning ₹50 Cr this year by accident.`,
-  },
-  {
-    id: "diversification-graham",
-    name: "Diversification (Graham)",
-    desc: "Hold 10-30 stocks across different industries",
-    Icon: LayoutGrid,
-    content: `**Diversification** — "Don't Put All Eggs in One Basket" — is one of Graham's most cited principles and the intellectual root of modern portfolio theory.\n\n**Graham's Rule:** Hold at least 10-30 stocks across different industries. No single stock should exceed 5-10% of your portfolio.\n\n**Why it works:**\n- Reduces unsystematic (company-specific) risk to near zero\n- Even if 3-4 stocks fail completely, the portfolio survives\n- Forces discipline in position sizing\n\n**Evolution into modern finance:**\n- Harry Markowitz formalized this as Modern Portfolio Theory (1952 Nobel Prize)\n- Led to the creation of index funds (John Bogle, Vanguard)\n- Today: Risk-parity models (Ray Dalio's All-Weather Portfolio) and multi-asset strategies\n\n**Practical framework for Indian investors:**\n- Equity: Large cap (40%) + Mid cap (30%) + Small cap (20%) + International (10%)\n- Asset classes: Equity + Debt + Gold + Real Estate\n- Sectors: Do not allocate >20% to any single sector\n\n**Key insight:** Diversification is the only free lunch in investing. It reduces risk without reducing expected returns.`,
-  },
-  {
-    id: "investor-psychology",
-    name: "Investor Psychology & Emotional Discipline",
-    desc: "Override emotion with systematic rules",
-    Icon: Brain,
-    content: `**Investor Psychology & Emotional Discipline** is Graham's prescription for the biggest enemy of investment returns — the investor's own emotions.\n\n**Graham's Key Insight:** "The investor's chief problem — and even his worst enemy — is likely to be himself."\n\n**Two core emotions that destroy wealth:**\n1. **Fear** → Selling during crashes (locking in losses permanently)\n2. **Greed** → Buying at peaks (FOMO-driven buying at all-time highs)\n\n**Graham's solution:** Create rules-based systems that remove discretion:\n- Rebalance automatically when allocation drifts >5%\n- Never check portfolio more than quarterly\n- Set DCA on auto-debit — remove the decision entirely\n- Define your buy and sell criteria before buying any stock\n\n**Real-world use today:**\n- Behavioral portfolio theory (Shefrin & Statman) is built on Graham's observations\n- All top robo-advisory platforms (Betterment, INDmoney, Zerodha Coin) use automated rebalancing to override human emotion\n- AQR and Dimensional use systematic rules specifically to override investor psychology\n\n**Practical rule:** Write an Investment Policy Statement (IPS). Follow it regardless of what the market does.`,
-  },
-  {
-    id: "graham-doddsville",
-    name: "Graham-and-Doddsville Superinvestors",
-    desc: "Value investing works over decades — proven",
-    Icon: Trophy,
-    content: `**The Superinvestors of Graham-and-Doddsville** is Warren Buffett's landmark 1984 essay that proved value investing works across different investors, markets, and time periods.\n\n**The Proof:** Buffett analyzed 9 investors who all learned from Graham. Despite using different methods and portfolios, all of them significantly outperformed the market over 20-30 years:\n- Walter Schloss: 21.3% CAGR vs S&P 500's 8.4% (over 28 years)\n- Tom Knapp (Tweedy Browne): ~20% CAGR\n- Buffett Partnership: 29.5% vs Dow's 7.4% (over 13 years)\n- Bill Ruane (Sequoia Fund): 18.2% vs S&P's 10%\n\n**Why it matters:** The probability of all 9 achieving this by luck is astronomically low. The common thread: all used Graham's value investing framework.\n\n**Real-world impact today:**\n- The empirical foundation for factor-based investing and smart beta ETFs\n- Proof that the "Value" factor generates persistent alpha\n- Inspired the Fama-French value premium research\n- Every value fund, from Parag Parikh to AQR, traces its intellectual roots here\n\n**Key insight:** You don't need to be smarter than the market — you need to be more disciplined, patient, and emotionally detached than other investors.`,
   },
 ];
 
@@ -785,341 +505,6 @@ const MISTAKES = [
   },
 ];
 
-const _linkedToRulesCount = MISTAKES.filter((m) => m.ruleId !== null).length;
-
-// ─── Basics Inline Calculator ────────────────────────────────────────────────
-const ORIGINAL_BASICS_IDS = [
-  "compounding",
-  "rule-of-72",
-  "sip-vs-lump",
-  "inflation",
-  "cagr",
-  "market-cycles",
-  "pe-ratio",
-  "diversification",
-];
-
-function BasicsInlineCalculator({ topicId }: { topicId: string }) {
-  const [p, setP] = useState(100000);
-  const [r, setR] = useState(12);
-  const [t, setT] = useState(10);
-  const [n, setN] = useState(12);
-  const [endVal, setEndVal] = useState(250000);
-  const [assets, setAssets] = useState(5);
-
-  const inputClass =
-    "w-full mt-1 px-2 py-1 border border-slate-200 rounded text-sm bg-white dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200";
-  const labelClass = "text-xs text-slate-500 dark:text-slate-400";
-  const resultClass =
-    "bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-600";
-
-  if (topicId === "compounding") {
-    const result = p * (1 + r / 100 / n) ** (n * t);
-    return (
-      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
-        <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
-          🧮 Compounding Calculator
-        </h4>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <span className={labelClass}>Principal (₹)</span>
-            <input
-              type="number"
-              value={p}
-              onChange={(e) => setP(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>Annual Rate (%)</span>
-            <input
-              type="number"
-              value={r}
-              onChange={(e) => setR(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>Years</span>
-            <input
-              type="number"
-              value={t}
-              onChange={(e) => setT(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>Compounding/yr</span>
-            <input
-              type="number"
-              value={n}
-              onChange={(e) => setN(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
-        <div className={resultClass}>
-          <p className="text-xs text-slate-500">Future Value</p>
-          <p className="text-lg font-bold text-emerald-600">
-            ₹{result.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-          </p>
-          <p className="text-xs text-slate-400">
-            Growth: {((result / p - 1) * 100).toFixed(1)}% | Gain: ₹
-            {(result - p).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-          </p>
-        </div>
-      </div>
-    );
-  }
-  if (topicId === "rule-of-72") {
-    const years = r > 0 ? (72 / r).toFixed(1) : "∞";
-    return (
-      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
-        <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
-          🧮 Rule of 72 Calculator
-        </h4>
-        <div>
-          <span className={labelClass}>Annual Return Rate (%)</span>
-          <input
-            type="number"
-            value={r}
-            onChange={(e) => setR(+e.target.value)}
-            className={inputClass}
-          />
-        </div>
-        <div className={resultClass}>
-          <p className="text-xs text-slate-500">Years to Double</p>
-          <p className="text-lg font-bold text-blue-600">{years} years</p>
-        </div>
-      </div>
-    );
-  }
-  if (topicId === "sip-vs-lump") {
-    const monthlyRate = r / 100 / 12;
-    const months = t * 12;
-    const sipFV =
-      p * (((1 + monthlyRate) ** months - 1) / monthlyRate) * (1 + monthlyRate);
-    const lumpFV = p * 12 * (1 + r / 100) ** t;
-    return (
-      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
-        <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
-          🧮 SIP vs Lump Sum
-        </h4>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <span className={labelClass}>Monthly SIP (₹)</span>
-            <input
-              type="number"
-              value={p}
-              onChange={(e) => setP(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>Annual Return (%)</span>
-            <input
-              type="number"
-              value={r}
-              onChange={(e) => setR(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>Years</span>
-            <input
-              type="number"
-              value={t}
-              onChange={(e) => setT(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className={`${resultClass} border-emerald-200`}>
-            <p className="text-xs text-slate-500">SIP Final Value</p>
-            <p className="text-base font-bold text-emerald-600">
-              ₹{sipFV.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-            </p>
-          </div>
-          <div className={`${resultClass} border-blue-200`}>
-            <p className="text-xs text-slate-500">Lump Sum FV</p>
-            <p className="text-base font-bold text-blue-600">
-              ₹{lumpFV.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  if (topicId === "inflation") {
-    const futureValue = p * (1 + r / 100) ** t;
-    const purchasingPower = p / (1 + r / 100) ** t;
-    return (
-      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
-        <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
-          🧮 Inflation Impact Calculator
-        </h4>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <span className={labelClass}>Current Amount (₹)</span>
-            <input
-              type="number"
-              value={p}
-              onChange={(e) => setP(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>Inflation Rate (%)</span>
-            <input
-              type="number"
-              value={r}
-              onChange={(e) => setR(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>Years</span>
-            <input
-              type="number"
-              value={t}
-              onChange={(e) => setT(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className={resultClass}>
-            <p className="text-xs text-slate-500">Future Cost</p>
-            <p className="text-base font-bold text-orange-600">
-              ₹{futureValue.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-            </p>
-          </div>
-          <div className={resultClass}>
-            <p className="text-xs text-slate-500">Today's Purchasing Power</p>
-            <p className="text-base font-bold text-red-600">
-              ₹
-              {purchasingPower.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  if (topicId === "cagr") {
-    const cagrResult =
-      t > 0 ? (((endVal / p) ** (1 / t) - 1) * 100).toFixed(2) : "0";
-    return (
-      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
-        <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
-          🧮 CAGR Calculator
-        </h4>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <span className={labelClass}>Start Value (₹)</span>
-            <input
-              type="number"
-              value={p}
-              onChange={(e) => setP(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>End Value (₹)</span>
-            <input
-              type="number"
-              value={endVal}
-              onChange={(e) => setEndVal(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>Years</span>
-            <input
-              type="number"
-              value={t}
-              onChange={(e) => setT(+e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
-        <div className={resultClass}>
-          <p className="text-xs text-slate-500">CAGR</p>
-          <p className="text-lg font-bold text-violet-600">
-            {cagrResult}% per year
-          </p>
-        </div>
-      </div>
-    );
-  }
-  if (topicId === "market-cycles" || topicId === "pe-ratio") {
-    return (
-      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
-        <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
-          🧮 P/E Fair Value Calculator
-        </h4>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <span className={labelClass}>EPS (₹)</span>
-            <input
-              type="number"
-              value={p}
-              onChange={(e) => setP(+e.target.value)}
-              placeholder="e.g. 50"
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <span className={labelClass}>Fair P/E Ratio</span>
-            <input
-              type="number"
-              value={r}
-              onChange={(e) => setR(+e.target.value)}
-              placeholder="e.g. 25"
-              className={inputClass}
-            />
-          </div>
-        </div>
-        <div className={resultClass}>
-          <p className="text-xs text-slate-500">Fair Value Price</p>
-          <p className="text-lg font-bold text-indigo-600">
-            ₹{(p * r).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-          </p>
-        </div>
-      </div>
-    );
-  }
-  if (topicId === "diversification") {
-    const riskReduction = assets > 1 ? (1 - 1 / assets) * 100 : 0;
-    return (
-      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
-        <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
-          🧮 Diversification Benefit
-        </h4>
-        <div>
-          <span className={labelClass}>Number of Assets</span>
-          <input
-            type="number"
-            value={assets}
-            onChange={(e) => setAssets(Math.max(1, +e.target.value))}
-            min={1}
-            max={50}
-            className={inputClass}
-          />
-        </div>
-        <div className={resultClass}>
-          <p className="text-xs text-slate-500">Unsystematic Risk Reduction</p>
-          <p className="text-lg font-bold text-cyan-600">
-            {riskReduction.toFixed(1)}%
-          </p>
-          <p className="text-xs text-slate-400">vs single asset portfolio</p>
-        </div>
-      </div>
-    );
-  }
-  return null;
-}
-
 export default function FinancialRulesPage() {
   const { actor } = useActor();
   const [rules, setRules] = useState<FinancialRule[]>([]);
@@ -1130,7 +515,6 @@ export default function FinancialRulesPage() {
   const [saving, setSaving] = useState(false);
   const [showAIAnalysis, setShowAIAnalysis] = useState(false);
   const [activeTab, setActiveTab] = useState("knowledge");
-  const [activeBasic, setActiveBasic] = useState<string | null>(null);
   const [openCats, setOpenCats] = useState<Record<string, boolean>>({});
   const [dialogCategory, setDialogCategory] = useState("");
   const [dialogRuleId, setDialogRuleId] = useState("");
@@ -1226,13 +610,6 @@ export default function FinancialRulesPage() {
         </div>
         <h1 className="text-lg font-bold text-slate-800">Learn Finance</h1>
       </div>
-      <div className="hidden">
-        <div>
-          <p className="text-sm text-slate-500">
-            Build your financial knowledge from basics to expert
-          </p>
-        </div>
-      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         {/* Pill-style tab bar */}
@@ -1246,12 +623,20 @@ export default function FinancialRulesPage() {
             Rules
           </TabsTrigger>
           <TabsTrigger
-            value="basics"
+            value="chapters"
             data-ocid="financialrules.basics.tab"
             className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
           >
-            <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
+            <BookOpen className="w-3.5 h-3.5 mr-1.5" />
             Basics
+          </TabsTrigger>
+          <TabsTrigger
+            value="quiz"
+            data-ocid="financialrules.quiz.tab"
+            className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
+          >
+            <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
+            Quiz
           </TabsTrigger>
           <TabsTrigger
             value="mistakes"
@@ -1269,267 +654,18 @@ export default function FinancialRulesPage() {
             <Brain className="w-3.5 h-3.5 mr-1.5" />
             My Rules
           </TabsTrigger>
-          <TabsTrigger
-            value="chapters"
-            data-ocid="financialrules.chapters.tab"
-            className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
-          >
-            <BookOpen className="w-3.5 h-3.5 mr-1.5" />
-            Chapters
-          </TabsTrigger>
-          <TabsTrigger
-            value="quiz"
-            data-ocid="financialrules.quiz.tab"
-            className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
-          >
-            <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
-            Quiz
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="knowledge" className="mt-4 space-y-4">
-          {/* Level Filter Pills */}
           <FinancialRulesSection />
         </TabsContent>
 
-        <TabsContent value="basics" className="mt-4">
-          {(() => {
-            const BASICS_COLORS = [
-              {
-                color: "#10b981",
-                iconBg: "bg-emerald-50",
-                iconText: "text-emerald-600",
-                iconBgActive: "bg-emerald-500",
-                expandedBg: "bg-emerald-50/30",
-                borderColor: "border-emerald-100",
-              },
-              {
-                color: "#3b82f6",
-                iconBg: "bg-blue-50",
-                iconText: "text-blue-600",
-                iconBgActive: "bg-blue-500",
-                expandedBg: "bg-blue-50/30",
-                borderColor: "border-blue-100",
-              },
-              {
-                color: "#8b5cf6",
-                iconBg: "bg-violet-50",
-                iconText: "text-violet-600",
-                iconBgActive: "bg-violet-500",
-                expandedBg: "bg-violet-50/30",
-                borderColor: "border-violet-100",
-              },
-              {
-                color: "#f97316",
-                iconBg: "bg-orange-50",
-                iconText: "text-orange-600",
-                iconBgActive: "bg-orange-500",
-                expandedBg: "bg-orange-50/30",
-                borderColor: "border-orange-100",
-              },
-              {
-                color: "#6366f1",
-                iconBg: "bg-indigo-50",
-                iconText: "text-indigo-600",
-                iconBgActive: "bg-indigo-500",
-                expandedBg: "bg-indigo-50/30",
-                borderColor: "border-indigo-100",
-              },
-              {
-                color: "#06b6d4",
-                iconBg: "bg-cyan-50",
-                iconText: "text-cyan-600",
-                iconBgActive: "bg-cyan-500",
-                expandedBg: "bg-cyan-50/30",
-                borderColor: "border-cyan-100",
-              },
-              {
-                color: "#f59e0b",
-                iconBg: "bg-amber-50",
-                iconText: "text-amber-600",
-                iconBgActive: "bg-amber-500",
-                expandedBg: "bg-amber-50/30",
-                borderColor: "border-amber-100",
-              },
-              {
-                color: "#f43f5e",
-                iconBg: "bg-rose-50",
-                iconText: "text-rose-600",
-                iconBgActive: "bg-rose-500",
-                expandedBg: "bg-rose-50/30",
-                borderColor: "border-rose-100",
-              },
-            ];
-            if (activeBasic) {
-              const topic = BASICS_TOPICS.find((t) => t.id === activeBasic);
-              if (topic) {
-                const idx = BASICS_TOPICS.findIndex(
-                  (t) => t.id === activeBasic,
-                );
-                const c = BASICS_COLORS[idx % BASICS_COLORS.length];
-                return (
-                  <div className="space-y-4">
-                    <button
-                      type="button"
-                      onClick={() => setActiveBasic(null)}
-                      className="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-                      data-ocid="basics.back_button"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 19l-7-7 7-7"
-                        />
-                      </svg>
-                      Back to Basics
-                    </button>
-                    <div
-                      className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
-                      style={{ borderLeft: `4px solid ${c.color}` }}
-                    >
-                      <div className="p-5">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center ${c.iconBgActive}`}
-                          >
-                            <topic.Icon className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h2 className="text-base font-bold text-slate-800">
-                              {topic.name}
-                            </h2>
-                            <p className="text-xs text-slate-500">
-                              {topic.desc}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="prose prose-sm max-w-none">
-                          {"content" in topic && topic.content ? (
-                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-                              {String(topic.content).replace(
-                                /\*\*(.+?)\*\*/g,
-                                "$1",
-                              )}
-                            </p>
-                          ) : (
-                            <div className="space-y-3">
-                              {"sections" in topic &&
-                                Array.isArray(topic.sections) &&
-                                (
-                                  topic.sections as {
-                                    title: string;
-                                    text: string;
-                                  }[]
-                                ).map((s, si) => (
-                                  <div key={s.title || si}>
-                                    <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">
-                                      {s.title}
-                                    </p>
-                                    <p className="text-sm text-slate-700 leading-relaxed">
-                                      {s.text}
-                                    </p>
-                                  </div>
-                                ))}
-                            </div>
-                          )}
-                        </div>
-                        {ORIGINAL_BASICS_IDS.includes(topic.id) && (
-                          <BasicsInlineCalculator topicId={topic.id} />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-            }
+        <TabsContent value="chapters" className="mt-4">
+          <ChaptersTab />
+        </TabsContent>
 
-            return (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {BASICS_TOPICS.map((topic, idx) => {
-                  const c = BASICS_COLORS[idx % BASICS_COLORS.length];
-                  const isActive = false; // No inline expansion - click opens full page
-                  return (
-                    <div
-                      key={topic.id}
-                      className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
-                      style={{ borderLeft: `4px solid ${c.color}` }}
-                    >
-                      <button
-                        type="button"
-                        data-ocid={`basics.${topic.id}.card`}
-                        className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
-                        onClick={() => setActiveBasic(topic.id)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${isActive ? c.iconBgActive : c.iconBg}`}
-                          >
-                            <topic.Icon
-                              className={`w-4 h-4 ${isActive ? "text-white" : c.iconText}`}
-                            />
-                          </div>
-                          <div className="text-left">
-                            <p className="text-sm font-bold text-slate-800">
-                              {topic.name}
-                            </p>
-                            <p className="text-xs text-slate-500 mt-0.5">
-                              {topic.desc}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-slate-400 text-sm ml-2">
-                          {isActive ? "▲" : "▼"}
-                        </span>
-                      </button>
-                      {isActive && (
-                        <div
-                          className={`border-t ${c.borderColor} ${c.expandedBg}`}
-                        >
-                          {(topic as any).content ? (
-                            <div className="p-4 space-y-2">
-                              {((topic as any).content as string)
-                                .split("\n\n")
-                                .map((para: string) => (
-                                  <p
-                                    key={para.substring(0, 30)}
-                                    className="text-sm text-slate-700 leading-relaxed"
-                                  >
-                                    {para
-                                      .split(/\*\*(.+?)\*\*/)
-                                      .map((part: string, i: number) =>
-                                        i % 2 === 1 ? (
-                                          <strong
-                                            key={`${part.substring(0, 15)}-b`}
-                                            className="font-semibold text-slate-900"
-                                          >
-                                            {part}
-                                          </strong>
-                                        ) : (
-                                          part
-                                        ),
-                                      )}
-                                  </p>
-                                ))}
-                            </div>
-                          ) : (
-                            <ModelFundamentalsTab showSection={topic.id} />
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })()}
+        <TabsContent value="quiz" className="mt-4">
+          <QuizTab />
         </TabsContent>
 
         <TabsContent value="mistakes" className="mt-4">
@@ -1595,7 +731,6 @@ export default function FinancialRulesPage() {
             const toggleCat = (name: string) =>
               setOpenCats((prev) => {
                 const isOpen = prev[name] ?? false;
-                // Close all, then open only the clicked one (unless it was already open)
                 const next: Record<string, boolean> = {};
                 if (!isOpen) next[name] = true;
                 return next;
@@ -1603,7 +738,6 @@ export default function FinancialRulesPage() {
 
             return (
               <div className="space-y-4">
-                {/* Categories */}
                 {MISTAKE_CATEGORIES.map((cat) => {
                   const catMistakes = MISTAKES.filter((m) =>
                     cat.ids.includes(m.id),
@@ -1650,6 +784,58 @@ export default function FinancialRulesPage() {
                               const globalIdx = MISTAKES.findIndex(
                                 (m) => m.id === item.id,
                               );
+                              const emojiMap: Record<number, string> = {
+                                1: "📊",
+                                2: "📊",
+                                3: "💳",
+                                4: "🏦",
+                                5: "🎰",
+                                6: "💳",
+                                7: "👨‍👩‍👧",
+                                8: "🏥",
+                                9: "🏠",
+                                10: "👨‍👩‍👧",
+                                11: "📊",
+                                12: "🏥",
+                                13: "🧠",
+                                14: "📊",
+                                15: "🛍️",
+                                16: "💳",
+                                17: "📉",
+                                18: "📈",
+                                19: "📉",
+                                20: "🎰",
+                                21: "🌅",
+                                22: "📉",
+                                23: "💳",
+                                24: "📝",
+                                25: "💳",
+                                26: "📋",
+                                27: "🛍️",
+                                28: "🛍️",
+                                29: "💼",
+                                30: "📝",
+                                31: "🏥",
+                                32: "🏥",
+                                33: "📉",
+                                34: "🏦",
+                                35: "🛍️",
+                                36: "💼",
+                                37: "💼",
+                                38: "🏠",
+                                39: "📉",
+                                40: "📈",
+                                41: "📝",
+                                42: "🌅",
+                                43: "🏥",
+                                44: "🛍️",
+                                45: "📈",
+                                46: "🎰",
+                                47: "📝",
+                                48: "💼",
+                                49: "🎓",
+                                50: "👨‍👩‍👧",
+                              };
                               return (
                                 <div
                                   key={item.id}
@@ -1664,60 +850,7 @@ export default function FinancialRulesPage() {
                                 >
                                   <div className="p-4 flex items-start gap-3 flex-1 min-w-0">
                                     <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg">
-                                      {(
-                                        {
-                                          1: "📊",
-                                          2: "📊",
-                                          3: "💳",
-                                          4: "🏦",
-                                          5: "🎰",
-                                          6: "💳",
-                                          7: "👨‍👩‍👧",
-                                          8: "🏥",
-                                          9: "🏠",
-                                          10: "👨‍👩‍👧",
-                                          11: "📊",
-                                          12: "🏥",
-                                          13: "🧠",
-                                          14: "📊",
-                                          15: "🛍️",
-                                          16: "💳",
-                                          17: "📉",
-                                          18: "📈",
-                                          19: "📉",
-                                          20: "🎰",
-                                          21: "🌅",
-                                          22: "📉",
-                                          23: "💳",
-                                          24: "📝",
-                                          25: "💳",
-                                          26: "📋",
-                                          27: "🛍️",
-                                          28: "🛍️",
-                                          29: "💼",
-                                          30: "📝",
-                                          31: "🏥",
-                                          32: "🏥",
-                                          33: "📉",
-                                          34: "🏦",
-                                          35: "🛍️",
-                                          36: "💼",
-                                          37: "💼",
-                                          38: "🏠",
-                                          39: "📉",
-                                          40: "📈",
-                                          41: "📝",
-                                          42: "🌅",
-                                          43: "🏥",
-                                          44: "🛍️",
-                                          45: "📈",
-                                          46: "🎰",
-                                          47: "📝",
-                                          48: "💼",
-                                          49: "🎓",
-                                          50: "👨‍👩‍👧",
-                                        } as Record<number, string>
-                                      )[item.id] ?? "📌"}
+                                      {emojiMap[item.id] ?? "📌"}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-sm font-semibold text-slate-800 leading-snug">
@@ -1757,11 +890,7 @@ export default function FinancialRulesPage() {
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <Button
                 variant={showAIAnalysis ? "default" : "outline"}
-                className={`gap-2 ${
-                  showAIAnalysis
-                    ? "bg-gradient-to-r from-violet-500 to-purple-700 text-white border-0 hover:opacity-90"
-                    : "border-violet-200 text-violet-700 hover:bg-violet-50"
-                }`}
+                className={`gap-2 ${showAIAnalysis ? "bg-gradient-to-r from-violet-500 to-purple-700 text-white border-0 hover:opacity-90" : "border-violet-200 text-violet-700 hover:bg-violet-50"}`}
                 onClick={() => setShowAIAnalysis((v) => !v)}
                 data-ocid="ai_analysis.toggle_button"
               >
@@ -1843,9 +972,7 @@ export default function FinancialRulesPage() {
                               <Badge
                                 className="text-xs"
                                 style={{
-                                  background: `${
-                                    LEVEL_BORDER_COLORS[r.ruleType] ?? "#64748b"
-                                  }20`,
+                                  background: `${LEVEL_BORDER_COLORS[r.ruleType] ?? "#64748b"}20`,
                                   color:
                                     LEVEL_BORDER_COLORS[r.ruleType] ??
                                     "#64748b",
@@ -1857,11 +984,7 @@ export default function FinancialRulesPage() {
                             )}
                             <Badge
                               variant={r.isActive ? "default" : "secondary"}
-                              className={`text-xs ${
-                                r.isActive
-                                  ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                                  : ""
-                              }`}
+                              className={`text-xs ${r.isActive ? "bg-emerald-100 text-emerald-700 border border-emerald-200" : ""}`}
                             >
                               {r.isActive ? "Active" : "Inactive"}
                             </Badge>
@@ -1925,14 +1048,6 @@ export default function FinancialRulesPage() {
               </div>
             )}
           </div>
-        </TabsContent>
-
-        <TabsContent value="chapters" className="mt-4">
-          <ChaptersTab />
-        </TabsContent>
-
-        <TabsContent value="quiz" className="mt-4">
-          <QuizTab />
         </TabsContent>
       </Tabs>
 

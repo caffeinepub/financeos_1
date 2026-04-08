@@ -1,13 +1,20 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
+  Activity,
+  BarChart,
+  BarChart2,
   BookOpen,
+  Brain,
   CheckCircle,
   ChevronDown,
   ChevronUp,
+  Clock,
+  DollarSign,
+  LayoutGrid,
   Lock,
+  TrendingUp,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const LS_KEY = "growfinfire_chapters_read";
 
@@ -22,6 +29,7 @@ interface Chapter {
   title: string;
   description: string;
   content: ContentSection[];
+  calculatorId?: string;
 }
 
 interface Tier {
@@ -37,6 +45,16 @@ interface Tier {
 }
 
 const TIERS: Tier[] = [
+  {
+    number: 0,
+    name: "Starter",
+    color: "#64748b",
+    badgeClass: "bg-slate-100 text-slate-700 border-slate-200",
+    borderClass: "border-slate-200",
+    bgClass: "bg-slate-50/40 dark:bg-slate-900/10",
+    headerBg: "bg-slate-50 dark:bg-slate-800/40",
+    chapterIds: [101, 102, 103, 104, 105, 106, 107, 108],
+  },
   {
     number: 1,
     name: "Foundations",
@@ -100,7 +118,606 @@ const TIERS: Tier[] = [
   },
 ];
 
+// Tier 0 Starter chapters — migrated from the original Basics tab
+const TIER0_CHAPTERS: Chapter[] = [
+  {
+    id: 101,
+    tier: 0,
+    title: "Compounding",
+    description: "The 8th wonder of the world — earn returns on your returns.",
+    calculatorId: "compounding",
+    content: [
+      {
+        heading: "What Is Compounding?",
+        bullets: [
+          "Compounding is the process of earning returns on your returns — often called the 8th wonder of the world.",
+          "Formula: A = P(1 + r/n)^(nt) — where P = Principal, r = annual rate, n = compounding frequency, t = years.",
+          "₹1,00,000 at 12% annual return for 20 years = ₹9,64,629 — nearly 10x your money.",
+        ],
+      },
+      {
+        heading: "Why Starting Early Matters",
+        bullets: [
+          "Start at 25: ₹5,000/month for 35 years at 12% = ₹3.2 Crore.",
+          "Start at 35: ₹5,000/month for 25 years at 12% = ₹94 Lakh.",
+          "10 years of delay costs ₹2.3 Crore — that is the price of waiting.",
+          "Key rule: Never interrupt compounding. Even one year of pause can cost years of growth at the end.",
+        ],
+      },
+      {
+        heading: "Compounding in SIPs",
+        bullets: [
+          "Every SIP payment starts its own compounding journey. The first payment compounds the longest.",
+          "SIPs exploit compounding automatically — discipline is your greatest edge.",
+          "Even small amounts invested consistently for decades create extraordinary wealth.",
+        ],
+      },
+    ],
+  },
+  {
+    id: 102,
+    tier: 0,
+    title: "Rule of 72",
+    description: "Estimate how fast your money doubles at any return rate.",
+    calculatorId: "rule-of-72",
+    content: [
+      {
+        heading: "The Formula",
+        bullets: [
+          "Rule of 72: Years to Double = 72 ÷ Annual Return Rate.",
+          "6% return (FD): 72 ÷ 6 = 12 years to double.",
+          "12% return (Equity): 72 ÷ 12 = 6 years to double.",
+          "18% return (Small Cap): 72 ÷ 18 = 4 years to double.",
+        ],
+      },
+      {
+        heading: "Inflation Version",
+        bullets: [
+          "At 6% inflation, purchasing power halves in 72 ÷ 6 = 12 years.",
+          "FD at 7% doubles in ~10 years. Equity at 14% doubles in ~5 years.",
+          "Over 30 years, equity doubles 6 times vs FD doubling just 3 times.",
+          "Used by all investment advisors for quick suitability checks and goal planning.",
+        ],
+      },
+    ],
+  },
+  {
+    id: 103,
+    tier: 0,
+    title: "SIP vs Lump Sum",
+    description: "Which investment strategy wins in which market conditions?",
+    calculatorId: "sip-vs-lump",
+    content: [
+      {
+        heading: "SIP (Systematic Investment Plan)",
+        bullets: [
+          "Invest a fixed amount every month regardless of market level.",
+          "Uses Rupee Cost Averaging — buy more units when markets fall, fewer when they rise.",
+          "Best for: Salaried investors, volatile markets, investors with no market timing ability.",
+        ],
+      },
+      {
+        heading: "Lump Sum",
+        bullets: [
+          "Invest the entire amount at once.",
+          "Wins decisively when markets are at a confirmed bottom.",
+          "Loses badly if you invest at a market peak.",
+          "Best for: Large one-time inflows (bonus, inheritance, property sale).",
+        ],
+      },
+      {
+        heading: "Verdict",
+        bullets: [
+          "Data over 10-year rolling periods: SIP beats lump sum ~60% of the time in volatile markets.",
+          "For salaried investors, SIP wins through discipline.",
+          "For windfall money, use a Systematic Transfer Plan (STP) — park in liquid funds, transfer monthly.",
+        ],
+      },
+    ],
+  },
+  {
+    id: 104,
+    tier: 0,
+    title: "Inflation Impact",
+    description:
+      "Understand how inflation silently erodes your purchasing power.",
+    calculatorId: "inflation",
+    content: [
+      {
+        heading: "The Silent Wealth Destroyer",
+        bullets: [
+          "India's average inflation: 5–7% per year (CPI). At 6% inflation, prices double every 12 years.",
+          "₹1,00,000 today = ₹74,409 in 5 years at 6% inflation.",
+          "₹1,00,000 today = ₹55,368 in 10 years at 6% inflation.",
+          "₹1,00,000 today = ₹23,305 in 25 years at 6% inflation.",
+        ],
+      },
+      {
+        heading: "Real Returns After Inflation",
+        bullets: [
+          "Golden rule: Your investment return must beat Inflation + Tax to create real wealth.",
+          "FD at 7% → After 30% tax = 4.9% → Real return = -1.1% (negative!).",
+          "PPF at 7.1% → Tax-free → Real return = +1.1%.",
+          "Equity at 13% → After 10% LTCG = 11.7% → Real return = +5.7%.",
+          "Best hedge: Equity (historically 12–15% vs 6% inflation). Gold also works as partial inflation hedge.",
+        ],
+      },
+    ],
+  },
+  {
+    id: 105,
+    tier: 0,
+    title: "CAGR",
+    description: "Measure true investment growth and compare funds correctly.",
+    calculatorId: "cagr",
+    content: [
+      {
+        heading: "What Is CAGR?",
+        bullets: [
+          "CAGR (Compound Annual Growth Rate) is the single most important metric for comparing investment performance.",
+          "Formula: CAGR = (End Value ÷ Start Value)^(1 ÷ Years) − 1.",
+          "Example: ₹1,00,000 → ₹2,50,000 in 5 years = CAGR of 20.1% per year.",
+        ],
+      },
+      {
+        heading: "Why CAGR Beats Absolute Returns",
+        bullets: [
+          "Fund A: ₹1L → ₹2L in 4 years = 100% absolute, 18.9% CAGR.",
+          "Fund B: ₹1L → ₹3L in 8 years = 200% absolute, 14.7% CAGR.",
+          "Fund A is the better investment despite lower absolute return — CAGR reveals this truth.",
+          "Rule: Always compare investments using CAGR. Never trust absolute return claims without knowing the time period.",
+        ],
+      },
+      {
+        heading: "CAGR Benchmarks (India)",
+        bullets: [
+          "Nifty 50 20-year CAGR: ~13–14%.",
+          "Sensex 30-year CAGR: ~15%.",
+          "FD average CAGR: ~6–7%.",
+          "Gold 20-year CAGR: ~10%.",
+        ],
+      },
+    ],
+  },
+  {
+    id: 106,
+    tier: 0,
+    title: "Market Cycles",
+    description:
+      "Understand bull, bear, accumulation, and distribution phases.",
+    calculatorId: "market-cycles",
+    content: [
+      {
+        heading: "The 4 Phases",
+        bullets: [
+          "Accumulation: Smart money buys quietly. Markets are flat. News is still negative. P/E ratios are low. Best time to buy.",
+          "Markup (Bull Market): Public starts buying. Prices rise steadily. Optimism spreads. FOMO kicks in near the top.",
+          "Distribution: Smart money sells to retail buyers. Markets plateau. Insiders exit while public is most bullish.",
+          "Markdown (Bear Market): Panic selling. Markets fall 20–50%. Smart money starts accumulating again.",
+        ],
+      },
+      {
+        heading: "Historical Data",
+        bullets: [
+          "Average bull market duration: 4–5 years.",
+          "Average bear market duration: 12–18 months.",
+          "Markets have recovered 100% of the time from every crash in history.",
+          "Rule: Never exit quality investments during the bear phase. Bear markets are sales on quality assets.",
+        ],
+      },
+    ],
+  },
+  {
+    id: 107,
+    tier: 0,
+    title: "P/E Ratio & Valuation",
+    description: "Is a stock cheap or expensive? How to read valuation ratios.",
+    calculatorId: "pe-ratio",
+    content: [
+      {
+        heading: "Understanding P/E Ratio",
+        bullets: [
+          "Formula: P/E = Market Price per Share ÷ Earnings per Share (EPS).",
+          "P/E of 20 means you pay ₹20 for every ₹1 of annual earnings.",
+          "Compare P/E within the same sector — Tech commands 30–50x, Banks trade at 10–15x.",
+        ],
+      },
+      {
+        heading: "Nifty 50 Historical P/E Bands",
+        bullets: [
+          "Below 16: Severely undervalued — strong buy zone.",
+          "16–20: Fair value — accumulate.",
+          "20–25: Slightly expensive — invest selectively.",
+          "Above 25: Expensive — avoid lump sum.",
+          "Above 30: Bubble territory — trim holdings.",
+        ],
+      },
+      {
+        heading: "PEG Ratio",
+        bullets: [
+          "PEG = P/E ÷ Annual Earnings Growth Rate.",
+          "PEG < 1: Potentially undervalued. PEG > 2: Expensive relative to growth.",
+          "Graham's rule: Never pay more than 15× trailing 12-month earnings for a defensive stock.",
+        ],
+      },
+    ],
+  },
+  {
+    id: 108,
+    tier: 0,
+    title: "Diversification",
+    description:
+      "The only free lunch in investing — reduce risk without reducing returns.",
+    calculatorId: "diversification",
+    content: [
+      {
+        heading: "Core Principle",
+        bullets: [
+          "Combining assets with low or negative correlation reduces portfolio volatility without reducing expected returns.",
+          "15–20 stocks across 5–6 sectors provides ~95% of maximum diversification benefit.",
+          "Beyond 20 stocks: diminishing returns on risk reduction.",
+          "Too few stocks (<8): single-company failure can be devastating.",
+        ],
+      },
+      {
+        heading: "Asset Class Diversification",
+        bullets: [
+          "Equity: Long-term wealth creation (12–15% historical CAGR).",
+          "Debt/Bonds: Stability and income (6–8%).",
+          "Gold: Hedge against inflation and currency risk.",
+          "Real Estate: Inflation hedge and passive income.",
+        ],
+      },
+      {
+        heading: "Key Warnings",
+        bullets: [
+          "Index funds: Inherently diversified — a Nifty 50 index fund gives exposure to 50 companies across 13 sectors.",
+          "Graham's recommendation: Hold 10–30 stocks maximum. Beyond this, you are better off with an index fund.",
+          "Warning: Diversification into assets you don't understand is called diworsification (Peter Lynch).",
+        ],
+      },
+    ],
+  },
+];
+
+const TIER0_ICON_MAP: Record<
+  number,
+  React.ComponentType<{ className?: string }>
+> = {
+  101: TrendingUp,
+  102: Clock,
+  103: BarChart2,
+  104: Activity,
+  105: BarChart,
+  106: BarChart,
+  107: DollarSign,
+  108: LayoutGrid,
+};
+
+// ─── Starter Chapter Calculator ───────────────────────────────────────────────
+function StarterCalculator({ calcId }: { calcId: string }) {
+  const [p, setP] = useState(100000);
+  const [r, setR] = useState(12);
+  const [t, setT] = useState(10);
+  const [n, setN] = useState(12);
+  const [endVal, setEndVal] = useState(250000);
+  const [assets, setAssets] = useState(5);
+
+  const inp =
+    "w-full mt-1 px-3 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400";
+  const lbl = "text-xs text-slate-500 dark:text-slate-400 font-medium";
+  const res =
+    "bg-white dark:bg-slate-800 rounded-xl p-3 border border-slate-200 dark:border-slate-600";
+
+  if (calcId === "compounding") {
+    const result = p * (1 + r / 100 / n) ** (n * t);
+    return (
+      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+        <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+          🧮 Compounding Calculator
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <span className={lbl}>Principal (₹)</span>
+            <input
+              type="number"
+              value={p}
+              onChange={(e) => setP(+e.target.value)}
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>Annual Rate (%)</span>
+            <input
+              type="number"
+              value={r}
+              onChange={(e) => setR(+e.target.value)}
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>Years</span>
+            <input
+              type="number"
+              value={t}
+              onChange={(e) => setT(+e.target.value)}
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>Compounding/yr</span>
+            <input
+              type="number"
+              value={n}
+              onChange={(e) => setN(+e.target.value)}
+              className={inp}
+            />
+          </div>
+        </div>
+        <div className={res}>
+          <p className="text-xs text-slate-500">Future Value</p>
+          <p className="text-lg font-bold text-emerald-600">
+            ₹{result.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          </p>
+          <p className="text-xs text-slate-400">
+            Growth: {((result / p - 1) * 100).toFixed(1)}% · Gain: ₹
+            {(result - p).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+  if (calcId === "rule-of-72") {
+    const years = r > 0 ? (72 / r).toFixed(1) : "∞";
+    return (
+      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+        <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+          🧮 Rule of 72 Calculator
+        </h4>
+        <div>
+          <span className={lbl}>Annual Return Rate (%)</span>
+          <input
+            type="number"
+            value={r}
+            onChange={(e) => setR(+e.target.value)}
+            className={inp}
+          />
+        </div>
+        <div className={res}>
+          <p className="text-xs text-slate-500">Years to Double</p>
+          <p className="text-lg font-bold text-blue-600">{years} years</p>
+        </div>
+      </div>
+    );
+  }
+  if (calcId === "sip-vs-lump") {
+    const monthlyRate = r / 100 / 12;
+    const months = t * 12;
+    const sipFV =
+      p * (((1 + monthlyRate) ** months - 1) / monthlyRate) * (1 + monthlyRate);
+    const lumpFV = p * 12 * (1 + r / 100) ** t;
+    return (
+      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+        <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+          🧮 SIP vs Lump Sum
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <span className={lbl}>Monthly SIP (₹)</span>
+            <input
+              type="number"
+              value={p}
+              onChange={(e) => setP(+e.target.value)}
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>Annual Return (%)</span>
+            <input
+              type="number"
+              value={r}
+              onChange={(e) => setR(+e.target.value)}
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>Years</span>
+            <input
+              type="number"
+              value={t}
+              onChange={(e) => setT(+e.target.value)}
+              className={inp}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className={res}>
+            <p className="text-xs text-slate-500">SIP Final Value</p>
+            <p className="text-base font-bold text-emerald-600">
+              ₹{sipFV.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            </p>
+          </div>
+          <div className={res}>
+            <p className="text-xs text-slate-500">Lump Sum FV</p>
+            <p className="text-base font-bold text-blue-600">
+              ₹{lumpFV.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (calcId === "inflation") {
+    const futureValue = p * (1 + r / 100) ** t;
+    const purchasingPower = p / (1 + r / 100) ** t;
+    return (
+      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+        <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+          🧮 Inflation Impact Calculator
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <span className={lbl}>Current Amount (₹)</span>
+            <input
+              type="number"
+              value={p}
+              onChange={(e) => setP(+e.target.value)}
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>Inflation Rate (%)</span>
+            <input
+              type="number"
+              value={r}
+              onChange={(e) => setR(+e.target.value)}
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>Years</span>
+            <input
+              type="number"
+              value={t}
+              onChange={(e) => setT(+e.target.value)}
+              className={inp}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className={res}>
+            <p className="text-xs text-slate-500">Future Cost</p>
+            <p className="text-base font-bold text-orange-600">
+              ₹{futureValue.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            </p>
+          </div>
+          <div className={res}>
+            <p className="text-xs text-slate-500">Today's Purchasing Power</p>
+            <p className="text-base font-bold text-red-600">
+              ₹
+              {purchasingPower.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (calcId === "cagr") {
+    const cagrResult =
+      t > 0 ? (((endVal / p) ** (1 / t) - 1) * 100).toFixed(2) : "0";
+    return (
+      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+        <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+          🧮 CAGR Calculator
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <span className={lbl}>Start Value (₹)</span>
+            <input
+              type="number"
+              value={p}
+              onChange={(e) => setP(+e.target.value)}
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>End Value (₹)</span>
+            <input
+              type="number"
+              value={endVal}
+              onChange={(e) => setEndVal(+e.target.value)}
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>Years</span>
+            <input
+              type="number"
+              value={t}
+              onChange={(e) => setT(+e.target.value)}
+              className={inp}
+            />
+          </div>
+        </div>
+        <div className={res}>
+          <p className="text-xs text-slate-500">CAGR</p>
+          <p className="text-lg font-bold text-violet-600">
+            {cagrResult}% per year
+          </p>
+        </div>
+      </div>
+    );
+  }
+  if (calcId === "market-cycles" || calcId === "pe-ratio") {
+    return (
+      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+        <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+          🧮 P/E Fair Value Calculator
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <span className={lbl}>EPS (₹)</span>
+            <input
+              type="number"
+              value={p}
+              onChange={(e) => setP(+e.target.value)}
+              placeholder="e.g. 50"
+              className={inp}
+            />
+          </div>
+          <div>
+            <span className={lbl}>Fair P/E Ratio</span>
+            <input
+              type="number"
+              value={r}
+              onChange={(e) => setR(+e.target.value)}
+              placeholder="e.g. 25"
+              className={inp}
+            />
+          </div>
+        </div>
+        <div className={res}>
+          <p className="text-xs text-slate-500">Fair Value Price</p>
+          <p className="text-lg font-bold text-indigo-600">
+            ₹{(p * r).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+  if (calcId === "diversification") {
+    const riskReduction = assets > 1 ? (1 - 1 / assets) * 100 : 0;
+    return (
+      <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+        <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+          🧮 Diversification Benefit
+        </h4>
+        <div>
+          <span className={lbl}>Number of Assets</span>
+          <input
+            type="number"
+            value={assets}
+            onChange={(e) => setAssets(Math.max(1, +e.target.value))}
+            min={1}
+            max={50}
+            className={inp}
+          />
+        </div>
+        <div className={res}>
+          <p className="text-xs text-slate-500">Unsystematic Risk Reduction</p>
+          <p className="text-lg font-bold text-cyan-600">
+            {riskReduction.toFixed(1)}%
+          </p>
+          <p className="text-xs text-slate-400">vs single asset portfolio</p>
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
 const CHAPTERS: Chapter[] = [
+  ...TIER0_CHAPTERS,
   {
     id: 1,
     tier: 1,
@@ -313,7 +930,7 @@ const CHAPTERS: Chapter[] = [
         bullets: [
           "Direct plan: Buy directly from AMC. No distributor commission. Lower expense ratio by ~0.5–1.5%.",
           "Regular plan: Buy via distributor/broker. Includes trail commission. Higher expense ratio.",
-          "Impact over 20 years on a ₹10,000/month SIP: Direct plan creates ₹10–15 lakh MORE than regular (Financial Express/ET Now, April 2026).",
+          "Impact over 20 years on a ₹10,000/month SIP: Direct plan creates ₹10–15 lakh MORE than regular.",
           "Always choose Direct plans if you're investing yourself (via AMC website, MF Central, Groww, Zerodha Coin).",
         ],
       },
@@ -365,7 +982,7 @@ const CHAPTERS: Chapter[] = [
         heading: "Types of ETFs in India",
         bullets: [
           "Nifty ETF: Tracks Nifty 50 (e.g., Nippon Nifty BeES, HDFC Nifty 50 ETF).",
-          "Gold ETF: Tracks domestic gold prices. Each unit = ~1 gram gold. No storage risk.",
+          "Gold ETF: Tracks domestic gold prices. Each unit ≈ 1 gram gold. No storage risk.",
           "International ETFs: Track foreign indices (e.g., Mirae Asset NYSE FANG+ ETF, Motilal Oswal Nasdaq 100 ETF).",
           "Banking, IT, Pharma sector ETFs available on NSE.",
         ],
@@ -1278,23 +1895,25 @@ function ChapterCard({
   onToggleRead: (id: number) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const num = String(chapter.id).padStart(2, "0");
+  const isStarter = tier.number === 0;
+  const IconComp = isStarter ? (TIER0_ICON_MAP[chapter.id] ?? Brain) : null;
+  const displayId = isStarter
+    ? String(chapter.id - 100).padStart(2, "0")
+    : String(chapter.id).padStart(2, "0");
 
   return (
     <div
       data-ocid={`chapters.chapter.${chapter.id}`}
       className={`rounded-2xl border bg-white dark:bg-slate-800/60 shadow-sm overflow-hidden transition-all duration-200 ${tier.borderClass} dark:border-slate-700`}
     >
-      {/* Collapsed header */}
       <div className="p-4">
         <div className="flex items-start gap-3">
-          {/* Chapter badge + read indicator */}
           <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
             <span
               className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
               style={{ background: tier.color }}
             >
-              Ch {num}
+              {isStarter ? "S" : "Ch"} {displayId}
             </span>
             {isRead && (
               <CheckCircle
@@ -1304,16 +1923,20 @@ function ChapterCard({
             )}
           </div>
 
-          {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
+              {IconComp && (
+                <span style={{ color: tier.color }}>
+                  <IconComp className="w-4 h-4 flex-shrink-0" />
+                </span>
+              )}
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
                 {chapter.title}
               </h3>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full border font-medium ${tier.badgeClass}`}
               >
-                Tier {tier.number}
+                {isStarter ? "Starter" : `Tier ${tier.number}`}
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
@@ -1321,7 +1944,6 @@ function ChapterCard({
             </p>
           </div>
 
-          {/* Expand button */}
           <button
             type="button"
             data-ocid={`chapters.chapter.${chapter.id}.expand`}
@@ -1340,7 +1962,6 @@ function ChapterCard({
         </div>
       </div>
 
-      {/* Expanded content */}
       {expanded && (
         <div
           className={`border-t border-slate-100 dark:border-slate-700 px-4 pb-4 pt-3 ${tier.bgClass}`}
@@ -1370,7 +1991,11 @@ function ChapterCard({
             ))}
           </div>
 
-          {/* Mark as Read / Unread */}
+          {/* Starter calculator */}
+          {isStarter && chapter.calculatorId && (
+            <StarterCalculator calcId={chapter.calculatorId} />
+          )}
+
           <div className="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-700">
             <button
               type="button"
@@ -1414,12 +2039,12 @@ function TierAccordion({
 }) {
   const [open, setOpen] = useState(false);
   const readCount = chapters.filter((c) => readIds.includes(c.id)).length;
+  const isStarter = tier.number === 0;
 
   return (
     <div
       className={`rounded-2xl border shadow-sm overflow-hidden ${tier.borderClass} dark:border-slate-700`}
     >
-      {/* Tier header */}
       <button
         type="button"
         data-ocid={`chapters.tier.${tier.number}`}
@@ -1432,13 +2057,20 @@ function TierAccordion({
             className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
             style={{ background: tier.color }}
           >
-            {tier.number}
+            {isStarter ? "S" : tier.number}
           </span>
           <div className="text-left">
             <div className="flex items-center gap-2 flex-wrap">
               <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                Tier {tier.number}: {tier.name}
+                {isStarter
+                  ? "Tier 0: Starter"
+                  : `Tier ${tier.number}: ${tier.name}`}
               </p>
+              {isStarter && (
+                <Badge className="bg-slate-100 text-slate-600 border border-slate-200 text-xs">
+                  Start Here
+                </Badge>
+              )}
               {tier.locked && (
                 <Badge className="bg-amber-100 text-amber-700 border border-amber-200 text-xs gap-1">
                   <Lock className="w-3 h-3" /> Unlockable
@@ -1465,7 +2097,6 @@ function TierAccordion({
         </div>
       </button>
 
-      {/* Chapter list */}
       {open && (
         <div className="px-4 pb-4 pt-3 space-y-3 bg-white dark:bg-slate-900/40">
           {chapters.map((chapter) => (

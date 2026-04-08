@@ -1,27 +1,18 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import {
   BarChart3,
   BookOpen,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
   GraduationCap,
-  Info,
   RotateCcw,
-  Sparkles,
   TrendingUp,
   Trophy,
   XCircle,
+  Zap,
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -335,58 +326,6 @@ const quizzes: Quiz[] = [
       },
       {
         id: 6,
-        question: "What is a money market account?",
-        options: [
-          "Stock trading account",
-          "Savings account with higher interest and limited transactions",
-          "Checking account",
-          "Investment account",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A money market account typically offers higher interest rates than regular savings accounts but may have limited monthly transactions.",
-      },
-      {
-        id: 7,
-        question: "What is the purpose of a checking account?",
-        options: [
-          "Long-term savings",
-          "Daily transactions and bill payments",
-          "Investment purposes",
-          "Retirement savings",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Checking accounts are designed for daily transactions, bill payments, and easy access to funds through checks, debit cards, and ATMs.",
-      },
-      {
-        id: 8,
-        question: "What is overdraft protection?",
-        options: [
-          "Insurance for bank failures",
-          "Service that covers transactions exceeding account balance",
-          "Credit card benefit",
-          "Investment protection",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Overdraft protection is a service that covers transactions when account balance is insufficient, typically for a fee.",
-      },
-      {
-        id: 9,
-        question: "What is a minimum balance requirement?",
-        options: [
-          "Maximum you can deposit",
-          "Minimum amount required to avoid fees or earn interest",
-          "Loan requirement",
-          "Credit card limit",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A minimum balance requirement is the lowest amount that must be maintained in an account to avoid fees or qualify for benefits.",
-      },
-      {
-        id: 10,
         question: "What is compound frequency in savings?",
         options: [
           "How often you deposit",
@@ -399,33 +338,7 @@ const quizzes: Quiz[] = [
           "Compound frequency refers to how often interest is calculated and added to the principal, affecting total returns (daily, monthly, quarterly, annually).",
       },
       {
-        id: 11,
-        question: "What is an online savings account?",
-        options: [
-          "Account only for online shopping",
-          "Bank account operated entirely online, often with higher rates",
-          "Social media account",
-          "Investment account",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Online savings accounts are operated entirely through digital platforms, often offering higher interest rates due to lower overhead costs.",
-      },
-      {
-        id: 12,
-        question: "What is a joint account?",
-        options: [
-          "Account for businesses only",
-          "Account shared by two or more people",
-          "Investment account",
-          "Loan account",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A joint account is shared by two or more individuals, with all parties having equal access and responsibility.",
-      },
-      {
-        id: 13,
+        id: 7,
         question: "What is automatic savings?",
         options: [
           "Manual transfers",
@@ -438,20 +351,7 @@ const quizzes: Quiz[] = [
           "Automatic savings involves setting up scheduled transfers from checking to savings accounts, making saving effortless and consistent.",
       },
       {
-        id: 14,
-        question: "What is a savings goal?",
-        options: [
-          "Bank requirement",
-          "Specific amount targeted for a particular purpose",
-          "Interest rate target",
-          "Account balance limit",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A savings goal is a specific target amount you aim to save for a particular purpose, such as vacation, emergency fund, or down payment.",
-      },
-      {
-        id: 15,
+        id: 8,
         question: "What is the Rule of 72?",
         options: [
           "Tax calculation method",
@@ -462,6 +362,32 @@ const quizzes: Quiz[] = [
         correctAnswer: 1,
         explanation:
           "The Rule of 72 is a simple formula (72 divided by interest rate) to estimate how many years it takes to double your money at a given interest rate.",
+      },
+      {
+        id: 9,
+        question: "What is overdraft protection?",
+        options: [
+          "Insurance for bank failures",
+          "Service that covers transactions exceeding account balance",
+          "Credit card benefit",
+          "Investment protection",
+        ],
+        correctAnswer: 1,
+        explanation:
+          "Overdraft protection is a service that covers transactions when account balance is insufficient, typically for a fee.",
+      },
+      {
+        id: 10,
+        question: "What is a minimum balance requirement?",
+        options: [
+          "Maximum you can deposit",
+          "Minimum amount required to avoid fees or earn interest",
+          "Loan requirement",
+          "Credit card limit",
+        ],
+        correctAnswer: 1,
+        explanation:
+          "A minimum balance requirement is the lowest amount that must be maintained in an account to avoid fees or qualify for benefits.",
       },
     ],
   },
@@ -499,19 +425,6 @@ const quizzes: Quiz[] = [
       },
       {
         id: 3,
-        question: "What is a grace period?",
-        options: [
-          "Late payment penalty",
-          "Time to pay balance without interest charges",
-          "Credit limit increase period",
-          "Account closure period",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A grace period is the time between purchase and payment due date during which no interest is charged if the balance is paid in full.",
-      },
-      {
-        id: 4,
         question: "What is credit utilization?",
         options: [
           "Total credit available",
@@ -524,7 +437,7 @@ const quizzes: Quiz[] = [
           "Credit utilization is the percentage of available credit being used, calculated by dividing total balances by total credit limits.",
       },
       {
-        id: 5,
+        id: 4,
         question: "What is the recommended credit utilization ratio?",
         options: ["100%", "Below 30%", "50%", "75%"],
         correctAnswer: 1,
@@ -532,33 +445,7 @@ const quizzes: Quiz[] = [
           "Financial experts recommend keeping credit utilization below 30% to maintain a good credit score and demonstrate responsible credit management.",
       },
       {
-        id: 6,
-        question: "What is a minimum payment?",
-        options: [
-          "Full balance",
-          "Smallest amount required to keep account in good standing",
-          "Interest charge",
-          "Annual fee",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "The minimum payment is the smallest amount you must pay by the due date to keep your account in good standing, though paying only this accrues interest.",
-      },
-      {
-        id: 7,
-        question: "What is debt consolidation?",
-        options: [
-          "Ignoring debts",
-          "Combining multiple debts into single loan with lower rate",
-          "Increasing debt",
-          "Declaring bankruptcy",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Debt consolidation involves combining multiple debts into a single loan, ideally with a lower interest rate, simplifying payments and potentially reducing costs.",
-      },
-      {
-        id: 8,
+        id: 5,
         question: "What is the debt avalanche method?",
         options: [
           "Paying debts randomly",
@@ -571,7 +458,7 @@ const quizzes: Quiz[] = [
           "The debt avalanche method prioritizes paying off debts with the highest interest rates first, minimizing total interest paid over time.",
       },
       {
-        id: 9,
+        id: 6,
         question: "What is the debt snowball method?",
         options: [
           "Paying highest balance first",
@@ -584,59 +471,7 @@ const quizzes: Quiz[] = [
           "The debt snowball method focuses on paying off the smallest debts first, providing psychological motivation through quick wins.",
       },
       {
-        id: 10,
-        question: "What is a balance transfer?",
-        options: [
-          "Closing an account",
-          "Moving debt from one card to another, often for lower rate",
-          "Increasing credit limit",
-          "Paying off debt",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A balance transfer involves moving debt from one credit card to another, typically to take advantage of a lower interest rate or promotional offer.",
-      },
-      {
-        id: 11,
-        question: "What is a secured credit card?",
-        options: [
-          "Card with no fees",
-          "Card requiring cash deposit as collateral",
-          "Premium credit card",
-          "Business credit card",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A secured credit card requires a cash deposit as collateral, making it easier to obtain for those building or rebuilding credit.",
-      },
-      {
-        id: 12,
-        question: "What is a credit report?",
-        options: [
-          "Bank statement",
-          "Detailed record of credit history and accounts",
-          "Tax document",
-          "Investment report",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A credit report is a detailed record of your credit history, including accounts, payment history, and inquiries, used to calculate credit scores.",
-      },
-      {
-        id: 13,
-        question: "What is a hard inquiry?",
-        options: [
-          "Checking your own credit",
-          "Credit check by lender when applying for credit",
-          "Bank statement review",
-          "Tax audit",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A hard inquiry occurs when a lender checks your credit for a lending decision, potentially lowering your credit score temporarily.",
-      },
-      {
-        id: 14,
+        id: 7,
         question: "What is good debt vs bad debt?",
         options: [
           "All debt is bad",
@@ -649,7 +484,7 @@ const quizzes: Quiz[] = [
           "Good debt typically finances assets that appreciate or generate income (like mortgages or student loans), while bad debt finances depreciating items or consumption.",
       },
       {
-        id: 15,
+        id: 8,
         question: "What is the debt-to-income ratio?",
         options: [
           "Total debt amount",
@@ -661,6 +496,32 @@ const quizzes: Quiz[] = [
         explanation:
           "The debt-to-income ratio compares monthly debt payments to gross monthly income, used by lenders to assess borrowing capacity.",
       },
+      {
+        id: 9,
+        question: "What is a balance transfer?",
+        options: [
+          "Closing an account",
+          "Moving debt from one card to another, often for lower rate",
+          "Increasing credit limit",
+          "Paying off debt",
+        ],
+        correctAnswer: 1,
+        explanation:
+          "A balance transfer involves moving debt from one credit card to another, typically to take advantage of a lower interest rate or promotional offer.",
+      },
+      {
+        id: 10,
+        question: "What is a credit report?",
+        options: [
+          "Bank statement",
+          "Detailed record of credit history and accounts",
+          "Tax document",
+          "Investment report",
+        ],
+        correctAnswer: 1,
+        explanation:
+          "A credit report is a detailed record of your credit history, including accounts, payment history, and inquiries, used to calculate credit scores.",
+      },
     ],
   },
   {
@@ -671,19 +532,6 @@ const quizzes: Quiz[] = [
     questions: [
       {
         id: 1,
-        question: "What is an investment?",
-        options: [
-          "Spending money",
-          "Allocating money to generate returns or profit",
-          "Saving in checking account",
-          "Buying consumer goods",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "An investment is the allocation of money or resources with the expectation of generating returns or profit over time.",
-      },
-      {
-        id: 2,
         question: "What is a stock?",
         options: [
           "Company debt",
@@ -696,7 +544,7 @@ const quizzes: Quiz[] = [
           "A stock represents an ownership share in a company, giving shareholders a claim on assets and earnings.",
       },
       {
-        id: 3,
+        id: 2,
         question: "What is a bond?",
         options: [
           "Company ownership",
@@ -709,7 +557,7 @@ const quizzes: Quiz[] = [
           "A bond is a debt security where an investor loans money to an entity (government or corporation) that borrows funds for a defined period at a fixed interest rate.",
       },
       {
-        id: 4,
+        id: 3,
         question: "What is a mutual fund?",
         options: [
           "Individual stock",
@@ -722,7 +570,7 @@ const quizzes: Quiz[] = [
           "A mutual fund pools money from multiple investors to invest in a diversified portfolio of stocks, bonds, or other securities, managed by professionals.",
       },
       {
-        id: 5,
+        id: 4,
         question: "What is an ETF (Exchange-Traded Fund)?",
         options: [
           "Individual stock",
@@ -735,20 +583,7 @@ const quizzes: Quiz[] = [
           "An ETF is a fund that trades on stock exchanges like individual stocks, typically tracking an index, sector, commodity, or other assets.",
       },
       {
-        id: 6,
-        question: "What is risk tolerance?",
-        options: [
-          "Investment returns",
-          "Ability and willingness to endure investment losses",
-          "Account balance",
-          "Interest rate",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Risk tolerance is an investor's ability and willingness to endure losses in investment value, influenced by financial situation and emotional capacity.",
-      },
-      {
-        id: 7,
+        id: 5,
         question: "What is asset allocation?",
         options: [
           "Buying one stock",
@@ -761,7 +596,7 @@ const quizzes: Quiz[] = [
           "Asset allocation is the strategy of distributing investments across different asset classes (stocks, bonds, cash) to balance risk and reward.",
       },
       {
-        id: 8,
+        id: 6,
         question: "What is dollar-cost averaging?",
         options: [
           "Investing lump sum",
@@ -774,20 +609,7 @@ const quizzes: Quiz[] = [
           "Dollar-cost averaging involves investing a fixed amount regularly regardless of market conditions, reducing the impact of volatility.",
       },
       {
-        id: 9,
-        question: "What is market capitalization?",
-        options: [
-          "Company revenue",
-          "Total market value of company's outstanding shares",
-          "Stock price",
-          "Company profit",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Market capitalization is the total market value of a company's outstanding shares, calculated by multiplying share price by total shares outstanding.",
-      },
-      {
-        id: 10,
+        id: 7,
         question: "What is a dividend?",
         options: [
           "Stock price increase",
@@ -800,20 +622,7 @@ const quizzes: Quiz[] = [
           "A dividend is a portion of a company's profits distributed to shareholders, typically paid quarterly in cash or additional shares.",
       },
       {
-        id: 11,
-        question: "What is portfolio rebalancing?",
-        options: [
-          "Selling all investments",
-          "Adjusting portfolio to maintain target asset allocation",
-          "Buying more stocks",
-          "Closing accounts",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Portfolio rebalancing involves periodically adjusting holdings to maintain the target asset allocation, buying or selling assets as needed.",
-      },
-      {
-        id: 12,
+        id: 8,
         question: "What is a bull market?",
         options: [
           "Declining market",
@@ -826,7 +635,7 @@ const quizzes: Quiz[] = [
           "A bull market is characterized by rising prices and investor optimism, typically defined as a 20% or more increase from recent lows.",
       },
       {
-        id: 13,
+        id: 9,
         question: "What is a bear market?",
         options: [
           "Rising market",
@@ -839,20 +648,7 @@ const quizzes: Quiz[] = [
           "A bear market is characterized by falling prices and investor pessimism, typically defined as a 20% or more decline from recent highs.",
       },
       {
-        id: 14,
-        question: "What is volatility?",
-        options: [
-          "Investment returns",
-          "Degree of variation in investment prices over time",
-          "Interest rate",
-          "Account balance",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Volatility measures the degree of variation in investment prices over time, indicating the level of risk or uncertainty.",
-      },
-      {
-        id: 15,
+        id: 10,
         question: "What is a capital gain?",
         options: [
           "Dividend payment",
@@ -874,71 +670,6 @@ const quizzes: Quiz[] = [
     questions: [
       {
         id: 1,
-        question: "What is a 401(k)?",
-        options: [
-          "Savings account",
-          "Employer-sponsored retirement savings plan",
-          "Investment strategy",
-          "Insurance policy",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A 401(k) is an employer-sponsored retirement savings plan allowing employees to contribute pre-tax income, often with employer matching.",
-      },
-      {
-        id: 2,
-        question: "What is an IRA (Individual Retirement Account)?",
-        options: [
-          "Business account",
-          "Personal retirement savings account with tax advantages",
-          "Checking account",
-          "Credit card",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "An IRA is a personal retirement savings account offering tax advantages, available to anyone with earned income.",
-      },
-      {
-        id: 3,
-        question: "What is the difference between Traditional and Roth IRA?",
-        options: [
-          "No difference",
-          "Traditional: tax-deferred, Roth: tax-free withdrawals",
-          "Traditional is better",
-          "Roth is for businesses",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Traditional IRA contributions are tax-deductible with taxed withdrawals, while Roth IRA uses after-tax contributions with tax-free qualified withdrawals.",
-      },
-      {
-        id: 4,
-        question: "What is employer matching?",
-        options: [
-          "Salary increase",
-          "Employer contribution matching employee retirement contributions",
-          "Bonus payment",
-          "Stock option",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Employer matching is when an employer contributes to an employee's retirement account, matching a percentage of the employee's contributions.",
-      },
-      {
-        id: 5,
-        question: "What is vesting?",
-        options: [
-          "Investment strategy",
-          "Earning ownership of employer retirement contributions over time",
-          "Retirement age",
-          "Account type",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Vesting is the process of earning full ownership of employer retirement contributions over time, with schedules varying by employer.",
-      },
-      {
-        id: 6,
         question: "What is the 4% rule in retirement?",
         options: [
           "Savings rate",
@@ -951,67 +682,20 @@ const quizzes: Quiz[] = [
           "The 4% rule suggests withdrawing 4% of retirement portfolio in the first year, adjusting for inflation annually, to make savings last 30 years.",
       },
       {
-        id: 7,
-        question: "What is Social Security?",
+        id: 2,
+        question: "What is vesting?",
         options: [
-          "Private insurance",
-          "Government program providing retirement income",
-          "Investment account",
-          "Savings account",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Social Security is a government program providing retirement income to eligible individuals based on work history and contributions.",
-      },
-      {
-        id: 8,
-        question: "What is full retirement age for Social Security?",
-        options: ["60", "66-67 depending on birth year", "70", "55"],
-        correctAnswer: 1,
-        explanation:
-          "Full retirement age for Social Security is 66-67 depending on birth year, when you can receive full benefits without reduction.",
-      },
-      {
-        id: 9,
-        question: "What is a pension?",
-        options: [
-          "Savings account",
-          "Employer-funded retirement plan providing regular payments",
           "Investment strategy",
-          "Insurance policy",
+          "Earning ownership of employer retirement contributions over time",
+          "Retirement age",
+          "Account type",
         ],
         correctAnswer: 1,
         explanation:
-          "A pension is an employer-funded retirement plan that provides regular payments to retirees, based on salary and years of service.",
+          "Vesting is the process of earning full ownership of employer retirement contributions over time, with schedules varying by employer.",
       },
       {
-        id: 10,
-        question: "What is required minimum distribution (RMD)?",
-        options: [
-          "Contribution limit",
-          "Minimum amount that must be withdrawn from retirement accounts annually",
-          "Investment return",
-          "Account balance",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "RMD is the minimum amount that must be withdrawn annually from certain retirement accounts starting at age 72 (or 73 for those born after 1950).",
-      },
-      {
-        id: 11,
-        question: "What is catch-up contribution?",
-        options: [
-          "Regular contribution",
-          "Additional contribution allowed for those 50 and older",
-          "Employer match",
-          "Penalty payment",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Catch-up contributions are additional amounts those aged 50 and older can contribute to retirement accounts beyond regular limits.",
-      },
-      {
-        id: 12,
+        id: 3,
         question: "What is a target-date fund?",
         options: [
           "Savings account",
@@ -1024,7 +708,7 @@ const quizzes: Quiz[] = [
           "A target-date fund automatically adjusts its asset allocation to become more conservative as the target retirement date approaches.",
       },
       {
-        id: 13,
+        id: 4,
         question: "What is sequence of returns risk?",
         options: [
           "Investment strategy",
@@ -1037,20 +721,7 @@ const quizzes: Quiz[] = [
           "Sequence of returns risk is the danger that the order of investment returns, especially negative returns early in retirement, can significantly impact portfolio longevity.",
       },
       {
-        id: 14,
-        question: "What is a Roth conversion?",
-        options: [
-          "Opening new account",
-          "Converting Traditional IRA to Roth IRA, paying taxes now",
-          "Closing account",
-          "Investment strategy",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A Roth conversion involves converting a Traditional IRA to a Roth IRA, paying taxes on the converted amount now for tax-free withdrawals later.",
-      },
-      {
-        id: 15,
+        id: 5,
         question: "What is longevity risk?",
         options: [
           "Investment risk",
@@ -1061,6 +732,53 @@ const quizzes: Quiz[] = [
         correctAnswer: 1,
         explanation:
           "Longevity risk is the possibility of outliving your retirement savings due to longer-than-expected lifespan.",
+      },
+      {
+        id: 6,
+        question: "What is NPS (National Pension System) in India?",
+        options: [
+          "A private pension fund",
+          "Government-regulated retirement savings scheme with tax benefits",
+          "Bank savings account",
+          "Insurance policy",
+        ],
+        correctAnswer: 1,
+        explanation:
+          "NPS is a government-regulated, voluntary retirement savings scheme that provides tax benefits under Section 80C and 80CCD(1B).",
+      },
+      {
+        id: 7,
+        question: "What is the EPF interest rate for 2024-25?",
+        options: ["7.1%", "8.25%", "6.5%", "9%"],
+        correctAnswer: 1,
+        explanation:
+          "The EPFO declared 8.25% interest rate for EPF for FY 2024-25, one of the highest in recent years.",
+      },
+      {
+        id: 8,
+        question: "What is the PPF lock-in period?",
+        options: ["5 years", "10 years", "15 years", "20 years"],
+        correctAnswer: 2,
+        explanation:
+          "PPF has a lock-in period of 15 years, after which it can be extended in 5-year blocks. Partial withdrawal is allowed from year 7.",
+      },
+      {
+        id: 9,
+        question:
+          "Under which section can NPS contribution get extra ₹50,000 deduction?",
+        options: ["80C", "80D", "80CCD(1B)", "10(10D)"],
+        correctAnswer: 2,
+        explanation:
+          "Section 80CCD(1B) allows an additional deduction of up to ₹50,000 for NPS contributions, over and above the ₹1.5L limit of Section 80C.",
+      },
+      {
+        id: 10,
+        question:
+          "What percentage of NPS corpus must be used to buy annuity at retirement?",
+        options: ["20%", "30%", "40%", "50%"],
+        correctAnswer: 2,
+        explanation:
+          "At retirement (age 60), at least 40% of the NPS Tier-1 corpus must be used to purchase a life annuity. The remaining 60% can be withdrawn tax-free.",
       },
     ],
   },
@@ -1302,19 +1020,6 @@ const quizzes: Quiz[] = [
       },
       {
         id: 3,
-        question: "What does it mean when price touches the upper band?",
-        options: [
-          "Oversold condition",
-          "Potentially overbought, may reverse down",
-          "Neutral signal",
-          "Strong buy signal",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "When price touches the upper Bollinger Band, it may indicate overbought conditions and potential for downward reversal.",
-      },
-      {
-        id: 4,
         question: "What is a Bollinger Squeeze?",
         options: [
           "Bands expanding",
@@ -1327,7 +1032,7 @@ const quizzes: Quiz[] = [
           "A Bollinger Squeeze occurs when bands contract due to low volatility, often preceding a significant price breakout.",
       },
       {
-        id: 5,
+        id: 4,
         question: "What does band width indicate?",
         options: [
           "Price direction",
@@ -1339,73 +1044,18 @@ const quizzes: Quiz[] = [
         explanation:
           "Band width indicates market volatility - wider bands suggest higher volatility, while narrower bands suggest lower volatility.",
       },
-    ],
-  },
-  {
-    id: "technical-stochastic",
-    title: "Stochastic Oscillator",
-    category: "technical",
-    description: "Trading with Stochastic Oscillator",
-    questions: [
-      {
-        id: 1,
-        question: "What does the Stochastic Oscillator measure?",
-        options: [
-          "Trading volume",
-          "Current price relative to price range over period",
-          "Market capitalization",
-          "Dividend yield",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "The Stochastic Oscillator measures the current price relative to the price range over a specific period, indicating momentum.",
-      },
-      {
-        id: 2,
-        question: "What is the range of Stochastic Oscillator?",
-        options: ["0 to 50", "0 to 100", "-100 to 100", "1 to 10"],
-        correctAnswer: 1,
-        explanation:
-          "The Stochastic Oscillator ranges from 0 to 100, with readings above 80 indicating overbought and below 20 indicating oversold.",
-      },
-      {
-        id: 3,
-        question: "What are the two lines in Stochastic Oscillator?",
-        options: [
-          "Price and volume",
-          "%K (fast) and %D (slow)",
-          "High and low",
-          "Open and close",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "The Stochastic Oscillator consists of %K (fast line) and %D (slow line, which is a moving average of %K).",
-      },
-      {
-        id: 4,
-        question: "What is a bullish Stochastic signal?",
-        options: [
-          "%K crosses below %D",
-          "%K crosses above %D in oversold zone",
-          "%K stays flat",
-          "%D disappears",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A bullish signal occurs when %K crosses above %D, especially in the oversold zone (below 20).",
-      },
       {
         id: 5,
-        question: "What is a bearish Stochastic signal?",
+        question: "What does it mean when price touches the upper band?",
         options: [
-          "%K crosses above %D",
-          "%K crosses below %D in overbought zone",
-          "%K stays constant",
-          "%D turns green",
+          "Oversold condition",
+          "Potentially overbought, may reverse down",
+          "Neutral signal",
+          "Strong buy signal",
         ],
         correctAnswer: 1,
         explanation:
-          "A bearish signal occurs when %K crosses below %D, especially in the overbought zone (above 80).",
+          "When price touches the upper Bollinger Band, it may indicate overbought conditions and potential for downward reversal.",
       },
     ],
   },
@@ -1456,1537 +1106,937 @@ const quizzes: Quiz[] = [
       },
       {
         id: 4,
-        question: "What does a low P/E ratio typically indicate?",
-        options: [
-          "Overvalued stock",
-          "Undervaluation or low growth expectations",
-          "High growth",
-          "Strong momentum",
-        ],
+        question: "What is the Nifty 50 historical average P/E?",
+        options: ["Around 10x", "Around 20x", "Around 30x", "Around 40x"],
         correctAnswer: 1,
         explanation:
-          "A low P/E ratio may indicate undervaluation or low growth expectations, suggesting the stock is cheaper relative to earnings.",
+          "The Nifty 50 has historically traded at an average P/E of around 20x. Above 25x is considered expensive; below 16x is attractive.",
       },
       {
         id: 5,
-        question: "What is forward P/E?",
+        question: "What is the PEG ratio?",
         options: [
-          "Historical P/E",
-          "P/E based on projected future earnings",
-          "Average P/E",
-          "Industry P/E",
+          "P/E divided by price",
+          "P/E divided by earnings growth rate",
+          "Price divided by growth",
+          "Earnings divided by growth",
         ],
         correctAnswer: 1,
         explanation:
-          "Forward P/E uses projected future earnings instead of historical earnings, providing insight into expected valuation.",
+          "PEG (Price/Earnings-to-Growth) ratio is calculated by dividing P/E by the annual earnings growth rate. PEG < 1 indicates potential undervaluation.",
       },
     ],
   },
   {
-    id: "fundamental-roe",
-    title: "Return on Equity (ROE)",
-    category: "fundamental",
-    description: "Analyzing company profitability with ROE",
-    questions: [
-      {
-        id: 1,
-        question: "What does ROE measure?",
-        options: [
-          "Total revenue",
-          "Profitability relative to shareholder equity",
-          "Market share",
-          "Asset value",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "ROE measures how efficiently a company generates profits from shareholder equity, indicating management effectiveness.",
-      },
-      {
-        id: 2,
-        question: "How is ROE calculated?",
-        options: [
-          "Revenue / Assets",
-          "Net Income / Shareholder Equity",
-          "Profit / Sales",
-          "Assets / Liabilities",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "ROE is calculated by dividing net income by shareholder equity, expressed as a percentage.",
-      },
-      {
-        id: 3,
-        question: "What is considered a good ROE?",
-        options: ["Below 5%", "Above 15-20%", "Exactly 10%", "Negative"],
-        correctAnswer: 1,
-        explanation:
-          "An ROE above 15-20% is generally considered good, though this varies by industry and should be compared to peers.",
-      },
-      {
-        id: 4,
-        question: "What can artificially inflate ROE?",
-        options: [
-          "Increasing revenue",
-          "High debt levels reducing equity",
-          "Cutting costs",
-          "Expanding operations",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "High debt levels can artificially inflate ROE by reducing shareholder equity, making the ratio appear better than it is.",
-      },
-      {
-        id: 5,
-        question: "What is the DuPont analysis of ROE?",
-        options: [
-          "Simple ROE calculation",
-          "Breaking ROE into profit margin, asset turnover, and leverage",
-          "Industry comparison",
-          "Historical trend",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "DuPont analysis breaks ROE into three components: profit margin, asset turnover, and financial leverage, providing deeper insight.",
-      },
-    ],
-  },
-  {
-    id: "fundamental-debt-equity",
-    title: "Debt-to-Equity Ratio",
-    category: "fundamental",
-    description: "Evaluating company leverage",
-    questions: [
-      {
-        id: 1,
-        question: "What does debt-to-equity ratio measure?",
-        options: [
-          "Profitability",
-          "Financial leverage and capital structure",
-          "Market share",
-          "Revenue growth",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Debt-to-equity ratio measures financial leverage by comparing total debt to shareholder equity, indicating capital structure.",
-      },
-      {
-        id: 2,
-        question: "How is debt-to-equity ratio calculated?",
-        options: [
-          "Assets / Liabilities",
-          "Total Debt / Shareholder Equity",
-          "Revenue / Expenses",
-          "Profit / Sales",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Debt-to-equity ratio is calculated by dividing total debt by shareholder equity.",
-      },
-      {
-        id: 3,
-        question: "What does a high debt-to-equity ratio indicate?",
-        options: [
-          "Low risk",
-          "High financial leverage and risk",
-          "Strong profitability",
-          "Low debt",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A high debt-to-equity ratio indicates high financial leverage and potentially higher risk, as the company relies heavily on debt.",
-      },
-      {
-        id: 4,
-        question: "What does a low debt-to-equity ratio indicate?",
-        options: [
-          "High risk",
-          "Conservative capital structure with less leverage",
-          "Poor management",
-          "Declining business",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A low debt-to-equity ratio indicates a conservative capital structure with less financial leverage and lower risk.",
-      },
-      {
-        id: 5,
-        question: "Why does optimal debt-to-equity vary by industry?",
-        options: [
-          "It doesn't vary",
-          "Different industries have different capital requirements and risk profiles",
-          "All industries are the same",
-          "Random variation",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Optimal debt-to-equity varies by industry due to different capital requirements, asset bases, and risk profiles.",
-      },
-    ],
-  },
-  {
-    id: "fundamental-eps",
-    title: "Earnings Per Share (EPS)",
-    category: "fundamental",
-    description: "Understanding EPS and its importance",
-    questions: [
-      {
-        id: 1,
-        question: "What is EPS?",
-        options: [
-          "Total company earnings",
-          "Portion of profit allocated to each outstanding share",
-          "Stock price",
-          "Revenue per share",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "EPS is the portion of a company's profit allocated to each outstanding share of common stock, indicating profitability per share.",
-      },
-      {
-        id: 2,
-        question: "How is basic EPS calculated?",
-        options: [
-          "Revenue / Shares",
-          "Net Income / Outstanding Shares",
-          "Assets / Shares",
-          "Sales / Shares",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Basic EPS is calculated by dividing net income by the number of outstanding shares.",
-      },
-      {
-        id: 3,
-        question: "What is diluted EPS?",
-        options: [
-          "Same as basic EPS",
-          "EPS assuming all convertible securities are exercised",
-          "EPS before taxes",
-          "EPS after dividends",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Diluted EPS assumes all convertible securities (options, warrants, convertible bonds) are exercised, showing worst-case earnings per share.",
-      },
-      {
-        id: 4,
-        question: "Why is EPS growth important?",
-        options: [
-          "It's not important",
-          "Indicates improving profitability and potential stock price appreciation",
-          "Only matters for dividends",
-          "Irrelevant to investors",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "EPS growth indicates improving profitability and is often correlated with stock price appreciation, making it important for investors.",
-      },
-      {
-        id: 5,
-        question: "What is the relationship between EPS and P/E ratio?",
-        options: [
-          "No relationship",
-          "P/E = Stock Price / EPS",
-          "EPS = P/E x Stock Price",
-          "They are the same",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "P/E ratio is calculated by dividing stock price by EPS, showing how much investors pay for each dollar of earnings.",
-      },
-    ],
-  },
-  {
-    id: "fundamental-cash-flow",
-    title: "Cash Flow Analysis",
-    category: "fundamental",
-    description: "Understanding company cash flows",
-    questions: [
-      {
-        id: 1,
-        question: "What is free cash flow?",
-        options: [
-          "Total revenue",
-          "Cash from operations minus capital expenditures",
-          "Net income",
-          "Total assets",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Free cash flow is cash from operations minus capital expenditures, representing cash available for distribution to investors.",
-      },
-      {
-        id: 2,
-        question: "Why is cash flow important?",
-        options: [
-          "It's not important",
-          "Shows actual cash generation, harder to manipulate than earnings",
-          "Only for accounting",
-          "Irrelevant to investors",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Cash flow is important because it shows actual cash generation and is harder to manipulate than accounting earnings.",
-      },
-      {
-        id: 3,
-        question: "What are the three types of cash flow?",
-        options: [
-          "Revenue, expenses, profit",
-          "Operating, investing, financing",
-          "Assets, liabilities, equity",
-          "Income, balance, statement",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "The three types of cash flow are operating (from business operations), investing (from investments), and financing (from debt/equity).",
-      },
-      {
-        id: 4,
-        question: "What does positive operating cash flow indicate?",
-        options: [
-          "Company is losing money",
-          "Company generates cash from core business operations",
-          "Company has high debt",
-          "Company is unprofitable",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Positive operating cash flow indicates the company generates sufficient cash from its core business operations.",
-      },
-      {
-        id: 5,
-        question: "What is the cash conversion cycle?",
-        options: [
-          "Annual cash flow",
-          "Time to convert investments in inventory to cash",
-          "Dividend payment schedule",
-          "Loan repayment period",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "The cash conversion cycle measures the time it takes to convert investments in inventory and other resources into cash from sales.",
-      },
-    ],
-  },
-  {
-    id: "advanced-monte-carlo",
-    title: "Monte Carlo Simulation",
+    id: "advanced-options",
+    title: "Options Trading Basics",
     category: "advanced",
-    description: "Using Monte Carlo for portfolio modeling",
+    description: "Understanding options contracts and strategies",
     questions: [
       {
         id: 1,
-        question: "What is Monte Carlo simulation?",
+        question: "What is a call option?",
         options: [
-          "Historical analysis",
-          "Statistical technique using random sampling to model outcomes",
-          "Technical indicator",
-          "Fundamental analysis",
+          "Right to sell at strike price",
+          "Right to buy at strike price",
+          "Obligation to buy",
+          "Obligation to sell",
         ],
         correctAnswer: 1,
         explanation:
-          "Monte Carlo simulation is a statistical technique that uses random sampling to model a range of possible outcomes and their probabilities.",
+          "A call option gives the holder the right, but not the obligation, to buy an asset at the strike price before expiration.",
       },
       {
         id: 2,
-        question: "Why use Monte Carlo in portfolio analysis?",
+        question: "What is theta in options?",
         options: [
-          "It's not useful",
-          "To model range of possible returns and assess risk",
-          "Only for day trading",
-          "To predict exact returns",
+          "Price sensitivity to volatility",
+          "Time decay — loss of value as expiry approaches",
+          "Sensitivity to underlying price",
+          "Interest rate sensitivity",
         ],
         correctAnswer: 1,
         explanation:
-          "Monte Carlo simulation helps model a range of possible portfolio returns and assess risk by running thousands of scenarios.",
+          "Theta measures time decay — how much an option's value decreases each day as it approaches expiration, all else equal.",
       },
       {
         id: 3,
-        question: "What does Monte Carlo require as inputs?",
+        question: "What is the SEBI FY2025 finding on F&O traders?",
         options: [
-          "Only current prices",
-          "Expected returns, volatility, and correlations",
-          "Just historical prices",
-          "Only dividends",
+          "70% made profits",
+          "91% of retail F&O traders lost money",
+          "50% broke even",
+          "Only 5% traded F&O",
         ],
         correctAnswer: 1,
         explanation:
-          "Monte Carlo simulation requires inputs including expected returns, volatility (standard deviation), and correlations between assets.",
+          "SEBI's FY2025 study found that 91% of individual F&O traders lost money, with total retail losses of ₹1.06 lakh crore.",
       },
       {
         id: 4,
-        question: "What is a confidence interval in Monte Carlo?",
+        question: "What is implied volatility (IV)?",
         options: [
-          "Exact prediction",
-          "Range where outcomes likely fall with certain probability",
-          "Average return",
-          "Maximum loss",
+          "Historical price range",
+          "Market's expectation of future price movement",
+          "Current stock price",
+          "Option premium",
         ],
         correctAnswer: 1,
         explanation:
-          "A confidence interval shows the range where outcomes are likely to fall with a certain probability (e.g., 95% confidence interval).",
+          "Implied volatility reflects the market's forecast of likely price movement and is derived from option prices.",
       },
       {
         id: 5,
-        question: "What is a limitation of Monte Carlo?",
+        question: "What is a covered call strategy?",
         options: [
-          "Too simple",
-          "Assumes normal distribution and past patterns continue",
-          "Too accurate",
-          "No limitations",
+          "Buying calls on owned stock",
+          "Selling calls against stock you own for premium income",
+          "Buying puts for protection",
+          "Selling naked calls",
         ],
         correctAnswer: 1,
         explanation:
-          "Monte Carlo often assumes normal distribution and that past patterns will continue, which may not hold during market crises or regime changes.",
+          "A covered call involves selling a call option against stock you already own to earn premium income, capping upside in exchange for income.",
       },
     ],
   },
   {
-    id: "advanced-black-scholes",
-    title: "Black-Scholes Model",
-    category: "advanced",
-    description: "Options pricing with Black-Scholes",
-    questions: [
-      {
-        id: 1,
-        question: "What does Black-Scholes model price?",
-        options: ["Stocks", "European-style options", "Bonds", "Real estate"],
-        correctAnswer: 1,
-        explanation:
-          "The Black-Scholes model is used to price European-style options, which can only be exercised at expiration.",
-      },
-      {
-        id: 2,
-        question: "What are the key inputs to Black-Scholes?",
-        options: [
-          "Only stock price",
-          "Stock price, strike, time, volatility, risk-free rate",
-          "Just volatility",
-          "Only dividends",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Black-Scholes requires five inputs: current stock price, strike price, time to expiration, volatility, and risk-free interest rate.",
-      },
-      {
-        id: 3,
-        question: "What is implied volatility?",
-        options: [
-          "Historical volatility",
-          "Market's expectation of future volatility derived from option prices",
-          "Current price movement",
-          "Trading volume",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Implied volatility is the market's expectation of future volatility, derived by working backwards from observed option prices.",
-      },
-      {
-        id: 4,
-        question: "What is a key assumption of Black-Scholes?",
-        options: [
-          "Markets are inefficient",
-          "Log-normal distribution of returns and constant volatility",
-          "High transaction costs",
-          "Dividends are unpredictable",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Black-Scholes assumes log-normal distribution of returns, constant volatility, no transaction costs, and efficient markets.",
-      },
-      {
-        id: 5,
-        question: "What are the Greeks in options?",
-        options: [
-          "Greek investors",
-          "Measures of option price sensitivity to various factors",
-          "Greek stocks",
-          "Currency rates",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "The Greeks (Delta, Gamma, Theta, Vega, Rho) measure option price sensitivity to changes in underlying factors.",
-      },
-    ],
-  },
-  {
-    id: "advanced-var",
-    title: "Value at Risk (VaR)",
-    category: "advanced",
-    description: "Risk measurement with VaR",
-    questions: [
-      {
-        id: 1,
-        question: "What is Value at Risk (VaR)?",
-        options: [
-          "Average return",
-          "Maximum potential loss over time period at confidence level",
-          "Expected profit",
-          "Stock price",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "VaR estimates the maximum potential loss over a specific time period at a given confidence level (e.g., 95% or 99%).",
-      },
-      {
-        id: 2,
-        question: "What does 95% VaR of $1M mean?",
-        options: [
-          "Will lose $1M",
-          "95% confident losses won't exceed $1M",
-          "Will gain $1M",
-          "Average loss is $1M",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A 95% VaR of $1M means there's 95% confidence that losses won't exceed $1M over the specified period.",
-      },
-      {
-        id: 3,
-        question: "What are the three main VaR methods?",
-        options: [
-          "Only historical",
-          "Historical, variance-covariance, Monte Carlo",
-          "Just Monte Carlo",
-          "Only fundamental",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "The three main VaR methods are historical simulation, variance-covariance (parametric), and Monte Carlo simulation.",
-      },
-      {
-        id: 4,
-        question: "What is a limitation of VaR?",
-        options: [
-          "Too accurate",
-          "Doesn't capture tail risk beyond confidence level",
-          "Too simple",
-          "No limitations",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "VaR doesn't capture the magnitude of losses beyond the confidence level (tail risk) and can underestimate extreme events.",
-      },
-      {
-        id: 5,
-        question: "What is Conditional VaR (CVaR)?",
-        options: [
-          "Same as VaR",
-          "Expected loss given that loss exceeds VaR threshold",
-          "Minimum loss",
-          "Average return",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "CVaR (also called Expected Shortfall) measures the expected loss given that the loss exceeds the VaR threshold, capturing tail risk.",
-      },
-    ],
-  },
-  {
-    id: "advanced-factor-models",
-    title: "Factor Models",
-    category: "advanced",
-    description: "Multi-factor portfolio analysis",
-    questions: [
-      {
-        id: 1,
-        question: "What is a factor model?",
-        options: [
-          "Single variable model",
-          "Model explaining returns through multiple systematic factors",
-          "Price prediction",
-          "Volume analysis",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A factor model explains asset returns through exposure to multiple systematic factors like market, size, value, and momentum.",
-      },
-      {
-        id: 2,
-        question: "What is the Fama-French three-factor model?",
-        options: [
-          "Only market factor",
-          "Market, size (SMB), and value (HML) factors",
-          "Just momentum",
-          "Only volatility",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "The Fama-French model includes three factors: market excess return, size (SMB - Small Minus Big), and value (HML - High Minus Low).",
-      },
-      {
-        id: 3,
-        question: "What does SMB factor represent?",
-        options: [
-          "Large cap premium",
-          "Small cap minus big cap returns",
-          "Value premium",
-          "Momentum",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "SMB (Small Minus Big) represents the size premium, measuring the excess return of small-cap stocks over large-cap stocks.",
-      },
-      {
-        id: 4,
-        question: "What does HML factor represent?",
-        options: [
-          "Growth premium",
-          "Value premium - high book-to-market minus low",
-          "Size premium",
-          "Momentum",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "HML (High Minus Low) represents the value premium, measuring excess returns of high book-to-market (value) stocks over low (growth) stocks.",
-      },
-      {
-        id: 5,
-        question: "What is factor loading?",
-        options: [
-          "Total return",
-          "Sensitivity of asset returns to specific factor",
-          "Price level",
-          "Volume",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Factor loading measures the sensitivity of an asset's returns to a specific factor, indicating how much the factor influences returns.",
-      },
-    ],
-  },
-  {
-    id: "advanced-sharpe-ratio",
-    title: "Sharpe Ratio & Risk Metrics",
-    category: "advanced",
-    description: "Risk-adjusted return measurement",
-    questions: [
-      {
-        id: 1,
-        question: "What does Sharpe Ratio measure?",
-        options: [
-          "Total return",
-          "Risk-adjusted return - excess return per unit of risk",
-          "Volatility only",
-          "Maximum drawdown",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Sharpe Ratio measures risk-adjusted return by calculating excess return (above risk-free rate) per unit of total risk (standard deviation).",
-      },
-      {
-        id: 2,
-        question: "How is Sharpe Ratio calculated?",
-        options: [
-          "Return / Price",
-          "(Return - Risk-free Rate) / Standard Deviation",
-          "Return x Volatility",
-          "Price / Earnings",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Sharpe Ratio = (Portfolio Return - Risk-free Rate) / Standard Deviation of Portfolio Returns.",
-      },
-      {
-        id: 3,
-        question: "What is a good Sharpe Ratio?",
-        options: [
-          "Below 0",
-          "Above 1, with >2 being very good",
-          "Exactly 0.5",
-          "Negative",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A Sharpe Ratio above 1 is considered good, above 2 is very good, and above 3 is excellent, though this varies by asset class.",
-      },
-      {
-        id: 4,
-        question: "What is the Sortino Ratio?",
-        options: [
-          "Same as Sharpe",
-          "Like Sharpe but only considers downside volatility",
-          "Total return measure",
-          "Price ratio",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Sortino Ratio is similar to Sharpe but only considers downside volatility, focusing on harmful volatility rather than total volatility.",
-      },
-      {
-        id: 5,
-        question: "What is maximum drawdown?",
-        options: [
-          "Average loss",
-          "Largest peak-to-trough decline in portfolio value",
-          "Daily volatility",
-          "Annual return",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Maximum drawdown measures the largest peak-to-trough decline in portfolio value, indicating worst-case historical loss.",
-      },
-    ],
-  },
-  {
-    id: "investment-stocks",
-    title: "Stock Investments",
+    id: "investment-india",
+    title: "Indian Markets",
     category: "investment",
-    description: "Understanding stock market investing",
+    description: "India-specific investment knowledge",
     questions: [
       {
         id: 1,
-        question: "What is a stock?",
+        question: "What is SEBI's role in Indian markets?",
         options: [
-          "Company debt",
-          "Ownership share in a company",
-          "Loan to company",
-          "Insurance policy",
+          "Sets interest rates",
+          "Regulates stock brokers, exchanges, mutual funds, and listed companies",
+          "Manages government bonds",
+          "Controls foreign exchange",
         ],
         correctAnswer: 1,
         explanation:
-          "A stock represents an ownership share in a company, giving shareholders voting rights and a claim on profits.",
+          "SEBI (Securities and Exchange Board of India) regulates and develops the securities market in India, protecting investor interests.",
       },
       {
         id: 2,
-        question: "What is a dividend?",
-        options: [
-          "Stock price increase",
-          "Portion of profits distributed to shareholders",
-          "Trading fee",
-          "Tax payment",
-        ],
+        question: "What is the LTCG tax rate on equity after Budget 2024?",
+        options: ["10%", "12.5%", "15%", "20%"],
         correctAnswer: 1,
         explanation:
-          "A dividend is a portion of company profits distributed to shareholders, typically paid quarterly in cash or additional shares.",
+          "Budget 2024 revised LTCG (Long-Term Capital Gains) tax on equity to 12.5% on gains above ₹1.25 lakh per year (from 10% previously).",
       },
       {
         id: 3,
-        question: "What is market capitalization?",
-        options: [
-          "Company revenue",
-          "Total market value of outstanding shares",
-          "Stock price",
-          "Annual profit",
-        ],
-        correctAnswer: 1,
+        question: "What is the STCG tax rate on equity after Budget 2024?",
+        options: ["10%", "15%", "20%", "30%"],
+        correctAnswer: 2,
         explanation:
-          "Market capitalization is the total market value of a company's outstanding shares, calculated by multiplying share price by shares outstanding.",
+          "Budget 2024 increased STCG (Short-Term Capital Gains) tax on equity to 20% (from 15% previously) for holdings less than 1 year.",
       },
       {
         id: 4,
-        question: "What is a blue-chip stock?",
-        options: [
-          "New startup",
-          "Large, established, financially sound company",
-          "Penny stock",
-          "Foreign stock",
-        ],
-        correctAnswer: 1,
+        question:
+          "What is the expense ratio of a typical Nifty 50 index fund in India?",
+        options: ["1–2%", "0.5–1%", "0.1–0.2%", "2–3%"],
+        correctAnswer: 2,
         explanation:
-          "A blue-chip stock is from a large, established, financially sound company with a history of reliable performance.",
+          "Nifty 50 index funds in India have expense ratios of approximately 0.1–0.2%, making them among the most cost-efficient investments available.",
       },
       {
         id: 5,
-        question: "What is stock volatility?",
-        options: [
-          "Dividend amount",
-          "Degree of price fluctuation over time",
-          "Trading volume",
-          "Company size",
-        ],
+        question: "What is the DICGC insurance limit per bank in India?",
+        options: ["₹1 lakh", "₹5 lakh", "₹10 lakh", "₹25 lakh"],
         correctAnswer: 1,
         explanation:
-          "Stock volatility measures the degree of price fluctuation over time, indicating the level of risk or uncertainty.",
-      },
-    ],
-  },
-  {
-    id: "investment-mutual-funds",
-    title: "Mutual Funds",
-    category: "investment",
-    description: "Investing in mutual funds",
-    questions: [
-      {
-        id: 1,
-        question: "What is a mutual fund?",
-        options: [
-          "Individual stock",
-          "Pooled investment vehicle managed by professionals",
-          "Bank account",
-          "Insurance policy",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A mutual fund pools money from multiple investors to invest in a diversified portfolio of securities, managed by professionals.",
+          "DICGC (Deposit Insurance and Credit Guarantee Corporation) insures bank deposits up to ₹5 lakh per depositor per bank in India.",
       },
       {
-        id: 2,
-        question: "What is NAV (Net Asset Value)?",
-        options: [
-          "Total assets",
-          "Per-share value of fund's assets minus liabilities",
-          "Stock price",
-          "Dividend amount",
-        ],
+        id: 6,
+        question:
+          "What is the LRS limit for overseas remittances by Indian residents?",
+        options: ["USD 100,000", "USD 250,000", "USD 500,000", "USD 1,000,000"],
         correctAnswer: 1,
         explanation:
-          "NAV is the per-share value of a mutual fund, calculated by dividing total assets minus liabilities by number of shares outstanding.",
+          "Under LRS (Liberalised Remittance Scheme), Indian residents can remit up to USD 250,000 per financial year for investments, education, and travel.",
       },
       {
-        id: 3,
-        question: "What is an expense ratio?",
+        id: 7,
+        question: "Which REIT is the largest in India by market cap?",
         options: [
-          "Investment return",
-          "Annual fee as percentage of assets for fund management",
-          "Tax rate",
-          "Dividend yield",
+          "Mindspace REIT",
+          "Embassy REIT",
+          "Brookfield REIT",
+          "Nexus REIT",
         ],
         correctAnswer: 1,
         explanation:
-          "The expense ratio is the annual fee charged as a percentage of assets under management, covering fund operating costs.",
+          "Embassy REIT was India's first listed REIT (2019) and remains one of the largest by AUM, owning ~45 million sq ft of office space.",
       },
       {
-        id: 4,
-        question: "What is a load fund?",
+        id: 8,
+        question:
+          "What is the tax treatment of Sovereign Gold Bonds on maturity?",
         options: [
-          "No-fee fund",
-          "Fund charging sales commission when buying or selling",
-          "Index fund",
-          "Money market fund",
+          "20% LTCG tax",
+          "10% LTCG tax",
+          "Fully exempt from capital gains tax",
+          "Taxed at slab rate",
         ],
-        correctAnswer: 1,
+        correctAnswer: 2,
         explanation:
-          "A load fund charges a sales commission (load) when buying (front-end load) or selling (back-end load) shares.",
-      },
-      {
-        id: 5,
-        question: "What is an index fund?",
-        options: [
-          "Actively managed fund",
-          "Fund tracking specific market index",
-          "Bond fund",
-          "Money market fund",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "An index fund is a passively managed fund that tracks a specific market index, offering broad diversification at low cost.",
-      },
-    ],
-  },
-  {
-    id: "investment-etfs",
-    title: "ETFs (Exchange-Traded Funds)",
-    category: "investment",
-    description: "Understanding ETF investments",
-    questions: [
-      {
-        id: 1,
-        question: "What is an ETF?",
-        options: [
-          "Individual stock",
-          "Fund trading on exchange like stock, tracking index or sector",
-          "Mutual fund",
-          "Bond",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "An ETF is a fund that trades on stock exchanges like individual stocks, typically tracking an index, sector, or commodity.",
-      },
-      {
-        id: 2,
-        question: "How do ETFs differ from mutual funds?",
-        options: [
-          "No difference",
-          "ETFs trade intraday like stocks, mutual funds price once daily",
-          "ETFs are more expensive",
-          "Mutual funds are better",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "ETFs trade throughout the day like stocks with real-time pricing, while mutual funds are priced once daily at market close.",
-      },
-      {
-        id: 3,
-        question: "What is an ETF expense ratio typically?",
-        options: [
-          "Very high (>2%)",
-          "Generally low (0.03-0.5%)",
-          "Always 1%",
-          "No expenses",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "ETF expense ratios are typically low, ranging from 0.03% to 0.5%, due to passive management and operational efficiency.",
-      },
-      {
-        id: 4,
-        question: "What is a sector ETF?",
-        options: [
-          "Broad market ETF",
-          "ETF focusing on specific industry sector",
-          "Bond ETF",
-          "International ETF",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A sector ETF focuses on a specific industry sector like technology, healthcare, or energy, providing targeted exposure.",
-      },
-      {
-        id: 5,
-        question: "What is ETF liquidity?",
-        options: [
-          "Dividend amount",
-          "Ease of buying/selling shares without price impact",
-          "Expense ratio",
-          "NAV",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "ETF liquidity refers to how easily shares can be bought or sold without significantly impacting the price, important for trading.",
-      },
-    ],
-  },
-  {
-    id: "investment-bonds",
-    title: "Bond Investments",
-    category: "investment",
-    description: "Fixed income investing with bonds",
-    questions: [
-      {
-        id: 1,
-        question: "What is a bond?",
-        options: [
-          "Company ownership",
-          "Debt security where investor loans money to entity",
-          "Stock",
-          "Mutual fund",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A bond is a debt security where an investor loans money to an entity that borrows funds for a defined period at a fixed interest rate.",
-      },
-      {
-        id: 2,
-        question: "What is bond yield?",
-        options: [
-          "Bond price",
-          "Return on bond investment, inverse to price",
-          "Maturity date",
-          "Credit rating",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Bond yield is the return on investment, moving inversely to bond price - when prices rise, yields fall, and vice versa.",
-      },
-      {
-        id: 3,
-        question: "What is a coupon rate?",
-        options: [
-          "Bond price",
-          "Annual interest rate paid by bond",
-          "Maturity period",
-          "Credit score",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "The coupon rate is the annual interest rate paid by the bond, typically expressed as a percentage of face value.",
-      },
-      {
-        id: 4,
-        question: "What is bond maturity?",
-        options: [
-          "Interest rate",
-          "Date when principal is repaid to investor",
-          "Purchase date",
-          "Yield",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Bond maturity is the date when the bond's principal (face value) is repaid to the investor, ending the bond's life.",
-      },
-      {
-        id: 5,
-        question: "What is credit risk in bonds?",
-        options: [
-          "Interest rate risk",
-          "Risk that issuer may default on payments",
-          "Market risk",
-          "Inflation risk",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Credit risk is the risk that the bond issuer may default on interest or principal payments, varying by issuer creditworthiness.",
-      },
-    ],
-  },
-  {
-    id: "investment-real-estate",
-    title: "Real Estate Investing",
-    category: "investment",
-    description: "Property investment strategies",
-    questions: [
-      {
-        id: 1,
-        question: "What is a REIT?",
-        options: [
-          "Real estate loan",
-          "Real Estate Investment Trust - company owning income properties",
-          "Property insurance",
-          "Mortgage type",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "A REIT is a company that owns, operates, or finances income-producing real estate, allowing investors to invest in real estate portfolios.",
-      },
-      {
-        id: 2,
-        question: "What is rental yield?",
-        options: [
-          "Property price",
-          "Annual rental income as percentage of property value",
-          "Mortgage rate",
-          "Property tax",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Rental yield is the annual rental income expressed as a percentage of the property's value, measuring investment return.",
-      },
-      {
-        id: 3,
-        question: "What is property appreciation?",
-        options: [
-          "Rental income",
-          "Increase in property value over time",
-          "Mortgage payment",
-          "Property tax",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Property appreciation is the increase in property value over time, providing capital gains when the property is sold.",
-      },
-      {
-        id: 4,
-        question: "What is leverage in real estate?",
-        options: [
-          "Property size",
-          "Using borrowed money (mortgage) to increase investment",
-          "Rental income",
-          "Property location",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Leverage in real estate involves using borrowed money (mortgage) to purchase property, amplifying both potential returns and risks.",
-      },
-      {
-        id: 5,
-        question: "What is cap rate?",
-        options: [
-          "Mortgage rate",
-          "Net operating income divided by property value",
-          "Rental yield",
-          "Property tax rate",
-        ],
-        correctAnswer: 1,
-        explanation:
-          "Cap rate (capitalization rate) is net operating income divided by property value, used to estimate investment return and compare properties.",
+          "Sovereign Gold Bonds held to maturity (8 years) are fully exempt from capital gains tax — making them the most tax-efficient form of gold investment.",
       },
     ],
   },
 ];
 
-export function QuizTab() {
-  const [selectedCategory, setSelectedCategory] = useState<Quiz["category"]>(
-    "financial-education",
+type Category =
+  | "all"
+  | "technical"
+  | "fundamental"
+  | "advanced"
+  | "investment"
+  | "financial-education";
+
+const CATEGORIES: {
+  id: Category;
+  label: string;
+  icon: React.ReactNode;
+  color: string;
+  activeBg: string;
+  dotColor: string;
+}[] = [
+  {
+    id: "all",
+    label: "All Topics",
+    icon: <BarChart3 className="w-3.5 h-3.5" />,
+    color: "text-slate-600 dark:text-slate-300",
+    activeBg: "bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900",
+    dotColor: "#64748b",
+  },
+  {
+    id: "financial-education",
+    label: "Finance",
+    icon: <BookOpen className="w-3.5 h-3.5" />,
+    color: "text-emerald-600 dark:text-emerald-400",
+    activeBg: "bg-emerald-600 text-white",
+    dotColor: "#10b981",
+  },
+  {
+    id: "investment",
+    label: "India Markets",
+    icon: <TrendingUp className="w-3.5 h-3.5" />,
+    color: "text-blue-600 dark:text-blue-400",
+    activeBg: "bg-blue-600 text-white",
+    dotColor: "#2563eb",
+  },
+  {
+    id: "fundamental",
+    label: "Fundamental",
+    icon: <GraduationCap className="w-3.5 h-3.5" />,
+    color: "text-violet-600 dark:text-violet-400",
+    activeBg: "bg-violet-600 text-white",
+    dotColor: "#7c3aed",
+  },
+  {
+    id: "technical",
+    label: "Technical",
+    icon: <BarChart3 className="w-3.5 h-3.5" />,
+    color: "text-orange-600 dark:text-orange-400",
+    activeBg: "bg-orange-600 text-white",
+    dotColor: "#ea580c",
+  },
+  {
+    id: "advanced",
+    label: "Advanced",
+    icon: <Trophy className="w-3.5 h-3.5" />,
+    color: "text-red-600 dark:text-red-400",
+    activeBg: "bg-red-600 text-white",
+    dotColor: "#dc2626",
+  },
+];
+
+interface QuizState {
+  quizId: string;
+  questions: (QuizQuestion & {
+    shuffledOptions: string[];
+    mappedCorrect: number;
+  })[];
+  currentIndex: number;
+  selectedAnswer: number | null;
+  revealed: boolean;
+  answers: (number | null)[];
+  finished: boolean;
+}
+
+function buildQuizState(quiz: Quiz): QuizState {
+  const questions = shuffleArray(quiz.questions).map((q) => {
+    const indexed = q.options.map((opt, i) => ({ opt, orig: i }));
+    const shuffled = shuffleArray(indexed);
+    const mappedCorrect = shuffled.findIndex((x) => x.orig === q.correctAnswer);
+    return { ...q, shuffledOptions: shuffled.map((x) => x.opt), mappedCorrect };
+  });
+  return {
+    quizId: quiz.id,
+    questions,
+    currentIndex: 0,
+    selectedAnswer: null,
+    revealed: false,
+    answers: new Array(questions.length).fill(null),
+    finished: false,
+  };
+}
+
+// ─── Score Gauge ───────────────────────────────────────────────────────────────
+function ScoreGauge({ score, total }: { score: number; total: number }) {
+  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+  const radius = 54;
+  const circ = 2 * Math.PI * radius;
+  const dash = (pct / 100) * circ;
+  const color = pct >= 80 ? "#16a34a" : pct >= 50 ? "#d97706" : "#dc2626";
+  const bgColor = pct >= 80 ? "#f0fdf4" : pct >= 50 ? "#fffbeb" : "#fef2f2";
+
+  return (
+    <div className="relative flex items-center justify-center">
+      <svg
+        width={140}
+        height={140}
+        className="-rotate-90"
+        aria-label="Score gauge"
+      >
+        <title>Score gauge</title>
+        <circle
+          cx={70}
+          cy={70}
+          r={radius}
+          fill="none"
+          stroke="#e2e8f0"
+          strokeWidth={12}
+          className="dark:stroke-slate-700"
+        />
+        <circle
+          cx={70}
+          cy={70}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={12}
+          strokeDasharray={`${dash} ${circ}`}
+          strokeLinecap="round"
+          style={{ transition: "stroke-dasharray 1s cubic-bezier(.4,0,.2,1)" }}
+        />
+      </svg>
+      <div
+        className="absolute flex flex-col items-center justify-center w-[88px] h-[88px] rounded-full"
+        style={{ background: bgColor }}
+      >
+        <span className="text-3xl font-black leading-none" style={{ color }}>
+          {pct}%
+        </span>
+        <span className="text-xs font-semibold mt-0.5" style={{ color }}>
+          {score}/{total}
+        </span>
+      </div>
+    </div>
   );
-  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  // selectedAnswers stores the TEXT of the selected option (not index) for reliable score comparison
-  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const [score, setScore] = useState(0);
+}
 
-  const filteredQuizzes = useMemo(
-    () => quizzes.filter((q) => q.category === selectedCategory),
-    [selectedCategory],
-  );
-  const currentQuestion = useMemo(
-    () => selectedQuiz?.questions[currentQuestionIndex],
-    [selectedQuiz, currentQuestionIndex],
-  );
-  const progress = useMemo(
-    () =>
-      selectedQuiz
-        ? ((currentQuestionIndex + 1) / selectedQuiz.questions.length) * 100
-        : 0,
-    [selectedQuiz, currentQuestionIndex],
-  );
+// ─── Quiz Card (active question) ──────────────────────────────────────────────
+function QuizCard({
+  state,
+  onSelect,
+  onReveal,
+  onNext,
+  onFinish,
+}: {
+  state: QuizState;
+  onSelect: (idx: number) => void;
+  onReveal: () => void;
+  onNext: () => void;
+  onFinish: () => void;
+}) {
+  const { questions, currentIndex, selectedAnswer, revealed } = state;
+  const q = questions[currentIndex];
+  const progress =
+    ((currentIndex + (revealed ? 1 : 0)) / questions.length) * 100;
+  const isLast = currentIndex === questions.length - 1;
+  const answeredCount =
+    state.answers.filter((a) => a !== null).length + (revealed ? 1 : 0);
+  const correctSoFar =
+    state.answers.filter(
+      (a, i) => a !== null && a === questions[i].mappedCorrect,
+    ).length + (revealed && selectedAnswer === q.mappedCorrect ? 1 : 0);
 
-  // Randomize answer options for current question — recalculates each time the question changes
-  const randomizedQuestion = useMemo(() => {
-    if (!selectedQuiz || !currentQuestion) return null;
-    const originalOptions = currentQuestion.options;
-    const indices = originalOptions.map((_, idx) => idx);
-    const shuffledIndices = shuffleArray(indices);
-    const shuffledOptions = shuffledIndices.map((idx) => originalOptions[idx]);
-    return {
-      ...currentQuestion,
-      options: shuffledOptions,
-    };
-  }, [selectedQuiz, currentQuestion]);
+  const optionState = (
+    i: number,
+  ): "default" | "correct" | "wrong" | "selected" => {
+    if (!revealed) return selectedAnswer === i ? "selected" : "default";
+    if (i === q.mappedCorrect) return "correct";
+    if (i === selectedAnswer && selectedAnswer !== q.mappedCorrect)
+      return "wrong";
+    return "default";
+  };
 
-  const handleSelectQuiz = useCallback((quiz: Quiz) => {
-    setSelectedQuiz(quiz);
-    setCurrentQuestionIndex(0);
-    setSelectedAnswers([]);
-    setShowResults(false);
-    setScore(0);
-  }, []);
+  const optionClasses: Record<string, string> = {
+    default:
+      "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 cursor-pointer hover:shadow-sm",
+    selected:
+      "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-2 ring-blue-200 dark:ring-blue-700 cursor-pointer shadow-sm",
+    correct:
+      "border-emerald-400 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300",
+    wrong:
+      "border-red-400 dark:border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300",
+  };
 
-  // Store selected answer as OPTION TEXT so score comparison works regardless of shuffle order
-  const handleAnswerSelect = useCallback(
-    (answerIndex: number) => {
-      if (!randomizedQuestion) return;
-      const selectedText = randomizedQuestion.options[answerIndex];
-      setSelectedAnswers((prev) => {
-        const newAnswers = [...prev];
-        newAnswers[currentQuestionIndex] = selectedText;
-        return newAnswers;
-      });
-    },
-    [currentQuestionIndex, randomizedQuestion],
-  );
-
-  const handleNext = useCallback(() => {
-    if (!selectedQuiz) return;
-    if (currentQuestionIndex < selectedQuiz.questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-    } else {
-      // Score: compare stored option text to the correct option text from original question
-      let correctCount = 0;
-      selectedQuiz.questions.forEach((question, idx) => {
-        const userSelectedText = selectedAnswers[idx];
-        const correctOptionText = question.options[question.correctAnswer];
-        if (userSelectedText === correctOptionText) correctCount++;
-      });
-      setScore(correctCount);
-      setShowResults(true);
-    }
-  }, [selectedQuiz, currentQuestionIndex, selectedAnswers]);
-
-  const handlePrevious = useCallback(() => {
-    if (currentQuestionIndex > 0) setCurrentQuestionIndex((prev) => prev - 1);
-  }, [currentQuestionIndex]);
-
-  const handleRetake = useCallback(() => {
-    setCurrentQuestionIndex(0);
-    setSelectedAnswers([]);
-    setShowResults(false);
-    setScore(0);
-  }, []);
-
-  const handleBackToList = useCallback(() => {
-    setSelectedQuiz(null);
-    setCurrentQuestionIndex(0);
-    setSelectedAnswers([]);
-    setShowResults(false);
-    setScore(0);
-  }, []);
-
-  const getCategoryIcon = useCallback((category: string) => {
-    switch (category) {
-      case "technical":
-        return <TrendingUp className="h-5 w-5" />;
-      case "fundamental":
-        return <BarChart3 className="h-5 w-5" />;
-      case "advanced":
-        return <Sparkles className="h-5 w-5" />;
-      case "investment":
-        return <BookOpen className="h-5 w-5" />;
-      case "financial-education":
-        return <GraduationCap className="h-5 w-5" />;
-      default:
-        return <BookOpen className="h-5 w-5" />;
-    }
-  }, []);
-
-  // Quiz list view
-  if (!selectedQuiz) {
-    return (
-      <div className="space-y-6">
+  return (
+    <div className="space-y-4">
+      {/* Progress header */}
+      <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">Quiz Platform</h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Test your knowledge across financial education, technical
-              analysis, fundamental analysis, advanced modeling, and investment
-              strategies
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            Question {currentIndex + 1}{" "}
+            <span className="text-slate-300 dark:text-slate-600">of</span>{" "}
+            {questions.length}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full">
+              {correctSoFar} correct
+            </span>
+            <span className="text-xs text-slate-400 dark:text-slate-500">
+              {answeredCount}/{questions.length} done
+            </span>
+          </div>
+        </div>
+        <Progress
+          value={progress}
+          className="h-2 bg-slate-100 dark:bg-slate-700 [&>div]:bg-blue-500 [&>div]:transition-all [&>div]:duration-500"
+        />
+      </div>
+
+      {/* Question */}
+      <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+            <Zap className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+          </span>
+          <p className="text-base font-semibold text-slate-800 dark:text-slate-100 leading-relaxed pt-0.5">
+            {q.question}
+          </p>
+        </div>
+      </div>
+
+      {/* Options */}
+      <div className="space-y-2.5">
+        {q.shuffledOptions.map((opt, i) => {
+          const st = optionState(i);
+          return (
+            <button
+              key={`${q.id}-opt-${opt.substring(0, 12)}`}
+              type="button"
+              data-ocid={`quiz.option.${i + 1}`}
+              disabled={revealed}
+              onClick={() => !revealed && onSelect(i)}
+              className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl border text-left text-sm transition-all duration-150 ${optionClasses[st]}`}
+            >
+              <span
+                className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold border-2 transition-all ${
+                  st === "selected"
+                    ? "bg-blue-500 border-blue-500 text-white"
+                    : st === "correct"
+                      ? "bg-emerald-500 border-emerald-500 text-white"
+                      : st === "wrong"
+                        ? "bg-red-500 border-red-500 text-white"
+                        : "border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/50"
+                }`}
+              >
+                {st === "correct" ? (
+                  <CheckCircle2 className="w-4 h-4" />
+                ) : st === "wrong" ? (
+                  <XCircle className="w-4 h-4" />
+                ) : (
+                  String.fromCharCode(65 + i)
+                )}
+              </span>
+              <span className="flex-1 leading-snug font-medium">{opt}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Explanation */}
+      {revealed && (
+        <div
+          className={`rounded-xl border p-4 text-sm leading-relaxed ${
+            selectedAnswer === q.mappedCorrect
+              ? "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+              : "bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300"
+          }`}
+        >
+          <div className="flex items-start gap-2.5">
+            {selectedAnswer === q.mappedCorrect ? (
+              <CheckCircle2 className="w-5 h-5 mt-0.5 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
+            ) : (
+              <XCircle className="w-5 h-5 mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+            )}
+            <div>
+              <p className="font-bold text-sm mb-1">
+                {selectedAnswer === q.mappedCorrect
+                  ? "✓ Correct!"
+                  : "✗ Not quite right"}
+              </p>
+              <p className="text-sm opacity-90">{q.explanation}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Action buttons */}
+      <div className="flex items-center justify-between gap-3 pt-1">
+        {!revealed ? (
+          <Button
+            data-ocid="quiz.check_answer"
+            onClick={onReveal}
+            disabled={selectedAnswer === null}
+            className="flex-1 h-11 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+          >
+            Check Answer
+          </Button>
+        ) : isLast ? (
+          <Button
+            data-ocid="quiz.finish"
+            onClick={onFinish}
+            className="flex-1 h-11 text-sm font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm gap-2"
+          >
+            <Trophy className="w-4 h-4" /> See Results
+          </Button>
+        ) : (
+          <Button
+            data-ocid="quiz.next_question"
+            onClick={onNext}
+            className="flex-1 h-11 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm gap-2"
+          >
+            Next Question <ChevronRight className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Result Screen ─────────────────────────────────────────────────────────────
+function ResultScreen({
+  state,
+  quiz,
+  onRetake,
+  onBack,
+}: {
+  state: QuizState;
+  quiz: Quiz;
+  onRetake: () => void;
+  onBack: () => void;
+}) {
+  const score = state.answers.filter(
+    (a, i) => a === state.questions[i].mappedCorrect,
+  ).length;
+  const total = state.questions.length;
+  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+
+  const feedback =
+    pct >= 80
+      ? {
+          label: "Excellent!",
+          sub: "You've mastered this topic",
+          color: "text-emerald-600 dark:text-emerald-400",
+          bg: "from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20",
+          border: "border-emerald-100 dark:border-emerald-800",
+        }
+      : pct >= 50
+        ? {
+            label: "Good effort!",
+            sub: "Review the wrong answers to improve",
+            color: "text-amber-600 dark:text-amber-400",
+            bg: "from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20",
+            border: "border-amber-100 dark:border-amber-800",
+          }
+        : {
+            label: "Keep learning!",
+            sub: "Revisit this topic and try again",
+            color: "text-red-600 dark:text-red-400",
+            bg: "from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20",
+            border: "border-red-100 dark:border-red-800",
+          };
+
+  return (
+    <div className="space-y-5">
+      {/* Score hero card */}
+      <div
+        className={`bg-gradient-to-br ${feedback.bg} rounded-2xl border ${feedback.border} p-6`}
+      >
+        <div className="flex flex-col items-center text-center space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Trophy className="w-4 h-4 text-amber-500" />
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+              {quiz.title}
             </p>
           </div>
-        </div>
-
-        {/* Category Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-          {(
-            [
-              {
-                key: "financial-education" as const,
-                label: "Financial Education",
-                desc: "5 chapters",
-                icon: <GraduationCap className="h-5 w-5 text-orange-600" />,
-                activeCls:
-                  "border-orange-500 bg-orange-50 dark:bg-orange-950/20",
-                iconBg: "bg-orange-100 dark:bg-orange-900/30",
-              },
-              {
-                key: "technical" as const,
-                label: "Technical Analysis",
-                desc: "5 strategies",
-                icon: <TrendingUp className="h-5 w-5 text-primary" />,
-                activeCls: "border-primary bg-primary/5",
-                iconBg: "bg-primary/10",
-              },
-              {
-                key: "fundamental" as const,
-                label: "Fundamental Analysis",
-                desc: "5 metrics",
-                icon: <BarChart3 className="h-5 w-5 text-blue-600" />,
-                activeCls: "border-blue-500 bg-blue-50 dark:bg-blue-950/20",
-                iconBg: "bg-blue-100 dark:bg-blue-900/30",
-              },
-              {
-                key: "advanced" as const,
-                label: "Advanced Modeling",
-                desc: "5 models",
-                icon: <Sparkles className="h-5 w-5 text-purple-600" />,
-                activeCls:
-                  "border-purple-500 bg-purple-50 dark:bg-purple-950/20",
-                iconBg: "bg-purple-100 dark:bg-purple-900/30",
-              },
-              {
-                key: "investment" as const,
-                label: "Investment Modules",
-                desc: "5 types",
-                icon: <BookOpen className="h-5 w-5 text-green-600" />,
-                activeCls: "border-green-500 bg-green-50 dark:bg-green-950/20",
-                iconBg: "bg-green-100 dark:bg-green-900/30",
-              },
-            ] as const
-          ).map((cat) => (
-            <Card
-              key={cat.key}
-              data-ocid={`quiz.category.${cat.key}`}
-              className={`cursor-pointer transition-all hover:shadow-md ${selectedCategory === cat.key ? `${cat.activeCls} shadow-md` : "hover:border-primary/40"}`}
-              onClick={() => setSelectedCategory(cat.key)}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2.5">
-                  <div className={`p-2 rounded-lg ${cat.iconBg}`}>
-                    {cat.icon}
-                  </div>
-                  <div>
-                    <CardTitle className="text-sm leading-tight">
-                      {cat.label}
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                      {cat.desc}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-
-        {/* Quiz List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredQuizzes.map((quiz) => (
-            <Card
-              key={quiz.id}
-              data-ocid={`quiz.item.${quiz.id}`}
-              className="hover:shadow-lg transition-all cursor-pointer border-border/50 hover:border-primary/50"
-              onClick={() => handleSelectQuiz(quiz)}
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20">
-                      {getCategoryIcon(quiz.category)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-sm leading-tight">
-                        {quiz.title}
-                      </CardTitle>
-                      <CardDescription className="text-xs mt-1">
-                        {quiz.description}
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">
-                    {quiz.questions.length} Questions
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    ~{quiz.questions.length * 2} min
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Results view
-  if (showResults) {
-    const percentage = (score / selectedQuiz.questions.length) * 100;
-    const passed = percentage >= 60;
-    return (
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <Card className="border-border/50">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              {passed ? (
-                <div className="p-4 rounded-full bg-green-100 dark:bg-green-900/30">
-                  <Trophy className="h-12 w-12 text-green-600" />
-                </div>
-              ) : (
-                <div className="p-4 rounded-full bg-orange-100 dark:bg-orange-900/30">
-                  <RotateCcw className="h-12 w-12 text-orange-600" />
-                </div>
-              )}
-            </div>
-            <CardTitle className="text-2xl">Quiz Complete!</CardTitle>
-            <CardDescription className="text-base mt-2">
-              You scored {score} out of {selectedQuiz.questions.length} (
-              {percentage.toFixed(0)}%)
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+          <ScoreGauge score={score} total={total} />
+          <div>
+            <p className={`text-xl font-black ${feedback.color}`}>
+              {feedback.label}
+            </p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {feedback.sub}
+            </p>
+          </div>
+          {/* Stats row */}
+          <div className="flex items-center gap-6 pt-2">
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">
-                {percentage.toFixed(0)}%
-              </div>
-              <Progress value={percentage} className="h-3" />
-              <p className="text-sm text-muted-foreground mt-2">
-                {passed
-                  ? "Great job! You have a solid understanding."
-                  : "Keep learning! Review the explanations below."}
+              <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                {score}
               </p>
+              <p className="text-xs text-slate-500">Correct</p>
             </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Answer Review</h3>
-              {selectedQuiz.questions.map((question, idx) => {
-                const userSelectedText = selectedAnswers[idx];
-                const correctOptionText =
-                  question.options[question.correctAnswer];
-                const isCorrect = userSelectedText === correctOptionText;
-                return (
-                  <Card
-                    key={question.id}
-                    className={`border-2 ${isCorrect ? "border-green-200 dark:border-green-800" : "border-red-200 dark:border-red-800"}`}
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start gap-3">
-                        {isCorrect ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        ) : (
-                          <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                        )}
-                        <CardTitle className="text-sm font-medium">
-                          Question {idx + 1}: {question.question}
-                        </CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium">
-                            Your answer:
-                          </span>
-                          <Badge
-                            variant={isCorrect ? "default" : "destructive"}
-                            className="text-xs"
-                          >
-                            {userSelectedText ?? "Not answered"}
-                          </Badge>
-                        </div>
-                        {!isCorrect && (
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-medium">
-                              Correct answer:
-                            </span>
-                            <Badge
-                              variant="default"
-                              className="text-xs bg-green-600"
-                            >
-                              {correctOptionText}
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-                      <Alert className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
-                        <Info className="h-4 w-4" />
-                        <AlertTitle className="text-sm">Explanation</AlertTitle>
-                        <AlertDescription className="text-xs mt-1">
-                          {question.explanation}
-                        </AlertDescription>
-                      </Alert>
-                      {question.learningResource && (
-                        <a
-                          href={question.learningResource}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-primary hover:underline flex items-center gap-1"
-                        >
-                          <BookOpen className="h-3 w-3" />
-                          Learn more
-                        </a>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
+            <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
+            <div className="text-center">
+              <p className="text-lg font-black text-red-500">{total - score}</p>
+              <p className="text-xs text-slate-500">Wrong</p>
             </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                onClick={handleRetake}
-                className="flex-1"
-                variant="outline"
-                data-ocid="quiz.retake_button"
-              >
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Retake Quiz
-              </Button>
-              <Button
-                onClick={handleBackToList}
-                className="flex-1"
-                data-ocid="quiz.back_to_list_button"
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                Back to Quizzes
-              </Button>
+            <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
+            <div className="text-center">
+              <p className="text-lg font-black text-slate-700 dark:text-slate-200">
+                {total}
+              </p>
+              <p className="text-xs text-slate-500">Total</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Answer Review */}
+      <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+            Answer Review
+          </p>
+          <Badge className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-0 text-xs">
+            {total} questions
+          </Badge>
+        </div>
+        <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
+          {state.questions.map((q, i) => {
+            const answered = state.answers[i];
+            const correct = answered === q.mappedCorrect;
+            return (
+              <div key={q.id} className="px-4 py-3.5 flex items-start gap-3">
+                <div
+                  className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5 ${
+                    correct
+                      ? "bg-emerald-100 dark:bg-emerald-900/30"
+                      : "bg-red-100 dark:bg-red-900/30"
+                  }`}
+                >
+                  {correct ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <XCircle className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">
+                    {q.question}
+                  </p>
+                  <div className="mt-1 space-y-0.5">
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                      ✓ {q.shuffledOptions[q.mappedCorrect]}
+                    </p>
+                    {!correct && answered !== null && (
+                      <p className="text-xs text-red-500 dark:text-red-400">
+                        ✗ {q.shuffledOptions[answered]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* CTAs */}
+      <div className="grid grid-cols-2 gap-3">
+        <Button
+          data-ocid="quiz.retake_button"
+          variant="outline"
+          onClick={onRetake}
+          className="h-11 text-sm font-semibold rounded-xl border-slate-200 dark:border-slate-700 gap-2 hover:bg-slate-50 dark:hover:bg-slate-700"
+        >
+          <RotateCcw className="w-4 h-4" /> Retake Quiz
+        </Button>
+        <Button
+          data-ocid="quiz.back_to_categories"
+          onClick={onBack}
+          className="h-11 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-sm"
+        >
+          <BookOpen className="w-4 h-4" /> More Quizzes
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main QuizTab ──────────────────────────────────────────────────────────────
+export function QuizTab() {
+  const [selectedCategory, setSelectedCategory] = useState<Category>("all");
+  const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
+  const [quizState, setQuizState] = useState<QuizState | null>(null);
+
+  const filteredQuizzes = useMemo(() => {
+    if (selectedCategory === "all") return quizzes;
+    return quizzes.filter((q) => q.category === selectedCategory);
+  }, [selectedCategory]);
+
+  const startQuiz = useCallback((quiz: Quiz) => {
+    setActiveQuiz(quiz);
+    setQuizState(buildQuizState(quiz));
+  }, []);
+
+  const handleSelect = useCallback((idx: number) => {
+    setQuizState((s) => (s ? { ...s, selectedAnswer: idx } : s));
+  }, []);
+
+  const handleReveal = useCallback(() => {
+    setQuizState((s) => {
+      if (!s) return s;
+      const updated = [...s.answers];
+      updated[s.currentIndex] = s.selectedAnswer;
+      return { ...s, revealed: true, answers: updated };
+    });
+  }, []);
+
+  const handleNext = useCallback(() => {
+    setQuizState((s) =>
+      s
+        ? {
+            ...s,
+            currentIndex: s.currentIndex + 1,
+            selectedAnswer: null,
+            revealed: false,
+          }
+        : s,
+    );
+  }, []);
+
+  const handleFinish = useCallback(() => {
+    setQuizState((s) => {
+      if (!s) return s;
+      const updated = [...s.answers];
+      updated[s.currentIndex] = s.selectedAnswer;
+      return { ...s, answers: updated, finished: true };
+    });
+  }, []);
+
+  const handleRetake = useCallback(() => {
+    if (activeQuiz) setQuizState(buildQuizState(activeQuiz));
+  }, [activeQuiz]);
+
+  const handleBack = useCallback(() => {
+    setActiveQuiz(null);
+    setQuizState(null);
+  }, []);
+
+  const categoryMeta: Record<
+    Quiz["category"],
+    { color: string; bg: string; label: string; dot: string }
+  > = {
+    "financial-education": {
+      color: "text-emerald-700 dark:text-emerald-400",
+      bg: "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800",
+      label: "Finance",
+      dot: "#10b981",
+    },
+    investment: {
+      color: "text-blue-700 dark:text-blue-400",
+      bg: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800",
+      label: "India Markets",
+      dot: "#2563eb",
+    },
+    fundamental: {
+      color: "text-violet-700 dark:text-violet-400",
+      bg: "bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800",
+      label: "Fundamental",
+      dot: "#7c3aed",
+    },
+    technical: {
+      color: "text-orange-700 dark:text-orange-400",
+      bg: "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800",
+      label: "Technical",
+      dot: "#ea580c",
+    },
+    advanced: {
+      color: "text-red-700 dark:text-red-400",
+      bg: "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800",
+      label: "Advanced",
+      dot: "#dc2626",
+    },
+  };
+
+  // ── Active quiz view ──
+  if (activeQuiz && quizState) {
+    return (
+      <div className="space-y-4" data-ocid="quiz.active">
+        {/* Breadcrumb nav */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleBack}
+            data-ocid="quiz.back_button"
+            className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            All Quizzes
+          </button>
+          <span className="text-slate-300 dark:text-slate-600">›</span>
+          <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 truncate max-w-[180px]">
+            {activeQuiz.title}
+          </span>
+        </div>
+
+        {quizState.finished ? (
+          <ResultScreen
+            state={quizState}
+            quiz={activeQuiz}
+            onRetake={handleRetake}
+            onBack={handleBack}
+          />
+        ) : (
+          <QuizCard
+            state={quizState}
+            onSelect={handleSelect}
+            onReveal={handleReveal}
+            onNext={handleNext}
+            onFinish={handleFinish}
+          />
+        )}
       </div>
     );
   }
 
-  // Question view
+  // ── Quiz selection view ──
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <Card className="border-border/50">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl">{selectedQuiz.title}</CardTitle>
-              <CardDescription className="mt-1">
-                {selectedQuiz.description}
-              </CardDescription>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBackToList}
-              data-ocid="quiz.back_button"
+    <div className="space-y-5" data-ocid="quiz.tab">
+      {/* Hero header */}
+      <div className="bg-gradient-to-r from-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 rounded-2xl p-5 text-white">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/20">
+            <GraduationCap className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base font-black text-white">Finance Quiz</h2>
+            <p className="text-xs text-slate-300 mt-0.5">
+              {quizzes.length} quizzes across {CATEGORIES.length - 1} topics ·
+              Test your knowledge
+            </p>
+          </div>
+          <div className="flex-shrink-0 text-right hidden sm:block">
+            <p className="text-2xl font-black text-white">
+              {quizzes.reduce((acc, q) => acc + q.questions.length, 0)}
+            </p>
+            <p className="text-xs text-slate-400">total questions</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Category chips */}
+      <div
+        className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide"
+        data-ocid="quiz.category_filter"
+      >
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat.id}
+            type="button"
+            data-ocid={`quiz.category.${cat.id}`}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold flex-shrink-0 border transition-all duration-150 ${
+              selectedCategory === cat.id
+                ? `${cat.activeBg} border-transparent shadow-sm`
+                : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"
+            }`}
+          >
+            {cat.icon}
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Results count */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          {filteredQuizzes.length} quiz
+          {filteredQuizzes.length !== 1 ? "zes" : ""} found
+        </p>
+      </div>
+
+      {/* Quiz grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {filteredQuizzes.map((quiz) => {
+          const meta = categoryMeta[quiz.category];
+          return (
+            <div
+              key={quiz.id}
+              data-ocid={`quiz.card.${quiz.id}`}
+              className="group bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden hover:shadow-md hover:border-slate-200 dark:hover:border-slate-600 transition-all duration-200"
             >
-              Back to List
-            </Button>
-          </div>
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Question {currentQuestionIndex + 1} of{" "}
-                {selectedQuiz.questions.length}
-              </span>
-              <Badge variant="secondary">
-                {Math.round(progress)}% Complete
-              </Badge>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {randomizedQuestion && (
-            <>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
-                  {randomizedQuestion.question}
+              <div className="p-4">
+                {/* Badge + question count */}
+                <div className="flex items-center justify-between mb-3">
+                  <Badge
+                    className={`text-xs border ${meta.bg} ${meta.color} font-semibold`}
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full mr-1.5 flex-shrink-0"
+                      style={{ background: meta.dot }}
+                    />
+                    {meta.label}
+                  </Badge>
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                    {quiz.questions.length} questions
+                  </span>
+                </div>
+
+                {/* Title + description */}
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2 mb-1.5">
+                  {quiz.title}
                 </h3>
-                <div className="space-y-3">
-                  {randomizedQuestion.options.map((option, idx) => {
-                    // Compare stored text to current option text for selection state
-                    const isSelected =
-                      selectedAnswers[currentQuestionIndex] === option;
-                    return (
-                      <button
-                        key={option}
-                        type="button"
-                        data-ocid={`quiz.option.${idx}`}
-                        onClick={() => handleAnswerSelect(idx)}
-                        className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                          isSelected
-                            ? "border-primary bg-primary/10 shadow-md"
-                            : "border-border hover:border-primary/50 hover:bg-muted/50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                              isSelected
-                                ? "border-primary bg-primary"
-                                : "border-muted-foreground"
-                            }`}
-                          >
-                            {isSelected && (
-                              <div className="w-3 h-3 rounded-full bg-white" />
-                            )}
-                          </div>
-                          <span className="text-sm">{option}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
+                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-4">
+                  {quiz.description}
+                </p>
+
+                {/* Start CTA */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-50 dark:border-slate-700/50">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    <span>~{Math.ceil(quiz.questions.length * 0.5)} min</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    data-ocid={`quiz.start.${quiz.id}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startQuiz(quiz);
+                    }}
+                    className="h-8 px-4 text-xs font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white gap-1.5 shadow-sm group-hover:shadow"
+                  >
+                    Start Quiz <ChevronRight className="w-3.5 h-3.5" />
+                  </Button>
                 </div>
               </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={handlePrevious}
-                  disabled={currentQuestionIndex === 0}
-                  variant="outline"
-                  className="flex-1"
-                  data-ocid="quiz.prev_button"
-                >
-                  Previous
-                </Button>
-                <Button
-                  onClick={handleNext}
-                  disabled={selectedAnswers[currentQuestionIndex] === undefined}
-                  className="flex-1"
-                  data-ocid="quiz.next_button"
-                >
-                  {currentQuestionIndex === selectedQuiz.questions.length - 1
-                    ? "Finish Quiz"
-                    : "Next Question"}
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -1,11 +1,12 @@
-import { Suspense, lazy } from "react";
 import {
-  BrowserRouter,
   Navigate,
-  Route,
-  Routes,
+  RouterProvider,
+  createRootRoute,
+  createRoute,
+  createRouter,
   useLocation,
-} from "react-router-dom";
+} from "@tanstack/react-router";
+import { Suspense, lazy } from "react";
 import Layout from "./components/Layout";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -46,93 +47,184 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
   if (!identity || identity.getPrincipal().isAnonymous()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={"/" as never} />;
   }
   return <>{children}</>;
 }
 
-/**
- * WellKnownGuard — rendered for any path matching /.well-known/*
- * It does nothing in React and lets the IC asset canister serve the
- * file directly. If JavaScript somehow reaches here (e.g. client-side
- * navigation), we redirect to the raw URL so the browser fetches it
- * as a plain HTTP request, bypassing the SPA entirely.
- */
 function WellKnownPassthrough() {
-  const { pathname } = useLocation();
-  // Force a hard browser navigation so the asset canister serves the file
-  window.location.replace(pathname);
+  const loc = useLocation();
+  window.location.replace(loc.pathname);
   return null;
 }
 
-export default function App() {
+// Root route
+const rootRoute = createRootRoute({
+  component: () => <RootLayout />,
+});
+
+function RootLayout() {
   return (
     <ThemeProvider>
       <CurrencyProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Explicit exclusion: /.well-known/* must never be handled by React Router.
-                The IC asset canister serves these files directly from the public directory.
-                This route exists only as a safety net for client-side navigations. */}
-            <Route path="/.well-known/*" element={<WellKnownPassthrough />} />
-
-            {/* Public routes — always loaded, no lazy */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-
-            {/* Protected app routes — lazy-loaded per module */}
-            <Route
-              path="*"
-              element={
-                <AuthGuard>
-                  <Layout>
-                    <Suspense fallback={<PageLoader />}>
-                      <Routes>
-                        <Route path="/dashboard" element={<DashboardPage />} />
-                        <Route path="/goals" element={<GoalsPage />} />
-                        <Route
-                          path="/portfolio"
-                          element={
-                            <Navigate to="/portfolio/Retirement" replace />
-                          }
-                        />
-                        <Route
-                          path="/portfolio/:assetType"
-                          element={<PortfolioPage />}
-                        />
-                        <Route path="/budgeting" element={<BudgetingPage />} />
-                        <Route
-                          path="/financial-model"
-                          element={<FinancialModelPage />}
-                        />
-                        <Route
-                          path="/financial-planner"
-                          element={<FinancialPlannerPage />}
-                        />
-                        <Route
-                          path="/financial-rules"
-                          element={<FinancialRulesPage />}
-                        />
-                        <Route path="/loans" element={<LoansPage />} />
-                        <Route
-                          path="/trade-journal"
-                          element={<TradeJournalPage />}
-                        />
-                        <Route path="/help" element={<HelpPage />} />
-                        <Route path="/admin" element={<AdminPage />} />
-                        <Route
-                          path="*"
-                          element={<Navigate to="/dashboard" replace />}
-                        />
-                      </Routes>
-                    </Suspense>
-                  </Layout>
-                </AuthGuard>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
+        {/* Outlet rendered by child routes */}
+        <ChildRoutes />
       </CurrencyProvider>
     </ThemeProvider>
   );
+}
+
+// Separate component to avoid circular reference
+import { Outlet } from "@tanstack/react-router";
+
+function ChildRoutes() {
+  return <Outlet />;
+}
+
+const wellKnownRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/.well-known/$",
+  component: WellKnownPassthrough,
+});
+
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: LandingPage,
+});
+
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/login",
+  component: LoginPage,
+});
+
+// Protected routes wrapper
+function ProtectedLayout() {
+  return (
+    <AuthGuard>
+      <Layout>
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
+      </Layout>
+    </AuthGuard>
+  );
+}
+
+const protectedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "protected",
+  component: ProtectedLayout,
+});
+
+const dashboardRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/dashboard",
+  component: DashboardPage,
+});
+
+const goalsRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/goals",
+  component: GoalsPage,
+});
+
+const portfolioIndexRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/portfolio",
+  component: () => <Navigate to={"/portfolio/Retirement" as never} />,
+});
+
+const portfolioRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/portfolio/$assetType",
+  component: PortfolioPage,
+});
+
+const budgetingRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/budgeting",
+  component: BudgetingPage,
+});
+
+const financialModelRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/financial-model",
+  component: FinancialModelPage,
+});
+
+const financialPlannerRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/financial-planner",
+  component: FinancialPlannerPage,
+});
+
+const financialRulesRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/financial-rules",
+  component: FinancialRulesPage,
+});
+
+const loansRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/loans",
+  component: LoansPage,
+});
+
+const tradeJournalRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/trade-journal",
+  component: TradeJournalPage,
+});
+
+const helpRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/help",
+  component: HelpPage,
+});
+
+const adminRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "/admin",
+  component: AdminPage,
+});
+
+const catchAllRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "*",
+  component: () => <Navigate to={"/dashboard" as never} />,
+});
+
+const routeTree = rootRoute.addChildren([
+  wellKnownRoute,
+  indexRoute,
+  loginRoute,
+  protectedRoute.addChildren([
+    dashboardRoute,
+    goalsRoute,
+    portfolioIndexRoute,
+    portfolioRoute,
+    budgetingRoute,
+    financialModelRoute,
+    financialPlannerRoute,
+    financialRulesRoute,
+    loansRoute,
+    tradeJournalRoute,
+    helpRoute,
+    adminRoute,
+    catchAllRoute,
+  ]),
+]);
+
+const router = createRouter({ routeTree });
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+export default function App() {
+  return <RouterProvider router={router} />;
 }

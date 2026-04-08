@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { type Transaction, TransactionType } from "../backend.d";
+import { type Transaction, TransactionType } from "../types";
 import { useActor } from "./useActor";
 
 export interface MonthlyExpenseSummary {

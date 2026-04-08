@@ -7,15 +7,6 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface Goal {
-    id: string;
-    name: string;
-    deadline: string;
-    targetAmount: number;
-    notes: string;
-    category: string;
-    currentAmount: number;
-}
 export interface FinancialRule {
     id: string;
     ruleType: string;
@@ -25,18 +16,6 @@ export interface FinancialRule {
     isActive: boolean;
     condition: string;
 }
-export interface DashboardSummary {
-    modelCount: bigint;
-    totalIncome: number;
-    loanCount: bigint;
-    goalCount: bigint;
-    budgetCategoryCount: bigint;
-    totalExpenses: number;
-    portfolioCount: bigint;
-    eventCount: bigint;
-    ruleCount: bigint;
-    transactionCount: bigint;
-}
 export interface BudgetCategory {
     id: string;
     categoryType: TransactionType;
@@ -44,15 +23,14 @@ export interface BudgetCategory {
     name: string;
     color: string;
 }
-export interface PortfolioHolding {
+export interface FinancialModel {
     id: string;
-    ticker: string;
     name: string;
-    currentValue: number;
+    initialAmount: number;
     notes: string;
-    quantity: number;
-    costBasis: number;
-    assetType: AssetType;
+    annualReturn: number;
+    years: bigint;
+    monthlyContribution: number;
 }
 export interface Loan {
     id: string;
@@ -66,14 +44,17 @@ export interface Loan {
     monthlyPayment: number;
     startDate: string;
 }
-export interface FinancialModel {
-    id: string;
-    name: string;
-    initialAmount: number;
-    notes: string;
-    annualReturn: number;
-    years: bigint;
-    monthlyContribution: number;
+export interface DashboardSummary {
+    modelCount: bigint;
+    totalIncome: number;
+    loanCount: bigint;
+    goalCount: bigint;
+    budgetCategoryCount: bigint;
+    totalExpenses: number;
+    portfolioCount: bigint;
+    eventCount: bigint;
+    ruleCount: bigint;
+    transactionCount: bigint;
 }
 export interface PlannerEvent {
     id: string;
@@ -84,10 +65,6 @@ export interface PlannerEvent {
     amount: number;
     eventType: string;
 }
-export interface UserProfile {
-    name: string;
-    email: string;
-}
 export interface Transaction {
     id: string;
     categoryId: string;
@@ -96,6 +73,55 @@ export interface Transaction {
     description: string;
     account: string;
     amount: number;
+}
+export interface ChecklistItem {
+    id: string;
+    isChecked: boolean;
+    sortOrder: bigint;
+    text: string;
+    isCustom: boolean;
+}
+export interface PortfolioHolding {
+    id: string;
+    ticker: string;
+    name: string;
+    currentValue: number;
+    notes: string;
+    quantity: number;
+    costBasis: number;
+    assetType: AssetType;
+}
+export interface TradeEntry {
+    id: string;
+    entryDate: string;
+    ticker: string;
+    marketConditions: string;
+    entryTime: string;
+    strategy: string;
+    takeProfit: number;
+    tags: string;
+    commission: number;
+    isOpen: boolean;
+    positionType: string;
+    stopLoss: number;
+    notes: string;
+    quantity: number;
+    entryPrice: number;
+    emotions: string;
+    exitPrice: number;
+}
+export interface UserProfile {
+    name: string;
+    email: string;
+}
+export interface Goal {
+    id: string;
+    name: string;
+    deadline: string;
+    targetAmount: number;
+    notes: string;
+    category: string;
+    currentAmount: number;
 }
 export enum AssetType {
     ETF = "ETF",
@@ -116,32 +142,6 @@ export enum UserRole {
     user = "user",
     guest = "guest"
 }
-export interface TradeEntry {
-    id: string;
-    ticker: string;
-    entryDate: string;
-    entryTime: string;
-    positionType: string;
-    entryPrice: number;
-    exitPrice: number;
-    quantity: number;
-    stopLoss: number;
-    takeProfit: number;
-    strategy: string;
-    marketConditions: string;
-    emotions: string;
-    notes: string;
-    tags: string;
-    commission: number;
-    isOpen: boolean;
-}
-export interface ChecklistItem {
-    id: string;
-    text: string;
-    isChecked: boolean;
-    isCustom: boolean;
-    sortOrder: bigint;
-}
 export interface backendInterface {
     adminGetAllUsers(): Promise<Array<[string, UserProfile]>>;
     adminSuspendUser(principalText: string): Promise<boolean>;
@@ -149,28 +149,34 @@ export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     bootstrapAdmin(): Promise<boolean>;
     createBudgetCategory(category: BudgetCategory): Promise<BudgetCategory>;
+    createChecklistItem(item: ChecklistItem): Promise<ChecklistItem>;
     createFinancialModel(model: FinancialModel): Promise<FinancialModel>;
     createFinancialRule(rule: FinancialRule): Promise<FinancialRule>;
     createGoal(goal: Goal): Promise<Goal>;
     createLoan(loan: Loan): Promise<Loan>;
     createPlannerEvent(event: PlannerEvent): Promise<PlannerEvent>;
     createPortfolioHolding(holding: PortfolioHolding): Promise<PortfolioHolding>;
+    createTradeEntry(entry: TradeEntry): Promise<TradeEntry>;
     createTransaction(transaction: Transaction): Promise<Transaction>;
     deleteBudgetCategory(id: string): Promise<boolean>;
+    deleteChecklistItem(id: string): Promise<boolean>;
     deleteFinancialModel(id: string): Promise<boolean>;
     deleteFinancialRule(id: string): Promise<boolean>;
     deleteGoal(id: string): Promise<boolean>;
     deleteLoan(id: string): Promise<boolean>;
     deletePlannerEvent(id: string): Promise<boolean>;
     deletePortfolioHolding(id: string): Promise<boolean>;
+    deleteTradeEntry(id: string): Promise<boolean>;
     deleteTransaction(id: string): Promise<boolean>;
     getAllBudgetCategories(): Promise<Array<BudgetCategory>>;
+    getAllChecklistItems(): Promise<Array<ChecklistItem>>;
     getAllFinancialModels(): Promise<Array<FinancialModel>>;
     getAllFinancialRules(): Promise<Array<FinancialRule>>;
     getAllGoals(): Promise<Array<Goal>>;
     getAllLoans(): Promise<Array<Loan>>;
     getAllPlannerEvents(): Promise<Array<PlannerEvent>>;
     getAllPortfolioHoldings(): Promise<Array<PortfolioHolding>>;
+    getAllTradeEntries(): Promise<Array<TradeEntry>>;
     getAllTransactions(): Promise<Array<Transaction>>;
     getBudgetCategory(id: string): Promise<BudgetCategory | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -183,6 +189,7 @@ export interface backendInterface {
     getNetWorth(): Promise<number>;
     getPlannerEvent(id: string): Promise<PlannerEvent | null>;
     getPortfolioHolding(id: string): Promise<PortfolioHolding | null>;
+    getTradeEntry(id: string): Promise<TradeEntry | null>;
     getTransaction(id: string): Promise<Transaction | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
@@ -192,20 +199,13 @@ export interface backendInterface {
     }>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateBudgetCategory(id: string, category: BudgetCategory): Promise<BudgetCategory | null>;
+    updateChecklistItem(id: string, item: ChecklistItem): Promise<ChecklistItem | null>;
     updateFinancialModel(id: string, model: FinancialModel): Promise<FinancialModel | null>;
     updateFinancialRule(id: string, rule: FinancialRule): Promise<FinancialRule | null>;
     updateGoal(id: string, goal: Goal): Promise<Goal | null>;
     updateLoan(id: string, loan: Loan): Promise<Loan | null>;
     updatePlannerEvent(id: string, event: PlannerEvent): Promise<PlannerEvent | null>;
     updatePortfolioHolding(id: string, holding: PortfolioHolding): Promise<PortfolioHolding | null>;
-    updateTransaction(id: string, transaction: Transaction): Promise<Transaction | null>;
-    createTradeEntry(entry: TradeEntry): Promise<TradeEntry>;
-    getTradeEntry(id: string): Promise<TradeEntry | null>;
-    getAllTradeEntries(): Promise<Array<TradeEntry>>;
     updateTradeEntry(id: string, entry: TradeEntry): Promise<TradeEntry | null>;
-    deleteTradeEntry(id: string): Promise<boolean>;
-    createChecklistItem(item: ChecklistItem): Promise<ChecklistItem>;
-    getAllChecklistItems(): Promise<Array<ChecklistItem>>;
-    updateChecklistItem(id: string, item: ChecklistItem): Promise<ChecklistItem | null>;
-    deleteChecklistItem(id: string): Promise<boolean>;
+    updateTransaction(id: string, transaction: Transaction): Promise<Transaction | null>;
 }

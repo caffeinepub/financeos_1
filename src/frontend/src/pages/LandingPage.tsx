@@ -18,10 +18,10 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { SUPPORTED_CURRENCIES, useCurrency } from "../contexts/CurrencyContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import { useNavigate } from "../lib/router-compat";
 
 const MODULE_CONFIGS = [
   {

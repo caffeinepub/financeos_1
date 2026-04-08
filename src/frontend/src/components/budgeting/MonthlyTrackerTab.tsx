@@ -23,13 +23,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "../../contexts/CurrencyContext";
+import { useActor } from "../../hooks/useActor";
 import {
   type BudgetCategory,
   type Transaction,
   TransactionType,
-} from "../../backend.d";
-import { useCurrency } from "../../contexts/CurrencyContext";
-import { useActor } from "../../hooks/useActor";
+} from "../../types";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";

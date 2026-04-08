@@ -1,4 +1,3 @@
-import { AssetType, type PortfolioHolding } from "@/backend";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useActor } from "@/hooks/useActor";
+import { AssetType, type PortfolioHolding } from "@/types";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {

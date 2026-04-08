@@ -1,0 +1,255 @@
+// Version: 1.0.0
+type AssetType__583410737 =
+  {
+    #Commodity;
+    #Crypto;
+    #ETF;
+    #FixedIncome;
+    #MutualFund;
+    #Other;
+    #RealEstate;
+    #Retirement
+  };
+type BudgetCategory__826700562 =
+  {
+    categoryType : TransactionType__567497752;
+    color : Text;
+    id : Text;
+    monthlyLimit : Float;
+    name : Text
+  };
+type ChecklistItem__812517718 =
+  {
+    id : Text;
+    isChecked : Bool;
+    isCustom : Bool;
+    sortOrder : Int;
+    text : Text
+  };
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type FinancialModel__729100484 =
+  {
+    annualReturn : Float;
+    id : Text;
+    initialAmount : Float;
+    monthlyContribution : Float;
+    name : Text;
+    notes : Text;
+    years : Int
+  };
+type FinancialRule__51985432 =
+  {
+    action : Text;
+    condition : Text;
+    id : Text;
+    isActive : Bool;
+    name : Text;
+    ruleType : Text;
+    threshold : Float
+  };
+type Goal__816658372 =
+  {
+    category : Text;
+    currentAmount : Float;
+    deadline : Text;
+    id : Text;
+    name : Text;
+    notes : Text;
+    targetAmount : Float
+  };
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type Loan__1059326161 =
+  {
+    currentBalance : Float;
+    id : Text;
+    interestRate : Float;
+    loanType : Text;
+    monthlyPayment : Float;
+    name : Text;
+    notes : Text;
+    principal : Float;
+    startDate : Text;
+    termMonths : Int
+  };
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type PlannerEvent__1072950962 =
+  {
+    amount : Float;
+    date : Text;
+    eventType : Text;
+    id : Text;
+    isCompleted : Bool;
+    notes : Text;
+    title : Text
+  };
+type PortfolioHolding__288417207 =
+  {
+    assetType : AssetType__583410737;
+    costBasis : Float;
+    currentValue : Float;
+    id : Text;
+    name : Text;
+    notes : Text;
+    quantity : Float;
+    ticker : Text
+  };
+type TradeEntry__540569347 =
+  {
+    commission : Float;
+    emotions : Text;
+    entryDate : Text;
+    entryPrice : Float;
+    entryTime : Text;
+    exitPrice : Float;
+    id : Text;
+    isOpen : Bool;
+    marketConditions : Text;
+    notes : Text;
+    positionType : Text;
+    quantity : Float;
+    stopLoss : Float;
+    strategy : Text;
+    tags : Text;
+    takeProfit : Float;
+    ticker : Text
+  };
+type TransactionType__567497752 = {#Expense; #Income};
+type Transaction__540890931 =
+  {
+    account : Text;
+    amount : Float;
+    categoryId : Text;
+    date : Text;
+    description : Text;
+    id : Text;
+    transactionType : TransactionType__567497752
+  };
+type UserProfile__522768002 = {email : Text; name : Text};
+type UserRole__1054455867 = {#admin; #guest; #user};
+actor {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__605269027<Principal, UserRole__1054455867>
+    };
+  stable var adminPrincipalText : Text;
+  stable var blockedUsers :
+    {
+      var root : Node__46230540<Principal, {blocked : Bool; reason : Text}>;
+      var size : Nat__490723111
+    };
+  stable var idCounter : Nat;
+  stable store :
+    {
+      userBudgetCategories :
+        Map__605269027<Principal,
+                        Map__605269027<Text, BudgetCategory__826700562>>;
+      userEvents :
+        Map__605269027<Principal,
+                        Map__605269027<Text, PlannerEvent__1072950962>>;
+      userGoals :
+        Map__605269027<Principal, Map__605269027<Text, Goal__816658372>>;
+      userLoans :
+        Map__605269027<Principal, Map__605269027<Text, Loan__1059326161>>;
+      userModels :
+        Map__605269027<Principal,
+                        Map__605269027<Text, FinancialModel__729100484>>;
+      userPortfolios :
+        Map__605269027<Principal,
+                        Map__605269027<Text, PortfolioHolding__288417207>>;
+      userProfiles : Map__605269027<Principal, UserProfile__522768002>;
+      userRules :
+        Map__605269027<Principal,
+                        Map__605269027<Text, FinancialRule__51985432>>;
+      userTransactions :
+        Map__605269027<Principal,
+                        Map__605269027<Text, Transaction__540890931>>
+    };
+  stable userBudgetCategories :
+    {
+      var root :
+        Node__46230540<Principal,
+                        Map__605269027<Text, BudgetCategory__826700562>>;
+      var size : Nat__490723111
+    };
+  stable var userChecklists :
+    {
+      var root :
+        Node__46230540<Principal,
+                        Map__605269027<Text, ChecklistItem__812517718>>;
+      var size : Nat__490723111
+    };
+  stable userEvents :
+    {
+      var root :
+        Node__46230540<Principal,
+                        Map__605269027<Text, PlannerEvent__1072950962>>;
+      var size : Nat__490723111
+    };
+  stable userGoals :
+    {
+      var root :
+        Node__46230540<Principal, Map__605269027<Text, Goal__816658372>>;
+      var size : Nat__490723111
+    };
+  stable userLoans :
+    {
+      var root :
+        Node__46230540<Principal, Map__605269027<Text, Loan__1059326161>>;
+      var size : Nat__490723111
+    };
+  stable userModels :
+    {
+      var root :
+        Node__46230540<Principal,
+                        Map__605269027<Text, FinancialModel__729100484>>;
+      var size : Nat__490723111
+    };
+  stable var userModuleAccess :
+    {
+      var root : Node__46230540<Principal, Map__605269027<Text, Bool>>;
+      var size : Nat__490723111
+    };
+  stable userPortfolios :
+    {
+      var root :
+        Node__46230540<Principal,
+                        Map__605269027<Text, PortfolioHolding__288417207>>;
+      var size : Nat__490723111
+    };
+  stable userProfiles :
+    {
+      var root : Node__46230540<Principal, UserProfile__522768002>;
+      var size : Nat__490723111
+    };
+  stable userRules :
+    {
+      var root :
+        Node__46230540<Principal,
+                        Map__605269027<Text, FinancialRule__51985432>>;
+      var size : Nat__490723111
+    };
+  stable var userTradeEntries :
+    {
+      var root :
+        Node__46230540<Principal, Map__605269027<Text, TradeEntry__540569347>>;
+      var size : Nat__490723111
+    };
+  stable userTransactions :
+    {
+      var root :
+        Node__46230540<Principal,
+                        Map__605269027<Text, Transaction__540890931>>;
+      var size : Nat__490723111
+    }
+};

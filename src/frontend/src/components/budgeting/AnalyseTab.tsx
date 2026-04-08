@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { useCurrency } from "../../contexts/CurrencyContext";
+import { useActor } from "../../hooks/useActor";
 import {
   type BudgetCategory,
   type Transaction,
   TransactionType,
-} from "../../backend.d";
-import { useCurrency } from "../../contexts/CurrencyContext";
-import { useActor } from "../../hooks/useActor";
+} from "../../types";
 import { Badge } from "../ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";

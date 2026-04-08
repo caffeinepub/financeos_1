@@ -26,12 +26,13 @@ import {
 } from "lucide-react";
 import React from "react";
 import { useEffect, useState } from "react";
-import type { FinancialRule } from "../backend.d";
 import { AIRulesAnalysis } from "../components/AIRulesAnalysis";
 import { FinancialRulesSection } from "../components/FinancialRulesSection";
 import type { FinancialRule as FinancialRuleData } from "../components/FinancialRulesSection";
 import { financialRules as ALL_FINANCIAL_RULES } from "../components/FinancialRulesSection";
 import { ModelFundamentalsTab } from "../components/financial-model/ModelFundamentalsTab";
+import ChaptersTab from "../components/learn-finance/ChaptersTab";
+import { QuizTab } from "../components/learn-finance/QuizTab";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
@@ -60,6 +61,7 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { useActor } from "../hooks/useActor";
+import type { FinancialRule } from "../types";
 
 const emptyForm = {
   name: "",
@@ -1267,6 +1269,22 @@ export default function FinancialRulesPage() {
             <Brain className="w-3.5 h-3.5 mr-1.5" />
             My Rules
           </TabsTrigger>
+          <TabsTrigger
+            value="chapters"
+            data-ocid="financialrules.chapters.tab"
+            className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
+          >
+            <BookOpen className="w-3.5 h-3.5 mr-1.5" />
+            Chapters
+          </TabsTrigger>
+          <TabsTrigger
+            value="quiz"
+            data-ocid="financialrules.quiz.tab"
+            className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
+          >
+            <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
+            Quiz
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="knowledge" className="mt-4 space-y-4">
@@ -1907,6 +1925,14 @@ export default function FinancialRulesPage() {
               </div>
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="chapters" className="mt-4">
+          <ChaptersTab />
+        </TabsContent>
+
+        <TabsContent value="quiz" className="mt-4">
+          <QuizTab />
         </TabsContent>
       </Tabs>
 

@@ -29,8 +29,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { Loan } from "../backend.d";
-import { TransactionType } from "../backend.d";
 import { ModelDebtTab } from "../components/financial-model/ModelDebtTab";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -59,6 +57,8 @@ import {
 } from "../components/ui/tabs";
 import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
+import type { Loan } from "../types";
+import { TransactionType } from "../types";
 
 const emptyForm = {
   name: "",

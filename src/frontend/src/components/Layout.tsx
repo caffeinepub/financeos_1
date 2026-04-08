@@ -19,10 +19,10 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useActor } from "../hooks/useActor";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import { useLocation, useNavigate } from "../lib/router-compat";
 import { GrowfinfireChat } from "./GrowfinfireChat";
 import { Button } from "./ui/button";
 import {

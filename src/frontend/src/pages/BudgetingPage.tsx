@@ -1,7 +1,6 @@
 import { BookOpen, Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { type BudgetCategory, TransactionType } from "../backend.d";
 import { AnalyseTab } from "../components/budgeting/AnalyseTab";
 import { ExpensesTab } from "../components/budgeting/ExpensesTab";
 import { MonthlyTrackerTab } from "../components/budgeting/MonthlyTrackerTab";
@@ -39,6 +38,7 @@ import {
 } from "../components/ui/tabs";
 import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
+import { type BudgetCategory, TransactionType } from "../types";
 
 const _NEEDS_KEYWORDS = [
   "rent",
@@ -111,7 +111,13 @@ const TYPE_BADGE_COLORS: Record<string, string> = {
   Savings: "bg-emerald-100 text-emerald-700 border border-emerald-200",
 };
 
-const emptyForm = {
+const emptyForm: {
+  name: string;
+  categoryType: TransactionType;
+  monthlyLimit: number;
+  color: string;
+  budgetType: string;
+} = {
   name: "",
   categoryType: TransactionType.Expense,
   monthlyLimit: 0,

@@ -25,6 +25,13 @@ export interface BudgetCategory {
   'name' : string,
   'color' : string,
 }
+export interface ChecklistItem {
+  'id' : string,
+  'isChecked' : boolean,
+  'sortOrder' : bigint,
+  'text' : string,
+  'isCustom' : boolean,
+}
 export interface DashboardSummary {
   'modelCount' : bigint,
   'totalIncome' : number,
@@ -95,6 +102,25 @@ export interface PortfolioHolding {
   'costBasis' : number,
   'assetType' : AssetType,
 }
+export interface TradeEntry {
+  'id' : string,
+  'entryDate' : string,
+  'ticker' : string,
+  'marketConditions' : string,
+  'entryTime' : string,
+  'strategy' : string,
+  'takeProfit' : number,
+  'tags' : string,
+  'commission' : number,
+  'isOpen' : boolean,
+  'positionType' : string,
+  'stopLoss' : number,
+  'notes' : string,
+  'quantity' : number,
+  'entryPrice' : number,
+  'emotions' : string,
+  'exitPrice' : number,
+}
 export interface Transaction {
   'id' : string,
   'categoryId' : string,
@@ -111,35 +137,41 @@ export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
 export interface _SERVICE {
-  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  '_initializeAccessControl' : ActorMethod<[], undefined>,
   'adminGetAllUsers' : ActorMethod<[], Array<[string, UserProfile]>>,
   'adminSuspendUser' : ActorMethod<[string], boolean>,
   'adminUnsuspendUser' : ActorMethod<[string], boolean>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'bootstrapAdmin' : ActorMethod<[], boolean>,
   'createBudgetCategory' : ActorMethod<[BudgetCategory], BudgetCategory>,
+  'createChecklistItem' : ActorMethod<[ChecklistItem], ChecklistItem>,
   'createFinancialModel' : ActorMethod<[FinancialModel], FinancialModel>,
   'createFinancialRule' : ActorMethod<[FinancialRule], FinancialRule>,
   'createGoal' : ActorMethod<[Goal], Goal>,
   'createLoan' : ActorMethod<[Loan], Loan>,
   'createPlannerEvent' : ActorMethod<[PlannerEvent], PlannerEvent>,
   'createPortfolioHolding' : ActorMethod<[PortfolioHolding], PortfolioHolding>,
+  'createTradeEntry' : ActorMethod<[TradeEntry], TradeEntry>,
   'createTransaction' : ActorMethod<[Transaction], Transaction>,
   'deleteBudgetCategory' : ActorMethod<[string], boolean>,
+  'deleteChecklistItem' : ActorMethod<[string], boolean>,
   'deleteFinancialModel' : ActorMethod<[string], boolean>,
   'deleteFinancialRule' : ActorMethod<[string], boolean>,
   'deleteGoal' : ActorMethod<[string], boolean>,
   'deleteLoan' : ActorMethod<[string], boolean>,
   'deletePlannerEvent' : ActorMethod<[string], boolean>,
   'deletePortfolioHolding' : ActorMethod<[string], boolean>,
+  'deleteTradeEntry' : ActorMethod<[string], boolean>,
   'deleteTransaction' : ActorMethod<[string], boolean>,
   'getAllBudgetCategories' : ActorMethod<[], Array<BudgetCategory>>,
+  'getAllChecklistItems' : ActorMethod<[], Array<ChecklistItem>>,
   'getAllFinancialModels' : ActorMethod<[], Array<FinancialModel>>,
   'getAllFinancialRules' : ActorMethod<[], Array<FinancialRule>>,
   'getAllGoals' : ActorMethod<[], Array<Goal>>,
   'getAllLoans' : ActorMethod<[], Array<Loan>>,
   'getAllPlannerEvents' : ActorMethod<[], Array<PlannerEvent>>,
   'getAllPortfolioHoldings' : ActorMethod<[], Array<PortfolioHolding>>,
+  'getAllTradeEntries' : ActorMethod<[], Array<TradeEntry>>,
   'getAllTransactions' : ActorMethod<[], Array<Transaction>>,
   'getBudgetCategory' : ActorMethod<[string], [] | [BudgetCategory]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
@@ -152,6 +184,7 @@ export interface _SERVICE {
   'getNetWorth' : ActorMethod<[], number>,
   'getPlannerEvent' : ActorMethod<[string], [] | [PlannerEvent]>,
   'getPortfolioHolding' : ActorMethod<[string], [] | [PortfolioHolding]>,
+  'getTradeEntry' : ActorMethod<[string], [] | [TradeEntry]>,
   'getTransaction' : ActorMethod<[string], [] | [Transaction]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
@@ -163,6 +196,10 @@ export interface _SERVICE {
   'updateBudgetCategory' : ActorMethod<
     [string, BudgetCategory],
     [] | [BudgetCategory]
+  >,
+  'updateChecklistItem' : ActorMethod<
+    [string, ChecklistItem],
+    [] | [ChecklistItem]
   >,
   'updateFinancialModel' : ActorMethod<
     [string, FinancialModel],
@@ -182,6 +219,7 @@ export interface _SERVICE {
     [string, PortfolioHolding],
     [] | [PortfolioHolding]
   >,
+  'updateTradeEntry' : ActorMethod<[string, TradeEntry], [] | [TradeEntry]>,
   'updateTransaction' : ActorMethod<[string, Transaction], [] | [Transaction]>,
 }
 export declare const idlService: IDL.ServiceClass;

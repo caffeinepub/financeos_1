@@ -1,0 +1,225 @@
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UserProfile = 
+ record {
+   email: text;
+   name: text;
+ };
+type TransactionType = 
+ variant {
+   Expense;
+   Income;
+ };
+type Transaction = 
+ record {
+   account: text;
+   amount: float64;
+   categoryId: text;
+   date: text;
+   description: text;
+   id: text;
+   transactionType: TransactionType;
+ };
+type TradeEntry = 
+ record {
+   commission: float64;
+   emotions: text;
+   entryDate: text;
+   entryPrice: float64;
+   entryTime: text;
+   exitPrice: float64;
+   id: text;
+   isOpen: bool;
+   marketConditions: text;
+   notes: text;
+   positionType: text;
+   quantity: float64;
+   stopLoss: float64;
+   strategy: text;
+   tags: text;
+   takeProfit: float64;
+   ticker: text;
+ };
+type PortfolioHolding = 
+ record {
+   assetType: AssetType;
+   costBasis: float64;
+   currentValue: float64;
+   id: text;
+   name: text;
+   notes: text;
+   quantity: float64;
+   ticker: text;
+ };
+type PlannerEvent = 
+ record {
+   amount: float64;
+   date: text;
+   eventType: text;
+   id: text;
+   isCompleted: bool;
+   notes: text;
+   title: text;
+ };
+type Loan = 
+ record {
+   currentBalance: float64;
+   id: text;
+   interestRate: float64;
+   loanType: text;
+   monthlyPayment: float64;
+   name: text;
+   notes: text;
+   "principal": float64;
+   startDate: text;
+   termMonths: int;
+ };
+type Goal = 
+ record {
+   category: text;
+   currentAmount: float64;
+   deadline: text;
+   id: text;
+   name: text;
+   notes: text;
+   targetAmount: float64;
+ };
+type FinancialRule = 
+ record {
+   action: text;
+   condition: text;
+   id: text;
+   isActive: bool;
+   name: text;
+   ruleType: text;
+   threshold: float64;
+ };
+type FinancialModel = 
+ record {
+   annualReturn: float64;
+   id: text;
+   initialAmount: float64;
+   monthlyContribution: float64;
+   name: text;
+   notes: text;
+   years: int;
+ };
+type DashboardSummary = 
+ record {
+   budgetCategoryCount: nat;
+   eventCount: nat;
+   goalCount: nat;
+   loanCount: nat;
+   modelCount: nat;
+   portfolioCount: nat;
+   ruleCount: nat;
+   totalExpenses: float64;
+   totalIncome: float64;
+   transactionCount: nat;
+ };
+type ChecklistItem = 
+ record {
+   id: text;
+   isChecked: bool;
+   isCustom: bool;
+   sortOrder: int;
+   "text": text;
+ };
+type BudgetCategory = 
+ record {
+   categoryType: TransactionType;
+   color: text;
+   id: text;
+   monthlyLimit: float64;
+   name: text;
+ };
+type AssetType = 
+ variant {
+   Commodity;
+   Crypto;
+   ETF;
+   FixedIncome;
+   MutualFund;
+   Other;
+   RealEstate;
+   Retirement;
+ };
+service : {
+  _initializeAccessControl: () -> ();
+  adminGetAllUsers: () -> (vec record {
+                                 text;
+                                 UserProfile;
+                               }) query;
+  adminSuspendUser: (principalText: text) -> (bool);
+  adminUnsuspendUser: (principalText: text) -> (bool);
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  bootstrapAdmin: () -> (bool);
+  createBudgetCategory: (category: BudgetCategory) -> (BudgetCategory);
+  createChecklistItem: (item: ChecklistItem) -> (ChecklistItem);
+  createFinancialModel: (model: FinancialModel) -> (FinancialModel);
+  createFinancialRule: (rule: FinancialRule) -> (FinancialRule);
+  createGoal: (goal: Goal) -> (Goal);
+  createLoan: (loan: Loan) -> (Loan);
+  createPlannerEvent: (event: PlannerEvent) -> (PlannerEvent);
+  createPortfolioHolding: (holding: PortfolioHolding) -> (PortfolioHolding);
+  createTradeEntry: (entry: TradeEntry) -> (TradeEntry);
+  createTransaction: (transaction: Transaction) -> (Transaction);
+  deleteBudgetCategory: (id: text) -> (bool);
+  deleteChecklistItem: (id: text) -> (bool);
+  deleteFinancialModel: (id: text) -> (bool);
+  deleteFinancialRule: (id: text) -> (bool);
+  deleteGoal: (id: text) -> (bool);
+  deleteLoan: (id: text) -> (bool);
+  deletePlannerEvent: (id: text) -> (bool);
+  deletePortfolioHolding: (id: text) -> (bool);
+  deleteTradeEntry: (id: text) -> (bool);
+  deleteTransaction: (id: text) -> (bool);
+  getAllBudgetCategories: () -> (vec BudgetCategory) query;
+  getAllChecklistItems: () -> (vec ChecklistItem) query;
+  getAllFinancialModels: () -> (vec FinancialModel) query;
+  getAllFinancialRules: () -> (vec FinancialRule) query;
+  getAllGoals: () -> (vec Goal) query;
+  getAllLoans: () -> (vec Loan) query;
+  getAllPlannerEvents: () -> (vec PlannerEvent) query;
+  getAllPortfolioHoldings: () -> (vec PortfolioHolding) query;
+  getAllTradeEntries: () -> (vec TradeEntry) query;
+  getAllTransactions: () -> (vec Transaction) query;
+  getBudgetCategory: (id: text) -> (opt BudgetCategory) query;
+  getCallerUserProfile: () -> (opt UserProfile) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getDashboardSummary: () -> (DashboardSummary) query;
+  getFinancialModel: (id: text) -> (opt FinancialModel) query;
+  getFinancialRule: (id: text) -> (opt FinancialRule) query;
+  getGoal: (id: text) -> (opt Goal) query;
+  getLoan: (id: text) -> (opt Loan) query;
+  getNetWorth: () -> (float64) query;
+  getPlannerEvent: (id: text) -> (opt PlannerEvent) query;
+  getPortfolioHolding: (id: text) -> (opt PortfolioHolding) query;
+  getTradeEntry: (id: text) -> (opt TradeEntry) query;
+  getTransaction: (id: text) -> (opt Transaction) query;
+  getUserProfile: (user: principal) -> (opt UserProfile) query;
+  isCallerAdmin: () -> (bool) query;
+  isCallerBlocked: () -> (record {
+                            blocked: bool;
+                            reason: text;
+                          }) query;
+  saveCallerUserProfile: (profile: UserProfile) -> ();
+  updateBudgetCategory: (id: text, category: BudgetCategory) ->
+   (opt BudgetCategory);
+  updateChecklistItem: (id: text, item: ChecklistItem) -> (opt ChecklistItem);
+  updateFinancialModel: (id: text, model: FinancialModel) ->
+   (opt FinancialModel);
+  updateFinancialRule: (id: text, rule: FinancialRule) -> (opt FinancialRule);
+  updateGoal: (id: text, goal: Goal) -> (opt Goal);
+  updateLoan: (id: text, loan: Loan) -> (opt Loan);
+  updatePlannerEvent: (id: text, event: PlannerEvent) -> (opt PlannerEvent);
+  updatePortfolioHolding: (id: text, holding: PortfolioHolding) ->
+   (opt PortfolioHolding);
+  updateTradeEntry: (id: text, entry: TradeEntry) -> (opt TradeEntry);
+  updateTransaction: (id: text, transaction: Transaction) ->
+   (opt Transaction);
+}

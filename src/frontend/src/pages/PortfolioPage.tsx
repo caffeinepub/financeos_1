@@ -18,8 +18,6 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import {
   Bar,
   BarChart,
@@ -36,7 +34,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AssetType, type PortfolioHolding } from "../backend.d";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -72,6 +69,8 @@ import {
 } from "../components/ui/table";
 import { useCurrency } from "../contexts/CurrencyContext";
 import { useActor } from "../hooks/useActor";
+import { useNavigate, useParams } from "../lib/router-compat";
+import { AssetType, type PortfolioHolding } from "../types";
 
 function shortNum(n: number, sym: string, code = "INR"): string {
   const abs = Math.abs(n);
@@ -189,7 +188,17 @@ const categoryOptions: Record<string, string[]> = {
   ],
 };
 
-const emptyForm = {
+const emptyForm: {
+  name: string;
+  ticker: string;
+  assetType: AssetType;
+  category: string;
+  quantity: number;
+  buyPrice: number;
+  invested: number;
+  marketPrice: number;
+  currentValue: number;
+} = {
   name: "",
   ticker: "",
   assetType: AssetType.Retirement,

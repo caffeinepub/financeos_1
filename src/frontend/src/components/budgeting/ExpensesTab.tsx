@@ -9,13 +9,13 @@ import {
   Wallet,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useCurrency } from "../../contexts/CurrencyContext";
+import { useActor } from "../../hooks/useActor";
 import {
   type BudgetCategory,
   type Transaction,
   TransactionType,
-} from "../../backend.d";
-import { useCurrency } from "../../contexts/CurrencyContext";
-import { useActor } from "../../hooks/useActor";
+} from "../../types";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -83,7 +83,14 @@ const EXP_TYPE_BADGE: Record<string, string> = {
   Savings: "bg-emerald-100 text-emerald-700 border border-emerald-200",
 };
 
-const getEmptyForm = () => ({
+const getEmptyForm = (): {
+  date: string;
+  description: string;
+  account: string;
+  categoryId: string;
+  transactionType: TransactionType;
+  amount: number;
+} => ({
   // date set dynamically in openAdd
   date: new Date().toISOString().slice(0, 10),
   description: "",

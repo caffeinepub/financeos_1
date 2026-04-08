@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AssetType, type PortfolioHolding } from "../backend.d";
+import { AssetType, type PortfolioHolding } from "../types";
 import { useActor } from "./useActor";
 
 // Rich Goal interface used by the Goals module UI

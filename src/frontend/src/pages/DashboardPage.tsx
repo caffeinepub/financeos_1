@@ -24,12 +24,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type {
-  BudgetCategory,
-  Loan,
-  PortfolioHolding,
-  Transaction,
-} from "../backend.d";
 import { Budget5030Chart } from "../components/budgeting/Budget5030Chart";
 import { Badge } from "../components/ui/badge";
 import {
@@ -55,6 +49,12 @@ import {
   useGetAllGoals,
   useGetAllInvestmentsByCategory,
 } from "../hooks/useGoals";
+import type {
+  BudgetCategory,
+  Loan,
+  PortfolioHolding,
+  Transaction,
+} from "../types";
 
 const SLICE_COLORS = [
   "#2563eb",

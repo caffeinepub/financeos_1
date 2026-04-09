@@ -499,7 +499,7 @@ export function ModelGoalPlanningTab({
           <div className="space-y-1">
             <div className="flex items-center gap-1">
               <Label className="text-xs font-semibold text-slate-600">
-                Monthly Savings Available
+                Monthly Savings
               </Label>
               <TooltipProvider>
                 <Tooltip>

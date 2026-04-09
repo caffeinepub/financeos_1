@@ -31,13 +31,6 @@ import { ModelRetirementTab } from "./ModelRetirementTab";
 
 const SECTIONS = [
   {
-    id: "assetallocation",
-    label: "Asset Allocation",
-    emoji: "📊",
-    borderColor: "#6366f1",
-    count: "Conservative · Moderate · Aggressive",
-  },
-  {
     id: "goalmodel",
     label: "Goal Planning",
     emoji: "🎯",
@@ -45,11 +38,11 @@ const SECTIONS = [
     count: "SIP Calculator · Inflation-Adjusted · Goal Stack",
   },
   {
-    id: "budgetingmodel",
-    label: "Budget & Expense Tracking",
-    emoji: "💰",
-    borderColor: "#3b82f6",
-    count: "50/30/20 Rule · Leakage Detection · Budget Plan",
+    id: "assetallocation",
+    label: "Asset Allocation",
+    emoji: "📊",
+    borderColor: "#6366f1",
+    count: "Conservative · Moderate · Aggressive",
   },
   {
     id: "modelportfolio",
@@ -59,11 +52,11 @@ const SECTIONS = [
     count: "MF · ETF · Mixed",
   },
   {
-    id: "debtmodel",
-    label: "Loan Management & Repayment",
-    emoji: "📉",
-    borderColor: "#ef4444",
-    count: "Avalanche · Snowball · Debt Freedom Date",
+    id: "modelinsurance",
+    label: "Model Insurance",
+    emoji: "🛡️",
+    borderColor: "#0ea5e9",
+    count: "Term · Health · HLV",
   },
   {
     id: "modelretirement",
@@ -73,11 +66,18 @@ const SECTIONS = [
     count: "Early · Regular · Late",
   },
   {
-    id: "modelinsurance",
-    label: "Model Insurance",
-    emoji: "🛡️",
-    borderColor: "#0ea5e9",
-    count: "Term · Health · HLV",
+    id: "budgetingmodel",
+    label: "Budget & Expense Tracking",
+    emoji: "💰",
+    borderColor: "#3b82f6",
+    count: "50/30/20 Rule · Leakage Detection · Budget Plan",
+  },
+  {
+    id: "debtmodel",
+    label: "Loan Management & Repayment",
+    emoji: "📉",
+    borderColor: "#ef4444",
+    count: "Avalanche · Snowball · Debt Freedom Date",
   },
   {
     id: "modelcrypto",

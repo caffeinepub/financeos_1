@@ -303,6 +303,8 @@ interface ImproveBudgetProps {
     // Per-category amounts mapped by keyword
     categoryAmounts?: Record<string, number>;
   } | null;
+  /** Incremented each time the parent Clear button is clicked */
+  clearSignal: number;
 }
 
 const NEEDS_CATEGORIES = [
@@ -329,7 +331,10 @@ const SAVINGS_CATEGORIES = [
   { key: "retirement", label: "Retirement / NPS / PPF", default: 1000 },
 ];
 
-function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
+function ImproveBudgetContent({
+  autofillData,
+  clearSignal,
+}: ImproveBudgetProps) {
   const { formatCurrency } = useCurrency();
   const [income, setIncome] = useState(50000);
   const [needs, setNeeds] = useState<Record<string, number>>(
@@ -429,12 +434,31 @@ function ImproveBudgetContent({ autofillData }: ImproveBudgetProps) {
     applyAutofillData(autofillData);
   };
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: auto-apply when data changes
+  // Apply autofill data whenever it changes (covers initial load + month change)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: apply whenever data reference changes
   useEffect(() => {
-    if (autofillData && !applied) {
+    if (autofillData) {
       applyAutofillData(autofillData);
     }
   }, [autofillData]);
+
+  // Reset to defaults when parent Clear button is clicked
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset on clearSignal change
+  useEffect(() => {
+    if (clearSignal > 0) {
+      setApplied(false);
+      setIncome(50000);
+      setNeeds(
+        Object.fromEntries(NEEDS_CATEGORIES.map((c) => [c.key, c.default])),
+      );
+      setWants(
+        Object.fromEntries(WANTS_CATEGORIES.map((c) => [c.key, c.default])),
+      );
+      setSavings(
+        Object.fromEntries(SAVINGS_CATEGORIES.map((c) => [c.key, c.default])),
+      );
+    }
+  }, [clearSignal]);
 
   return (
     <div className="space-y-4">
@@ -1305,6 +1329,8 @@ export default function BudgetingPage() {
     savings: number;
     categoryAmounts?: Record<string, number>;
   } | null>(null);
+  // Incremented each time the parent Clear button is clicked so the child resets
+  const [clearSignal, setClearSignal] = useState(0);
 
   // ── Initial load — runs ONCE when actor is ready ───────────────────────────
   const load = () => {
@@ -1903,13 +1929,19 @@ export default function BudgetingPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setAutofillData(null)}
+                onClick={() => {
+                  setAutofillData(null);
+                  setClearSignal((n) => n + 1);
+                }}
                 className="text-xs text-blue-500 hover:text-blue-700 underline ml-1"
               >
                 Clear
               </button>
             </div>
-            <ImproveBudgetContent autofillData={autofillData} />
+            <ImproveBudgetContent
+              autofillData={autofillData}
+              clearSignal={clearSignal}
+            />
           </div>
         </TabsContent>
       </Tabs>

@@ -132,23 +132,23 @@ const TIER0_CHAPTERS: Chapter[] = [
         bullets: [
           "Compounding is the process of earning returns on your returns — often called the 8th wonder of the world.",
           "Formula: A = P(1 + r/n)^(nt) — where P = Principal, r = annual rate, n = compounding frequency, t = years.",
-          "₹1,00,000 at 12% annual return for 20 years = ₹9,64,629 — nearly 10x your money.",
+          "$100,000 at 12% annual return for 20 years = $964,629 — nearly 10x your money.",
         ],
       },
       {
         heading: "Why Starting Early Matters",
         bullets: [
-          "Start at 25: ₹5,000/month for 35 years at 12% = ₹3.2 Crore.",
-          "Start at 35: ₹5,000/month for 25 years at 12% = ₹94 Lakh.",
-          "10 years of delay costs ₹2.3 Crore — that is the price of waiting.",
+          "Start at 25: $500/month for 35 years at 12% = ~$3.2 Million.",
+          "Start at 35: $500/month for 25 years at 12% = ~$940,000.",
+          "10 years of delay costs over $2 Million — that is the price of waiting.",
           "Key rule: Never interrupt compounding. Even one year of pause can cost years of growth at the end.",
         ],
       },
       {
-        heading: "Compounding in SIPs",
+        heading: "Compounding in Systematic Investments",
         bullets: [
-          "Every SIP payment starts its own compounding journey. The first payment compounds the longest.",
-          "SIPs exploit compounding automatically — discipline is your greatest edge.",
+          "Every periodic investment starts its own compounding journey. The first payment compounds the longest.",
+          "Systematic investing exploits compounding automatically — discipline is your greatest edge.",
           "Even small amounts invested consistently for decades create extraordinary wealth.",
         ],
       },
@@ -174,8 +174,8 @@ const TIER0_CHAPTERS: Chapter[] = [
         heading: "Inflation Version",
         bullets: [
           "At 6% inflation, purchasing power halves in 72 ÷ 6 = 12 years.",
-          "FD at 7% doubles in ~10 years. Equity at 14% doubles in ~5 years.",
-          "Over 30 years, equity doubles 6 times vs FD doubling just 3 times.",
+          "A savings account at 4% doubles in ~18 years. Equity at 12% doubles in ~6 years.",
+          "Over 30 years, equity doubles ~5× vs a savings account doubling just 1–2×.",
           "Used by all investment advisors for quick suitability checks and goal planning.",
         ],
       },
@@ -192,7 +192,7 @@ const TIER0_CHAPTERS: Chapter[] = [
         heading: "SIP (Systematic Investment Plan)",
         bullets: [
           "Invest a fixed amount every month regardless of market level.",
-          "Uses Rupee Cost Averaging — buy more units when markets fall, fewer when they rise.",
+          "Uses Cost Averaging — buy more units when markets fall, fewer when they rise.",
           "Best for: Salaried investors, volatile markets, investors with no market timing ability.",
         ],
       },
@@ -208,9 +208,9 @@ const TIER0_CHAPTERS: Chapter[] = [
       {
         heading: "Verdict",
         bullets: [
-          "Data over 10-year rolling periods: SIP beats lump sum ~60% of the time in volatile markets.",
-          "For salaried investors, SIP wins through discipline.",
-          "For windfall money, use a Systematic Transfer Plan (STP) — park in liquid funds, transfer monthly.",
+          "Data over 10-year rolling periods: Systematic investing beats lump sum ~60% of the time in volatile markets.",
+          "For salaried investors, systematic investing wins through discipline.",
+          "For windfall money, use a Systematic Transfer Plan (STP) — park in a money market/liquid fund, transfer monthly to equities.",
         ],
       },
     ],
@@ -226,20 +226,20 @@ const TIER0_CHAPTERS: Chapter[] = [
       {
         heading: "The Silent Wealth Destroyer",
         bullets: [
-          "India's average inflation: 5–7% per year (CPI). At 6% inflation, prices double every 12 years.",
-          "₹1,00,000 today = ₹74,409 in 5 years at 6% inflation.",
-          "₹1,00,000 today = ₹55,368 in 10 years at 6% inflation.",
-          "₹1,00,000 today = ₹23,305 in 25 years at 6% inflation.",
+          "Global average inflation: 2–7% per year depending on country. At 6% inflation, prices double every 12 years (Rule of 72).",
+          "$100,000 today = ~$74,000 in real value after 5 years at 6% inflation.",
+          "$100,000 today = ~$55,000 in real value after 10 years at 6% inflation.",
+          "$100,000 today = ~$23,000 in real value after 25 years at 6% inflation.",
         ],
       },
       {
         heading: "Real Returns After Inflation",
         bullets: [
           "Golden rule: Your investment return must beat Inflation + Tax to create real wealth.",
-          "FD at 7% → After 30% tax = 4.9% → Real return = -1.1% (negative!).",
-          "PPF at 7.1% → Tax-free → Real return = +1.1%.",
-          "Equity at 13% → After 10% LTCG = 11.7% → Real return = +5.7%.",
-          "Best hedge: Equity (historically 12–15% vs 6% inflation). Gold also works as partial inflation hedge.",
+          "Savings account at 4% → After tax = ~3% → At 4% inflation → Real return ≈ -1% (negative!).",
+          "Government bonds at 4.5% → Tax-free account → Real return ≈ +0.5%.",
+          "Equity at 10% → After 15% CGT = 8.5% → Real return at 4% inflation ≈ +4.5%.",
+          "Best hedge: Equity (historically 8–14% globally vs 2–6% inflation). Gold also works as a partial hedge.",
         ],
       },
     ],
@@ -256,25 +256,25 @@ const TIER0_CHAPTERS: Chapter[] = [
         bullets: [
           "CAGR (Compound Annual Growth Rate) is the single most important metric for comparing investment performance.",
           "Formula: CAGR = (End Value ÷ Start Value)^(1 ÷ Years) − 1.",
-          "Example: ₹1,00,000 → ₹2,50,000 in 5 years = CAGR of 20.1% per year.",
+          "Example: $100,000 → $250,000 in 5 years = CAGR of 20.1% per year.",
         ],
       },
       {
         heading: "Why CAGR Beats Absolute Returns",
         bullets: [
-          "Fund A: ₹1L → ₹2L in 4 years = 100% absolute, 18.9% CAGR.",
-          "Fund B: ₹1L → ₹3L in 8 years = 200% absolute, 14.7% CAGR.",
+          "Fund A: $10K → $20K in 4 years = 100% absolute, 18.9% CAGR.",
+          "Fund B: $10K → $30K in 8 years = 200% absolute, 14.7% CAGR.",
           "Fund A is the better investment despite lower absolute return — CAGR reveals this truth.",
           "Rule: Always compare investments using CAGR. Never trust absolute return claims without knowing the time period.",
         ],
       },
       {
-        heading: "CAGR Benchmarks (India)",
+        heading: "CAGR Benchmarks (Global)",
         bullets: [
-          "Nifty 50 20-year CAGR: ~13–14%.",
-          "Sensex 30-year CAGR: ~15%.",
-          "FD average CAGR: ~6–7%.",
-          "Gold 20-year CAGR: ~10%.",
+          "S&P 500 (US) 20-year CAGR: ~10–11% (total return including dividends).",
+          "MSCI World 20-year CAGR: ~8–10%.",
+          "Government bonds typical CAGR: ~3–5%.",
+          "Gold 20-year CAGR: ~8–10%.",
         ],
       },
     ],
@@ -318,18 +318,18 @@ const TIER0_CHAPTERS: Chapter[] = [
         heading: "Understanding P/E Ratio",
         bullets: [
           "Formula: P/E = Market Price per Share ÷ Earnings per Share (EPS).",
-          "P/E of 20 means you pay ₹20 for every ₹1 of annual earnings.",
-          "Compare P/E within the same sector — Tech commands 30–50x, Banks trade at 10–15x.",
+          "P/E of 20 means you pay $20 for every $1 of annual earnings.",
+          "Compare P/E within the same sector — Tech commands 25–40x, Banks trade at 8–15x.",
         ],
       },
       {
-        heading: "Nifty 50 Historical P/E Bands",
+        heading: "Historical P/E Bands (S&P 500)",
         bullets: [
-          "Below 16: Severely undervalued — strong buy zone.",
-          "16–20: Fair value — accumulate.",
-          "20–25: Slightly expensive — invest selectively.",
-          "Above 25: Expensive — avoid lump sum.",
-          "Above 30: Bubble territory — trim holdings.",
+          "Below 12: Historically undervalued — strong accumulation zone.",
+          "12–17: Fair value — invest regularly.",
+          "17–25: Slightly expensive — invest selectively.",
+          "Above 25: Expensive — avoid large lump sums.",
+          "Above 30: Elevated — trim if rebalancing.",
         ],
       },
       {
@@ -371,7 +371,7 @@ const TIER0_CHAPTERS: Chapter[] = [
       {
         heading: "Key Warnings",
         bullets: [
-          "Index funds: Inherently diversified — a Nifty 50 index fund gives exposure to 50 companies across 13 sectors.",
+          "Index funds: Inherently diversified — a broad market index fund (e.g., S&P 500, FTSE All-World) gives exposure to hundreds of companies across many sectors.",
           "Graham's recommendation: Hold 10–30 stocks maximum. Beyond this, you are better off with an index fund.",
           "Warning: Diversification into assets you don't understand is called diworsification (Peter Lynch).",
         ],
@@ -418,7 +418,7 @@ function StarterCalculator({ calcId }: { calcId: string }) {
         </h4>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <span className={lbl}>Principal (₹)</span>
+            <span className={lbl}>Principal ($)</span>
             <input
               type="number"
               value={p}
@@ -457,10 +457,10 @@ function StarterCalculator({ calcId }: { calcId: string }) {
         <div className={res}>
           <p className="text-xs text-slate-500">Future Value</p>
           <p className="text-lg font-bold text-emerald-600">
-            ₹{result.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            ${result.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
           </p>
           <p className="text-xs text-slate-400">
-            Growth: {((result / p - 1) * 100).toFixed(1)}% · Gain: ₹
+            Growth: {((result / p - 1) * 100).toFixed(1)}% · Gain: $
             {(result - p).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
           </p>
         </div>
@@ -503,7 +503,7 @@ function StarterCalculator({ calcId }: { calcId: string }) {
         </h4>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <span className={lbl}>Monthly SIP (₹)</span>
+            <span className={lbl}>Monthly Amount ($)</span>
             <input
               type="number"
               value={p}
@@ -534,13 +534,13 @@ function StarterCalculator({ calcId }: { calcId: string }) {
           <div className={res}>
             <p className="text-xs text-slate-500">SIP Final Value</p>
             <p className="text-base font-bold text-emerald-600">
-              ₹{sipFV.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+              ${sipFV.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             </p>
           </div>
           <div className={res}>
             <p className="text-xs text-slate-500">Lump Sum FV</p>
             <p className="text-base font-bold text-blue-600">
-              ₹{lumpFV.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+              ${lumpFV.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             </p>
           </div>
         </div>
@@ -557,7 +557,7 @@ function StarterCalculator({ calcId }: { calcId: string }) {
         </h4>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <span className={lbl}>Current Amount (₹)</span>
+            <span className={lbl}>Current Amount ($)</span>
             <input
               type="number"
               value={p}
@@ -588,13 +588,13 @@ function StarterCalculator({ calcId }: { calcId: string }) {
           <div className={res}>
             <p className="text-xs text-slate-500">Future Cost</p>
             <p className="text-base font-bold text-orange-600">
-              ₹{futureValue.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+              ${futureValue.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             </p>
           </div>
           <div className={res}>
             <p className="text-xs text-slate-500">Today's Purchasing Power</p>
             <p className="text-base font-bold text-red-600">
-              ₹
+              $
               {purchasingPower.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             </p>
           </div>
@@ -612,7 +612,7 @@ function StarterCalculator({ calcId }: { calcId: string }) {
         </h4>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <span className={lbl}>Start Value (₹)</span>
+            <span className={lbl}>Start Value ($)</span>
             <input
               type="number"
               value={p}
@@ -621,7 +621,7 @@ function StarterCalculator({ calcId }: { calcId: string }) {
             />
           </div>
           <div>
-            <span className={lbl}>End Value (₹)</span>
+            <span className={lbl}>End Value ($)</span>
             <input
               type="number"
               value={endVal}
@@ -656,7 +656,7 @@ function StarterCalculator({ calcId }: { calcId: string }) {
         </h4>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <span className={lbl}>EPS (₹)</span>
+            <span className={lbl}>EPS ($)</span>
             <input
               type="number"
               value={p}
@@ -679,7 +679,7 @@ function StarterCalculator({ calcId }: { calcId: string }) {
         <div className={res}>
           <p className="text-xs text-slate-500">Fair Value Price</p>
           <p className="text-lg font-bold text-indigo-600">
-            ₹{(p * r).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            ${(p * r).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
           </p>
         </div>
       </div>
@@ -729,17 +729,17 @@ const CHAPTERS: Chapter[] = [
         heading: "How Money Loses Value (Inflation)",
         bullets: [
           "Inflation is the rate at which prices rise over time, eroding purchasing power.",
-          "Real return = Nominal return − Inflation. If your FD gives 6% and inflation is 5%, your real gain is just 1%.",
-          "India CPI inflation averages 5–6% per year (RBI target: 4% ± 2%).",
-          "₹1 lakh today ≈ ₹61,000 in real value after 10 years at 5% inflation.",
+          "Real return = Nominal return − Inflation. If your savings account gives 4% and inflation is 3%, your real gain is just 1%.",
+          "Global inflation ranges: developed markets target 2%, emerging markets typically run 4–7%.",
+          "$100,000 today ≈ $74,000 in real value after 10 years at 3% inflation; ≈ $55,000 at 6% inflation.",
         ],
       },
       {
         heading: "Net Worth — What It Is",
         bullets: [
           "Net Worth = Total Assets − Total Liabilities.",
-          "Assets: savings, investments, property, gold, vehicles.",
-          "Liabilities: home loan, car loan, credit card debt, personal loans.",
+          "Assets: savings, investments, property, gold, vehicles, retirement accounts.",
+          "Liabilities: mortgage, car loan, credit card debt, personal loans.",
           "Track net worth every 6–12 months to measure financial progress.",
         ],
       },
@@ -754,10 +754,10 @@ const CHAPTERS: Chapter[] = [
       {
         heading: "Time Value of Money",
         bullets: [
-          "₹1,000 today is worth more than ₹1,000 a year from now because it can be invested.",
-          "Compounding: ₹1 lakh at 12% for 30 years grows to ₹29.96 lakhs.",
-          "Rule of 72: Divide 72 by your return rate to find years to double. At 12% → money doubles in 6 years.",
-          "Start investing early: a 25-year-old investing ₹5,000/month beats a 35-year-old investing ₹10,000/month by retirement.",
+          "$1,000 today is worth more than $1,000 a year from now because it can be invested.",
+          "Compounding: $10,000 at 10% for 30 years grows to ~$174,494.",
+          "Rule of 72: Divide 72 by your return rate to find years to double. At 10% → money doubles in ~7 years.",
+          "Start investing early: a 25-year-old investing $500/month beats a 35-year-old investing $1,000/month by retirement.",
         ],
       },
     ],
@@ -765,44 +765,43 @@ const CHAPTERS: Chapter[] = [
   {
     id: 2,
     tier: 1,
-    title: "The Indian Financial Ecosystem",
+    title: "The Global Financial Ecosystem",
     description:
-      "Who regulates what, how exchanges work, and why you need both a DEMAT and trading account.",
+      "Who regulates what, how exchanges work, and why you need a brokerage account to invest.",
     content: [
       {
-        heading: "Regulators",
+        heading: "Regulators (Global Examples)",
         bullets: [
-          "SEBI: Regulates stock brokers, exchanges, mutual funds, and listed companies.",
-          "RBI: Regulates banks, NBFCs, currency, and monetary policy.",
-          "AMFI: Regulates mutual fund distributors and AMCs.",
-          "IRDAI: Regulates all insurance products.",
-          "PFRDA: Regulates NPS and pension funds.",
+          "Securities regulators: SEC (US), FCA (UK), SEBI (India), MAS (Singapore), ASIC (Australia) — oversee exchanges, brokers, mutual funds, and listed companies.",
+          "Central banks: US Federal Reserve, Bank of England, ECB, Reserve Bank of India — manage monetary policy, interest rates, and banking.",
+          "Insurance regulators: PRA (UK), IRDAI (India) — oversee insurance products.",
+          "Pension regulators: DOL (US), TPR (UK), PFRDA (India) — oversee retirement savings schemes.",
         ],
       },
       {
         heading: "Financial Institutions",
         bullets: [
-          "AMC (Asset Management Company): Manages pooled investor money in mutual funds (e.g., HDFC AMC, SBI AMC, Mirae).",
-          "Broker: Facilitates buying/selling of securities (e.g., Zerodha, Groww, ICICI Direct).",
-          "Depository: Holds your securities electronically. India has two: CDSL and NSDL.",
+          "Asset Managers / Fund Companies: Manage pooled investor money in mutual funds (e.g., Vanguard, BlackRock, Fidelity, HDFC AMC).",
+          "Broker / Trading Platform: Facilitates buying/selling of securities (e.g., Charles Schwab, Hargreaves Lansdown, Zerodha, Interactive Brokers).",
+          "Custodian / Depository: Holds your securities electronically — DTCC (US), Euroclear (Europe), CDSL/NSDL (India).",
         ],
       },
       {
         heading: "Stock Exchanges",
         bullets: [
-          "NSE (National Stock Exchange): Largest by trading volume. Home of Nifty 50.",
-          "BSE (Bombay Stock Exchange): Oldest in Asia. Home of Sensex (30 stocks).",
-          "Nifty 50 represents the top 50 companies by market cap on NSE.",
-          "Sensex represents the top 30 companies on BSE.",
+          "NYSE and NASDAQ (US): World's largest by market cap. Home of S&P 500 and Nasdaq-100 indices.",
+          "LSE (UK): London Stock Exchange. Home of FTSE 100.",
+          "NSE/BSE (India): National Stock Exchange and BSE. Home of Nifty 50 and Sensex.",
+          "Indices represent the performance of a selected group of stocks — used as market benchmarks globally.",
         ],
       },
       {
-        heading: "DEMAT & Trading Accounts",
+        heading: "Investment Accounts",
         bullets: [
-          "DEMAT account: Holds your shares/securities in electronic form — like a bank account for stocks.",
-          "Trading account: Used to place buy/sell orders on the exchange.",
-          "Both accounts are linked; needed together to invest in stocks and ETFs.",
-          "Opening a DEMAT account requires KYC (PAN, Aadhaar).",
+          "Brokerage account: Holds your shares, ETFs, and funds in electronic form — the foundation for all investing.",
+          "Retirement accounts: Tax-advantaged accounts for long-term saving (401k/IRA in US, ISA/SIPP in UK, NPS/PPF in India).",
+          "Both types are needed — retirement accounts for long-term tax efficiency, brokerage for flexibility.",
+          "Opening requires identity verification (KYC/AML) in every country.",
         ],
       },
     ],
@@ -812,21 +811,21 @@ const CHAPTERS: Chapter[] = [
     tier: 1,
     title: "Goal-Based Investing",
     description:
-      "Link your money to real life goals — home, child's education, retirement — and prioritise when capital is limited.",
+      "Link your money to real life goals — home, education, retirement — and prioritise when capital is limited.",
     content: [
       {
         heading: "Short / Medium / Long-Term Goal Framework",
         bullets: [
-          "Short-term (0–3 years): Emergency fund, vacation, car down payment → liquid funds, FDs, savings accounts.",
-          "Medium-term (3–7 years): Child's school fees, home renovation → debt mutual funds, hybrid funds.",
-          "Long-term (7+ years): Retirement, child's higher education → equity mutual funds, direct equity, NPS.",
+          "Short-term (0–3 years): Emergency fund, vacation, car down payment → money market, savings accounts, short-duration bonds.",
+          "Medium-term (3–7 years): Home renovation, education savings → bond funds, balanced/hybrid funds.",
+          "Long-term (7+ years): Retirement, children's higher education → equity index funds, growth ETFs.",
         ],
       },
       {
         heading: "Emergency Fund",
         bullets: [
-          "Keep 6 months of monthly expenses in a liquid, accessible account.",
-          "Park it in: savings account, liquid mutual fund, or short-term FD.",
+          "Keep 3–6 months of monthly expenses in a liquid, accessible account.",
+          "Park it in: high-yield savings account, money market fund, or short-term government bonds.",
           "Do NOT invest emergency funds in equity or illiquid assets.",
           "Without an emergency fund, any financial shock forces you to break long-term investments at the worst time.",
         ],
@@ -834,7 +833,7 @@ const CHAPTERS: Chapter[] = [
       {
         heading: "Linking Money to Life Goals",
         bullets: [
-          "Each investment should have a purpose: 'This SIP of ₹5,000 is for my child's college in 15 years.'",
+          "Each investment should have a purpose: 'This $500/month goes toward my retirement in 30 years.'",
           "Goal-based investing reduces panic selling — you know the timeline and purpose.",
           "Use the Growfinfire Goals module to map each investment to a specific goal.",
         ],
@@ -842,9 +841,9 @@ const CHAPTERS: Chapter[] = [
       {
         heading: "Prioritisation When Capital is Limited",
         bullets: [
-          "Priority order: Emergency fund → High-interest debt repayment → Retirement → Other goals.",
-          "Never invest in long-term goals while carrying high-interest debt (credit cards at 36–42% p.a.).",
-          "Even ₹500/month invested consistently beats doing nothing.",
+          "Priority order: Emergency fund → High-interest debt repayment → Retirement savings → Other goals.",
+          "Never invest in long-term goals while carrying high-interest consumer debt (credit cards at 20–40%).",
+          "Even $100/month invested consistently beats doing nothing — start small, increase as income grows.",
         ],
       },
     ],
@@ -861,24 +860,25 @@ const CHAPTERS: Chapter[] = [
         bullets: [
           "Buying a share = owning a fraction of the company.",
           "Returns come from: price appreciation (capital gains) and dividends (share of profits).",
-          "Listed on NSE/BSE; prices change every second during market hours (9:15 AM – 3:30 PM IST).",
+          "Listed on stock exchanges; prices change every second during market hours.",
         ],
       },
       {
         heading: "Market Cap Categories",
         bullets: [
-          "Large cap: Top 100 companies by market cap. Stable, lower risk (e.g., Reliance, TCS, HDFC Bank).",
-          "Mid cap: Companies ranked 101–250. Higher growth potential, moderate risk.",
-          "Small cap: Companies ranked 251+. High risk, high potential returns.",
-          "SEBI-defined classification used by all mutual funds in India.",
+          "Large cap: The largest companies by market cap. Stable, lower risk (e.g., Apple, HSBC, Reliance).",
+          "Mid cap: Medium-sized companies. Higher growth potential, moderate risk.",
+          "Small cap: Smaller companies. High risk, high potential returns.",
+          "Classification defined differently per country/index provider — check your local exchange guidelines.",
         ],
       },
       {
         heading: "Indices",
         bullets: [
-          "Nifty 50: 50 largest NSE companies; represents ~68% of total NSE market cap.",
-          "Sensex: 30 largest BSE companies; oldest Indian index (since 1979).",
-          "Nifty Next 50: 50 companies just below Nifty 50; more volatile but higher historical returns.",
+          "S&P 500 (US): 500 largest US companies; the global benchmark for equity performance.",
+          "FTSE 100 (UK): 100 largest London-listed companies.",
+          "Nifty 50 / Sensex (India): 50/30 largest Indian companies.",
+          "Indices represent the performance of a selected basket of stocks — used as benchmarks globally.",
         ],
       },
       {
@@ -887,7 +887,7 @@ const CHAPTERS: Chapter[] = [
           "Bull market: Sustained rise of 20%+ from recent lows. Investor confidence is high.",
           "Bear market: Sustained fall of 20%+ from recent highs.",
           "Correction: 10–20% fall from peak. Normal and healthy.",
-          "Crash: Sharp, rapid fall (e.g., March 2020: Sensex fell 38% in weeks due to COVID panic).",
+          "Crash: Sharp, rapid fall (e.g., March 2020: global markets fell 30–40% in weeks due to COVID panic).",
         ],
       },
       {
@@ -895,7 +895,7 @@ const CHAPTERS: Chapter[] = [
         bullets: [
           "P/E (Price-to-Earnings): Share price ÷ Earnings per share. Higher P/E = market expects high growth OR stock is expensive.",
           "P/B (Price-to-Book): Share price ÷ Book value per share. Below 1 = trading below asset value.",
-          "Nifty 50 historical average P/E: ~20x. Above 25x = expensive. Below 16x = attractive.",
+          "Historical average P/E: S&P 500 ~15–17x, above 25x = expensive, below 12x = attractive. Compare within the same sector.",
         ],
       },
     ],
@@ -905,12 +905,12 @@ const CHAPTERS: Chapter[] = [
     tier: 2,
     title: "Mutual Funds",
     description:
-      "Pooled investing made simple — understand NAV, SIP mechanics, direct vs regular plans, and how costs erode returns.",
+      "Pooled investing made simple — understand NAV, systematic investing mechanics, direct vs commission plans, and how costs erode returns.",
     content: [
       {
-        heading: "What an AMC Does & NAV",
+        heading: "What an Asset Manager Does & NAV",
         bullets: [
-          "AMC collects money from many investors and invests it in a portfolio of stocks, bonds, or both.",
+          "An Asset Management Company (AMC) collects money from many investors and invests it in a portfolio of stocks, bonds, or both.",
           "NAV (Net Asset Value) = Total portfolio value ÷ Total units. Calculated daily after market close.",
           "Buying at a lower NAV doesn't mean cheaper — it's the portfolio quality that matters.",
         ],
@@ -919,35 +919,35 @@ const CHAPTERS: Chapter[] = [
         heading: "Types of Mutual Funds",
         bullets: [
           "Equity funds: Invest primarily in stocks. Higher risk, higher potential returns.",
-          "Debt funds: Invest in bonds/fixed income. Lower risk, stable returns.",
-          "Hybrid funds: Mix of equity and debt (e.g., Balanced Advantage Funds).",
-          "Index funds: Passively track an index (Nifty 50, Sensex). Low cost.",
-          "Sectoral/Thematic funds: Invest in specific sectors (IT, pharma). High concentration risk.",
+          "Debt/bond funds: Invest in fixed-income securities. Lower risk, stable returns.",
+          "Hybrid/balanced funds: Mix of equity and debt.",
+          "Index funds: Passively track an index (S&P 500, FTSE 100, Nifty 50). Low cost.",
+          "Sectoral/thematic funds: Invest in specific sectors (tech, healthcare). High concentration risk.",
         ],
       },
       {
-        heading: "Regular vs Direct Plans",
+        heading: "Direct vs Commission-Based Plans",
         bullets: [
-          "Direct plan: Buy directly from AMC. No distributor commission. Lower expense ratio by ~0.5–1.5%.",
-          "Regular plan: Buy via distributor/broker. Includes trail commission. Higher expense ratio.",
-          "Impact over 20 years on a ₹10,000/month SIP: Direct plan creates ₹10–15 lakh MORE than regular.",
-          "Always choose Direct plans if you're investing yourself (via AMC website, MF Central, Groww, Zerodha Coin).",
+          "Direct plan: Buy directly from AMC without a distributor. No commission. Lower expense ratio by ~0.5–1.5%.",
+          "Commission-based plan: Buy via a broker/adviser who earns a trail commission. Higher expense ratio.",
+          "Impact over 20 years on a $500/month SIP: Direct plan can create $50,000–$80,000 more than a commission plan due to compounding.",
+          "Always choose the lowest-cost option available for your situation.",
         ],
       },
       {
-        heading: "SIP & Rupee Cost Averaging",
+        heading: "Systematic Investing & Cost Averaging",
         bullets: [
-          "SIP: Fixed amount invested at regular intervals (monthly).",
-          "Rupee cost averaging: When NAV falls, you buy more units. When NAV rises, you buy fewer units.",
-          "SIPs remove the need to time the market — you invest regardless of market conditions.",
-          "Never stop your SIP in a bear market — those cheap units drive your long-term returns.",
+          "Systematic Investment Plan (SIP): Fixed amount invested at regular intervals (monthly).",
+          "Cost averaging: When NAV falls, you buy more units. When NAV rises, you buy fewer units.",
+          "Systematic investing removes the need to time the market — you invest regardless of market conditions.",
+          "Never stop your systematic investments in a bear market — those cheap units drive your long-term returns.",
         ],
       },
       {
         heading: "Costs & Returns",
         bullets: [
-          "Exit load: Penalty for redeeming before a set period. Typically 1% if within 1 year.",
-          "Expense ratio: Annual fee deducted from NAV daily. Active funds: ~1–2.5%. Index funds: ~0.1–0.2%.",
+          "Exit load / redemption fee: Penalty for redeeming before a set period. Typically 1% if within 1 year.",
+          "Expense ratio: Annual fee deducted from NAV daily. Active funds: ~0.5–2.5%. Index funds: ~0.03–0.2%.",
           "CAGR (Compound Annual Growth Rate): Best metric to compare fund performance across different time periods.",
           "Absolute returns mislead — a 50% return over 5 years is only ~8.4% CAGR.",
         ],
@@ -965,7 +965,7 @@ const CHAPTERS: Chapter[] = [
         heading: "ETF vs Index Mutual Fund",
         bullets: [
           "ETF: Trades on the stock exchange like a stock. Buy/sell anytime during market hours.",
-          "Index Mutual Fund: Bought/sold at end-of-day NAV. Easier for SIPs.",
+          "Index Mutual Fund: Bought/sold at end-of-day NAV. Easier for systematic/automatic investing.",
           "Both track the same index; both are passive. Key difference is liquidity and how you buy.",
         ],
       },
@@ -975,24 +975,24 @@ const CHAPTERS: Chapter[] = [
           "Tracking error: Difference between the fund's return and the index's return.",
           "Lower tracking error = better fund management.",
           "Causes: cash held for redemptions, expense ratio, rebalancing timing.",
-          "Choose ETFs/index funds with consistently low tracking error (check AMC factsheets).",
+          "Choose ETFs/index funds with consistently low tracking error (check fund factsheets).",
         ],
       },
       {
-        heading: "Types of ETFs in India",
+        heading: "Types of ETFs (Global Examples)",
         bullets: [
-          "Nifty ETF: Tracks Nifty 50 (e.g., Nippon Nifty BeES, HDFC Nifty 50 ETF).",
-          "Gold ETF: Tracks domestic gold prices. Each unit ≈ 1 gram gold. No storage risk.",
-          "International ETFs: Track foreign indices (e.g., Mirae Asset NYSE FANG+ ETF, Motilal Oswal Nasdaq 100 ETF).",
-          "Banking, IT, Pharma sector ETFs available on NSE.",
+          "Broad market ETFs: Track S&P 500 (Vanguard VOO, iShares IVV), FTSE All-World (VWRL), Nifty 50.",
+          "Gold ETFs: Track spot gold prices. Convenient and SEBI/SEC-regulated depending on country.",
+          "International ETFs: Track foreign indices (e.g., MSCI World, Nasdaq 100, Emerging Markets).",
+          "Sector ETFs: Technology, healthcare, energy, financials — available in most major markets.",
         ],
       },
       {
         heading: "Why Passive Beats Active Over Long Run",
         bullets: [
-          "Data (2026): Index funds beat 73–80% of active fund managers over 15+ year periods in India.",
-          "Average active equity fund expense: ~1.5%. Average index fund expense: ~0.2%. Difference: 1.3% per year.",
-          "Over 20 years, that 1.3% difference on ₹10,000/month SIP = ₹15–20 lakh gap.",
+          "Data consistently shows index funds beat 73–85% of active fund managers over 15+ year periods globally (SPIVA reports).",
+          "Average active equity fund expense: ~0.5–2.5%. Average index fund expense: ~0.03–0.2%.",
+          "Over 20 years, a 1% expense difference on $500/month can mean $50,000+ in lost wealth due to compounding.",
           "Most fund managers fail to consistently beat the index after costs.",
         ],
       },
@@ -1003,42 +1003,41 @@ const CHAPTERS: Chapter[] = [
     tier: 2,
     title: "Fixed Income",
     description:
-      "Safe-ish investments — FDs, bonds, G-Secs, and why rising interest rates hurt bond prices.",
+      "Safe-ish investments — savings accounts, bonds, government securities, and why rising interest rates hurt bond prices.",
     content: [
       {
         heading: "Types of Fixed Income Instruments",
         bullets: [
-          "FD (Fixed Deposit): Bank deposit at fixed rate for fixed tenure. Insured up to ₹5 lakh per bank by DICGC.",
-          "RD (Recurring Deposit): Monthly deposits at fixed rate.",
-          "G-Sec (Government Securities): Bonds issued by the Government of India. Zero credit risk. Tenures 1–40 years.",
-          "T-Bills (Treasury Bills): Short-term G-Secs (91, 182, 364 days). Highly liquid.",
-          "Corporate Bonds: Issued by companies. Higher yield than G-Secs but carry credit risk.",
+          "Savings/Term Deposits: Bank deposit at a fixed rate for a fixed tenure. Government-insured up to a limit (e.g., $250K FDIC in US, £85K FSCS in UK, ₹5L DICGC in India).",
+          "Government Bonds: Issued by national governments. Zero credit risk for local-currency bonds (e.g., US Treasuries, UK Gilts, German Bunds, India G-Secs).",
+          "Treasury Bills: Short-term government bonds (90 days to 1 year). Highly liquid.",
+          "Corporate Bonds: Issued by companies. Higher yield than government bonds but carry credit risk.",
         ],
       },
       {
         heading: "Credit Ratings",
         bullets: [
-          "Credit rating agencies (CRISIL, ICRA, CARE) rate bonds on creditworthiness.",
-          "AAA: Highest safety. AA: High safety. A: Adequate safety. Below BBB = speculative (junk).",
+          "Credit rating agencies (Moody's, S&P, Fitch) rate bonds on creditworthiness.",
+          "AAA: Highest safety. AA: High safety. A: Adequate safety. Below BBB = speculative (junk/high-yield).",
           "Higher rating = lower yield. Lower rating = higher yield (risk premium).",
-          "Stick to AAA/AA-rated bonds or G-Secs for safety.",
+          "Stick to investment-grade bonds (BBB and above) for core fixed income allocations.",
         ],
       },
       {
         heading: "Yield, Coupon, and Interest Rate Risk",
         bullets: [
-          "Coupon: Fixed interest payment (e.g., 7% of face value annually).",
+          "Coupon: Fixed interest payment (e.g., 4% of face value annually).",
           "Yield: Actual return based on current market price.",
-          "When RBI raises rates, new bonds offer higher coupons → existing bonds become less attractive → prices fall.",
+          "When central banks raise interest rates, new bonds offer higher coupons → existing bonds become less attractive → prices fall.",
           "Bond price and yield move in OPPOSITE directions — the most important concept in fixed income.",
         ],
       },
       {
         heading: "Special Government Instruments",
         bullets: [
-          "RBI Floating Rate Bonds: Rate linked to NSC rate + 0.35%. Currently ~8.05%. 7-year tenure.",
-          "Sovereign Gold Bonds (SGBs): Government-issued, gold-linked bonds. 8-year tenure, 2.5% annual interest + gold price appreciation.",
-          "SGBs are exempt from capital gains tax on maturity — best form of gold investment for long-term investors.",
+          "Inflation-linked bonds: Return adjusts with inflation (TIPS in US, index-linked gilts in UK, IIBs in India).",
+          "Savings bonds: Government-backed, often tax-advantaged (e.g., I-Bonds in US, NS&I in UK, Sovereign Gold Bonds in India).",
+          "Money market funds: Invest in very short-term government debt — near-zero risk, slightly better than savings accounts.",
         ],
       },
     ],
@@ -1046,44 +1045,43 @@ const CHAPTERS: Chapter[] = [
   {
     id: 8,
     tier: 2,
-    title: "Retiral Instruments",
+    title: "Retirement Instruments",
     description:
-      "EPF, PPF, and NPS — India's core retirement savings tools with significant tax benefits.",
+      "Employer pension schemes, government savings plans, and personal retirement accounts — with significant tax benefits.",
     content: [
       {
-        heading: "EPF (Employee Provident Fund)",
+        heading: "Workplace / Employer Retirement Plans",
         bullets: [
-          "12% of basic salary from employee + 12% from employer. Total: 24% of basic salary.",
-          "UAN (Universal Account Number): Portable across jobs. Always link new employer to same UAN.",
-          "Withdrawal fully tax-free after 5 years of continuous service.",
-          "Current interest rate: 8.25% p.a. (2024–25). Declared annually by EPFO.",
+          "Most employers offer a workplace pension or retirement plan (401k in US, workplace pension in UK, EPF in India, Superannuation in Australia).",
+          "Typically: employee contributes a % of salary, employer matches some or all of it — the employer match is free money.",
+          "Always contribute enough to capture the full employer match — it's an instant 50–100% return.",
+          "These accounts are tax-advantaged: contributions reduce your taxable income and growth is tax-deferred.",
         ],
       },
       {
-        heading: "PPF (Public Provident Fund)",
+        heading: "Government / Personal Retirement Savings Plans",
         bullets: [
-          "15-year lock-in period. Can be extended in 5-year blocks after maturity.",
-          "Partial withdrawal allowed from year 7 onwards. Loan available from year 3 to year 6.",
-          "Current interest rate: ~7.1% p.a. (government-set, reviewed quarterly).",
-          "Interest and maturity proceeds fully tax-free. EEE status.",
+          "Most countries offer personal tax-advantaged retirement accounts (IRA in US, ISA/SIPP in UK, PPF/NPS in India, RRSP in Canada).",
+          "Two common types: Traditional (pre-tax contributions, taxed on withdrawal) and Roth-style (post-tax contributions, tax-free growth and withdrawal).",
+          "Annual contribution limits apply — check your country's limits and max them out if you can.",
+          "These accounts compound tax-free or tax-deferred — the single most powerful wealth-building structure available to individual investors.",
         ],
       },
       {
-        heading: "NPS (National Pension System)",
+        heading: "Pension Fund Managers & Asset Allocation",
         bullets: [
-          "Tier 1: Retirement account. Locked until age 60. Mandatory 40% annuity at retirement.",
-          "Tier 2: Voluntary savings account. Withdraw anytime. No additional tax benefit.",
-          "8 pension fund managers to choose from (SBI, LIC, HDFC, ICICI, Kotak, Birla, UTI, Axis).",
-          "At retirement: 60% lump sum (tax-free) + 40% must be used to buy annuity.",
-          "Extra ₹50,000 deduction under Section 80CCD(1B) — over and above the ₹1.5L limit under Section 80C.",
+          "Retirement accounts allow you to choose investment options — equity funds for growth when young, gradually shifting to bonds as you near retirement.",
+          "Target-date funds automatically rebalance your allocation as you age — a good default option for many investors.",
+          "Review your fund selection annually — default options in workplace plans are often conservative/low-return.",
         ],
       },
       {
-        heading: "80C Tax Benefits",
+        heading: "Tax Benefits Summary",
         bullets: [
-          "Section 80C: Up to ₹1.5 lakh deduction per year. Instruments: ELSS, EPF, PPF, NSC, tax-saving FD, life insurance premium, home loan principal.",
-          "ELSS: Mutual fund with 3-year lock-in. Best return potential among 80C instruments.",
-          "80CCD(1B): Additional ₹50,000 for NPS contribution. Total tax saving: up to ₹2 lakh per year.",
+          "Traditional retirement accounts: Reduce taxable income now. Pay tax on withdrawal in retirement (usually at a lower tax rate).",
+          "Roth/ISA-style accounts: Pay tax now. All growth and withdrawals are completely tax-free.",
+          "Employer pension contributions are typically tax-free in the employer's hands too — reducing their payroll tax.",
+          "Always maximize tax-advantaged retirement accounts before investing in taxable accounts.",
         ],
       },
     ],
@@ -1093,40 +1091,40 @@ const CHAPTERS: Chapter[] = [
     tier: 2,
     title: "Commodities",
     description:
-      "Gold, silver, crude oil — commodities as an inflation hedge and how to invest via MCX.",
+      "Gold, silver, crude oil — commodities as an inflation hedge and how to invest in them.",
     content: [
       {
         heading: "Gold Investment Forms",
         bullets: [
-          "Physical gold (jewellery/coins): High making charges (10–25%), storage risk. Poor investment form.",
-          "Digital gold (Paytm/PhonePe): Small amounts, but charges and counterparty risk. Not SEBI-regulated.",
-          "Gold ETF: Exchange-traded, each unit ≈ 1 gram gold. SEBI-regulated. Ideal for most investors.",
-          "Sovereign Gold Bonds (SGB): Best for long-term. 2.5% annual interest + gold appreciation. Tax-free on maturity.",
-          "Gold Mutual Funds: FOF investing in Gold ETFs. Good for SIP investors without a DEMAT account.",
+          "Physical gold (jewellery/coins): High making/premium charges, storage risk. Poor investment form.",
+          "Digital gold: Small amounts, but charges and counterparty risk vary by platform.",
+          "Gold ETFs: Exchange-traded, each unit tracks gold price. Regulated and transparent — ideal for most investors.",
+          "Government gold bonds (e.g., Sovereign Gold Bonds in India): Annual interest + gold appreciation. Tax-advantaged on maturity.",
+          "Gold mutual funds/FOFs: Good for systematic investing without needing a brokerage account.",
         ],
       },
       {
         heading: "Silver & Crude Oil",
         bullets: [
           "Silver: More volatile than gold. Industrial use (EVs, solar panels) adds demand beyond safe-haven.",
-          "Crude oil: India is 85% import-dependent. Rising oil prices impact inflation, currency, and markets.",
-          "Both traded on MCX (Multi Commodity Exchange) in India.",
+          "Crude oil: Rising oil prices impact inflation, currency, and markets globally — especially in oil-importing countries.",
+          "Both traded on commodity exchanges (CME in US, MCX in India, ICE in Europe).",
         ],
       },
       {
         heading: "Commodities as Inflation Hedge",
         bullets: [
           "Gold has historically preserved purchasing power over centuries.",
-          "Commodities tend to move opposite to equity in crisis periods — portfolio diversifier.",
+          "Commodities tend to move opposite to equity in crisis periods — useful portfolio diversifier.",
           "Recommended allocation: 5–10% in gold as portfolio hedge. Not a standalone investment.",
         ],
       },
       {
-        heading: "MCX — How Commodity Trading Works",
+        heading: "Commodity Trading",
         bullets: [
-          "MCX: India's largest commodity exchange. Trades gold, silver, copper, crude, natural gas.",
-          "Commodity futures: Derivative contracts — specify delivery of commodity at future date at agreed price.",
-          "High leverage in commodity futures = high risk. Mostly for hedging, not retail investing.",
+          "Commodity futures: Derivative contracts — specify delivery of commodity at a future date at an agreed price.",
+          "High leverage in commodity futures = high risk. Mostly used for hedging by producers/consumers, not retail investing.",
+          "For retail investors: gold/silver ETFs or commodity funds are safer and simpler than futures trading.",
         ],
       },
     ],
@@ -1141,35 +1139,35 @@ const CHAPTERS: Chapter[] = [
       {
         heading: "Physical Property",
         bullets: [
-          "Historically seen as safe in India, but returns have been moderate post-2013.",
+          "Real estate can offer capital appreciation and rental income, but returns vary widely by city and market conditions.",
           "Illiquid: Cannot sell quickly without significant price discount.",
-          "High transaction costs: Registration, stamp duty, brokerage (7–10% of property value).",
-          "Rental yield in Indian cities: typically 2–3% gross (net even lower after maintenance, vacancy).",
-          "True return = rental yield + capital appreciation. Inflation-adjusted returns often 4–6% in major cities.",
+          "High transaction costs: Agent fees, taxes, legal costs (typically 5–10% of property value).",
+          "Rental yield in major global cities: typically 2–5% gross (net even lower after maintenance, vacancy).",
+          "True return = rental yield + capital appreciation. Inflation-adjusted returns vary significantly by market.",
         ],
       },
       {
         heading: "REITs (Real Estate Investment Trusts)",
         bullets: [
-          "REIT: A company that owns income-producing real estate (offices, malls, warehouses).",
-          "Traded on stock exchange. Can buy even 1 unit (₹300–500 per unit).",
-          "India's listed REITs: Embassy REIT, Mindspace REIT, Brookfield REIT.",
-          "By law, 90% of net distributable cash flows must be distributed to unitholders (quarterly).",
+          "REIT: A company that owns income-producing real estate (offices, malls, warehouses, apartments).",
+          "Traded on stock exchanges globally. Can buy even fractional shares.",
+          "By law in most countries, REITs must distribute 90%+ of taxable income to shareholders (quarterly/annual).",
+          "Examples: Prologis (US), Land Securities (UK), Embassy REIT (India), CapitaLand (Singapore).",
         ],
       },
       {
         heading: "REIT Distributions",
         bullets: [
-          "Distributions come from: rental income, dividend from SPVs, interest income.",
-          "Current REIT yields in India: ~6–8% annually from distributions alone.",
-          "Distribution tax treatment: Dividend portion taxed at slab rate; interest/amortisation portions differ.",
+          "Distributions come from rental income, interest, and property sale gains.",
+          "REIT yields globally: typically 3–8% annually from distributions alone.",
+          "Tax treatment varies by country — check whether distributions are taxed as ordinary income or dividends.",
         ],
       },
       {
         heading: "Why Illiquidity Matters",
         bullets: [
           "Illiquid assets cannot be sold quickly at fair value.",
-          "In emergencies, you may sell property at 20–30% discount.",
+          "In emergencies, you may sell property at a 15–30% discount.",
           "REITs solve the illiquidity problem of real estate investing.",
           "Allocate to real estate based on your liquidity needs — don't over-allocate to illiquid assets.",
         ],
@@ -1181,7 +1179,7 @@ const CHAPTERS: Chapter[] = [
     tier: 2,
     title: "Crypto",
     description:
-      "Blockchain basics, Bitcoin risk profile, India's 30% flat tax, and safe allocation principles.",
+      "Blockchain basics, Bitcoin risk profile, tax treatment globally, and safe allocation principles.",
     content: [
       {
         heading: "What is Blockchain (1-Minute Version)",
@@ -1202,13 +1200,13 @@ const CHAPTERS: Chapter[] = [
         ],
       },
       {
-        heading: "Indian Tax Treatment (Budget 2022 onwards)",
+        heading: "Tax Treatment (Global Principles)",
         bullets: [
-          "Flat 30% tax on all crypto/VDA (Virtual Digital Asset) gains — regardless of holding period.",
-          "1% TDS on transactions above ₹50,000 (₹10,000 for specified persons).",
-          "Crypto losses cannot be set off against any other income.",
-          "Cannot carry forward crypto losses to offset future crypto gains.",
-          "India has one of the strictest crypto tax regimes globally.",
+          "Crypto is taxable in most countries — either as capital gains or income depending on activity.",
+          "Tax rates vary significantly: some countries apply flat rates on gains, others use progressive income tax rates.",
+          "Examples: UK — 10–20% CGT; US — 0–37% depending on holding period and income; India — flat 30% regardless of holding period.",
+          "Record all transactions — most tax authorities require detailed reporting of crypto trades, even small ones.",
+          "Losses can often be used to offset gains, but rules vary by country.",
         ],
       },
       {
@@ -1217,7 +1215,7 @@ const CHAPTERS: Chapter[] = [
           "Maximum allocation: 5–10% of investable portfolio for high-risk tolerant investors.",
           "Conservative/moderate investors: 0–2%.",
           "Crypto is speculative — treat it as high-risk speculation, not a core investment.",
-          "Store on regulated Indian exchanges (WazirX, CoinDCX) or hardware wallet.",
+          "Use regulated, reputable exchanges and consider self-custody for large holdings.",
         ],
       },
     ],
@@ -1242,7 +1240,7 @@ const CHAPTERS: Chapter[] = [
         bullets: [
           "Standard Deviation: Measures how much returns deviate from average. Higher SD = more volatile.",
           "Sharpe Ratio: Return earned per unit of risk (excess return ÷ standard deviation). Higher is better.",
-          "A Nifty 50 index fund has lower SD than a small-cap fund, but also lower expected return.",
+          "A broad market index fund has lower SD than a small-cap fund, but also lower expected return.",
         ],
       },
       {
@@ -1324,7 +1322,7 @@ const CHAPTERS: Chapter[] = [
       {
         heading: "Core + Satellite Approach",
         bullets: [
-          "Core (70–80%): Low-cost, diversified, long-term holdings. Nifty 50 index fund, mid-cap index, Nifty Next 50.",
+          "Core (70–80%): Low-cost, diversified, long-term holdings. Broad market index fund, developed-market index, bond index.",
           "Satellite (20–30%): Higher-conviction, higher-risk bets. Sectoral funds, small-cap, international ETFs, direct stocks.",
           "Core protects wealth; satellite creates alpha.",
         ],
@@ -1333,7 +1331,7 @@ const CHAPTERS: Chapter[] = [
         heading: "Diversification vs Diworsification",
         bullets: [
           "True diversification: Owning uncorrelated assets that reduce risk.",
-          "Diworsification: Owning too many similar funds (5 large-cap active funds that all track Nifty 50).",
+          "Diworsification: Owning too many similar funds (5 large-cap active funds that all track the same broad index).",
           "Ideal portfolio: 4–6 funds maximum, across market cap and asset class. Not 15 funds.",
         ],
       },
@@ -1341,7 +1339,7 @@ const CHAPTERS: Chapter[] = [
         heading: "Overlap Analysis in Mutual Funds",
         bullets: [
           "Two large-cap funds often hold the same top 20 stocks — no diversification benefit.",
-          "Use tools like Morningstar/Value Research to check portfolio overlap before buying a new fund.",
+          "Use tools like Morningstar, Value Research, or ETF overlap checkers before buying a new fund.",
           "If two funds have 60%+ overlap, owning both is redundant.",
         ],
       },
@@ -1417,7 +1415,7 @@ const CHAPTERS: Chapter[] = [
       {
         heading: "Key Valuation Ratios",
         bullets: [
-          "P/E (Price-to-Earnings): Most common. Compare to: same stock history, industry peers, and Nifty average.",
+          "P/E (Price-to-Earnings): Most common. Compare to: same stock's history, industry peers, and broad market average.",
           "PEG (Price/Earnings-to-Growth): P/E divided by earnings growth rate. PEG < 1 = potentially undervalued.",
           "EV/EBITDA: Enterprise value ÷ Operating profit. Used for capital-intensive industries (cement, telecom).",
           "P/B (Price-to-Book): Useful for asset-heavy companies (banks, manufacturing).",
@@ -1435,8 +1433,8 @@ const CHAPTERS: Chapter[] = [
         heading: "CAPE Ratio for Market-Level Valuation",
         bullets: [
           "CAPE (Cyclically Adjusted P/E): Average P/E over 10 years, inflation-adjusted.",
-          "Nifty CAPE above 30 = historically expensive. Below 18 = historically attractive.",
-          "CAPE helps assess whether the overall market is cheap or expensive — useful for tactical rebalancing.",
+          "Historical context: Global markets tend to be expensive above CAPE 30, attractive below 15.",
+          "CAPE helps assess whether the overall market is cheap or expensive — useful for tactical rebalancing decisions.",
         ],
       },
     ],
@@ -1444,57 +1442,53 @@ const CHAPTERS: Chapter[] = [
   {
     id: 17,
     tier: 4,
-    title: "Investment Taxation in India",
+    title: "Investment Taxation",
     description:
-      "STCG, LTCG, dividend tax, indexation changes post-Budget 2024 — know exactly what you owe.",
+      "How investments are taxed globally — capital gains, dividends, and strategies to minimise your tax bill.",
     content: [
       {
-        heading: "Equity Taxation (Post-Budget 2024)",
+        heading: "Capital Gains Tax — Global Principles",
         bullets: [
-          "STCG (Short-Term Capital Gains): Holding < 1 year → 20% tax (increased from 15% in Budget 2024).",
-          "LTCG (Long-Term Capital Gains): Holding ≥ 1 year → 12.5% on gains above ₹1.25 lakh per year.",
-          "No indexation benefit for equity.",
-          "These rates apply to: direct stocks, equity mutual funds, equity ETFs.",
-        ],
-      },
-      {
-        heading: "Debt Mutual Fund Taxation",
-        bullets: [
-          "Post April 1, 2023: Debt mutual funds taxed at SLAB RATE regardless of holding period.",
-          "No LTCG benefit. No indexation. Treated like FD income.",
-        ],
-      },
-      {
-        heading: "Other Asset Class Taxation",
-        bullets: [
-          "Gold ETF/Fund: LTCG of 12.5% after 24 months (indexation removed in Budget 2024).",
-          "Physical gold LTCG: 12.5% after 24 months.",
-          "Sovereign Gold Bonds: Fully exempt on maturity (8-year hold).",
-          "Real estate LTCG: 12.5% after 24 months (indexation removed for property bought after July 23, 2024).",
+          "Most countries tax investment profits (capital gains) at the time of sale.",
+          "Short-term gains (held < 1 year): Usually taxed at higher ordinary income rates.",
+          "Long-term gains (held ≥ 1 year): Usually taxed at preferential lower rates to reward patient investing.",
+          "Examples: US — 0/15/20% LTCG; UK — 10/20% CGT; India — 12.5% LTCG on equity (above exemption threshold).",
         ],
       },
       {
         heading: "Dividend Taxation",
         bullets: [
-          "Dividends taxed at investor's income slab rate.",
-          "TDS of 10% on dividends above ₹5,000 per year from equity mutual funds/stocks.",
+          "Dividends received from stocks and funds are usually taxable as income.",
+          "Some countries offer preferential 'qualified dividend' rates (US: 0–20%). Others tax at full income rates.",
+          "Reinvesting dividends in tax-advantaged accounts (retirement, ISA) defers or eliminates this tax.",
+          "Always check your country's dividend tax treaties — foreign dividends may be withheld at source.",
+        ],
+      },
+      {
+        heading: "Tax-Advantaged Accounts — Use Them First",
+        bullets: [
+          "Retirement accounts (401k, IRA, SIPP, NPS): Growth is tax-deferred or tax-free depending on account type.",
+          "ISA (UK): £20,000/year tax-free investing — no capital gains or dividend tax ever.",
+          "Roth IRA (US): After-tax contributions, all growth and withdrawals permanently tax-free.",
+          "Always max tax-advantaged accounts before investing in taxable brokerage accounts.",
         ],
       },
       {
         heading: "Tax-Loss Harvesting",
         bullets: [
-          "Legally book losses on underperforming investments to offset capital gains.",
-          "Short-term losses can offset both STCG and LTCG. Long-term losses can only offset LTCG.",
-          "Best done before March 31 each financial year.",
-          "Can save significant LTCG tax — e.g., ₹2L gains minus ₹50K losses minus ₹1.25L exemption = ₹25K taxable.",
+          "Strategically sell investments at a loss to offset capital gains realized elsewhere — reducing your tax bill.",
+          "Then reinvest in similar (but not identical) assets to maintain market exposure.",
+          "Best executed before your tax year ends — check wash-sale rules in your country.",
+          "Can save significant tax: $10,000 in gains offset by $5,000 in losses = $5,000 taxable instead of $10,000.",
         ],
       },
       {
-        heading: "Form 26AS & AIS",
+        heading: "Record-Keeping & Reporting",
         bullets: [
-          "Form 26AS: Tax credit statement showing TDS deducted by all deductors.",
-          "AIS (Annual Information Statement): Comprehensive record of all financial transactions reported to income tax.",
-          "Always reconcile AIS before filing ITR to avoid tax notices.",
+          "Keep records of every investment: purchase date, cost basis, sale price.",
+          "Most brokers provide annual tax statements — reconcile before filing.",
+          "Crypto transactions must be individually reported in most countries.",
+          "International investments may trigger additional reporting requirements (FBAR, FATCA in US).",
         ],
       },
     ],
@@ -1504,42 +1498,42 @@ const CHAPTERS: Chapter[] = [
     tier: 4,
     title: "Tax-Efficient Investing",
     description:
-      "Rank your 80C options, compare ELSS vs PPF vs NPS, and understand how smart tax planning boosts returns.",
+      "Rank your tax-saving options, choose the right account types, and understand how smart tax planning boosts returns.",
     content: [
       {
-        heading: "80C Instruments Ranked by Return Potential",
+        heading: "Tax-Advantaged Accounts Ranked by Return Potential",
         bullets: [
-          "1st: ELSS — market-linked returns historically 12–15% CAGR; 3-year lock-in.",
-          "2nd: NPS via 80CCD(1B) — market-linked with equity allocation; locked till 60.",
-          "3rd: EPF — guaranteed ~8.25% p.a. tax-free. No active investment needed.",
-          "4th: PPF — guaranteed ~7.1% p.a. tax-free. 15-year lock-in.",
-          "5th: NSC (National Savings Certificate) — ~7.7% p.a. but interest taxable.",
-          "6th: Tax-saving FD (5-year) — ~6.5–7.5% p.a. Interest fully taxable at slab rate.",
+          "1st: Employer retirement match (401k/workplace pension) — capture 100% of match first. Instant 50–100% return.",
+          "2nd: Roth/ISA-style accounts — tax-free growth forever. Best for young investors.",
+          "3rd: Traditional retirement accounts (IRA/SIPP/NPS) — reduces taxable income now. Deferred growth.",
+          "4th: Health Savings Account (HSA, if available) — triple tax advantage for medical expenses.",
+          "5th: 529/Education savings plans — tax-free growth for education costs.",
+          "6th: Taxable brokerage — most flexible, least tax-efficient for income-generating assets.",
         ],
       },
       {
-        heading: "ELSS vs PPF vs NPS",
+        heading: "Asset Location Strategy",
         bullets: [
-          "ELSS: Shortest lock-in (3 years), highest return potential, market risk. Best for: Young investors.",
-          "PPF: Zero risk, tax-free, but low liquidity (15-year lock-in). Best for: Conservative investors.",
-          "NPS: Best tax efficiency (80C + 80CCD(1B) = ₹2L deduction), partially annuitised at retirement.",
-          "Practical tip: Use ELSS for 80C (growth), NPS for extra ₹50K deduction, EPF as baseline.",
+          "Tax-inefficient assets (bonds, REITs, high-dividend stocks) → Put in tax-advantaged accounts (retirement, ISA).",
+          "Tax-efficient assets (index funds, buy-and-hold equities) → OK in taxable accounts.",
+          "This simple strategy can add 0.5–1% annually to after-tax returns without changing your investments.",
         ],
       },
       {
-        heading: "HUF (Hindu Undivided Family)",
+        heading: "Long-Term Holding Advantage",
         bullets: [
-          "HUF is a legal tax entity in India for Hindu families. Gets its own PAN and separate ₹2.5L basic exemption.",
-          "Can invest in its own name — effectively creates another slot for tax-free income.",
-          "Relevant for high-income families; consult a CA for setup.",
+          "In most countries, investments held longer than 1 year qualify for lower capital gains tax rates.",
+          "Buy-and-hold index investing is inherently tax-efficient: no annual capital gains from trading.",
+          "Frequent trading in taxable accounts is a double penalty: higher taxes + higher transaction costs.",
         ],
       },
       {
-        heading: "NRI Taxation Basics",
+        heading: "Cross-Border & NRI Considerations",
         bullets: [
-          "NRIs investing in Indian equity: STCG 20%, LTCG 12.5% (same as residents).",
-          "NRI interest income (NRO account): Taxed in India. NRE account interest: Tax-free in India.",
-          "DTAA (Double Taxation Avoidance Agreement): India has DTAA with 90+ countries to avoid double taxation.",
+          "If you have investments in multiple countries, check Double Taxation Avoidance Agreements (DTAAs).",
+          "Foreign withholding taxes on dividends can often be credited against domestic tax liability.",
+          "Report foreign accounts as required — US FBAR, UK/EU FATCA equivalents, and similar rules.",
+          "Consult a qualified cross-border tax adviser if you have significant international investments.",
         ],
       },
     ],
@@ -1549,13 +1543,13 @@ const CHAPTERS: Chapter[] = [
     tier: 5,
     title: "Investor Psychology",
     description:
-      "Why smart people make terrible investment decisions — loss aversion, recency bias, and India-specific herd examples.",
+      "Why smart people make terrible investment decisions — loss aversion, recency bias, and herd mentality examples.",
     content: [
       {
         heading: "Loss Aversion",
         bullets: [
           "Kahneman & Tversky (Nobel-winning research): Losses feel psychologically 2× more painful than equivalent gains.",
-          "Losing ₹10,000 hurts more than gaining ₹10,000 feels good — even though the math is identical.",
+          "Losing $10,000 hurts more than gaining $10,000 feels good — even though the math is identical.",
           "This causes investors to: hold losers too long (hoping to break even) and sell winners too early.",
           "Counter: Focus on portfolio percentage, not absolute loss amounts.",
         ],
@@ -1564,7 +1558,7 @@ const CHAPTERS: Chapter[] = [
         heading: "Recency Bias",
         bullets: [
           "Recency bias: Overweighting recent events and assuming they will continue.",
-          "Example: Investors poured money into IT funds in 2021 at peak valuations, then panic-sold in 2022 crash.",
+          "Example: Investors poured money into tech stocks in 2021 at peak valuations, then panic-sold in 2022 crash.",
           "Recency bias causes: buying high (after bull run) and selling low (after bear market).",
           "Counter: Commit to asset allocation rules. Never change allocation based on last 3–6 months of market performance.",
         ],
@@ -1575,15 +1569,15 @@ const CHAPTERS: Chapter[] = [
           "Most investors rate themselves as 'above average' — mathematically impossible.",
           "Overconfidence leads to: excessive trading, inadequate diversification, ignoring risk.",
           "Studies show: frequent traders underperform passive investors by 3–5% annually.",
-          "Counter: Track your actual returns vs Nifty 50 over 5+ years before calling yourself a good stock picker.",
+          "Counter: Track your actual returns vs a broad index over 5+ years before calling yourself a good stock picker.",
         ],
       },
       {
-        heading: "Herd Mentality — Indian Market Examples",
+        heading: "Herd Mentality — Global Examples",
         bullets: [
-          "January 2008: Sensex hit 21,000 all-time high. Retail investors poured in at peak. Then fell 60% in 12 months.",
-          "March 2020: COVID panic. Sensex fell 38% in weeks. Retail investors sold at lows. Market fully recovered in 6 months.",
-          "SME IPO mania 2023–24: 200–400% oversubscriptions on dubious SME companies. Many fell 50–80% post-listing.",
+          "2000 dot-com bubble: Retail investors poured into unprofitable tech companies at peak. Nasdaq fell 78% over next 2 years.",
+          "2008 housing crisis: Everyone bought property assuming prices would always rise. Global crash followed.",
+          "Crypto 2021: Bitcoin and altcoins hit all-time highs; retail poured in. Major assets fell 70–90% in 2022.",
           "Counter: Ask 'Why is everyone excited about this right now?' If you can't answer fundamentally, don't buy.",
         ],
       },
@@ -1594,12 +1588,12 @@ const CHAPTERS: Chapter[] = [
     tier: 5,
     title: "Common Investor Mistakes",
     description:
-      "The most expensive mistakes Indian investors make — and the data to prove it.",
+      "The most expensive mistakes investors make globally — and the data to prove it.",
     content: [
       {
         heading: "Timing the Market vs Time in the Market",
         bullets: [
-          "Missing just the 10 best trading days in the Nifty 50 over the last 20 years cuts your return by more than half.",
+          "Missing just the 10 best trading days in the S&P 500 over the last 20 years cuts your return by more than half.",
           "No one consistently predicts market tops and bottoms — not fund managers, not economists.",
           "Time in market, not timing the market, drives long-term wealth.",
         ],
@@ -1607,18 +1601,17 @@ const CHAPTERS: Chapter[] = [
       {
         heading: "Chasing Past Returns in Mutual Funds",
         bullets: [
-          "SEBI study: The best-performing fund of the previous 3 years is rarely the best performer in the next 3 years.",
+          "Studies consistently show: the best-performing fund of the previous 3 years rarely tops the next 3 years.",
           "Investors buy after a fund has run 40–50%, near the peak of its outperformance cycle.",
           "Check 5–10 year CAGR and risk-adjusted returns (Sharpe ratio), not just last-year returns.",
         ],
       },
       {
-        heading: "Stopping SIPs in Bear Markets",
+        heading: "Stopping Systematic Investments in Bear Markets",
         bullets: [
-          "Bear markets are when SIPs buy cheapest units — the units that drive your long-term returns.",
-          "₹10,000/month SIP stopped during March 2020 crash: missed buying Nifty units at 7,500 levels.",
-          "Missing 3 months of SIP during a bear market can cost 5–10% of 20-year final corpus.",
-          "Rule: Never stop SIP unless you genuinely cannot afford the payment.",
+          "Bear markets are when systematic investments buy the cheapest units — the units that drive your long-term returns.",
+          "Missing 3 months of systematic investing during a bear market can cost 5–10% of your 20-year final portfolio value.",
+          "Rule: Never stop investing unless you genuinely cannot afford the payment.",
         ],
       },
       {
@@ -1667,8 +1660,8 @@ const CHAPTERS: Chapter[] = [
       {
         heading: "Opportunity Cost",
         bullets: [
-          "Every rupee invested in Asset A is not invested in Asset B.",
-          "Opportunity cost of holding cash at 3.5% (savings account) = giving up equity returns of potentially 12% CAGR.",
+          "Every dollar invested in Asset A is not invested in Asset B.",
+          "Opportunity cost of holding cash at 2–3% (savings account) = giving up equity returns of potentially 8–12% CAGR historically.",
           "Evaluate investments not just on absolute return, but relative to the next best alternative.",
           "Holding underperforming assets 'hoping they'll recover' has a real opportunity cost.",
         ],
@@ -1680,7 +1673,7 @@ const CHAPTERS: Chapter[] = [
     tier: 6,
     title: "Derivatives Awareness",
     description:
-      "Understand what options and futures are — and why 91% of retail traders lose money in F&O.",
+      "Understand what options and futures are — and why most retail traders lose money in derivatives.",
     content: [
       {
         heading: "What Are Derivatives?",
@@ -1700,13 +1693,12 @@ const CHAPTERS: Chapter[] = [
         ],
       },
       {
-        heading: "SEBI Data: 91% of Retail Traders Lose Money",
+        heading: "Why Most Retail Traders Lose Money",
         bullets: [
-          "SEBI study FY2025: 91% of individual F&O traders lost money.",
-          "Total losses by retail traders in F&O: ₹1.06 lakh crore in FY2025.",
-          "F&O trader count declined from 1.05 crore to 75.42 lakh in FY2026 as awareness grew.",
-          "Average retail trader loss per year: ₹1.1 lakh.",
-          "The 9% who profit largely include high-frequency traders and institutions — not typical retail investors.",
+          "Studies globally show 70–91% of retail derivatives traders lose money over any sustained period.",
+          "Reasons: options have negative expected value for buyers (premium decay), market makers and algorithms have information and speed advantages, and overconfidence leads to excessive risk-taking.",
+          "Average retail derivatives trader losses are significant — often thousands of dollars per year.",
+          "The minority who profit are largely high-frequency traders and institutions — not typical retail investors.",
         ],
       },
       {
@@ -1724,39 +1716,38 @@ const CHAPTERS: Chapter[] = [
     tier: 6,
     title: "International Investing",
     description:
-      "How Indian investors can access US markets and international ETFs via LRS — and the currency advantage.",
+      "How investors can access global markets and international ETFs — and the currency advantage.",
     content: [
       {
-        heading: "LRS (Liberalised Remittance Scheme)",
+        heading: "Accessing International Markets",
         bullets: [
-          "Allows Indian residents to remit up to USD 250,000 per financial year for investments, education, travel.",
-          "Can invest in: US stocks, international ETFs, bonds, overseas deposits.",
-          "TCS: 20% Tax Collected at Source on remittances above ₹7 lakh (claimable as credit in ITR).",
+          "Most countries allow residents to invest abroad, often with annual limits or reporting requirements.",
+          "Examples: India's LRS scheme ($250,000/year), US allows unrestricted international investing, UK ISA holders can invest globally.",
+          "Key considerations: currency risk, withholding taxes, additional regulatory reporting.",
         ],
       },
       {
-        heading: "US Stocks & International ETFs from India",
+        heading: "Global Stocks & International ETFs",
         bullets: [
-          "Can buy fractional shares of US companies (Apple, Microsoft, Amazon) via LRS-enabled platforms.",
-          "International ETFs on Indian exchanges: Mirae Asset NYSE FANG+ ETF, Motilal Oswal Nasdaq 100, Kotak Nasdaq 100 FOF.",
-          "No LRS required for internationally investing via Indian mutual fund FOFs/ETFs.",
+          "You can invest in global companies (Apple, Microsoft, LVMH, etc.) via international brokers or local platforms offering overseas access.",
+          "International ETFs: MSCI World ETF, S&P 500 ETFs, FTSE All-World ETF — available in most major markets.",
+          "No need for direct overseas accounts if your local market offers internationally-focused funds.",
         ],
       },
       {
-        heading: "INR Depreciation as a Tailwind",
+        heading: "Currency Risk & Opportunity",
         bullets: [
-          "INR has historically depreciated ~4–5% per year vs USD over the last 20 years.",
-          "Example: S&P 500 returns ~10% in USD + ~4–5% INR depreciation = ~14–15% INR-equivalent return.",
-          "Currency risk can also work against you if INR appreciates (rare historically).",
+          "Investing internationally exposes you to currency fluctuations — can work for or against you.",
+          "Historically, currencies of developing economies tend to depreciate vs USD/EUR over long periods — this acts as a tailwind for investors in those currencies holding USD/EUR assets.",
+          "Currency risk can also work against you — hedge if needed for short-term goals.",
         ],
       },
       {
-        heading: "Platforms for International Investing",
+        heading: "Platforms & Access",
         bullets: [
-          "Vested Finance, INDmoney (direct US stocks via LRS).",
-          "Stockal, Winvesta (US stocks and ETFs via LRS).",
-          "Zerodha, Groww, HDFC Securities (Indian international ETFs/FOFs — no LRS needed).",
-          "SEBI has paused fresh international MF investing limits periodically — check current status before investing.",
+          "Global brokers: Interactive Brokers, Saxo Bank, Charles Schwab International — available in many countries.",
+          "Local platforms with international exposure: Many local apps now offer S&P 500 ETFs, global funds, or fractional shares.",
+          "Check your country's regulations before investing internationally — some platforms have country-specific restrictions.",
         ],
       },
     ],
@@ -1771,20 +1762,18 @@ const CHAPTERS: Chapter[] = [
       {
         heading: "P2P Lending",
         bullets: [
-          "P2P lending: Lend directly to borrowers via an RBI-licensed NBFC-P2P platform.",
-          "Returns claimed: 10–14% p.a. Actual realised returns (after defaults): 8–11% for cautious investors.",
-          "Platforms: Faircent, LenDenClub, Liquiloans.",
-          "RBI has capped individual lender exposure: max ₹50 lakh total across all P2P platforms.",
-          "Illiquid — cannot exit before loan tenure in most cases.",
+          "P2P lending: Lend directly to borrowers via a regulated online platform.",
+          "Returns claimed: 8–15% p.a. Actual realised returns (after defaults): lower for cautious investors.",
+          "Examples: LendingClub (US), Zopa (UK), Faircent/LenDenClub (India).",
+          "Illiquid — cannot exit before loan tenure in most cases. Regulators cap individual exposure to limit risk.",
         ],
       },
       {
         heading: "Invoice Discounting",
         bullets: [
           "Invest in short-term invoices of businesses waiting for payment from large corporates.",
-          "Returns: 9–13% p.a. for 30–90 day tenures.",
-          "Platforms: TradeCred, Jiraaf, Grip Invest.",
-          "Risk: SME default if the invoice isn't honoured. Choose platforms with credit insurance.",
+          "Returns: 8–15% p.a. for 30–90 day tenures depending on market.",
+          "Risk: SME default if the invoice isn't honoured. Choose platforms with credit insurance and strong track records.",
         ],
       },
       {
@@ -1792,18 +1781,17 @@ const CHAPTERS: Chapter[] = [
         bullets: [
           "Buy shares of companies before they list on the stock exchange.",
           "High return potential if company IPOs at higher valuation. High risk: no liquidity until IPO.",
-          "Platforms: Unlisted Arena, Planify, Altius Investech.",
-          "Use for max 2–5% of portfolio. Only for investors who can lock money for 3–5 years.",
+          "Use for max 2–5% of portfolio. Only for investors who can lock money for 3–5+ years.",
         ],
       },
       {
         heading: "Angel Investing Basics",
         bullets: [
           "Invest in early-stage startups in exchange for equity.",
-          "Minimum typical ticket: ₹5–25 lakh per startup.",
+          "Minimum typical ticket varies by market — often $5,000–$25,000+ per startup.",
           "10:1 failure ratio: Expect most startups to fail; returns come from the 1–2 that succeed.",
-          "Access via SEBI-registered angel networks: Indian Angel Network, AngelList India, LetsVenture.",
-          "Only for high-net-worth investors with high risk tolerance and long-time horizons.",
+          "Access via angel networks (AngelList, SyndicateRoom, Indian Angel Network) or equity crowdfunding platforms.",
+          "Only for investors with high risk tolerance and long time horizons.",
         ],
       },
     ],
@@ -1813,43 +1801,43 @@ const CHAPTERS: Chapter[] = [
     tier: 6,
     title: "Retirement Planning Deep Dive",
     description:
-      "Calculate your real retirement corpus, apply the 4% rule to India, and choose between annuity and SWP.",
+      "Calculate your real retirement corpus, apply the 4% rule, and choose between annuity and systematic withdrawals.",
     content: [
       {
         heading: "Retirement Corpus Calculation (Inflation-Adjusted)",
         bullets: [
           "Step 1: Calculate current monthly expenses.",
-          "Step 2: Project at retirement using inflation. At 6% for 25 years: ₹50,000/month today = ₹2.15 lakh/month at retirement.",
-          "Step 3: Required corpus = Monthly expense at retirement × 12 ÷ safe withdrawal rate.",
-          "Example: ₹2.15L × 12 ÷ 0.04 = ₹6.45 crore corpus required.",
+          "Step 2: Project at retirement using inflation. At 4% for 25 years: $5,000/month today = ~$13,300/month at retirement.",
+          "Step 3: Required corpus = Annual expenses at retirement ÷ safe withdrawal rate.",
+          "Example: $13,300 × 12 ÷ 0.04 = ~$4 million corpus required at 4% withdrawal rate.",
         ],
       },
       {
-        heading: "The 4% Rule (Indian Context)",
+        heading: "The 4% Rule",
         bullets: [
           "4% rule (Bengen Rule): Withdraw 4% of corpus in year 1, then adjust for inflation annually. Corpus lasts 30 years.",
-          "India context: With higher inflation (6% vs US 2–3%), consider 3–3.5% withdrawal rate for safety.",
-          "A ₹5 crore corpus at 3.5% SWR = ₹17.5 lakh/year = ₹1.46 lakh/month (at today's equivalent).",
-          "Invest corpus in: 50% equity (for growth) + 50% debt/gold (for stability and withdrawal).",
+          "Based on US market data 1926–1994 (Trinity Study) — 60/40 equity/bond portfolio survived in 95% of 30-year scenarios.",
+          "For higher-inflation countries or longer retirements, use a more conservative 3–3.5% withdrawal rate.",
+          "Invest corpus in: 50–60% equity (for growth) + 40–50% bonds/cash (for stability and withdrawals).",
         ],
       },
       {
         heading: "Sequence of Returns Risk",
         bullets: [
-          "If markets crash in the first 5 years of retirement, your corpus may not recover even if returns normalise later.",
+          "If markets crash in the first 5 years of retirement, your corpus may not recover even if returns normalize later.",
           "Example: A 30% crash in year 1 + withdrawals = corpus permanently impaired.",
-          "Counter: Keep 2–3 years of expenses in liquid/debt. Draw from this in bear markets. Let equity portion recover.",
+          "Counter: Keep 2–3 years of expenses in liquid/cash or short-term bonds. Draw from this in bear markets. Let equity portion recover.",
           "This is why 100% equity portfolio at retirement is dangerous.",
         ],
       },
       {
-        heading: "Annuity vs Systematic Withdrawal Plan (SWP)",
+        heading: "Annuity vs Systematic Withdrawal (SWP)",
         bullets: [
-          "Annuity: Buy from insurance company. Guaranteed income for life. Fully taxable. Rate: 5–7% p.a. currently.",
-          "Annuity is irreversible — once bought, cannot get capital back. Inflation erodes fixed annuity payments.",
-          "SWP: Redeem fixed amount monthly from your mutual fund corpus.",
-          "SWP advantages: Capital remains invested, higher potential returns, flexible, tax-efficient (only gains taxed).",
-          "Recommended: SWP from a balanced/hybrid fund for most retirees. Annuity only for 30–40% of corpus for longevity insurance.",
+          "Annuity: Buy from insurance company. Guaranteed income for life. Fully taxable. Typical yields: 4–7% p.a. depending on market rates.",
+          "Annuity is irreversible — once bought, cannot reclaim capital. Fixed annuity payments erode in real value due to inflation.",
+          "SWP: Redeem a fixed amount monthly/annually from your investment portfolio.",
+          "SWP advantages: Capital remains invested, higher potential returns, flexible, more tax-efficient.",
+          "Recommended: Use SWP from a balanced/diversified fund for most retirees. Annuitize only 25–40% of corpus for guaranteed longevity income.",
         ],
       },
     ],

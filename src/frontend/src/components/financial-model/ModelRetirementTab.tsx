@@ -31,6 +31,7 @@ import {
 } from "recharts";
 import { useCurrency } from "../../contexts/CurrencyContext";
 import { FIRECalculator } from "../financial-planner/calculators/FIRECalculator";
+import { FourBucketCalculator } from "../financial-planner/calculators/FourBucketCalculator";
 import { RetirementReadinessCalculator } from "../financial-planner/calculators/RetirementReadinessCalculator";
 import { ThreeBucketCalculator } from "../financial-planner/calculators/ThreeBucketCalculator";
 import { TwoBucketCalculator } from "../financial-planner/calculators/TwoBucketCalculator";
@@ -415,15 +416,27 @@ export function ModelRetirementTab() {
       content: <FIRECalculator />,
     },
     {
+      id: "fourbucket",
+      title: "4-Bucket Planner",
+      emoji: "🪣",
+      badge: "4",
+      badgeColor: "bg-purple-100 text-purple-700 border-purple-200",
+      content: <FourBucketCalculator />,
+    },
+    {
       id: "threebucket",
       title: "3-Bucket Planner",
       emoji: "🪣",
+      badge: "3",
+      badgeColor: "bg-teal-100 text-teal-700 border-teal-200",
       content: <ThreeBucketCalculator />,
     },
     {
       id: "twobucket",
       title: "2-Bucket Planner",
-      emoji: "💼",
+      emoji: "🪣",
+      badge: "2",
+      badgeColor: "bg-cyan-100 text-cyan-700 border-cyan-200",
       content: <TwoBucketCalculator />,
     },
     {
@@ -439,19 +452,26 @@ export function ModelRetirementTab() {
       {subCards.map((card) => (
         <div
           key={card.id}
-          className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+          className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden dark:bg-slate-900"
           style={{ borderLeft: "4px solid #14b8a6" }}
         >
           <button
             type="button"
             onClick={() => toggle(card.id)}
-            className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+            className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             <div className="flex items-center gap-2">
               <span className="text-base">{card.emoji}</span>
-              <span className="text-sm font-semibold text-slate-800">
+              <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                 {card.title}
               </span>
+              {"badge" in card && card.badge && (
+                <span
+                  className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold border ${card.badgeColor}`}
+                >
+                  {card.badge}
+                </span>
+              )}
             </div>
             <ChevronDown
               className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
@@ -460,7 +480,7 @@ export function ModelRetirementTab() {
             />
           </button>
           {open === card.id && (
-            <div className="px-4 pb-4 border-t border-slate-50">
+            <div className="px-4 pb-4 border-t border-slate-50 dark:border-slate-800">
               {card.content}
             </div>
           )}

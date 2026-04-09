@@ -1096,19 +1096,22 @@ export default function DashboardPage() {
               }
               const avslTotal = pieData.reduce((s, d) => s + d.value, 0);
               return (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-0">
+                  {/* Donut chart — give it enough room so the full circle is unclipped */}
                   <div
                     className="flex-shrink-0"
-                    style={{ width: 110, height: 160 }}
+                    style={{ width: 160, height: 160 }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
+                      <PieChart
+                        margin={{ top: 4, right: 4, bottom: 4, left: 4 }}
+                      >
                         <Pie
                           data={pieData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={42}
-                          outerRadius={70}
+                          innerRadius={46}
+                          outerRadius={68}
                           dataKey="value"
                           labelLine={false}
                         >
@@ -1134,26 +1137,27 @@ export default function DashboardPage() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="flex flex-col gap-2 flex-1 min-w-0">
+                  {/* Legend — sits at far right, never overlaps the chart */}
+                  <div className="flex flex-col justify-center gap-3 flex-1 min-w-0 pl-2">
                     {pieData.map((d) => {
                       const pct =
                         avslTotal > 0
                           ? ((d.value / avslTotal) * 100).toFixed(1)
                           : "0";
                       return (
-                        <div key={d.name} className="flex items-start gap-1.5">
+                        <div key={d.name} className="flex items-start gap-2">
                           <div
-                            className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5"
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1"
                             style={{ background: d.color }}
                           />
                           <div className="min-w-0">
-                            <span className="text-[11px] text-slate-600 block truncate">
+                            <span className="text-[11px] text-slate-500 block">
                               {d.name}
                             </span>
-                            <span className="text-[11px] font-bold text-slate-800 tabular-nums">
+                            <span className="text-[12px] font-bold text-slate-800 tabular-nums block">
                               {formatCurrency(d.value)}
                             </span>
-                            <span className="text-[10px] text-slate-500 ml-1">
+                            <span className="text-[10px] text-slate-400">
                               {pct}%
                             </span>
                           </div>

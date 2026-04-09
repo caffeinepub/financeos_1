@@ -612,16 +612,8 @@ export default function FinancialRulesPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        {/* Pill-style tab bar */}
+        {/* Pill-style tab bar — order: Basics, Rules, Mistakes, Quiz, My Rules */}
         <TabsList className="bg-slate-100 p-1 rounded-xl gap-1 h-auto flex-wrap">
-          <TabsTrigger
-            value="knowledge"
-            data-ocid="financialrules.knowledge.tab"
-            className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
-          >
-            <TrendingUp className="w-3.5 h-3.5 mr-1.5" />
-            Rules
-          </TabsTrigger>
           <TabsTrigger
             value="chapters"
             data-ocid="financialrules.basics.tab"
@@ -631,12 +623,12 @@ export default function FinancialRulesPage() {
             Basics
           </TabsTrigger>
           <TabsTrigger
-            value="quiz"
-            data-ocid="financialrules.quiz.tab"
-            className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
+            value="knowledge"
+            data-ocid="financialrules.knowledge.tab"
+            className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
           >
-            <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
-            Quiz
+            <TrendingUp className="w-3.5 h-3.5 mr-1.5" />
+            Rules
           </TabsTrigger>
           <TabsTrigger
             value="mistakes"
@@ -644,7 +636,15 @@ export default function FinancialRulesPage() {
             className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-orange-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
           >
             <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
-            Learn from Mistakes
+            Mistakes
+          </TabsTrigger>
+          <TabsTrigger
+            value="quiz"
+            data-ocid="financialrules.quiz.tab"
+            className="rounded-lg px-4 py-2 text-sm font-medium data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
+          >
+            <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
+            Quiz
           </TabsTrigger>
           <TabsTrigger
             value="my-rules"

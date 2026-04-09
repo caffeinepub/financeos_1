@@ -18,14 +18,14 @@ const WELCOME_MESSAGE: Message = {
 };
 
 const SUGGESTED_PROMPTS = [
-  "How do I set financial goals?",
-  "Explain SIP with Step-Up",
+  "What is the 50/30/20 rule?",
+  "What mistakes should I avoid?",
+  "Explain the Rule of 72",
   "Design a portfolio for me",
-  "What is the 50-30-20 rule?",
   "How to plan for retirement?",
+  "Explain mutual fund categories",
   "FIRE strategy explained",
   "How does Trade Journal work?",
-  "Explain mutual fund categories",
 ];
 
 // ─── Knowledge Base ───────────────────────────────────────────────────────────
@@ -294,7 +294,276 @@ function getAIResponse(message: string): string {
     return "💰 **Financial Model — Budgeting & Expense Tracking**\n\nSame scenarios as Budgeting → Improve Budget tab. 4 scenario cards:\n\n**1. Fresh Graduate: First Budget**\n• Income: ₹50,000/month | Categories: Rent, Food, Transport, EMI, SIP\n• 50/30/20 applied: ₹25K Needs / ₹15K Wants / ₹10K Savings\n• Quick win: Reduce dining out by ₹3K → invest in liquid fund\n\n**2. Salaried Professional: Optimize Spending**\n• Income: ₹1,20,000/month | Multiple expense categories\n• Identifies top 3 leakages, reallocates to savings\n• Savings rate improved from 12% to 22%\n\n**3. Small Business Owner: Irregular Income**\n• Average income with variance | Fixed vs variable expenses\n• Emergency fund priority, lean months strategy\n\n**4. Family Budget: Dual Income**\n• Combined household income | Joint expenses + individual allocations\n• Education fund, EMIs, household expenses modeled\n\n**Autofill Feature:** In Improve Budget tab, select Month/Year from dropdown to auto-populate income and expense values from Track Income & Expense module for real-world analysis.";
   }
 
+  // ── FINANCIAL RULES KNOWLEDGE BASE ──────────────────────────────────────────
+
+  if (
+    m.includes("80/20") ||
+    m.includes("80 20 rule") ||
+    (m.includes("savings rule") && m.includes("percent"))
+  ) {
+    return "💰 **80/20 Savings Rule**\n\nSave 20% of your income, live on 80%. The simplest and most effective savings rule.\n\n**Formula:** Savings = Income × 20%\n\n**How to apply:**\n• Set up automatic transfer of 20% to savings on payday (Pay Yourself First)\n• Treat savings as a non-negotiable bill, not 'what's left'\n• Even ₹5K/month at 12% return for 20 years = ₹50 Lakhs\n\n**Variants:** 70/20/10 (70% expenses, 20% savings, 10% giving/debt) or 60/40 (60% fixed, 40% flexible)\n\n💡 Go to Budgeting → Plan Budget to set up your budget with this rule. Budget Insights will show your actual savings rate vs the 20% target.";
+  }
+
+  if (
+    m.includes("70/20/10") ||
+    m.includes("70 20 10") ||
+    m.includes("giving rule")
+  ) {
+    return "📊 **70/20/10 Rule**\n\n70% of income for living expenses, 20% for savings/investments, 10% for charity or extra debt repayment.\n\n**Why it works:**\n• Forces you to allocate income across all three zones\n• 10% giving/debt zone prevents debt accumulation while building habits\n• 20% savings is the wealth creation engine\n\n**Compared to 50/30/20:** The 70/20/10 rule is slightly more lenient on needs (70% vs 50%) — better for high-cost cities like Mumbai/Bangalore where housing and transport eat more income.\n\n💡 Use Budgeting → Plan Budget to allocate your income across these three zones.";
+  }
+
+  if (
+    m.includes("24-hour") ||
+    m.includes("24 hour rule") ||
+    m.includes("impulse buy") ||
+    (m.includes("wait") && m.includes("purchase"))
+  ) {
+    return "⏰ **24-Hour Rule (Impulse Control)**\n\nWait 24 hours before making any non-essential purchase. 30 days for major purchases over ₹10,000.\n\n**Why it works:**\n• Emotional spending happens in the first 10 minutes\n• 80% of impulse buy desires disappear after 24 hours\n• Helps distinguish wants from needs\n\n**How to apply:**\n• Add items to cart but don't check out — come back next day\n• For big purchases: write it on a '30-day wishlist'\n• Ask: 'Will this matter in 5 years?'\n\n**Mapped to mistake:** Emotional spending / impulse buys (Mistake #28) is one of the top wealth destroyers, especially with UPI and 1-click buying.";
+  }
+
+  if (
+    m.includes("lifestyle creep") ||
+    m.includes("lifestyle inflation") ||
+    (m.includes("1 percent rule") && m.includes("lifestyle"))
+  ) {
+    return "📈 **1% Lifestyle Rule (Preventing Lifestyle Creep)**\n\nWhen income rises, increase spending by only 1% — invest/save the rest.\n\n**The problem:** Most people increase spending proportionally with income. 20% salary raise → 20% more spending. Savings rate stays flat.\n\n**The solution:**\n• Salary increased by ₹20,000/month? Increase spending by ₹200 (1%), save ₹19,800\n• Each raise accelerates wealth building exponentially\n• Habits of spending at current income level, not future income level\n\n**Classic trap:** EMIs for lifestyle upgrades (new car, bigger house) lock in the 'new normal' permanently. Avoid.\n\n💡 Review your savings rate annually in Budgeting → Budget Insights → Savings Rate Trend chart.";
+  }
+
+  if (
+    m.includes("pay yourself first") ||
+    (m.includes("automate") && m.includes("savings")) ||
+    m.includes("automatic savings")
+  ) {
+    return "🤖 **Pay Yourself First Rule**\n\nOn payday, the first transaction should be to your savings/investment account — before you spend anything else.\n\n**Why it works:**\n• Human psychology: available money gets spent\n• Automation removes the willpower requirement\n• 'Save what's left' always leaves nothing\n\n**Implementation:**\n1. Set standing instruction: transfer 20% to savings account on 1st of month\n2. Set SIP auto-debit on 1st/5th (after salary credit)\n3. Treat savings transfer as non-negotiable like rent/EMI\n\n**Growfinfire application:** Use Budgeting → Plan Budget to set target savings amounts. Track via Budget Insights to see if you're hitting the target each month.\n\n💡 Related mistake: Not automating savings (Mistake #34) — the single fix that compounds into crores over a career.";
+  }
+
+  if (
+    m.includes("25x rule") ||
+    (m.includes("retirement") && m.includes("corpus") && !m.includes("plan")) ||
+    m.includes("retirement number")
+  ) {
+    return "🎯 **25x Retirement Rule**\n\nYour retirement corpus should be 25 times your annual expenses.\n\n**Formula:** Retirement Corpus = Annual Expenses × 25\n\n**Example:**\n• Need ₹10L/year in retirement → target ₹2.5 Crore\n• Need ₹20L/year → target ₹5 Crore\n\n**Why 25x?** Based on the 4% Safe Withdrawal Rate (SWR):\n• Withdraw 4% per year from corpus\n• Historically survives 30+ years in 95% of scenarios\n• Adjust for inflation annually\n\n**Indian context:**\n• Use 3–3.5% SWR (₹28–33x corpus) for higher Indian inflation\n• EPF + NPS + equity SIPs should combine to reach this target\n\n**Tools:** Financial Planner → Retirement → FIRE Planner for detailed projections. Financial Model → Model Retirement for strategy scenarios.\n\n💡 Start with your target: if you need ₹1L/month at retirement, you need ₹3 Crore (25x × ₹12L/year).";
+  }
+
+  if (
+    m.includes("housing 30") ||
+    (m.includes("housing") && m.includes("income") && m.includes("rule")) ||
+    (m.includes("rent") && m.includes("30%")) ||
+    (m.includes("emi") && m.includes("30%") && m.includes("income"))
+  ) {
+    return "🏠 **Housing 30% Rule**\n\nTotal housing costs (rent/EMI + utilities + maintenance) should not exceed 30% of gross monthly income.\n\n**Why it matters:**\n• Exceeding 30% creates 'house-poor' status — adequate home, inadequate savings\n• Leaves room for goals: retirement, children's education, emergency fund\n• Industry standard used by banks for loan eligibility (though they allow up to 40%)\n\n**Example:**\n• Gross income ₹1L/month → max housing ₹30,000\n• Includes EMI + property tax + maintenance + insurance\n\n**High-cost city adjustment:**\n• Mumbai/Bangalore: Housing may naturally be 35–40% for mid-income earners\n• If >30%: prioritize salary growth, consider cheaper areas, or delay home purchase\n\n💡 Related mistake #9: Buying home too early (20s/early 30s) — rent + invest first strategy often builds more wealth before age 35.";
+  }
+
+  if (
+    m.includes("emergency fund rule") ||
+    (m.includes("3") &&
+      m.includes("6") &&
+      m.includes("month") &&
+      m.includes("expense")) ||
+    (m.includes("liquid") && m.includes("savings") && m.includes("emergency"))
+  ) {
+    return "🆘 **Emergency Fund Rule**\n\nBuild 3–6 months of total monthly expenses in liquid savings before any other financial goal.\n\n**Why first?** Without this buffer, any unexpected event (job loss, medical, car repair) forces:\n• Breaking long-term investments at a loss\n• Taking personal loans at 15–20% interest\n• Credit card debt at 35–40% interest\n\n**Build in phases:**\n1. ₹50K–1L immediately (1-month rough buffer)\n2. 3 months within 6 months\n3. Full 6 months within 12–18 months\n\n**Where to keep it:**\n✅ Liquid Mutual Fund (7–7.5% return, T+1 redemption) — best\n✅ Savings account (3.5–4%, instant access)\n✅ Sweep-in FD (auto-sweep between savings + FD)\n❌ Equity MF (too volatile, bad time to sell)\n\n**Calculator:** Financial Planner → Savings → Emergency Fund Calculator\n\n💡 Related mistake #4: 46% of Indian households have less than 1 month emergency fund — the most dangerous financial vulnerability.";
+  }
+
+  if (
+    m.includes("rebalance") ||
+    (m.includes("annual") && m.includes("portfolio") && m.includes("review"))
+  ) {
+    return "⚖️ **Rebalance Annually Rule**\n\nReview and rebalance your portfolio once a year to maintain target asset allocation.\n\n**Why rebalancing is critical:**\n• Bull market: equity grows from 70% to 85% of portfolio → you're taking more risk than intended\n• Bear market: equity shrinks to 55% → you're missing growth opportunity\n• Rebalancing = buy what's cheap, sell what's expensive — enforces 'buy low, sell high'\n\n**When to rebalance:**\n• Best: March–April (before new financial year starts)\n• Tax-efficient: Use new SIP money to buy underweight assets first\n• Trigger-based: Also rebalance if any asset drifts >5% from target\n\n**Process:**\n1. Check actual vs target allocation in Portfolio → Overview\n2. Compare against Financial Model → Asset Allocation\n3. Redirect SIPs to underweight categories\n\n💡 Related mistake #40: Not rebalancing portfolio — one of the most consequential but easily fixable mistakes.";
+  }
+
+  if (
+    m.includes("avalanche") ||
+    m.includes("snowball") ||
+    (m.includes("debt") && m.includes("strategy") && m.includes("repay"))
+  ) {
+    return "💳 **Debt Repayment Strategies: Avalanche vs Snowball**\n\n**Avalanche Method (Mathematically Optimal):**\n• List all debts by interest rate, highest first\n• Pay minimums on all debts\n• All extra money → HIGHEST interest debt\n• Roll freed payment to next highest when paid off\n• Minimizes total interest paid\n\n**Snowball Method (Psychologically Optimal):**\n• List debts by balance, smallest first\n• Pay off smallest debt first (quick wins)\n• Motivation from eliminating accounts\n• Slightly more interest paid total\n\n**Priority order in India:**\n1. Credit card (36–40%) → IMMEDIATE\n2. Personal loans (12–20%)\n3. Car loans (8–12%)\n4. Education loans (8–10%) — tax deductible\n5. Home loan (8–9%) — tax benefit, lowest priority for prepayment\n\n**Tools:** Loans → Debt Model has both strategies side-by-side with debt freedom date calculator.";
+  }
+
+  if (
+    m.includes("3 fund") ||
+    m.includes("three fund") ||
+    (m.includes("index fund") &&
+      m.includes("bond") &&
+      m.includes("international"))
+  ) {
+    return "📊 **3-Fund Portfolio Rule**\n\nThe simplest evidence-based portfolio: Domestic Index Fund + International Index Fund + Bond Index Fund.\n\n**Why just 3 funds?**\n• Covers entire global equity market + fixed income\n• Ultra-low cost (combined expense < 0.3%)\n• Easy to rebalance\n• Beats 90% of complex actively managed portfolios over 15+ years\n\n**Indian version:**\n1. **Domestic:** Nifty 50 / Nifty 500 index fund (0.1–0.2% ER)\n2. **International:** Motilal Oswal S&P 500 / US Treasury ETF or Global index fund\n3. **Debt:** Government securities index fund or Short Duration fund\n\n**Allocation by age:**\n• Age 30: 60% domestic equity, 20% international, 20% debt\n• Age 45: 50% equity, 15% international, 35% debt\n• Age 60: 40% equity, 10% international, 50% debt\n\n💡 Related mistake #39: Paying high fees on mutual funds — switching from regular to direct plans alone can add ₹15–30L to a 20-year corpus.";
+  }
+
+  if (
+    m.includes("margin of safety") ||
+    (m.includes("intrinsic value") && m.includes("buy"))
+  ) {
+    return "🛡️ **Margin of Safety (Benjamin Graham)**\n\nBuy only when stock price ≤ ⅔ (66%) of estimated intrinsic value. The 33% discount is your safety net.\n\n**Why it works:**\n• Valuation is imprecise — your estimate may be 20% off\n• The discount cushions estimation errors AND market downturns\n• If intrinsic value = ₹100, buy at ≤ ₹67\n\n**How to estimate intrinsic value:**\n• P/E method: Industry P/E × company EPS\n• DCF method: Discounted future cash flows\n• Graham's formula: √(22.5 × EPS × Book Value Per Share)\n\n**Warren Buffett:** 'Margin of safety is the most important concept in investing. Without it, you're speculating.'\n\n**Applied to mutual funds:** When Nifty P/E is below 15–16x (historical average ~20x), the entire market offers margin of safety for lump sum investing.\n\n💡 See Learn Finance → Basics → Intelligent Investor Models → Margin of Safety card for interactive calculator.";
+  }
+
+  if (
+    m.includes("circle of competence") ||
+    m.includes("invest what you know") ||
+    (m.includes("competence") && m.includes("invest"))
+  ) {
+    return "🎯 **Circle of Competence (Munger/Buffett)**\n\nOnly invest in businesses you deeply understand. Know the boundaries of your knowledge and don't invest beyond them.\n\n**The principle:**\n• You don't need to understand every industry\n• Being right about what's inside your circle is more valuable than being mediocre about everything\n• 'A small circle, well understood' beats 'a large circle, poorly understood'\n\n**How to apply:**\n• Banking professional: can deeply analyze bank stocks\n• IT professional: can evaluate tech businesses better than most\n• Both can use index funds for everything outside their circle\n\n**Common mistake:** Investing in pharmaceutical stocks because 'healthcare is growing' without understanding drug approval pipelines, patent cliffs, or generic competition.\n\n**For most retail investors:** Index funds cover everything outside your circle. Individual stocks only within your circle.\n\n💡 Related: Mr. Market mental model — even if you know a business, wait for Mr. Market to offer an irrational price.";
+  }
+
+  if (
+    m.includes("mr. market") ||
+    m.includes("mr market") ||
+    (m.includes("market") && m.includes("irrational") && m.includes("price"))
+  ) {
+    return "👁️ **Mr. Market Mental Model (Benjamin Graham)**\n\nImagine the stock market as a manic-depressive business partner who offers to buy or sell his share of the business every day.\n\n**The story:**\n• On good days, he's euphoric — offers sky-high prices\n• On bad days, he's terrified — offers dirt-cheap prices\n• You are NEVER obligated to trade with him\n• His prices are an opportunity, not advice\n\n**Practical application:**\n• Market crash (March 2020): Mr. Market is terrified → buy more, don't stop SIPs\n• Bull market peak (2007, 2021): Mr. Market is euphoric → reduce new lump sum investments, rebalance\n• The noise of daily price movement is Mr. Market's mood swings — ignore it\n\n**Buffett's version:** 'Be fearful when others are greedy, greedy when others are fearful.'\n\n**Anti-pattern:** Selling in March 2020 (Mr. Market at his most terrified) locked in massive losses. Those who kept SIPs running saw 2–3x returns in 3 years.\n\n💡 See Learn Finance → Basics → Intelligent Investor Models → Mr. Market card.";
+  }
+
+  if (
+    m.includes("100 minus age") ||
+    m.includes("age-based allocation") ||
+    (m.includes("equity") && m.includes("age") && m.includes("allocation"))
+  ) {
+    return "📊 **100 Minus Age Rule (Age-Based Asset Allocation)**\n\nEquity allocation % = 100 − your age. Remainder in debt/fixed income.\n\n**Examples:**\n• Age 25: 75% equity, 25% debt\n• Age 40: 60% equity, 40% debt\n• Age 55: 45% equity, 55% debt\n• Age 65: 35% equity, 65% debt\n\n**Modern update:** With longer life expectancy, many advisors use 110 or 120 minus age:\n• Age 25 with 120 rule: 95% equity (fine for long horizon)\n• Age 60 with 110 rule: 50% equity (maintains growth even in retirement)\n\n**Indian context:**\nRetiral instruments (EPF, PPF, NPS) count as 'debt' in this formula. A 35-year-old with 20% in EPF/PPF + 45% equity = 65% total growth allocation (close to the 65% suggested by 100-35 rule).\n\n💡 Check Financial Model → Asset Allocation to see Conservative/Moderate/Aggressive profiles with exact allocations and compare against your actual portfolio.";
+  }
+
+  if (
+    m.includes("credit utilization") ||
+    (m.includes("credit card") && m.includes("limit") && m.includes("30"))
+  ) {
+    return "💳 **Credit Utilization 30% Rule**\n\nKeep your total credit card balance below 30% of your total credit limit at all times.\n\n**Why it matters:**\n• Credit score is heavily influenced by utilization (30% of CIBIL score)\n• Below 30% = 'responsible borrower'\n• Below 10% = excellent credit behavior\n• Above 60% = credit risk flag\n\n**Example:**\n• Credit limit ₹5L across 2 cards → keep balance below ₹1.5L\n• Ideally pay in full every month (0% utilization is best)\n\n**Strategies:**\n• Pay twice per month if you're heavy spender\n• Request credit limit increase (improves ratio without changing spending)\n• Keep old cards open (maintaining total available credit)\n\n**Related mistakes:** Mistake #16 (minimum due payments) + Mistake #25 (too many credit cards) + Mistake #23 (not reviewing credit score) — all credit-related pitfalls mapped to this rule.\n\n💡 CIBIL score above 750 is needed for best home loan rates. Review your score annually for free at CIBIL or RBI-licensed platforms.";
+  }
+
+  if (
+    m.includes("good debt") ||
+    m.includes("bad debt") ||
+    (m.includes("home loan") && m.includes("vs") && m.includes("credit card"))
+  ) {
+    return "⚖️ **Good Debt vs Bad Debt**\n\n**Good Debt** (builds or protects assets):\n• Home loan: Forces savings, asset appreciation, tax benefit (24b)\n• Education loan: Invests in human capital, income multiplier\n• Business loan: Revenue-generating, ROI > interest cost\n\n**Bad Debt** (funds consumption/depreciating assets):\n• Credit card balance: 30–45% p.a. — the worst\n• Personal loan for vacation, gadgets, wedding: 12–20% p.a.\n• Car loan for luxury vehicle beyond needs: 8–12% p.a.\n• Buy Now Pay Later for impulse purchases: Hidden 24–36% effective\n\n**Decision framework:**\n• Will this debt create an asset worth more than the interest?\n• If YES → possibly good debt\n• If NO → it's bad debt, avoid\n\n**Indian trap:** Wedding loans (₹10–30L at 14–18%) and car upgrades on EMI are two of the most common bad debt traps.\n\n💡 Use Loans → Loan vs Invest tab to compare: 'Should I prepay my loan or invest the surplus?'";
+  }
+
+  if (
+    m.includes("life insurance") ||
+    (m.includes("term") && m.includes("cover") && m.includes("how much")) ||
+    m.includes("hlv") ||
+    m.includes("human life value")
+  ) {
+    return "🛡️ **Life Insurance Coverage Rule**\n\nTerm insurance cover = 15–25 times annual income (or 10–20x annual expenses).\n\n**HLV Method (Human Life Value):**\n• HLV = (Annual income − personal expenses) × working years remaining\n• Example: ₹12L income, ₹3L personal expenses, 25 years to retirement\n• HLV = ₹9L × 25 = ₹2.25 Crore\n\n**Key rules:**\n• Only buy PURE TERM INSURANCE — no endowment, ULIP, or 'return of premium'\n• Cover should replace your income for 15–20 years\n• Include: existing loans, children's education, spouse income gap\n• Review cover at: marriage, children, home loan, major income change\n\n**Cost:** ₹1 Crore term cover for 30-year-old = ₹8,000–12,000/year. Cheapest and most effective financial protection available.\n\n**Insurance mistake:** 65% of Indians who have 'life insurance' are actually holding endowment/money-back policies that provide 4–6% returns — far less than inflation and far less cover than needed.\n\n💡 Financial Model → Insurance shows HLV calculation for your exact situation.";
+  }
+
+  if (
+    m.includes("inflation adjusted") ||
+    (m.includes("plan") &&
+      m.includes("inflation") &&
+      m.includes("retirement")) ||
+    (m.includes("real return") && m.includes("portfolio"))
+  ) {
+    return "📈 **Inflation-Adjusted Planning Rule**\n\nAll financial goals must be calculated in inflation-adjusted (real) terms, not today's nominal numbers.\n\n**The math:**\n• 6% inflation doubles prices every 12 years (Rule of 72)\n• ₹1L/month needed today = ₹3.2L/month in 20 years\n• Retirement corpus must be calculated at retirement date prices\n\n**Target real returns:**\n• FD: 7% nominal − 6% inflation − 30% tax on interest = ~1% real return (terrible)\n• Equity MF: 12% nominal − 6% inflation = 6% real return (good)\n• NPS/EPF: 8.5% nominal − 6% inflation = 2.5% real return (safe baseline)\n\n**Planning checklist:**\n1. Define goal in today's money\n2. Project future value using inflation rate\n3. Calculate SIP needed to reach inflation-adjusted corpus\n4. Choose investments targeting 10–12% nominal (4–6% real)\n\n💡 All Financial Planner calculators account for inflation — enter inflation rate of 6% for India when calculating retirement or goals.";
+  }
+
+  // ── FINANCIAL MISTAKES KNOWLEDGE BASE ──────────────────────────────────────
+
+  if (
+    m.includes("stop sip") ||
+    m.includes("pause sip") ||
+    m.includes("sip in bear") ||
+    (m.includes("sip") && m.includes("crash") && m.includes("stop"))
+  ) {
+    return "⚠️ **Mistake: Stopping SIPs During Market Crash**\n\nOne of the costliest mistakes in Indian retail investing. Here's why it destroys wealth:\n\n**What happens when you stop:**\n• You miss buying the cheapest units of your investing life\n• Bear markets (like March 2020, Jan 2008) are the best SIP periods — lowest NAVs, highest future returns\n• Stopping SIP during crash + resuming after recovery = you buy only at high prices\n\n**Real numbers:**\n• ₹10K/month Nifty SIP run through March 2020 crash → 3-year CAGR: ~22%\n• Same SIP stopped in Feb 2020 and restarted Oct 2020 → 3-year CAGR: ~11%\n• Cost of panic: 11% CAGR difference compounded over career = lakhs/crores\n\n**The mental model:**\n• SIP in crash = buying groceries in sale season\n• The price fell, but the quality didn't\n• You want MORE units at low prices, not fewer\n\n**Rule:** Never stop a SIP unless you genuinely can't afford it. The purpose of SIP is to buy through all market conditions — especially crashes.";
+  }
+
+  if (
+    m.includes("timing market") ||
+    m.includes("time the market") ||
+    m.includes("wait for correction") ||
+    m.includes("wait to invest")
+  ) {
+    return "⏰ **Mistake: Waiting for the Perfect Time to Invest**\n\nMistake #33: Waiting for the 'right time' to invest is one of the most costly errors. The right time was yesterday; the second-best time is today.\n\n**The data:**\n• DALBAR study: Average investor returns are 2–4% below fund returns due to wrong timing\n• Time in market beats timing the market in 90%+ of scenarios over 10-year periods\n• Missing just the 10 best trading days in a decade cuts returns by 40–50%\n\n**Typical excuses vs reality:**\n• 'Market is at all-time high' → ATHs are regularly broken; missing ATH investments misses the next ATH\n• 'Let me wait for a correction' → Corrections happen rarely and you often miss them\n• 'I'll invest after elections/budget' → Markets are forward-looking, already priced in\n\n**Solution:**\n• Start SIP immediately — even ₹1,000/month is better than waiting\n• For lump sums: invest over 3–6 months via STP (Systematic Transfer Plan)\n• The cost of waiting 1 year at 12% return = 12% of corpus\n\n💡 Rule of 72: at 12%, money doubles every 6 years. Every year you wait = significant wealth lost.";
+  }
+
+  if (
+    m.includes("overexposure") ||
+    m.includes("too much real estate") ||
+    (m.includes("real estate") && m.includes("portfolio") && m.includes("too"))
+  ) {
+    return "🏠 **Mistake: Overexposure to Real Estate (#38)**\n\nKeeping more than 30–40% of net worth in a single illiquid real estate asset (especially one property).\n\n**Why it's risky:**\n• Real estate is illiquid — can take 6–18 months to sell at fair value\n• No diversification — one property = one market, one tenant, one locality risk\n• Maintenance costs eat 1–2% of property value annually\n• Rental yield in India: 2–3% (vs 7–8% in equity dividends + growth)\n\n**The math comparison:**\n• ₹1 Crore property appreciation: 7% p.a. → ₹3.87 Crore in 20 years (gross, before costs)\n• ₹1 Crore in Nifty index fund: 12% p.a. → ₹9.65 Crore in 20 years\n• Plus: equity is liquid, divisible, and zero maintenance\n\n**Better approach:**\n• REITs provide real estate exposure with full liquidity (Embassy REIT, Mindspace REIT)\n• Limit physical real estate to own home + max 1 investment property\n• Keep real estate ≤ 30–40% of total net worth\n\n💡 Track your real estate vs total portfolio allocation in Portfolio → Overview tab.";
+  }
+
+  if (
+    m.includes("high fee") ||
+    m.includes("expense ratio") ||
+    m.includes("direct plan") ||
+    m.includes("regular plan") ||
+    (m.includes("fund") && m.includes("fee") && m.includes("impact"))
+  ) {
+    return "💸 **Mistake: Paying High Fees on Mutual Funds (#39)**\n\nSwitching from regular to direct mutual fund plans is one of the simplest, highest-impact financial decisions.\n\n**The fee impact:**\n• Regular plan (with distributor): 1.5–2% expense ratio\n• Direct plan (no distributor): 0.5–1% expense ratio\n• Difference: 0.5–1% per year\n\n**Compounded impact on ₹10L invested for 20 years at 12%:**\n• Regular plan (11% net): ₹80.6 Lakhs\n• Direct plan (12% net): ₹96.5 Lakhs\n• **Difference: ₹15.9 Lakhs!**\n\n**How to switch:**\n1. Open account on AMC website directly or use Groww/Zerodha Coin/ET Money\n2. Switch existing regular plan to direct plan (may trigger exit load/LTCG — plan tax-efficiently)\n3. All new investments: always choose 'Direct' plan\n\n**Also:** Prefer index funds (0.1% ER) over actively managed funds for large-cap exposure.\n\n💡 For an investor putting ₹50K/month for 20 years: the direct plan advantage is ₹75L+.";
+  }
+
+  if (
+    m.includes("tax benefit") ||
+    m.includes("claim deduction") ||
+    m.includes("80c optimize") ||
+    (m.includes("tax") && m.includes("saving") && m.includes("proper"))
+  ) {
+    return "💡 **Mistake: Not Claiming Tax Benefits Properly (#26)**\n\n**Maximum deduction stack (old regime):**\n\n🟢 **₹1.5L under Section 80C:**\n• ELSS (3-year lock-in, equity returns) — BEST for wealth creation\n• PPF (15-year, 7.1% tax-free) — BEST for guaranteed returns\n• EPF contribution (automatic)\n• NPS Tier-1, NSC, 5-year FD, SCSS, LIC premium\n\n🔵 **₹50K under Section 80CCD(1B):**\n• Additional NPS Tier-1 contribution\n• Total NPS deduction potential: ₹2L\n\n🟡 **₹25K-50K under Section 80D:**\n• Health insurance premium: ₹25K (self/family) + ₹25K (parents <60) = ₹50K\n• For senior parents: ₹25K + ₹50K = ₹75K total deduction\n\n🟠 **Section 24(b):** Up to ₹2L home loan interest (self-occupied)\n\n**Total possible deduction:** ₹2.25L–4.25L depending on situation.\n\nFor 30% slab: saving ₹4L in deductions = ₹1.2L tax saved annually.\n\n💡 Use Financial Planner → Tax Planning → 80C Optimizer for personalized deduction planning.";
+  }
+
+  if (
+    m.includes("no goal") ||
+    m.includes("smart goal") ||
+    (m.includes("goal") && m.includes("link") && m.includes("money"))
+  ) {
+    return "🎯 **Mistake: No Goals Tied to Money (#42)**\n\nMoney without purpose leaks. Linking every rupee to a goal transforms spending and saving discipline.\n\n**SMART financial goals:**\n• **Specific:** Not 'buy a house' but 'buy 2BHK in Pune by 2028 for ₹80L'\n• **Measurable:** Track monthly progress toward the target\n• **Achievable:** Based on real income and savings capacity\n• **Relevant:** Aligned with life priorities\n• **Time-bound:** Specific deadline creating urgency\n\n**Goal types in Growfinfire:**\n• Emergency Fund (Immediate, Liquid MF)\n• House Down Payment (3–5 years, Balanced MF)\n• Child's Education (10+ years, Equity MF)\n• Retirement (25+ years, Equity + NPS + EPF)\n\n**Linking goals to investments:**\nIn Goals module: link specific portfolio holdings to each goal. The app tracks progress automatically.\n\n💡 Go to Goals → Track Goals → Add Goal. Goals module shows 'Amount Required' (gap between target and current savings), months remaining, and recommended monthly SIP to meet the goal.";
+  }
+
+  if (
+    m.includes("chasing returns") ||
+    m.includes("past performance") ||
+    (m.includes("best fund") && m.includes("last year"))
+  ) {
+    return "⚠️ **Mistake: Chasing Past Returns in Mutual Funds (#33 related)**\n\nFund selection based on last 1-year returns is one of the most studied and most common investor errors.\n\n**The data:**\n• Only ~15% of top-quartile funds in one year remain top-quartile the next year\n• Selecting funds based on 3-year rolling returns is 3x more predictive than 1-year\n• Category rotation explains most 'hot fund' performance — not manager skill\n\n**What actually works:**\n1. Consistency over 7–10 years across market cycles\n2. Lower expense ratio (in your favor)\n3. Low standard deviation relative to category peers\n4. Higher Sharpe ratio (return per unit of risk)\n5. Same fund house across market cycles (manager stability)\n\n**The trap cycle:**\n• 2020: Small cap funds top (after COVID crash) → everyone piles in\n• 2021: Small cap delivers 100%+ → more inflows\n• 2022: Small cap corrects 25–40% → same investors panic-sell\n\n**Solution:** Select funds based on 5–10 year rolling returns and consistency, not 1-year rankings. Index funds eliminate this problem entirely.";
+  }
+
+  if (
+    m.includes("guaranteed return") ||
+    m.includes("guaranteed returns") ||
+    m.includes("assured return") ||
+    m.includes("ponzi") ||
+    (m.includes("scam") && m.includes("invest"))
+  ) {
+    return "🚨 **Mistake: Falling for 'Guaranteed Returns' Scams (#46)**\n\n**Red flags — avoid ANY scheme that:**\n• Promises fixed returns of 15%+ with 'no risk'\n• Is not registered with SEBI/RBI\n• Claims returns through referrals or recruitment\n• Has complex, opaque return mechanism\n• Pressures quick investment before 'offer closes'\n\n**Famous Indian scams:**\n• Saradha Chit Fund: ₹2,500 Crore loss (West Bengal, 2013)\n• PACL/Pearls: ₹49,100 Crore fraud\n• Rose Valley: ₹17,000 Crore (West Bengal)\n• Numerous real estate + multi-level marketing schemes\n\n**Legitimate high-return reality:**\n• P2P lending: 10–15% but UNSECURED credit risk\n• Small-cap equity: 15%+ historically but HIGH VOLATILITY\n• No investment offers 15%+ GUARANTEED without substantial risk\n\n**Verification steps:**\n1. Search SEBI website: sebi.gov.in → Intermediaries\n2. Check if registered: AMFI for MF, IRDAI for insurance\n3. If it's too good to be true — it is\n\n💡 Learn Finance → Learn from Mistakes → Mistake #46 maps to the 'Avoid IPO Hype' rule — apply same skepticism to all 'hot' investment opportunities.";
+  }
+
+  if (
+    m.includes("nominee") ||
+    m.includes("beneficiary") ||
+    (m.includes("nomination") && m.includes("update"))
+  ) {
+    return "📋 **Mistake: Not Updating Nominee Details (#47)**\n\nOne of the most overlooked financial tasks — outdated nominees can leave families in legal limbo for years.\n\n**Where to update nominees:**\n• Bank accounts (all active accounts)\n• EPF account (via UAN portal — CRITICAL)\n• NPS account (NSDL/Karvy portal)\n• All insurance policies\n• Demat account (CDSL/NSDL)\n• Mutual fund folios (each AMC separately)\n• PPF account (post office/bank)\n\n**What happens without correct nominee:**\n• Bank requires succession certificate/probate (6–24 months)\n• EPF nominee dispute can freeze ₹50L+ corpus\n• Insurance company may reject claim or pay to wrong person\n• Legal costs often exceed 5–10% of amount involved\n\n**Update triggers:**\n• Marriage/divorce\n• Birth of child\n• Death of existing nominee\n• Every 2–3 years as routine financial review\n\n💡 Annual 'Financial Health Checkup' task: Update nominees, review insurance coverage, rebalance portfolio, file ITR. Do this every April–May.";
+  }
+
+  if (
+    m.includes("net worth track") ||
+    m.includes("track net worth") ||
+    (m.includes("asset") && m.includes("liability") && m.includes("track"))
+  ) {
+    return "📊 **Mistake: Not Tracking Net Worth (#45)**\n\n**Net Worth = Total Assets − Total Liabilities**\n\nTracking this quarterly is the single most important financial dashboard metric.\n\n**What to track:**\n\n**Assets:**\n• Portfolio (equity, MF, gold, bonds, FD, retiral)\n• Real estate (current market value)\n• EPF/PPF/NPS balance\n• Emergency fund\n• Business/partnership value\n\n**Liabilities:**\n• Home loan outstanding\n• Car/personal loans outstanding\n• Credit card balance\n\n**Milestones (rule of thumb):**\n• Age 30: Net worth ≥ 1x annual salary\n• Age 40: Net worth ≥ 3x annual salary\n• Age 50: Net worth ≥ 6x annual salary\n• FIRE point: Net worth ≥ 25x annual expenses\n\n**In Growfinfire:**\nDashboard shows: Total Portfolio NAV, Goals Progress, Assets vs Liabilities chart, and Projected Net Worth Trend (10-year projection).\n\n💡 Update your Portfolio module regularly — the Dashboard NAV cards aggregate your net investible wealth automatically.";
+  }
+
+  if (
+    m.includes("diversif") &&
+    (m.includes("too much") || m.includes("over") || m.includes("many fund"))
+  ) {
+    return "⚠️ **Over-Diversification (Di-worse-ification)**\n\nOwning 15–20 mutual funds is NOT diversification — it's complexity without benefit. Peter Lynch called this 'di-worse-ification'.\n\n**Why over-diversification fails:**\n• 10 large-cap funds all hold the same Nifty 50 stocks — near-identical correlation\n• Combined expense ratio: 1.5% × 10 funds = 1.5% per ₹10L (no savings vs 1 fund)\n• Tracking 20 funds is overwhelming → you hold them passively → underperformance goes unnoticed\n\n**Optimal portfolio size:**\n• 3–5 funds covers all you need\n• 1 Nifty 50 index fund covers most large-cap exposure\n• 1 international fund (S&P 500 or global)\n• 1 mid/small cap fund for growth\n• 1 debt fund for stability\n• 1 ELSS for tax saving\n\n**Overlap check:**\n• Search 'mutual fund overlap tool' — many free tools show % stock overlap between funds\n• >60% overlap = one fund is redundant, adds no diversification value\n\n💡 Related mistake #19: Not diversifying AND #38: Over-diversification. The sweet spot: diversify across ASSET CLASSES (equity, debt, gold, international), not within the same asset class.";
+  }
+
+  if (
+    m.includes("cosigning") ||
+    m.includes("co-sign") ||
+    m.includes("guarantor") ||
+    (m.includes("loan") &&
+      m.includes("someone else") &&
+      m.includes("guarantee"))
+  ) {
+    return "🚨 **Mistake: Co-signing Loans for Others (#30)**\n\nCo-signing or being a loan guarantor for someone else is one of the highest financial risks you can take.\n\n**What co-signing means legally:**\n• You are equally liable for the ENTIRE loan\n• If they default → you pay — plus penalty interest\n• Their missed payments appear on YOUR CIBIL score immediately\n• Lender can attach YOUR assets without first exhausting primary borrower's assets\n\n**Never co-sign for:**\n• Friends (friendship does not equal financial liability)\n• Relatives with history of financial irresponsibility\n• Business partners (use legal agreements instead)\n• Anyone whose repayment ability you cannot verify\n\n**Alternative if someone needs your support:**\n• Gift money outright if you can afford to lose it\n• Help them build CIBIL score with secured credit card\n• Educate them on loan eligibility requirements\n\n**Rule:** Only co-sign if you are 100% willing and financially able to repay the full loan yourself. Period.\n\n💡 Related: Leverage Prudence rule — never take on financial obligations beyond your ability to independently service them.";
+  }
+
   // Default fallback
+
   return "I'm here to help with your financial journey! 🌟\n\nAsk me about any of these topics:\n\n**FinanceOS Modules:**\n• Dashboard (Risk-o-meter, charts, projections)\n• Goals (Track Goals, Plan Goals, Buy a House Planner)\n• Portfolio (8 asset types, card/table view)\n• Budgeting (Plan Budget, Track, Insights, Improve)\n• Loans (Loan Tracker, Prepayment, Debt Model)\n• Trade Journal (Live prices, P&L, Analytics)\n• Financial Model (8 models)\n• Financial Planner (35+ calculators including FIRE)\n• Learn Finance (Rules, Basics, 50 Mistakes, My Rules)\n\n**Financial Calculators:**\n• SIP / SWP / Lump Sum / CAGR\n• Home Loan EMI / FD / PPF / NPS\n• FIRE Number (FAT/Lean/Barista) / Retirement Corpus\n• Tax Planning (80C, LTCG, Old vs New Regime)\n• Emergency Fund / Debt-to-Income Ratio\n\n**Investment Knowledge:**\n• Mutual Funds, Index Funds, Equity, Gold, Crypto\n• Portfolio Design (Conservative / Moderate / Aggressive)\n• Compounding, Rule of 72, Inflation, CAGR\n• Intelligent Investor Models (Graham's 10 principles)\n• 50 Common Financial Mistakes & How to Avoid Them\n\nJust ask your question and I'll give you a detailed, actionable answer!";
 }
 

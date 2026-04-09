@@ -117,6 +117,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     location.pathname.startsWith("/portfolio"),
   );
 
+  // Keep portfolioOpen in sync with the current route so navigating
+  // back to /portfolio always shows the submenu expanded.
+  useEffect(() => {
+    if (location.pathname.startsWith("/portfolio")) {
+      setPortfolioOpen(true);
+    }
+  }, [location.pathname]);
+
   const [profile, setProfile] = useState<{
     name: string;
     email: string;
@@ -219,10 +227,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     if (!isPortfolioActive) {
                       navigate("/portfolio/overview");
                       setPortfolioOpen(true);
+                      // On mobile keep sidebar open so user sees the submenu
                     } else {
                       setPortfolioOpen((prev) => !prev);
                     }
-                    if (isMobile) setSidebarOpen(false);
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isPortfolioActive
@@ -242,7 +250,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <div className="ml-7 mt-1 space-y-0.5">
                     {item.children.map((sub) => (
                       <button
-                        key={sub.path}
+                        key={sub.label}
                         type="button"
                         data-ocid={`nav.portfolio.${sub.label.toLowerCase().replace(/[^a-z0-9]/g, "")}.link`}
                         onClick={() => {
@@ -478,6 +486,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               );
             })}
           </div>
+          {/* Portfolio submenu row — shown when Portfolio is active */}
+          {isPortfolioActive && (
+            <div className="flex items-center gap-1 px-3 overflow-x-auto py-1 scrollbar-thin border-t border-slate-700/60">
+              {portfolioSubItems.map((sub) => {
+                const isSubActive = location.pathname === sub.path;
+                return (
+                  <button
+                    key={sub.path}
+                    type="button"
+                    data-ocid={`nav.portfolio.sub.${sub.label.toLowerCase().replace(/[^a-z0-9]/g, "")}.link`}
+                    onClick={() => navigate(sub.path)}
+                    className={`px-3 py-1 rounded-md text-xs font-medium whitespace-nowrap flex-shrink-0 transition-colors ${
+                      isSubActive
+                        ? "bg-slate-600 text-white"
+                        : "text-slate-400 hover:text-white hover:bg-slate-700"
+                    }`}
+                  >
+                    {sub.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
